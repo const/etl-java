@@ -24,6 +24,10 @@
  */
 package net.sf.etl.parsers;
 
+import net.sf.etl.parsers.characters.Identifiers;
+import net.sf.etl.parsers.characters.Numbers;
+import net.sf.etl.parsers.characters.QuoteClass;
+
 import java.math.BigInteger;
 
 /**
@@ -142,6 +146,7 @@ public final class LiteralUtils {
      * Parse text of string token to unicode characters. The string prefix is
      * ignored. Note it is assumed that the token has been already parsed by the
      * lexer, so minimal additional validation is performed.
+     * // TODO StringInfo
      *
      * @param stringToken a string token to parse or null
      * @return parsed string or null if null has been passed as argument
@@ -154,73 +159,84 @@ public final class LiteralUtils {
         int n = stringToken.length();
         if (n < 2) {
             throw new IllegalArgumentException("Unexpected end of the token "
-                    + n);
+                    + n + " in " + stringToken);
         }
         int i = 0;
-        while (Character.isUnicodeIdentifierPart(stringToken.charAt(i))) {
-            i++;
+        int codepoint;
+        while (Identifiers.isIdentifierPart(codepoint = stringToken.codePointAt(i))) {
+            i += Character.charCount(codepoint);
         }
-        final char quote = stringToken.charAt(i);
-        switch (quote) {
-            case '\'':
-            case '"':
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid quote character "
-                        + stringToken.charAt(0));
+        QuoteClass quoteClass = QuoteClass.classify(codepoint);
+        if (quoteClass == null) {
+            throw new IllegalArgumentException("Invalid quote codepoint: " + codepoint + " in string: " + stringToken);
         }
-        boolean multiline = stringToken.length() > 6 + i
-                && stringToken.charAt(i + 1) == quote
-                && stringToken.charAt(i + 2) == quote;
+        final int quote = codepoint;
+        final int quoteSize = Character.charCount(codepoint);
+        boolean multiline = stringToken.length() > quoteSize * 3 + i
+                && stringToken.codePointAt(i + quoteSize) == quote
+                && stringToken.codePointAt(i + 2 * quoteSize) == quote;
         // ignore last and first characters
-        n -= multiline ? 3 : 1;
-        i += multiline ? 3 : 1;
-        if (i > n
-                || stringToken.charAt(n) != quote
-                || !(!multiline || stringToken.charAt(n + 1) == quote
-                && stringToken.charAt(n + 2) == quote)) {
-            throw new IllegalArgumentException(
-                    "The string is in invalid format: " + stringToken);
+        i += (multiline ? 3 : 1) * quoteSize;
+        final int endQuote = stringToken.codePointBefore(n);
+        final QuoteClass endQuoteClass = QuoteClass.classify(endQuote);
+        if (endQuoteClass == null) {
+            throw new IllegalArgumentException("The terminating code point is not a quote: " + codepoint + " in " + stringToken);
+        }
+        if (endQuoteClass != quoteClass) {
+            throw new IllegalArgumentException("The startQuote(" + quote + ":" + quoteClass +
+                    ") and endQuote(" + endQuote + ":" + endQuoteClass + ") belong to different quote classes: " + stringToken);
+        }
+        final int endQuoteSize = Character.charCount(endQuote);
+        if (multiline && (endQuote != stringToken.codePointAt(n - 2 * endQuoteSize) ||
+                endQuote != stringToken.codePointAt(n - 3 * endQuoteSize) ||
+                n - i < quoteSize * 3)) {
+            throw new IllegalArgumentException("The multiline string should end with three quotes: " + stringToken);
+        }
+        n -= (multiline ? 3 : 1) * endQuoteSize;
+        if (i > n) {
+            throw new IllegalArgumentException("The string is in invalid format: " + stringToken);
         }
         while (i < n) {
-            char ch = stringToken.charAt(i++);
-            if ((ch >= '\uD800' && ch <= '\uDBFF')
-                    || (ch >= '\uDC00' && ch <= '\uDFFF')) {
-                // NOTE POST 0.2: fix it
-                throw new IllegalArgumentException(
-                        "Large codepoints are not yet handled: " + ((int) ch));
-            }
-            switch (ch) {
+            codepoint = stringToken.codePointAt(i);
+            i += Character.charCount(codepoint);
+            switch (codepoint) {
                 case '\\':
                     if (i >= n) {
                         throw new IllegalArgumentException(
                                 "Unexpected end of the token " + i);
                     }
-                    ch = stringToken.charAt(i++);
-                    switch (ch) {
+                    codepoint = stringToken.codePointAt(i);
+                    i += Character.charCount(codepoint);
+                    switch (codepoint) {
+                        // TODO \U8d
                         case 'U':
                             final int start = i;
-                            while (i < n && (ch = stringToken.charAt(i++)) != ';') {
-                                if (('0' > ch || ch > '9') && ('a' > ch || ch > 'f')
-                                        && ('A' > ch || ch > 'F')) {
+                            do {
+                                codepoint = stringToken.codePointAt(i);
+                                i += Character.charCount(codepoint);
+                                if (codepoint == ';') {
+                                    break;
+                                }
+                                if (!Numbers.isHex(codepoint)) {
                                     throw new IllegalArgumentException(
-                                            "Invalid symbol in escape sequence " + ch);
+                                            "Invalid symbol in escape sequence " + codepoint + " in string " + stringToken);
                                 }
                             }
-                            if (i == start || stringToken.charAt(i - 1) != ';') {
+                            while (i < n);
+                            if (i == start || stringToken.codePointBefore(i) != ';') {
                                 throw new IllegalArgumentException(
-                                        "Unexpected end of the token " + i);
+                                        "Unexpected end of the escape sequence " + i + " in " + stringToken);
                             }
-                            final int codepoint = Integer.parseInt(stringToken
+                            final int cp = Integer.parseInt(stringToken
                                     .substring(start, i - 1), 16);
-                            rc.appendCodePoint(codepoint);
+                            rc.appendCodePoint(cp);
                             break;
                         case 'u':
-                            final int ch16 = Integer.parseInt(stringToken.substring(i,
-                                    i + 4), 16);
+                            final int ch16 = Integer.parseInt(stringToken.substring(i, i + 4), 16);
                             rc.append((char) ch16);
                             i += 4;
                             break;
+                        // TODO \x{CP}
                         case 'x':
                             final int ch8 = Integer.parseInt(stringToken.substring(i,
                                     i + 2), 16) & 0xFF;
@@ -243,11 +259,11 @@ public final class LiteralUtils {
                             rc.append('\b');
                             break;
                         default:
-                            rc.append(ch);
+                            rc.appendCodePoint(codepoint);
                     }
                     break;
                 default:
-                    rc.append(ch);
+                    rc.appendCodePoint(codepoint);
             }
         }
         return rc.toString();

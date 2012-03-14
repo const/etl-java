@@ -62,12 +62,6 @@ public final class PhraseToken extends AbstractToken {
                             + " for token " + token);
                 }
                 break;
-            case LEXICAL_ERROR:
-                if (token.kind() != Tokens.ERROR) {
-                    throw new IllegalArgumentException("Invalid kind " + kind
-                            + " for token " + token);
-                }
-                break;
             default:
                 throw new IllegalArgumentException("Invalid kind " + kind
                         + "for this constructor.");

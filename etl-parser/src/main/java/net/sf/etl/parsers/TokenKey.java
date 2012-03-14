@@ -28,7 +28,7 @@ import java.util.HashMap;
 
 /**
  * The key that uniquely specifies the token kind. Note that each token key is
- * unique.
+ * unique and stored is forever. In future, a weak hash map should be used to clean up.
  *
  * @author const
  */
@@ -49,7 +49,7 @@ public final class TokenKey {
     static {
         HashMap<Tokens, TokenKey> map = new HashMap<Tokens, TokenKey>();
         for (Tokens k : Tokens.values()) {
-            map.put(k, new TokenKey(k, null, null, null));
+            map.put(k, new TokenKey(k, null, -1, -1));
         }
         kindMap = map;
     }
@@ -65,11 +65,11 @@ public final class TokenKey {
     /**
      * The first quote for strings
      */
-    private final String start;
+    private final int start;
     /**
      * The second quote for strings
      */
-    private final String end;
+    private final int end;
 
     /**
      * The private constructor from fields
@@ -79,11 +79,11 @@ public final class TokenKey {
      * @param start    the start of the token
      * @param end      the end of the token
      */
-    private TokenKey(Tokens kind, String modifier, String start, String end) {
+    private TokenKey(Tokens kind, String modifier, int start, int end) {
         this.kind = kind;
         this.modifier = modifier == null ? null : modifier.intern();
-        this.start = start == null ? null : start.intern();
-        this.end = end == null ? null : end.intern();
+        this.start = start;
+        this.end = end;
     }
 
     /**
@@ -126,8 +126,8 @@ public final class TokenKey {
     /**
      * @return the start quote (string is {@link String#intern()}-ed)
      */
-    public String startQuote() {
-        if (start == null) {
+    public int startQuote() {
+        if (start == -1) {
             throw new IllegalStateException("The token key is not string key: "
                     + this);
         }
@@ -137,8 +137,8 @@ public final class TokenKey {
     /**
      * @return the end quote (string is {@link String#intern()}-ed)
      */
-    public String endQuote() {
-        if (start == null) {
+    public int endQuote() {
+        if (start == -1) {
             throw new IllegalStateException("The token key is not string key: "
                     + this);
         }
@@ -152,33 +152,33 @@ public final class TokenKey {
     public String toString() {
         StringBuilder rc = new StringBuilder();
         rc.append(kind);
-        if (modifier != null || start != null || end != null) {
+        if (modifier != null || start != -1 || end != -1) {
             rc.append('[');
             boolean printed = false;
             if (modifier != null) {
                 rc.append(modifier);
                 printed = true;
             }
-            if (start != null && start.equals(end)) {
+            if (start != -1 && start == end) {
                 if (printed) {
                     rc.append(", ");
                 }
                 rc.append("quote=");
-                rc.append(start);
+                rc.append(Character.toChars(start));
             } else {
-                if (start != null) {
+                if (start != -1) {
                     if (printed) {
                         rc.append(", ");
                     }
                     rc.append("start=");
-                    rc.append(start);
+                    rc.append(Character.toChars(start));
                 }
-                if (end != null) {
+                if (end != -1) {
                     if (printed) {
                         rc.append(", ");
                     }
                     rc.append("end=");
-                    rc.append(end);
+                    rc.append(Character.toChars(end));
                 }
             }
             rc.append(']');
@@ -195,8 +195,8 @@ public final class TokenKey {
      * @param end    the end quote
      * @return the token key with specified parameters
      */
-    public static TokenKey string(Tokens kind, String prefix, String start,
-                                  String end) {
+    public static TokenKey quoted(Tokens kind, String prefix, int start,
+                                  int end) {
         switch (kind) {
             case PREFIXED_STRING:
             case PREFIXED_MULTILINE_STRING:
@@ -216,7 +216,7 @@ public final class TokenKey {
             default:
                 throw new IllegalArgumentException("Not a string token: " + kind);
         }
-        if (start == null || end == null) {
+        if (start == -1 || end == -1) {
             throw new IllegalArgumentException(
                     "Start and end quoted should be defined: " + start + " : "
                             + end);
@@ -239,7 +239,7 @@ public final class TokenKey {
      * @param suffix the number suffix (or null if there is no suffix)
      * @return the token key with specified parameters
      */
-    public static TokenKey number(Tokens kind, String suffix) {
+    public static TokenKey modified(Tokens kind, String suffix) {
         switch (kind) {
             case INTEGER_WITH_SUFFIX:
             case FLOAT_WITH_SUFFIX:
@@ -273,7 +273,7 @@ public final class TokenKey {
         synchronized (modifierMap) {
             TokenKey rc = modifierMap.get(key);
             if (rc == null) {
-                rc = new TokenKey(kind, suffix, null, null);
+                rc = new TokenKey(kind, suffix, -1, -1);
                 modifierMap.put(key, rc);
             }
             return rc;
@@ -307,8 +307,8 @@ public final class TokenKey {
      * @param quote the quote to use
      * @return the resulting key
      */
-    public static TokenKey string(Tokens kind, String quote) {
-        return string(kind, null, quote, quote);
+    public static TokenKey string(Tokens kind, int quote) {
+        return quoted(kind, null, quote, quote);
     }
 
     /**
@@ -330,11 +330,11 @@ public final class TokenKey {
         /**
          * start quote for token
          */
-        final String start;
+        final int start;
         /**
          * end quote for token
          */
-        final String end;
+        final int end;
 
         /**
          * A constructor from fields
@@ -344,14 +344,12 @@ public final class TokenKey {
          * @param start  the start quote
          * @param end    the end quote
          */
-        StringKey(Tokens kind, String prefix, String start, String end) {
+        StringKey(Tokens kind, String prefix, int start, int end) {
             this.kind = kind;
             this.prefix = prefix;
             this.start = start;
             this.end = end;
-            hash = ((kind.hashCode() + (prefix != null ? prefix.hashCode() : 0)) * 17 + start
-                    .hashCode())
-                    * 17 + end.hashCode();
+            hash = ((kind.hashCode() + (prefix != null ? prefix.hashCode() : 0)) * 17 + start) * 17 + end;
         }
 
         /**
@@ -373,8 +371,8 @@ public final class TokenKey {
             StringKey k = (StringKey) obj;
             return kind == k.kind
                     && (prefix == null ? k.prefix == null : prefix
-                    .equals(k.prefix)) && start.equals(k.start)
-                    && end.equals(k.end);
+                    .equals(k.prefix)) && start == k.start
+                    && end == k.end;
         }
     }
 

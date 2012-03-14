@@ -1,8 +1,10 @@
-package net.sf.etl.parsers.event;
+package net.sf.etl.parsers.event.lexer;
 
 import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.Token;
 import net.sf.etl.parsers.Tokens;
+import net.sf.etl.parsers.event.Lexer;
+import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.impl.LexerImpl;
 import org.junit.Test;
 import static org.junit.Assert.*; 
@@ -12,7 +14,7 @@ import java.nio.CharBuffer;
 /**
  * The lexer test
  */
-public class LexerTest {
+public class BasicLexerTest {
     @Test
     public void testEof() {
         Lexer l = new LexerImpl();
@@ -25,4 +27,5 @@ public class LexerTest {
         assertEquals(TextPos.START, t.start());
         assertEquals(TextPos.START, t.end());
     }
+    
 }

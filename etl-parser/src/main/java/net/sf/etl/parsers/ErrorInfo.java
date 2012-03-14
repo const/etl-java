@@ -97,20 +97,21 @@ public final class ErrorInfo {
     /**
      * A constructor for error info
      *
-     * @param id       a identifier of the error
-     * @param args     additional information associated with the error (usually used
-     *                 for localized reporting). Note that array must contain
-     *                 immutable objects that are preferably of primitive types.
-     * @param start    the start of the error scope
-     * @param end      the end of the error scope
-     * @param systemId a system identifier for error
-     * @param nextError    a nextError of this error
+     * @param id        a identifier of the error
+     * @param args      additional information associated with the error (usually used
+     *                  for localized reporting). Note that array must contain
+     *                  immutable objects that are preferably of primitive types.
+     * @param start     the start of the error scope
+     * @param end       the end of the error scope
+     * @param systemId  a system identifier for error
+     * @param nextError a nextError of this error
      */
     public ErrorInfo(String id, Object args[], TextPos start, TextPos end,
                      String systemId, ErrorInfo nextError) {
         location = new SourceLocation(start, end, systemId);
-        this.errorArgs = Collections.unmodifiableList(new ArrayList<Object>(
-                Arrays.asList(args)));
+        this.errorArgs = args.length == 0 ?
+                Collections.emptyList() :
+                Collections.unmodifiableList(new ArrayList<Object>(Arrays.asList(args)));
         this.errorId = id;
         this.nextError = nextError;
     }

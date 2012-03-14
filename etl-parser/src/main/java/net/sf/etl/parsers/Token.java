@@ -81,7 +81,7 @@ public final class Token extends AbstractToken {
     /**
      * @return quote character for string
      */
-    public String quote() {
+    public int quote() {
         return key.startQuote();
     }
 

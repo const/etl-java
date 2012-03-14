@@ -32,10 +32,6 @@ package net.sf.etl.parsers;
  */
 public enum Tokens {
     /**
-     * Error token.
-     */
-    ERROR(false, false),
-    /**
      * String token. String token is sequence of characters enclosed by matching
      * quote characters (note that back quote '`' is treated as graphics
      * character). "\" is start of escape sequence. The string is pretty much
@@ -75,27 +71,15 @@ public enum Tokens {
     /**
      * open round bracket
      */
-    OPEN_ROUND(false, false),
-    /**
-     * open square bracket
-     */
-    OPEN_SQUARE(false, false),
+    BRACKET(false, false),
     /**
      * open curly bracket
      */
-    OPEN_CURLY(false, false),
-    /**
-     * close round bracket
-     */
-    CLOSE_ROUND(false, false),
-    /**
-     * close square bracket
-     */
-    CLOSE_SQUARE(false, false),
+    LEFT_CURLY(false, false),
     /**
      * close curly bracket
      */
-    CLOSE_CURLY(false, false),
+    RIGHT_CURLY(false, false),
     /**
      * a semicolon
      */
@@ -134,7 +118,7 @@ public enum Tokens {
      */
     BLOCK_COMMENT(false, false),
     /**
-     * whitespace token. It is a sequence of space or tab characters.
+     * whitespace token. It is a sequence of space or tab characters. It also represents invalid characters.
      */
     WHITESPACE(false, false),
     /**
@@ -170,7 +154,7 @@ public enum Tokens {
     /**
      * @return if true, the token of this kind should have a modifier
      */
-    public boolean hasModified() {
+    public boolean hasModifier() {
         return modified;
     }
 }
