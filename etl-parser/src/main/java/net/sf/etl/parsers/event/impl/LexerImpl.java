@@ -11,14 +11,29 @@ import java.nio.CharBuffer;
  * The lexer implementation
  */
 public class LexerImpl implements Lexer {
-    enum StringPhase {
-        START_FIRST_QUOTE,
-        START_SECOND_QUOTE,
-        NORMAL,
-        ESCAPED,
-        END_FIRST_QUOTE,
-        END_SECOND_QUOTE,
-    }
+    // phases for parsing number
+    private static final int NUMBER_DECIMAL = 0;
+    private static final int NUMBER_DECIMAL_FRACTION = 1;
+    private static final int NUMBER_BASED = 2;
+    private static final int NUMBER_BASED_FRACTION = 3;
+    private static final int NUMBER_AFTER_BASED = 4;
+    private static final int NUMBER_AFTER_EXPONENT = 5;
+    private static final int NUMBER_AFTER_EXPONENT_SIGN = 6;
+    private static final int NUMBER_AFTER_EXPONENT_DIGIT = 7;
+    private static final int NUMBER_SUFFIX = 8;
+    private static final int GRAPHICS_NORMAL = 10;
+    private static final int GRAPHICS_AFTER_SLASH = 11;
+    private static final int GRAPHICS_AFTER_HASH = 12;
+    private static final int BLOCK_COMMENT_AFTER_STAR = 20;
+    private static final int BLOCK_COMMENT_AFTER_CR = 21;
+    private static final int BLOCK_COMMENT_NORMAL = 22;
+    private static final int STRING_START_FIRST_QUOTE = 31;
+    private static final int STRING_START_SECOND_QUOTE = 32;
+    private static final int STRING_NORMAL = 33;
+    private static final int STRING_AFTER_CR = 34;
+    private static final int STRING_ESCAPED = 35;
+    private static final int STRING_END_FIRST_QUOTE = 36;
+    private static final int STRING_END_SECOND_QUOTE = 37;
     // number phases
     // graphics phases // /// /*
     /**
@@ -81,6 +96,18 @@ public class LexerImpl implements Lexer {
      * The quote class when parsing string
      */
     private QuoteClass quoteClass;
+    /**
+     * The phase of parsing complex token
+     */
+    private int phase;
+    /**
+     * Phase start position in the buffer
+     */
+    private int phaseStart;
+    /**
+     * The base of the number
+     */
+    private int numberBase;
 
     @Override
     public void start(String systemId, TextPos start) {
@@ -156,8 +183,110 @@ public class LexerImpl implements Lexer {
     }
 
     private ParserState parseNumber(CharBuffer buffer, boolean eof) {
-        // TODO implement it
-        return null;  //To change body of created methods use File | Settings | File Templates.
+        kind = Tokens.INTEGER;
+        phase = NUMBER_DECIMAL;
+        int codepoint;
+        do {
+            codepoint(buffer, eof);
+            if (moreDataNeeded(buffer, eof)) return ParserState.INPUT_NEEDED;
+            codepoint = peek(buffer, eof);
+        } while (Numbers.isDecimal(codepoint) || Identifiers.isConnectorChar(codepoint));
+        if (codepoint == '#' && !Identifiers.isConnectorChar(Character.codePointBefore(text, text.length()))) {
+            // consume hash and evaluate base
+            try {
+                numberBase = Integer.parseInt(text.toString());
+            } catch (Throwable t) {
+                numberBase = -1;
+            }
+            codepoint(buffer, eof);
+            phase = NUMBER_BASED;
+            if (numberBase < 2 || numberBase > 36) {
+                error("net.sf.etl.parsers.errors.lexical.NumberBaseIsOutOfRange", start, current());
+                numberBase = 36; // using it for sake of parsing only
+            }
+            // parse based part
+            while (true) {
+                if (moreDataNeeded(buffer, eof)) return ParserState.INPUT_NEEDED;
+                codepoint = peek(buffer, eof);
+                if (Numbers.isValidDigit(codepoint, numberBase)) {
+                    codepoint(buffer, eof);
+                } else if (Identifiers.isConnectorChar(codepoint)) {
+                    codepoint(buffer, eof);
+                } else if (codepoint == '#') {
+                    phase = NUMBER_AFTER_BASED;
+                    codepoint(buffer, eof);
+                    break;
+                } else if (codepoint == '.') {
+                    kind = Tokens.FLOAT;
+                    if (phase == NUMBER_BASED_FRACTION) {
+                        TextPos p = current();
+                        codepoint(buffer, eof);
+                        error("net.sf.etl.parsers.errors.lexical.FloatTooManyDots", p, current());
+                    } else {
+                        phase = NUMBER_BASED_FRACTION;
+                        codepoint(buffer, eof);
+                    }
+                } else if (Numbers.isAnyDigit(codepoint)) {
+                    TextPos p = current();
+                    codepoint(buffer, eof);
+                    error("net.sf.etl.parsers.errors.lexical.SomeDigitAreOutOfBase", p, current());
+                } else {
+                    error("net.sf.etl.parsers.errors.lexical.UnterminatedBasedNumber", start, current());
+                    return makeToken();
+                }
+            }
+            codepoint = peek(buffer, eof);
+        } else if (codepoint == '.') {
+            if (Identifiers.isConnectorChar(text.codePointBefore(text.length()))) {
+                return makeToken();
+            }
+            if (moreDataNeededNext(buffer, eof)) return ParserState.INPUT_NEEDED;
+            if (Numbers.isDecimal(peekNext(buffer, eof))) {
+                kind = Tokens.FLOAT;
+                phase = NUMBER_DECIMAL_FRACTION;
+                codepoint(buffer, eof);
+                codepoint(buffer, eof);
+            } else {
+                return makeToken();
+            }
+            codepoint = peek(buffer, eof);
+        }
+        if ((codepoint == 'e' || codepoint == 'E') && !Identifiers.isConnectorChar(Character.codePointBefore(text, text.length()))) {
+            kind = Tokens.FLOAT;
+            codepoint(buffer, eof);
+            phase = NUMBER_AFTER_EXPONENT;
+            if (moreDataNeeded(buffer, eof)) return ParserState.INPUT_NEEDED;
+            codepoint = peek(buffer, eof);
+            if (codepoint == '-' || codepoint == '+') {
+                codepoint(buffer, eof);
+                phase = NUMBER_AFTER_EXPONENT_SIGN;
+                if (moreDataNeeded(buffer, eof)) return ParserState.INPUT_NEEDED;
+                codepoint = peek(buffer, eof);
+            }
+            if (!Numbers.isDecimal(codepoint)) {
+                error("net.sf.etl.parsers.errors.lexical.UnterminatedNumberExponent", start, current());
+                return makeToken();
+            }
+            phase = NUMBER_AFTER_EXPONENT_DIGIT;
+            do {
+                codepoint(buffer, eof);
+                if (moreDataNeeded(buffer, eof)) return ParserState.INPUT_NEEDED;
+                codepoint = peek(buffer, eof);
+            } while (Numbers.isDecimal(codepoint) || Identifiers.isConnectorChar(codepoint));
+        }
+        if (Identifiers.isIdentifierStart(codepoint) && codepoint != 'e' && codepoint != 'E' &&
+                !Identifiers.isConnectorChar(Character.codePointBefore(text, text.length()))) {
+            phase = NUMBER_SUFFIX;
+            phaseStart = text.length();
+            kind = kind == Tokens.FLOAT ? Tokens.FLOAT_WITH_SUFFIX : Tokens.INTEGER_WITH_SUFFIX;
+            do {
+                codepoint(buffer, eof);
+                if (moreDataNeeded(buffer, eof)) return ParserState.INPUT_NEEDED;
+                codepoint = peek(buffer, eof);
+            } while (Identifiers.isIdentifierPart(codepoint));
+            modifier = text.substring(phaseStart, text.length());
+        }
+        return makeToken();
     }
 
     private ParserState parseString(CharBuffer buffer, boolean eof) {
@@ -168,9 +297,7 @@ public class LexerImpl implements Lexer {
     private ParserState parseSpace(CharBuffer buffer, boolean eof) {
         kind = Tokens.WHITESPACE;
         do {
-            if (moreDataNeeded(buffer, eof)) {
-                return ParserState.INPUT_NEEDED;
-            }
+            if (moreDataNeeded(buffer, eof)) return ParserState.INPUT_NEEDED;
             codepoint(buffer, eof);
         } while (Whitespaces.isSpace(peek(buffer, eof)));
         return makeToken();
@@ -287,6 +414,19 @@ public class LexerImpl implements Lexer {
         return Character.codePointAt(buffer, 0);
     }
 
+    private int peekNext(CharBuffer buffer, boolean eof) {
+        assert !moreDataNeededNext(buffer, eof) : "Can peek only if there is data available";
+        if (eof && buffer.remaining() == 0) {
+            return -1;
+        }
+        int codepoint = Character.codePointAt(buffer, 0);
+        int p = Character.charCount(codepoint);
+        if (eof && buffer.remaining() == p) {
+            return -1;
+        }
+        return Character.codePointAt(buffer, p);
+    }
+
     private void error(String id, TextPos s, TextPos e) {
         errorInfo = new ErrorInfo(id, ErrorInfo.NO_ARGS, s, e, systemId, errorInfo);
     }
@@ -294,6 +434,21 @@ public class LexerImpl implements Lexer {
     private boolean moreDataNeeded(CharBuffer buffer, boolean eof) {
         return !eof && (buffer.remaining() == 0 ||
                 (buffer.remaining() == 1 && Character.isHighSurrogate(buffer.charAt(0))));
+    }
+
+    private boolean moreDataNeededNext(CharBuffer buffer, boolean eof) {
+        if (eof) {
+            return false;
+        }
+        if (buffer.remaining() == 0 || (buffer.remaining() == 1 && Character.isHighSurrogate(buffer.charAt(0)))) {
+            return true;
+        }
+        int codepoint = Character.codePointAt(buffer, 0);
+        int p = Character.charCount(codepoint);
+        if (buffer.remaining() == p || (buffer.remaining() == p + 1 && Character.isHighSurrogate(buffer.charAt(p)))) {
+            return true;
+        }
+        return false;
     }
 
     /**

@@ -99,11 +99,11 @@ public enum Tokens {
     /**
      * integer literal with suffix like 1L or 1ul
      */
-    INTEGER_WITH_SUFFIX(false, true),
+    INTEGER_WITH_SUFFIX(true, false),
     /**
      * floating point literal with suffix like 1.0D or 0.1f
      */
-    FLOAT_WITH_SUFFIX(false, true),
+    FLOAT_WITH_SUFFIX(true, false),
     /**
      * a line comment
      */
