@@ -30,10 +30,13 @@ public class LexerImpl implements Lexer {
     private static final int STRING_START_FIRST_QUOTE = 31;
     private static final int STRING_START_SECOND_QUOTE = 32;
     private static final int STRING_NORMAL = 33;
-    private static final int STRING_AFTER_CR = 34;
     private static final int STRING_ESCAPED = 35;
-    private static final int STRING_END_FIRST_QUOTE = 36;
-    private static final int STRING_END_SECOND_QUOTE = 37;
+    private static final int STRING_MULTILINE_NORMAL = 36;
+    private static final int STRING_MULTILINE_AFTER_CR = 37;
+    private static final int STRING_MULTILINE_ESCAPED = 38;
+    private static final int STRING_MULTILINE_END_FIRST_QUOTE = 39;
+    private static final int STRING_MULTILINE_END_SECOND_QUOTE = 40;
+    private static final int NEWLINE_AFTER_CR = 50;
     // number phases
     // graphics phases // /// /*
     /**
@@ -241,15 +244,19 @@ public class LexerImpl implements Lexer {
                 return makeToken();
             }
             if (moreDataNeededNext(buffer, eof)) return ParserState.INPUT_NEEDED;
-            if (Numbers.isDecimal(peekNext(buffer, eof))) {
+            codepoint = peekNext(buffer, eof);
+            if (Numbers.isDecimal(codepoint)) {
                 kind = Tokens.FLOAT;
                 phase = NUMBER_DECIMAL_FRACTION;
-                codepoint(buffer, eof);
                 codepoint(buffer, eof);
             } else {
                 return makeToken();
             }
-            codepoint = peek(buffer, eof);
+            do {
+                codepoint(buffer, eof);
+                if (moreDataNeeded(buffer, eof)) return ParserState.INPUT_NEEDED;
+                codepoint = peek(buffer, eof);
+            } while (Numbers.isDecimal(codepoint) || Identifiers.isConnectorChar(codepoint));
         }
         if ((codepoint == 'e' || codepoint == 'E') && !Identifiers.isConnectorChar(Character.codePointBefore(text, text.length()))) {
             kind = Tokens.FLOAT;
@@ -275,6 +282,7 @@ public class LexerImpl implements Lexer {
             } while (Numbers.isDecimal(codepoint) || Identifiers.isConnectorChar(codepoint));
         }
         if (Identifiers.isIdentifierStart(codepoint) && codepoint != 'e' && codepoint != 'E' &&
+                !Identifiers.isConnectorChar(codepoint) &&
                 !Identifiers.isConnectorChar(Character.codePointBefore(text, text.length()))) {
             phase = NUMBER_SUFFIX;
             phaseStart = text.length();
@@ -290,8 +298,151 @@ public class LexerImpl implements Lexer {
     }
 
     private ParserState parseString(CharBuffer buffer, boolean eof) {
-        // TODO implement it
-        return null;  //To change body of created methods use File | Settings | File Templates.
+        if (text != null && text.length() != 0) {
+            modifier = text.toString();
+            kind = Tokens.PREFIXED_STRING;
+        } else {
+            kind = Tokens.STRING;
+        }
+        startQuote = codepoint(buffer, eof);
+        phase = STRING_START_FIRST_QUOTE;
+        if (moreDataNeeded(buffer, eof)) return ParserState.INPUT_NEEDED;
+        int codepoint = peek(buffer, eof);
+        if (codepoint == startQuote) {
+            // possibly multiline sting
+            codepoint(buffer, eof);
+            phase = STRING_START_SECOND_QUOTE;
+            if (moreDataNeeded(buffer, eof)) return ParserState.INPUT_NEEDED;
+            codepoint = peek(buffer, eof);
+            if (codepoint != startQuote) {
+                // empty string with the same start and end quotes
+                endQuote = startQuote;
+                return makeToken();
+            }
+            phase = STRING_MULTILINE_NORMAL;
+            kind = kind == Tokens.PREFIXED_STRING ? Tokens.PREFIXED_MULTILINE_STRING : Tokens.MULTILINE_STRING;
+            while (true) {
+                if (moreDataNeeded(buffer, eof)) return ParserState.INPUT_NEEDED;
+                codepoint = peek(buffer, eof);
+                switch (phase) {
+                    case STRING_MULTILINE_NORMAL:
+                        if (codepoint == '\\') {
+                            codepoint(buffer, eof);
+                            phase = STRING_MULTILINE_ESCAPED;
+                        } else if (Whitespaces.isNewline(codepoint)) {
+                            if (!consumeNewLine(buffer, eof, STRING_MULTILINE_AFTER_CR, STRING_MULTILINE_NORMAL)) {
+                                return ParserState.INPUT_NEEDED;
+                            }
+                        } else if (codepoint == -1) {
+                            error("net.sf.etl.parsers.errors.lexical.EOFInString", start, current());
+                            return makeToken();
+                        } else {
+                            QuoteClass endQuoteClass = QuoteClass.classify(codepoint);
+                            if (endQuoteClass == quoteClass) {
+                                endQuote = codepoint(buffer, eof);
+                                phase = STRING_MULTILINE_END_FIRST_QUOTE;
+                            } else {
+                                codepoint(buffer, eof);
+                            }
+                        }
+                        break;
+                    case STRING_MULTILINE_ESCAPED:
+                        if (codepoint == -1) {
+                            error("net.sf.etl.parsers.errors.lexical.EOFInString", start, current());
+                            return makeToken();
+                        }
+                        phase = STRING_MULTILINE_NORMAL;
+                        if (Whitespaces.isNewline(codepoint)) {
+                            if (!consumeNewLine(buffer, eof, STRING_MULTILINE_AFTER_CR, STRING_MULTILINE_NORMAL)) {
+                                return ParserState.INPUT_NEEDED;
+                            }
+                        } else {
+                            codepoint(buffer, eof);
+                        }
+                        break;
+                    case STRING_MULTILINE_AFTER_CR:
+                        if (codepoint == -1) {
+                            error("net.sf.etl.parsers.errors.lexical.EOFInString", start, current());
+                            return makeToken();
+                        }
+                        if (!consumeNewLine(buffer, eof, STRING_MULTILINE_AFTER_CR, STRING_MULTILINE_NORMAL)) {
+                            throw new IllegalStateException("Invalid lexer state, in case of after CR, " +
+                                    "never should need more data: " + this);
+                        }
+                        break;
+                    case STRING_MULTILINE_END_FIRST_QUOTE:
+                        if (codepoint == -1) {
+                            error("net.sf.etl.parsers.errors.lexical.EOFInString", start, current());
+                            return makeToken();
+                        }
+                        if (codepoint == endQuote) {
+                            phase = STRING_MULTILINE_END_SECOND_QUOTE;
+                            codepoint(buffer, eof);
+                        } else {
+                            endQuote = -1;
+                            phase = STRING_MULTILINE_NORMAL;
+                        }
+                        break;
+                    case STRING_MULTILINE_END_SECOND_QUOTE:
+                        if (codepoint == -1) {
+                            error("net.sf.etl.parsers.errors.lexical.EOFInString", start, current());
+                            return makeToken();
+                        }
+                        if (codepoint == endQuote) {
+                            codepoint(buffer, eof);
+                            return makeToken();
+                        } else {
+                            endQuote = -1;
+                            phase = STRING_MULTILINE_NORMAL;
+                        }
+                        break;
+                    default:
+                        throw new IllegalStateException("Invalid phase: " + this);
+                }
+            }
+        } else {
+            // single line string
+            phase = STRING_NORMAL;
+            while (true) {
+                if (moreDataNeeded(buffer, eof)) return ParserState.INPUT_NEEDED;
+                codepoint = peek(buffer, eof);
+                switch (phase) {
+                    case STRING_NORMAL:
+                        if (codepoint == '\\') {
+                            codepoint(buffer, eof);
+                            phase = STRING_ESCAPED;
+                        } else if (Whitespaces.isNewline(codepoint)) {
+                            error("net.sf.etl.parsers.errors.lexical.NewLineInString", start, current());
+                            return makeToken();
+                        } else if (codepoint == -1) {
+                            error("net.sf.etl.parsers.errors.lexical.EOFInString", start, current());
+                            return makeToken();
+                        } else {
+                            codepoint(buffer, eof);
+                            QuoteClass endQuoteClass = QuoteClass.classify(codepoint);
+                            if (endQuoteClass == quoteClass) {
+                                endQuote = codepoint;
+                                return makeToken();
+                            }
+                        }
+                        break;
+                    case STRING_ESCAPED:
+                        phase = STRING_NORMAL;
+                        if (Whitespaces.isNewline(codepoint)) {
+                            error("net.sf.etl.parsers.errors.lexical.NewLineInString", start, current());
+                            return makeToken();
+                        } else if (codepoint == -1) {
+                            error("net.sf.etl.parsers.errors.lexical.EOFInString", start, current());
+                            return makeToken();
+                        } else {
+                            codepoint(buffer, eof);
+                        }
+                        break;
+                    default:
+                        throw new IllegalStateException("Invalid phase: " + this);
+                }
+            }
+        }
     }
 
     private ParserState parseSpace(CharBuffer buffer, boolean eof) {
@@ -305,19 +456,40 @@ public class LexerImpl implements Lexer {
 
     private ParserState parseNewline(CharBuffer buffer, boolean eof) {
         kind = Tokens.NEWLINE;
-        int c = codepoint(buffer, eof);
-        if (c == Whitespaces.CR) {
-            if (moreDataNeeded(buffer, eof)) {
-                return ParserState.INPUT_NEEDED;
+        phase = -1;
+        return consumeNewLine(buffer, eof, NEWLINE_AFTER_CR, -1) ? makeToken() : ParserState.INPUT_NEEDED;
+    }
+
+    /**
+     * Consume new line
+     *
+     * @param buffer      the buffer to consume from
+     * @param eof         true if the eof
+     * @param crPhase     the id of cr phase
+     * @param normalPhase the id of normal phase
+     * @return true if new line was successfully parsed, false if more data is needed
+     */
+    private boolean consumeNewLine(CharBuffer buffer, boolean eof, int crPhase, int normalPhase) {
+        int codepoint;
+        if (phase == normalPhase) {
+            codepoint = codepoint(buffer, eof);
+            if (codepoint == Whitespaces.CR) {
+                phase = crPhase;
+                if (moreDataNeeded(buffer, eof)) {
+                    return false;
+                }
             }
-            c = peek(buffer, eof);
-            if (c == Whitespaces.LF) {
-                codepoint(buffer, eof);
-            }
+        } else if (phase != crPhase) {
+            throw new IllegalStateException("The lexer is invalid state: " + this);
         }
+        codepoint = peek(buffer, eof);
+        if (codepoint == Whitespaces.LF) {
+            codepoint(buffer, eof);
+        }
+        phase = normalPhase;
         line++;
         column = TextPos.START_COLUMN;
-        return makeToken();
+        return true;
     }
 
     /**
@@ -445,10 +617,7 @@ public class LexerImpl implements Lexer {
         }
         int codepoint = Character.codePointAt(buffer, 0);
         int p = Character.charCount(codepoint);
-        if (buffer.remaining() == p || (buffer.remaining() == p + 1 && Character.isHighSurrogate(buffer.charAt(p)))) {
-            return true;
-        }
-        return false;
+        return buffer.remaining() == p || (buffer.remaining() == p + 1 && Character.isHighSurrogate(buffer.charAt(p)));
     }
 
     /**

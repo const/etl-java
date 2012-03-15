@@ -1,6 +1,7 @@
 package net.sf.etl.parsers.event.lexer;
 
 import net.sf.etl.parsers.Token;
+import net.sf.etl.parsers.TokenKey;
 import net.sf.etl.parsers.Tokens;
 import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.impl.LexerImpl;
@@ -65,6 +66,18 @@ public abstract class LexerTestCase {
         readEof();
         return rc;
     }
+
+    /**
+     * Check single token using token key
+     *
+     * @param text     the text to check
+     * @param tokenKey the token key to use
+     */
+    protected void single(String text, TokenKey tokenKey) {
+        Token t = single(text, tokenKey.kind());
+        assertEquals(tokenKey, t.key());
+    }
+
 
     /**
      * Test uniform sequence of the tokens

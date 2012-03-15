@@ -39,7 +39,7 @@ public enum Tokens {
      * octal escape sequence and unicode escape sequence is changed to format
      * \UH...H;, (java escape and C-like escape are still supported).
      */
-    STRING(true, false),
+    STRING(false, true),
     /**
      * A string with alphanumeric prefix
      */
@@ -52,7 +52,7 @@ public enum Tokens {
      * there is no octal escape sequence and unicode escape sequence is changed
      * to format \UH...H;, (java escape and C-like escape are still supported).
      */
-    MULTILINE_STRING(true, false),
+    MULTILINE_STRING(false, true),
     /**
      * A multiline string with alphanumeric prefix
      */

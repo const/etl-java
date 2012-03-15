@@ -256,7 +256,7 @@ public final class TokenKey {
                 }
                 return simple(kind);
             default:
-                throw new IllegalArgumentException("Not a string token: " + kind);
+                throw new IllegalArgumentException("Not a modified token: " + kind);
         }
         return modifierKey(kind, suffix);
     }
