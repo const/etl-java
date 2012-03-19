@@ -15,6 +15,8 @@ import static org.junit.Assert.assertNull;
  * The basic lexer test case
  */
 public abstract class LexerTestCase {
+    // TODO unicode tests
+    // TODO errors and error recovery tests
     /**
      * The current lexer to use
      */
@@ -23,6 +25,14 @@ public abstract class LexerTestCase {
      * The used character buffer
      */
     protected CharBuffer buffer;
+    /**
+     * The input string
+     */
+    protected String input;
+    /**
+     * The consumed characters
+     */
+    protected int consumed;
     /**
      * The current token
      */
@@ -35,22 +45,46 @@ public abstract class LexerTestCase {
      */
     protected void start(String text) {
         lexer = new LexerImpl();
+        input = text;
+        consumed = input.length();
         buffer = CharBuffer.wrap(text);
     }
+
+    /**
+     * Start parsing
+     *
+     * @param text the text to parse
+     */
+    protected void startOneChar(String text) {
+        lexer = new LexerImpl();
+        input = text;
+        consumed = 0;
+        buffer = CharBuffer.allocate(4);
+        buffer.position(0);
+        buffer.limit(0);
+    }
+
 
     /**
      * @return parse next token
      */
     protected Token next() {
-        ParserState status = lexer.parse(buffer, true);
-        if (status == ParserState.OUTPUT_AVAILABLE) {
-            current = lexer.read();
-        } else if (status == ParserState.EOF) {
-            current = null;
-        } else {
-            throw new IllegalStateException("Not yet supported status: " + status);
+        while (true) {
+            ParserState status = lexer.parse(buffer, consumed == input.length());
+            if (status == ParserState.OUTPUT_AVAILABLE) {
+                current = lexer.read();
+                return current;
+            } else if (status == ParserState.EOF) {
+                current = null;
+                return current;
+            } else if (status == ParserState.INPUT_NEEDED) {
+                buffer.compact();
+                buffer.put(input.charAt(consumed++));
+                buffer.flip();
+            } else {
+                throw new IllegalStateException("Not yet supported status: " + status);
+            }
         }
-        return current;
     }
 
     /**
@@ -61,6 +95,11 @@ public abstract class LexerTestCase {
      * @return the parsed token
      */
     protected Token single(String text, Tokens kind) {
+        // one char node
+        startOneChar(text);
+        read(text, kind);
+        readEof();
+        // single token mode
         start(text);
         Token rc = read(text, kind);
         readEof();
@@ -87,6 +126,13 @@ public abstract class LexerTestCase {
      * @param tokens the token text
      */
     protected void sequence(String text, Tokens kind, String... tokens) {
+        // one char mode
+        startOneChar(text);
+        for (String t : tokens) {
+            read(t, kind);
+        }
+        readEof();
+        // many chars mode
         start(text);
         for (String t : tokens) {
             read(t, kind);
@@ -101,6 +147,14 @@ public abstract class LexerTestCase {
      * @param tokens the token text
      */
     protected void sequenceText(String text, String... tokens) {
+        // one char mode
+        startOneChar(text);
+        for (String t : tokens) {
+            next();
+            assertEquals(t, current.text());
+        }
+        readEof();
+        // many chars mode
         start(text);
         for (String t : tokens) {
             next();
