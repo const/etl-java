@@ -39,4 +39,33 @@ public class SpacesAndCommentsTest extends LexerTestCase {
         sequence("\n\r\r\n\u000B\u000C\u0085\u2029\u2028", Tokens.NEWLINE, "\n", "\r", "\r\n", "\u000B",
                 "\u000C", "\u0085", "\u2029", "\u2028");
     }
+
+    /**
+     * test line comments
+     */
+    @Test
+    public void testLines() {
+        single("// text # /*  // /// aaa", Tokens.LINE_COMMENT);
+        single("//", Tokens.LINE_COMMENT);
+        sequenceText("// text # /*  // /// aaa\n", "// text # /*  // /// aaa", "\n");
+        sequenceText("//\n", "//", "\n");
+        single("#! text # /*  // /// aaa", Tokens.LINE_COMMENT);
+        single("#!", Tokens.LINE_COMMENT);
+        sequenceText("#! text # /*  // /// aaa\n", "#! text # /*  // /// aaa", "\n");
+        sequenceText("#!\n", "#!", "\n");
+        single("/// text # /*  // /// aaa", Tokens.DOC_COMMENT);
+        single("///", Tokens.DOC_COMMENT);
+        sequenceText("/// text # /*  // /// aaa\n", "/// text # /*  // /// aaa", "\n");
+        sequenceText("///\n", "///", "\n");
+    }
+
+    /**
+     * test block comment
+     */
+    @Test
+    public void testBlockComments() {
+        single("/* text # /* * /  // /// aaa */", Tokens.BLOCK_COMMENT);
+        single("/* text # /*\n* /  //\r\n ///\n\r aaa */", Tokens.BLOCK_COMMENT);
+    }
+
 }

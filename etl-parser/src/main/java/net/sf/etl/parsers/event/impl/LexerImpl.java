@@ -22,8 +22,8 @@ public class LexerImpl implements Lexer {
     private static final int NUMBER_AFTER_EXPONENT_DIGIT = 7;
     private static final int NUMBER_SUFFIX = 8;
     private static final int GRAPHICS_NORMAL = 10;
-    private static final int GRAPHICS_AFTER_SLASH = 11;
-    private static final int GRAPHICS_AFTER_HASH = 12;
+    private static final int LINE_COMMENT_NORMAL = 60;
+    private static final int LINE_COMMENT_START = 61;
     private static final int BLOCK_COMMENT_AFTER_STAR = 20;
     private static final int BLOCK_COMMENT_AFTER_CR = 21;
     private static final int BLOCK_COMMENT_NORMAL = 22;
@@ -194,7 +194,15 @@ public class LexerImpl implements Lexer {
             if (moreDataNeeded(buffer, eof)) return ParserState.INPUT_NEEDED;
             codepoint = peek(buffer, eof);
         } while (Numbers.isDecimal(codepoint) || Identifiers.isConnectorChar(codepoint));
-        if (codepoint == '#' && !Identifiers.isConnectorChar(Character.codePointBefore(text, text.length()))) {
+        if (codepoint == '#' &&
+                !Identifiers.isConnectorChar(Character.codePointBefore(text, text.length()))) {
+            if (moreDataNeededNext(buffer, eof)) {
+                return ParserState.INPUT_NEEDED;
+            }
+            if (peekNext(buffer, eof) == '!') {
+                // shebang comment next
+                return makeToken();
+            }
             // consume hash and evaluate base
             try {
                 numberBase = Integer.parseInt(text.toString());
@@ -525,13 +533,129 @@ public class LexerImpl implements Lexer {
     private ParserState parseGraphics(CharBuffer buffer, boolean eof) {
         // TODO implement comments
         kind = Tokens.GRAPHICS;
-        do {
-            codepoint(buffer, eof);
+        phase = GRAPHICS_NORMAL;
+        while (true) {
+            int codepoint = peek(buffer, eof);
             if (moreDataNeeded(buffer, eof)) {
                 return ParserState.INPUT_NEEDED;
             }
-        } while (Graphics.isGraphics(peek(buffer, eof)));
+            switch (phase) {
+                case GRAPHICS_NORMAL:
+                    switch (codepoint) {
+                        case '/':
+                            if (moreDataNeededNext(buffer, eof)) {
+                                return ParserState.INPUT_NEEDED;
+                            }
+                            int next = peekNext(buffer, eof);
+                            if (next == '*' || next == '/') {
+                                if (text == null || text.length() == 0) {
+                                    if (next == '*') {
+                                        return parseBlockComment(buffer, eof);
+                                    } else {
+                                        return parseLineComment(buffer, eof);
+                                    }
+                                } else {
+                                    return makeToken();
+                                }
+                            } else {
+                                codepoint(buffer, eof);
+                            }
+                            break;
+                        case '#':
+                            if (moreDataNeededNext(buffer, eof)) {
+                                return ParserState.INPUT_NEEDED;
+                            }
+                            int nextShebang = peekNext(buffer, eof);
+                            if (nextShebang == '!') {
+                                if (text == null || text.length() == 0) {
+                                    return parseLineComment(buffer, eof);
+                                } else {
+                                    return makeToken();
+                                }
+                            } else {
+                                codepoint(buffer, eof);
+                            }
+                            break;
+                        case -1:
+                            return makeToken();
+                        default:
+                            codepoint(buffer, eof);
+                    }
+            }
+        }
+    }
+
+    private ParserState parseLineComment(CharBuffer buffer, boolean eof) {
+        // it is already known that it is line comment
+        kind = Tokens.LINE_COMMENT;
+        int first = codepoint(buffer, eof);
+        int second = codepoint(buffer, eof);
+        phase = first == '/' && second == '/' ? LINE_COMMENT_START : LINE_COMMENT_NORMAL;
+        if (moreDataNeededNext(buffer, eof)) {
+            return ParserState.INPUT_NEEDED;
+        }
+        int codepoint = peek(buffer, eof);
+        if (codepoint == -1 || Whitespaces.isNewline(codepoint)) {
+            return makeToken();
+        }
+        if (codepoint == '/' && phase == LINE_COMMENT_START) {
+            kind = Tokens.DOC_COMMENT;
+            phase = LINE_COMMENT_NORMAL;
+        }
+        do {
+            codepoint(buffer, eof);
+            if (moreDataNeededNext(buffer, eof)) {
+                return ParserState.INPUT_NEEDED;
+            }
+            codepoint = peek(buffer, eof);
+        } while (codepoint != -1 && !Whitespaces.isNewline(codepoint));
         return makeToken();
+    }
+
+    private ParserState parseBlockComment(CharBuffer buffer, boolean eof) {
+        // it is already known that it is line comment
+        kind = Tokens.BLOCK_COMMENT;
+        codepoint(buffer, eof);
+        codepoint(buffer, eof);
+        phase = BLOCK_COMMENT_NORMAL;
+        while (true) {
+            if (moreDataNeededNext(buffer, eof)) {
+                return ParserState.INPUT_NEEDED;
+            }
+            int codepoint = peek(buffer, eof);
+            if (codepoint == -1) {
+                error("net.sf.etl.parsers.errors.lexical.EOFInBlockComment", start, current());
+                return makeToken();
+            }
+            switch (phase) {
+                case BLOCK_COMMENT_NORMAL:
+                    if (codepoint == '*') {
+                        codepoint(buffer, eof);
+                        phase = BLOCK_COMMENT_AFTER_STAR;
+                    } else if (Whitespaces.isNewline(codepoint)) {
+                        if (!consumeNewLine(buffer, eof, BLOCK_COMMENT_AFTER_CR, BLOCK_COMMENT_NORMAL)) {
+                            return ParserState.INPUT_NEEDED;
+                        }
+                    } else {
+                        codepoint(buffer, eof);
+                    }
+                    break;
+                case BLOCK_COMMENT_AFTER_CR:
+                    if (!consumeNewLine(buffer, eof, BLOCK_COMMENT_AFTER_CR, BLOCK_COMMENT_NORMAL)) {
+                        return ParserState.INPUT_NEEDED;
+                    }
+                    break;
+                case BLOCK_COMMENT_AFTER_STAR:
+                    if (codepoint == '/') {
+                        codepoint(buffer, eof);
+                        return makeToken();
+                    }
+                    phase = BLOCK_COMMENT_NORMAL;
+                    break;
+                default:
+                    throw new IllegalStateException("Invalid phase: " + this);
+            }
+        }
     }
 
     /**

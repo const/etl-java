@@ -20,6 +20,16 @@ public class NumberTest extends LexerTestCase {
     }
 
     @Test
+    public void shebang() {
+        start("1#!test");
+        read("1", Tokens.INTEGER);
+        read("#!test", Tokens.LINE_COMMENT);
+        start("1.0#!test");
+        read("1.0", Tokens.FLOAT);
+        read("#!test", Tokens.LINE_COMMENT);
+    }
+
+    @Test
     public void floats() {
         single("1e1", Tokens.FLOAT);
         single("0.1e+2", Tokens.FLOAT);

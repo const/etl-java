@@ -13,4 +13,21 @@ public class GraphicsTest extends LexerTestCase {
         single("<:=?>.", Tokens.GRAPHICS);
         single("!^~&|`@", Tokens.GRAPHICS);
     }
+
+    /**
+     * test graphics + comments
+     */
+    @Test
+    public void testGraphicsToComments() {
+        start("+//");
+        read("+", Tokens.GRAPHICS);
+        read("//", Tokens.LINE_COMMENT);
+        start("-/**/");
+        read("-", Tokens.GRAPHICS);
+        read("/**/", Tokens.BLOCK_COMMENT);
+        start("##!///**/");
+        read("#", Tokens.GRAPHICS);
+        read("#!///**/", Tokens.LINE_COMMENT);
+    }
+
 }

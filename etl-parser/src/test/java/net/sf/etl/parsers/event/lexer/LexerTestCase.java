@@ -95,6 +95,21 @@ public abstract class LexerTestCase {
     }
 
     /**
+     * Test uniform sequence of the tokens
+     *
+     * @param text   the text to check
+     * @param tokens the token text
+     */
+    protected void sequenceText(String text, String... tokens) {
+        start(text);
+        for (String t : tokens) {
+            next();
+            assertEquals(t, current.text());
+        }
+        readEof();
+    }
+
+    /**
      * Read end of stream
      */
     protected void readEof() {
@@ -111,13 +126,13 @@ public abstract class LexerTestCase {
      * @param kind the expected token kind
      * @return the parsed token
      */
-    private Token read(String text, Tokens kind) {
+    protected Token read(String text, Tokens kind) {
         next();
         checkCurrent(text, kind);
         return current;
     }
 
-    private void checkCurrent(String text, Tokens kind) {
+    protected void checkCurrent(String text, Tokens kind) {
         assertEquals(text, current.text());
         assertEquals(kind, current.kind());
     }
