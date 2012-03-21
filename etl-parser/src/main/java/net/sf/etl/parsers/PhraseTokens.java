@@ -32,53 +32,36 @@ package net.sf.etl.parsers;
  */
 public enum PhraseTokens {
     /**
-     * Error token.
-     */
-    ERROR,
-
-    /**
      * End of file token.
      */
     EOF,
-
-    /**
-     * lexical error
-     */
-    LEXICAL_ERROR,
-
     /**
      * start of the block event. this event normally happens before opening
      * brace.
      */
     START_BLOCK,
-
     /**
      * end of the block event. this event normally happens after closing brace.
      */
     END_BLOCK,
-
     /**
-     * start of the segment
+     * the hard segment separator
      */
-    START_SEGMENT,
-
+    STATEMENT_END,
     /**
      * end of the segment
      */
-    END_SEGMENT,
-
+    SOFT_STATEMENT_END,
     /**
      * ignorable token for example whitespace, new line or comment
      */
     IGNORABLE,
-
     /**
      * token that is marks start or end of block or segment. Such tokens are
      * normally ignored by further parsers because they are already processed at
      * this level.
      */
     CONTROL,
-
     /**
      * significant token like identifier
      */

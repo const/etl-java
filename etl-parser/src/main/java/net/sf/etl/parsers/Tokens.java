@@ -39,11 +39,11 @@ public enum Tokens {
      * octal escape sequence and unicode escape sequence is changed to format
      * \UH...H;, (java escape and C-like escape are still supported).
      */
-    STRING(false, true),
+    STRING(false, true, PhraseTokens.SIGNIFICANT),
     /**
      * A string with alphanumeric prefix
      */
-    PREFIXED_STRING(true, true),
+    PREFIXED_STRING(true, true, PhraseTokens.SIGNIFICANT),
     /**
      * A multiline string token. String token is sequence of characters enclosed
      * by three matching quote characters (note that back quote '`' is treated
@@ -52,96 +52,101 @@ public enum Tokens {
      * there is no octal escape sequence and unicode escape sequence is changed
      * to format \UH...H;, (java escape and C-like escape are still supported).
      */
-    MULTILINE_STRING(false, true),
+    MULTILINE_STRING(false, true, PhraseTokens.SIGNIFICANT),
     /**
      * A multiline string with alphanumeric prefix
      */
-    PREFIXED_MULTILINE_STRING(true, true),
+    PREFIXED_MULTILINE_STRING(true, true, PhraseTokens.SIGNIFICANT),
     /**
      * identifier token
      */
-    IDENTIFIER(false, false),
+    IDENTIFIER(false, false, PhraseTokens.SIGNIFICANT),
     /**
      * Lexical rule for it is non zero length line consisting from "~+-/%^&*|<>
      * =:?!.^@#`" graphics could not contain "//" and "/*" because they are
      * always treated as beginning of comment, any standard Java operator could
      * be defined using it.
      */
-    GRAPHICS(false, false),
+    GRAPHICS(false, false, PhraseTokens.SIGNIFICANT),
     /**
      * open round bracket
      */
-    BRACKET(false, false),
+    BRACKET(false, false, PhraseTokens.SIGNIFICANT),
     /**
      * open curly bracket
      */
-    LEFT_CURLY(false, false),
+    LEFT_CURLY(false, false, PhraseTokens.START_BLOCK),
     /**
      * close curly bracket
      */
-    RIGHT_CURLY(false, false),
+    RIGHT_CURLY(false, false, PhraseTokens.END_BLOCK),
     /**
      * a semicolon
      */
-    SEMICOLON(false, false),
+    SEMICOLON(false, false, PhraseTokens.STATEMENT_END),
     /**
      * a comma
      */
-    COMMA(false, false),
+    COMMA(false, false, PhraseTokens.SIGNIFICANT),
     /**
      * an integer literal
      */
-    INTEGER(false, false),
+    INTEGER(false, false, PhraseTokens.SIGNIFICANT),
     /**
      * a floating point literal
      */
-    FLOAT(false, false),
+    FLOAT(false, false, PhraseTokens.SIGNIFICANT),
     /**
      * integer literal with suffix like 1L or 1ul
      */
-    INTEGER_WITH_SUFFIX(true, false),
+    INTEGER_WITH_SUFFIX(true, false, PhraseTokens.SIGNIFICANT),
     /**
      * floating point literal with suffix like 1.0D or 0.1f
      */
-    FLOAT_WITH_SUFFIX(true, false),
+    FLOAT_WITH_SUFFIX(true, false, PhraseTokens.SIGNIFICANT),
     /**
      * a line comment
      */
-    LINE_COMMENT(false, false),
+    LINE_COMMENT(false, false, PhraseTokens.IGNORABLE),
     /**
      * a doc comment
      */
-    DOC_COMMENT(false, false),
+    DOC_COMMENT(false, false, PhraseTokens.SIGNIFICANT),
     /**
      * a C-like block comment. This token is used to report block comments in
      * case when block comment is one line, or when partial tokens are disabled.
      */
-    BLOCK_COMMENT(false, false),
+    BLOCK_COMMENT(false, false, PhraseTokens.IGNORABLE),
     /**
      * whitespace token. It is a sequence of space or tab characters. It also represents invalid characters.
      */
-    WHITESPACE(false, false),
+    WHITESPACE(false, false, PhraseTokens.IGNORABLE),
     /**
      * New line token. It is one of the following: "\n" "\f" "\n\r" "\r\n"
      */
-    NEWLINE(false, false),
+    NEWLINE(false, false, PhraseTokens.SOFT_STATEMENT_END),
     /**
      * End of file token. This is the only token that has zero content
      */
-    EOF(false, false);
+    EOF(false, false, PhraseTokens.EOF);
 
     /**
      * if true the token should have start and end quotes
      */
     private final boolean quoted;
     /**
+     * The role in the phrase syntax
+     */
+    private final PhraseTokens phraseRole;
+    /**
      * if true, the token should have some modifier (prefix or suffix)
      */
     private final boolean modified;
 
-    private Tokens(boolean modified, boolean quoted) {
+    private Tokens(boolean modified, boolean quoted, PhraseTokens role) {
         this.modified = modified;
         this.quoted = quoted;
+        phraseRole = role;
     }
 
     /**
@@ -156,5 +161,12 @@ public enum Tokens {
      */
     public boolean hasModifier() {
         return modified;
+    }
+
+    /**
+     * @return the role in the phrase syntax
+     */
+    public PhraseTokens getPhraseRole() {
+        return phraseRole;
     }
 }

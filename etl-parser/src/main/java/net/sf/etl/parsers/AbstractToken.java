@@ -69,7 +69,7 @@ public abstract class AbstractToken {
      * @param end   end position
      */
     protected AbstractToken(TextPos start, TextPos end) {
-        this(start, end, (ErrorInfo) null);
+        this(start, end, null);
     }
 
 

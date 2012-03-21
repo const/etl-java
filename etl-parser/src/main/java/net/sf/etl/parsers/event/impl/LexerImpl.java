@@ -38,6 +38,7 @@ public class LexerImpl implements Lexer {
     private static final int STRING_MULTILINE_END_SECOND_QUOTE = 40;
     private static final int NEWLINE_NORMAL = 50;
     private static final int NEWLINE_AFTER_CR = 51;
+    public static final String UNKNOWN_FILE = "unknown:file";
     /**
      * If true, parsing started
      */
@@ -77,7 +78,7 @@ public class LexerImpl implements Lexer {
     /**
      * The system identifier for the source
      */
-    private String systemId = "unknown:file";
+    private String systemId = UNKNOWN_FILE;
     /**
      * Start modifier
      */
@@ -173,6 +174,7 @@ public class LexerImpl implements Lexer {
             if (quoteClass != null) {
                 return parseString(buffer, eof);
             }
+            // TODO make invalid characters a range token rather than single character one
             // invalid character
             codepoint(buffer, eof);
             error("net.sf.etl.parsers.errors.lexical.InvalidCharacter", start, current());

@@ -43,11 +43,12 @@ public final class PhraseToken extends AbstractToken {
     /**
      * A constructor from token
      *
-     * @param kind  a phrase token kind
-     * @param token a a token from lexer
+     * @param kind   a phrase token kind
+     * @param token  a a token from lexer
+     * @param errors errors
      */
-    public PhraseToken(PhraseTokens kind, Token token) {
-        super(token.start(), token.end(), token.errorInfo());
+    public PhraseToken(PhraseTokens kind, Token token, ErrorInfo errors) {
+        super(token.start(), token.end(), errors);
         if (kind == null) {
             throw new NullPointerException("Kind must not be null");
         }
@@ -74,11 +75,12 @@ public final class PhraseToken extends AbstractToken {
      * A constructor for mark-up phrase token
      *
      * @param kind     a kind of token. It must be one of the following values
-     *                 START_BLOCK, END_BLOCK, START_SEGMENT, or END_BLOCK.
+     *                 START_BLOCK, END_BLOCK, STATEMENT_END, or END_BLOCK.
      * @param position a position in stream
+     * @param errors   errors
      */
-    public PhraseToken(PhraseTokens kind, TextPos position) {
-        super(position, position);
+    public PhraseToken(PhraseTokens kind, TextPos position, ErrorInfo errors) {
+        super(position, position, errors);
         if (kind == null) {
             throw new NullPointerException("Kind must not be null");
         }
@@ -87,28 +89,15 @@ public final class PhraseToken extends AbstractToken {
         }
         switch (kind) {
             case END_BLOCK:
-            case END_SEGMENT:
+            case SOFT_STATEMENT_END:
             case START_BLOCK:
-            case START_SEGMENT:
+            case STATEMENT_END:
                 break;
             default:
                 throw new IllegalArgumentException("Invalid kind " + kind
                         + "for this constructor.");
         }
         this.kind = kind;
-        this.wrappedToken = null;
-    }
-
-    /**
-     * A constructor for phrase error token
-     *
-     * @param start start of error region
-     * @param end   end of error region
-     * @param error identifier of error
-     */
-    public PhraseToken(TextPos start, TextPos end, ErrorInfo error) {
-        super(start, end, error);
-        this.kind = PhraseTokens.ERROR;
         this.wrappedToken = null;
     }
 
@@ -137,7 +126,6 @@ public final class PhraseToken extends AbstractToken {
             case IGNORABLE:
             case CONTROL:
             case EOF:
-            case LEXICAL_ERROR:
                 return true;
             default:
                 return false;
