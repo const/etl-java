@@ -644,7 +644,11 @@ public class LexerImpl implements Lexer {
                         case -1:
                             return makeToken();
                         default:
-                            codepoint(buffer, eof);
+                            if (Graphics.isGraphics(codepoint)) {
+                                codepoint(buffer, eof);
+                            } else {
+                                return makeToken();
+                            }
                     }
             }
         }

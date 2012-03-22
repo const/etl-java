@@ -1,7 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2009 Constantine A Plotnikov
- *
+ * Copyright (c) 2000-2012 Constantine A Plotnikov *
  * Permission is hereby granted, free of charge, to any person 
  * obtaining a copy of this software and associated documentation 
  * files (the "Software"), to deal in the Software without restriction,
@@ -29,46 +28,46 @@ import junit.framework.TestCase;
 
 /**
  * A test for token kinds
- * 
+ *
  * @author const
  */
 public class TokenKeyTest extends TestCase {
-	/**
-	 * Test simple keys
-	 */
-	public void testSimple() {
-		assertSame(TokenKey.modified(Tokens.INTEGER, null), TokenKey
-				.simple(Tokens.INTEGER));
-		assertSame(Tokens.INTEGER, TokenKey.simple(Tokens.INTEGER).kind());
-		assertNotSame(TokenKey.modified(Tokens.INTEGER_WITH_SUFFIX, "UL"),
-				TokenKey.simple(Tokens.INTEGER));
-		assertNotSame(TokenKey.simple(Tokens.LEFT_CURLY), TokenKey
-				.simple(Tokens.INTEGER));
-	}
+    /**
+     * Test simple keys
+     */
+    public void testSimple() {
+        assertSame(TokenKey.modified(Tokens.INTEGER, null), TokenKey
+                .simple(Tokens.INTEGER));
+        assertSame(Tokens.INTEGER, TokenKey.simple(Tokens.INTEGER).kind());
+        assertNotSame(TokenKey.modified(Tokens.INTEGER_WITH_SUFFIX, "UL"),
+                TokenKey.simple(Tokens.INTEGER));
+        assertNotSame(TokenKey.simple(Tokens.LEFT_CURLY), TokenKey
+                .simple(Tokens.INTEGER));
+    }
 
-	/**
-	 * Test number keys
-	 */
-	public void testNumbers() {
-		assertSame(TokenKey.modified(Tokens.INTEGER_WITH_SUFFIX, "A"), TokenKey
-				.modified(Tokens.INTEGER_WITH_SUFFIX, "A"));
-		assertNotSame(TokenKey.modified(Tokens.INTEGER_WITH_SUFFIX, "B"),
-				TokenKey.modified(Tokens.INTEGER_WITH_SUFFIX, "A"));
-	}
+    /**
+     * Test number keys
+     */
+    public void testNumbers() {
+        assertSame(TokenKey.modified(Tokens.INTEGER_WITH_SUFFIX, "A"), TokenKey
+                .modified(Tokens.INTEGER_WITH_SUFFIX, "A"));
+        assertNotSame(TokenKey.modified(Tokens.INTEGER_WITH_SUFFIX, "B"),
+                TokenKey.modified(Tokens.INTEGER_WITH_SUFFIX, "A"));
+    }
 
-	/**
-	 * Test string keys
-	 */
-	public void testStrings() {
-		assertSame(TokenKey.quoted(Tokens.STRING, null, '\"', '\"'), TokenKey
-				.quoted(Tokens.STRING, null, '\"', '\"'));
-		assertNotSame(TokenKey.quoted(Tokens.STRING, null, '\"', '\"'),
-				TokenKey.quoted(Tokens.STRING, null, '\'', '\''));
-		assertSame(TokenKey.quoted(Tokens.PREFIXED_STRING, "A", '\"', '\"'),
-				TokenKey.quoted(Tokens.PREFIXED_STRING, "A", '\"', '\"'));
-		assertNotSame(TokenKey.quoted(Tokens.PREFIXED_STRING, "A", '\"', '\"'),
-				TokenKey.quoted(Tokens.PREFIXED_STRING, "B", '\"', '\"'));
-		assertNotSame(TokenKey.quoted(Tokens.PREFIXED_STRING, "A", '\"', '\"'),
-				TokenKey.quoted(Tokens.PREFIXED_STRING, "A", '\'', '\''));
-	}
+    /**
+     * Test string keys
+     */
+    public void testStrings() {
+        assertSame(TokenKey.quoted(Tokens.STRING, null, '\"', '\"'), TokenKey
+                .quoted(Tokens.STRING, null, '\"', '\"'));
+        assertNotSame(TokenKey.quoted(Tokens.STRING, null, '\"', '\"'),
+                TokenKey.quoted(Tokens.STRING, null, '\'', '\''));
+        assertSame(TokenKey.quoted(Tokens.PREFIXED_STRING, "A", '\"', '\"'),
+                TokenKey.quoted(Tokens.PREFIXED_STRING, "A", '\"', '\"'));
+        assertNotSame(TokenKey.quoted(Tokens.PREFIXED_STRING, "A", '\"', '\"'),
+                TokenKey.quoted(Tokens.PREFIXED_STRING, "B", '\"', '\"'));
+        assertNotSame(TokenKey.quoted(Tokens.PREFIXED_STRING, "A", '\"', '\"'),
+                TokenKey.quoted(Tokens.PREFIXED_STRING, "A", '\'', '\''));
+    }
 }

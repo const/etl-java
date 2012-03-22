@@ -3,8 +3,6 @@ package net.sf.etl.parsers.event.lexer;
 import net.sf.etl.parsers.Tokens;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * test identifiers
  */

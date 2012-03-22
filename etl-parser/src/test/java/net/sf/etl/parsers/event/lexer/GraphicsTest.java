@@ -14,6 +14,14 @@ public class GraphicsTest extends LexerTestCase {
         single("!^~&|`@", Tokens.GRAPHICS);
     }
 
+    @Test
+    public void boundaryTest() {
+        start("= ");
+        read("=", Tokens.GRAPHICS);
+        read(" ", Tokens.WHITESPACE);
+        readEof();
+    }
+
     /**
      * test graphics + comments
      */
@@ -22,12 +30,15 @@ public class GraphicsTest extends LexerTestCase {
         start("+//");
         read("+", Tokens.GRAPHICS);
         read("//", Tokens.LINE_COMMENT);
+        readEof();
         start("-/**/");
         read("-", Tokens.GRAPHICS);
         read("/**/", Tokens.BLOCK_COMMENT);
+        readEof();
         start("##!///**/");
         read("#", Tokens.GRAPHICS);
         read("#!///**/", Tokens.LINE_COMMENT);
+        readEof();
     }
 
 }
