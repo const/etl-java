@@ -1,0 +1,761 @@
+doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0";
+// Reference ETL Parser for Java
+// Copyright (c) 2000-2012 Constantine A Plotnikov
+//
+// Permission is hereby granted, free of charge, to any person 
+// obtaining a copy of this software and associated documentation 
+// files (the "Software"), to deal in the Software without restriction,
+// including without limitation the rights to use, copy, modify, merge, 
+// publish, distribute, sublicense, and/or sell copies of the Software, 
+// and to permit persons to whom the Software is furnished to do so, 
+// subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be 
+// included in all copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+// BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
+// CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+// SOFTWARE. 
+
+/// This is a grammar for 0.3.0 syntax defined using 0.3.0 syntax.
+///
+/// This is a definition for the grammar language itself.
+/// This grammar is actually used for parsing other grammars. 
+/// The text of this specific grammar itself is parsed using bootstrap 
+/// parser, then the grammar is compiled using normal grammar compilation 
+/// path.
+///
+/// The parsing model is AST building. The parser tries to match syntax 
+/// constructs and creates AST according to specified AST constructs. 
+/// AST is assumed to contain objects and properties. So AST is directly 
+/// mappable to object models like C#, JavaBeans, EMOF, MOF, and EMF.
+/// 
+/// Properties are identified by name and objects are identified by 
+/// namespace URI and name. The object identification idea is borrowed from XMI
+/// and it is even possible to generate XMI-file without prior knowledge of 
+/// metamodel.
+///
+/// There are two kinds of syntax constructs: expressions and statements.
+///
+/// Expression model is borrowed from prolog. Operator has been borrowed from
+/// Prolog almost as is. Each operator has precedence and associativity. 
+/// Associativity has format "AfA" where A can be "", "x", or "y". Blank 
+/// specifies that there is no argument at this place. The "y" matches 
+/// expression of the same precedence and the "x" matches expression of lesser 
+/// precedence. For example yfx operator is "+" and "-" from C, x+y-z is parsed 
+/// as (x+y)-y. Example of  xfy operator is assignment operator from C. a=b=c 
+/// is parsed as a=(b=c). The yfy operator is any associative. If .. is a yfy
+/// operator of the same level as "+", then a + b + c .. a + b + c will be
+/// ((a+b)+c)..((a+b)+c)
+///
+/// Also "f" operators have special semantics, they appear on level 0 and 
+/// are primary operators. They do not have neither left nor right part.
+///
+/// Operators can be simple or composite. Simple operators have just a token 
+/// specified. See the definition of "|" and "?" operators in this grammar.
+/// Composite operators allow more complex syntax constructs. Composite 
+/// operators are usually used to define primary level of the grammar. However 
+/// they can be used to specify non primary operators too. Java method 
+/// invocation and array access operators are examples of this. Composite 
+/// operator can use all syntax expressions used in statements.
+///
+/// Statement defines content of segment returned from term parser. The 
+/// statement is defined using generic constructs like pattern, lists, choice, 
+/// and tokens.
+/// 
+/// @author const
+grammar net.sf.etl.grammars.Grammar {
+	namespace default g = "http://etl.sf.net/etl/grammar/0.3.0";
+	
+	/// This abstract context contains definition used across this grammar. 
+	context abstract Base {
+		
+		/// String token definition. The two type of string are understood 
+		/// by the grammar language and they have the same semantics.
+		def String {
+			string(quote="\"") | string(quote='\'');
+		};
+
+		/// Documentation mapping definition. This mapping is used 
+		/// by all statements in the grammar.
+		documentation Documentation {
+			@ documentation += doclines wrapper g:DocumentationLine.text;
+		};		
+
+		/// Definition of object name expression. This reusable fragment
+		/// is used in places where object name is required. The used prefix
+		/// is defined by {@link #GrammarContent.Namespace} definition.
+		def ObjectNameDef {
+			^ g:ObjectName {
+				@ prefix = identifier;
+				% :; 
+				@ name = identifier;
+			};
+		};
+
+		/// Definition for wrapper section fragment. This fragment is attached
+		/// to syntax expressions that match and produce individual tokens. 
+		/// The fragment specification causes this token to be wrapped into
+		/// into the specified object and property. 
+		def WrapperDef {
+			% wrapper {
+				ref(WrapperObject);
+			};
+		};
+
+		/// Definition for wrapper specification fragment. Wrapper is
+		/// is usually attached to tokens. When token matches, its value
+		/// wrapped into specified object and property. 
+		def WrapperObject {
+			^ g:Wrapper {
+				@ object = ref(ObjectNameDef);
+				% .;
+				@ property = identifier;
+			};
+		};
+	};
+
+
+	
+	/// This is base mapping syntax context. Mapping context might
+	/// contain blank statements and let statements.
+	context abstract BaseMappingSyntax {
+		include Base;
+
+		/// Let statement. It is used to define mapping from syntax 
+		/// to property of the object. The statement matches expression
+		/// after "=" or "+=" and yields property assignment. All objects 
+		/// or values that are encountered in the property are assigned 
+		/// to property of top object specified by name property.
+		///
+		/// The "+=" version assumes list property, the "=" version assumes 
+		/// property with upper multiplicity equal to 1.
+		/// {@example #CompositeOperatorSyntax
+		///   @ name = identifier; // match single identifier
+		///   // match non-empty sequence of numbers separated by comma
+		///   @ numbers += list , { integer | float;}; 
+		/// }
+		statement Let {
+			% @;
+			@ name = identifier;
+			@ operator = token(+=) | token(=);
+			@ expression = expression;
+		};
+		
+		/// This is blank statement. It is used to attach attributes 
+		/// and documentation comments. This is may be used for example
+		/// for attaching annotations after last statement.
+		statement BlankSyntaxStatement {
+		};
+	};
+
+	/// This is base syntax context. This context might contain object
+	/// specification in addition to let statement.
+	context abstract BaseSyntax {
+		include BaseMappingSyntax;
+
+		/// Utility definition used in different parts of the syntax
+		/// It allows to specify a block consisting of syntax statements.
+		/// It matches the specified statements in the sequence. 
+		/// {@example #CompositeSyntax
+		///   {% let; @name = identifier; % =; @value = expression;};
+		/// }
+		def SequenceDef  {
+			^ g:Sequence {
+				@ syntax += block;
+			};
+		};
+
+		/// Object expression. It is used to specify context of parsing. 
+		/// 
+		/// The expression matches its content, and creates an context object
+		/// all properties that are directly or indirectly specified in the 
+		/// content will be assumed to be specified in context of this object
+		/// unless new object directive is encountered.
+		///
+		/// It is an error to specify value or object generators inside object
+		/// without property layer.
+		/// {@example #CompositeSyntax
+		///   ^ t:Ref {% ref % (; @name = identifier; % );};
+		/// }
+		op composite ObjectOp(f) {
+			% ^;
+			@ name = ref(ObjectNameDef);
+			@ syntax = ref(SequenceDef);
+		};
+	};
+
+
+	/// This is base syntax context. 
+	context abstract BaseCompositeSyntax {
+		include BaseSyntax;
+		
+		/// Expression statement. This statement is a container for expression.
+		/// The statement has the same semantics as expression contained in it.
+		statement ExpressionStatement {
+			@ syntax = expression;
+		};
+	};
+
+
+	/// This syntax is used inside documentation statement. 
+	context DocumentationSyntax {
+		include BaseMappingSyntax;
+		/// This is doclines expression. It matches sequence of documentation lines.
+		/// {@example #DocumentationSyntax;
+		///   @ documentation += doclines wrapper xj:DocumentationLine.text;
+		/// };
+		op composite DoclinesOp(f) {
+			% doclines;
+			@ wrapper = ref(WrapperDef)?;
+		};
+	};	
+
+	/// This context specifies syntax for simple operations
+	context SimpleOpSyntax {
+		include BaseCompositeSyntax;
+		
+		/// This expression matches left operand in expression. It is used
+		/// in let expression to specify property to which left operand 
+		/// of operator should be assigned.
+		/// {@example #ContextContent
+		///   op Minus(500, yfx, -) {
+		///     @ minuend = left;
+		///     @ subtrahend = right;
+		///   };
+		/// };
+		op composite Left(f) {
+			^ g:OperandOp {
+				@ position = token(left);
+			};
+		};
+		
+		/// This expression matches right operand in expression. It is used
+		/// in let expression to specify property to which right operand 
+		/// of operator should be assigned.
+		op composite Right(f) {
+			^ g:OperandOp {
+				@ position = token(right);
+			};
+		};
+	};
+	
+	/// This context contains definition of primitive syntax operators
+	context abstract CompositeOperatorsSyntax {
+		include BaseCompositeSyntax;
+		
+		/// Choice operator. It matches one of two alternatives. It is 
+		/// an error if both alternatives match an empty sequence or 
+		/// or might start with the same token. Note that it is not error
+		/// if one alternative starts with generic token kind (for example
+		/// string quoted with double quote, and another one starts with 
+		/// specific token like token "my string".
+		op ChoiceOp(xfy,300,|) {
+			@ options += left; @ options += right;
+		};
+
+		/// First choice operator. It tries to match the first 
+		/// alternative than the second one. This operator never
+		/// produces conflicts even if the second alternative matches
+		/// the first one.
+		op FirstChoiceOp(xfy,200,/) {
+			@ first = left; @ second = right;
+		};
+
+		/// This operator matches empty sequence of tokens or its operand.
+		op OptionalOp(yf,100,?) {
+			@ syntax = left;
+		};
+		
+		/// This operation matches non empty sequence of specified operand.
+		op OneOrMoreOp(yf,100,+) {
+			@ syntax = left;
+		};
+
+		/// This operation is composition of optional and one of more operators.
+		op ZeroOrMoreOp(yf,100,*) {
+			@ syntax = left;
+		};
+
+	};
+	
+	/// This context defines expressions that might happen in context 
+	/// of modifiers expressions.
+	context ModifiersSyntax {
+		include BaseMappingSyntax;
+
+		/// This is modifier specification. It can contain optional wrapper.
+		op composite ModifierOp(f) {
+			% modifier;
+			@ value = token;
+			@ wrapper = ref(WrapperDef)?; 
+		};
+	};
+	
+	/// Free form composite syntax
+	context CompositeSyntax {
+		include CompositeOperatorsSyntax;
+
+		/// A keyword definition statement. It could happen only
+		/// as part of {@link #PatternOp}
+		def KeywordStmtDef {
+			^ g:KeywordStatement {
+				% % {
+					@ text = token;
+				};
+			};
+		};
+		
+		
+		/// This is a sequence of keywords and blocks separated by white spaces. 
+		/// It is used to define literal syntax patterns in the grammar. Keywords
+		/// are just parsed and are not reported to the parser. Contents of the 
+		/// blocks is a sequence of syntax expressions and it is passed through
+		/// to the root sequence. Note that two blocks must be separated by one
+		/// or more keyword.
+		op composite PatternOp(f) {
+			^ g:Sequence {
+				@ syntax += {
+					{ 
+					  ref(KeywordStmtDef); 
+					  block?;
+					}+ | {
+						block;
+						{ 
+					  		ref(KeywordStmtDef); 
+					  		block?;
+						}*; 
+					};
+				};
+			};
+		};
+
+		/// Reference to definition in this context or in included context.
+		/// The expression is replaced with content of original definition.
+		/// Recursion is not allowed to be created using references.
+		op composite RefOp(f) {
+			% ref % ( {
+				@ name = identifier;
+			} % ) ;
+		};
+
+		/// Block reference. The statement matches block that that contains
+		/// statements of the specified context. If no context is specified,
+		/// reference to current context is assumed. Block produces possibly
+		/// empty sequence of objects. And it should happen in context of 
+		/// of list property.
+		op composite BlockRef(f) {
+			% block; 
+			% ( {
+			 @ context = identifier ;
+			} % ) ?; 
+		};
+		
+		/// This is reusable fragment used to specify expression precedence
+		def ExpressionPrecedenceDef {
+			% precedence % = {
+				@ precedence = integer;
+			};
+		};
+		/// Expression reference. This reference matches expression from 
+		/// specified context and of specified precedence. If context is omitted,
+		/// current context is assumed. The expression production always 
+		/// produces a single object as result if parsing is successful.
+		op composite ExpressionRef(f) {
+			% expression;
+			% ( {
+				{
+					ref(ExpressionPrecedenceDef);
+				} | {	
+					@ context = identifier;
+					% , {
+						ref(ExpressionPrecedenceDef);
+					}?;
+				};	
+			} % ) ?;
+		};
+
+
+		/// This construct matches sequence separated by the specified 
+		/// separator. This construct is just useful shortcut. The separator 
+		/// can be any specific token. The expression 
+		/// {@example #CompositeSyntax
+		/// list , { 
+		///   ref(Something);
+		/// }; 
+		/// }
+		/// is equivalent to 
+		/// {@example #CompositeSyntax
+		/// {
+		///    ref(Something); 
+		///    % , {
+		///       ref(Something); 
+		///    }*;
+		/// };
+		/// }
+		op composite ListOp(f) {
+			% list {
+				@ separator = token;
+				@ syntax = ref(SequenceDef);
+			};
+		};
+
+		
+		/// This construct matches set of modifiers. This construct
+		/// matches any number or modifiers in any order. Each modifier
+		/// matches and produces its text as a value. Wrapper specified 
+		/// for modifiers construct applies to all modifiers inside it
+		/// unless overridden by modifier.
+		op composite ModifiersOp(f) {
+			% modifiers;
+			@ wrapper = ref(WrapperDef)?; 
+			@ modifiers += block(ModifiersSyntax);
+		};
+		
+		/// This construct matches any token or token specified in brackets.
+		/// It produces a value of its text. If no token is specified, 
+		/// the construct matches any significant token with exception of 
+		/// documentation comment. See this grammar for numerous examples of its
+		/// usage (including this definition).
+		///
+		/// Optional wrapper causes wrapping value produced by this expression
+		/// into specified wrapper.
+		op composite TokenOp(f) {
+			% token {
+				% ( {
+					@ value = token;
+				} % ) ?;
+			};
+			@ wrapper = ref(WrapperDef)?; 
+		};
+		/// This operator matches string with specified quote kind.
+		/// The quote must be specified. The operator produces matched text
+		/// as a value.
+		///
+		/// The operator optionally supports prefixed and multiline strings.
+		/// Only strings that match the specific prefix could be specified.
+		///
+		/// Optional wrapper causes wrapping value produced by this expression
+		/// into specified wrapper.
+		op composite StringOp(f) {
+			% string % ( {
+				% prefix % = {
+					@ prefix += list | { 
+						identifier;
+					};	 
+				} % , ?;
+				% quote % = {
+					@ quote = ref(String);
+				};	
+				% , % multiline % = {
+					@ multiline = token(true); 
+				}?;
+			} % );
+			@ wrapper = ref(WrapperDef)?; 
+		};
+		
+		/// This operator matches any identifier. The operator produces matched text
+		/// as a value.
+		///
+		/// Optional wrapper causes wrapping value produced by this expression
+		/// into specified wrapper.
+		op composite IdentifierOp(f) {
+			% identifier;
+			@ wrapper = ref(WrapperDef)?; 
+		};
+
+
+		/// This operator matches integer without suffix or with specified suffix
+		/// The operator produces matched text as a value.
+		///
+		/// Optional wrapper causes wrapping value produced by this expression
+		/// into specified wrapper.
+		op composite IntegerOp(f) {
+			% integer {
+				% ( {
+					% suffix % = {
+						@ suffix += list | { 
+							identifier;
+						};
+					}?;
+				} % ) ?;
+				@ wrapper = ref(WrapperDef)?; 
+			};
+		};
+
+
+		/// This operator matches float without suffix or with specified suffix.
+		/// The operator produces matched text as a value.
+		///
+		/// Optional wrapper causes wrapping value produced by this expression
+		/// into specified wrapper.
+		op composite FloatOp(f) {
+			% float;
+			% ( {
+				% suffix % = {
+					@ suffix += list | { 
+						identifier;
+					};
+				}? ;
+			} % ) ?;
+			@ wrapper = ref(WrapperDef)?; 
+		};
+
+
+		/// This operator matches any graphics token.
+		/// The operator produces matched text as a value.
+		///
+		/// Optional wrapper causes wrapping value produced by this expression
+		/// into specified wrapper.
+		op composite GraphicsOp(f) {
+			% graphics;
+			@ wrapper = ref(WrapperDef)?; 
+		};
+
+	};
+	
+	/// Composite operator syntax. 
+	/// Note that this definition is oversimplified. There are additional 
+	/// constraint that "left" and "right" expression might happen only on top 
+	/// level. The construct will be possibly adjusted later. 
+	context CompositeOpSyntax {
+		include SimpleOpSyntax;
+		include CompositeSyntax;
+	};
+	
+	/// This context defines content of context statement. So it defines itself.
+	context ContextContent {
+		include Base;
+
+		/// This is blank statement. It is used to attach attributes 
+		/// and documentation comments.
+		statement BlankContextStatement {
+		};
+
+
+		/// Operator associativity definition. It matches any valid 
+		/// associativity.
+		def OpAssociativity {
+			token(f) | token(xf) | token(yf) |token(xfy) |
+			token(xfx) |token(yfx) |token(fx) | token(fy) | token(yfy);
+		};
+
+
+		/// Operator definition. There are two kinds of operators - simple
+		/// composite.
+		///
+		/// If the operator definition does not contain a single object creation
+		/// expression it is assumed to have a content wrapped in the object
+		/// creation expression with default namespace and operator name as an
+		/// object name.
+		statement OperatorDefinition {
+			% op;
+			modifiers wrapper g:Modifier.value {
+				@ isComposite = modifier composite;
+			};
+			@ name = identifier;
+			% ( {
+				@ associativity = ref(OpAssociativity);
+				% , {
+					@ precedence = integer;
+				    % , {
+						@ text = token;
+					} % ) {
+						@ syntax += block(SimpleOpSyntax);
+					} | % ) {
+						@ syntax += block(CompositeOpSyntax);
+					};	
+				} | % ) {
+					@ syntax += block(CompositeOpSyntax);
+				};
+			};
+		};
+
+		/// Attributes definition. Attributes can be applied only to
+		/// statements. To apply them to expressions, define an composite
+		/// operator that uses the same syntax. Such operator and attributes
+		/// declaration can share syntax through def statement.
+		statement Attributes {
+			% attributes;
+			@ name = identifier;
+			@ syntax += block(CompositeSyntax);
+		};
+		
+		/// Statement definition. Statement attempts to match entire segment.
+		/// If statement matches part of segment and there are some 
+		/// unmatched significant tokens left, it is a syntax error.
+		///
+		/// If the statement definition does not contain a single object creation
+		/// expression it is assumed to have a content wrapped in the object
+		/// creation expression with default namespace and statement name as an
+		/// object name.
+		statement Statement {
+			% statement;
+			@ name = identifier;
+			@ syntax += block(CompositeSyntax);
+		};
+
+		/// Documentation syntax. It matches documentation comments before
+		/// start of grammar. The definition is used to specify property
+		/// where documentation is put.
+		statement DocumentationSyntax {
+			% documentation;
+			@ name = identifier;
+			@ syntax += block(DocumentationSyntax);
+		};
+
+		/// A fragment definition. It is used to define reusable parts of the 
+		/// syntax. References to definitions are replaced with content of the 
+		/// definition, so it is an error for definition to refer to itself 
+		/// through ref construct.
+		statement Def {
+			% def;
+			@ name = identifier;
+			@ syntax += block(CompositeSyntax);
+		};
+		
+		/// Include operation cause all definitions except redefined 
+		/// to be included in this context. It is an error if two definitions 
+		/// are available using different paths. If wrapper chain is specified
+		/// The statements will be wrapped into the specified chain.
+		statement ContextInclude {
+			% include;
+			@ contextName = identifier;
+			@ wrappers += % wrapper {
+				list / {
+					ref(WrapperObject);
+				};
+			}?;
+		};
+
+		/// Import operation makes context referenceable from this context or 
+		/// allows redefinition of context reference.
+		statement ContextImport {
+			% import;
+			@ localName = identifier;
+			% = {
+				@ contextName = identifier;
+				% from {
+					@ grammarName = identifier;
+				}?;
+			};
+		};
+	};
+	
+	/// This context defines grammar content.
+	context GrammarContent {
+		include Base;
+		
+		/// This definition provides way of referencing other grammars.
+		def GrammarRef {
+			{
+				@ systemId = ref(String);
+				% public {
+					@ publicId = ref(String);
+				}?;
+			} | {
+				% public {
+					@ publicId = ref(String);
+				};
+			};				
+		};
+
+		/// This is blank statement. It is used to attach attributes 
+		/// and documentation comments.
+		statement BlankGrammarStatement {
+		};
+
+		
+		/// This is an include statement. Include causes all context from 
+		/// included grammar to be added to current grammar. The definitions
+		/// from grammar include are added only if current grammar does not 
+		/// have definitions with the same name.
+		///
+		/// Grammar imports and context imports also follow this inclusion rule.
+		/// It is an error to include two different non-shadowed definitions by
+		/// different include paths.
+		statement GrammarInclude {
+			% include;
+			ref(GrammarRef);
+		};
+
+		/// This is grammar import statement. A statement allows contexts of this
+		/// grammar to import context from specified grammar.
+		statement GrammarImport {
+			% import {
+				@ name = identifier;
+			} % = {
+				ref(GrammarRef);
+			};	
+		};
+
+
+		/// Namespace declaration is used to declare namespace prefix. The 
+		/// prefix declaration is local to grammar and is not inherited in 
+		/// the case of grammar include. 
+		///
+		/// The namespace can have a default modifier. This namespace will 
+		/// be used along with operator or statement name in case when 
+		/// there are several children in the definition or when the only 
+		/// child is not an object creation expression. 
+		statement Namespace {
+			% namespace;
+			modifiers wrapper g:Modifier.value {
+				@ defaultModifier = modifier default;
+			};
+			@ prefix = identifier;
+			% = ;
+			@ uri = ref(String);
+		};
+
+		/// Context definition. This definition is used to define context.
+		/// Context may be default and abstract. Abstract contexts 
+		/// cannot be used for parsing and are used only in context include.
+		/// Abstract contexts may be imported only by abstract contexts.
+		///
+		/// Default context is a context that used to parse source when
+		/// no context is specified in doctype. 
+		statement Context {
+			% context;
+			modifiers wrapper g:Modifier.value {
+				@ abstractModifier = modifier abstract;
+				@ defaultModifier = modifier default;
+			};
+			@ name = identifier;
+			@ content += block(ContextContent);
+		};
+	};
+	
+	/// This context contains definition of grammar construct itself
+	context default GrammarSource {
+		include Base;
+
+		/// This is blank statement. It is used to attach attributes 
+		/// and documentation comments. It is ignored during grammar
+		/// compilation.
+		statement BlankTopLevel {
+		};
+
+		/// Grammar statement. It defines grammar. Grammar name is purely 
+		/// informative and is used in reported events to identify grammar
+		/// by logical name rather by URI that happens to be current grammar
+		/// location.
+		///
+		/// Grammar can be abstract; in that case it cannot be instantiated
+		/// and referenced from doctype. It can be only included into other 
+		/// grammars.
+		statement Grammar {
+			% grammar;
+			modifiers wrapper g:Modifier.value {
+				@ abstractModifier = modifier abstract;
+			};
+			@ name += list . {identifier;};
+			@ content += block(GrammarContent);
+		};
+	};
+};
