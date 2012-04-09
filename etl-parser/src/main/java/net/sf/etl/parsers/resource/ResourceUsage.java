@@ -23,26 +23,44 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers.event;
+package net.sf.etl.parsers.resource;
+
+import java.io.Serializable;
 
 /**
- * The event driven parse result
+ * Resource usage
  */
-public enum ParserState {
+public class ResourceUsage implements Serializable {
     /**
-     * The parser needs more data to produce tokens
+     * The reference for this usage
      */
-    INPUT_NEEDED,
+    private final ResourceReference reference;
     /**
-     * The output is available
+     * The used resource
      */
-    OUTPUT_AVAILABLE,
+    private final ResourceDescriptor resource;
     /**
-     * Additional ResourceI is needed
+     * The resource role
      */
-    RESOURCE_NEEDED,
-    /**
-     * The end of file is reached
-     */
-    EOF
+    private final String role;
+
+
+    public ResourceUsage(ResourceReference reference, ResourceDescriptor resource, String role) {
+        this.reference = reference;
+        this.resource = resource;
+        this.role = role;
+    }
+
+    public ResourceReference getReference() {
+        return reference;
+    }
+
+    public ResourceDescriptor getResource() {
+        return resource;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
 }

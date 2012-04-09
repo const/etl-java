@@ -44,9 +44,9 @@ import static org.junit.Assert.assertNotNull;
 public class BootstrapETLParserTest {
 
     /**
-     * parse resource
+     * parse ResourceI
      *
-     * @param resourceName name of resource
+     * @param resourceName name of ResourceI
      * @return parsed grammar
      */
     private Grammar parseResource(String resourceName) {

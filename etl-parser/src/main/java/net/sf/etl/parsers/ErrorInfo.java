@@ -1,26 +1,26 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2009 Constantine A Plotnikov
+ * Copyright (c) 2000-2012 Constantine A Plotnikov
  *
- * Permission is hereby granted, free of charge, to any person 
- * obtaining a copy of this software and associated documentation 
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, 
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * including without limitation the rights to use, copy, modify, merge,
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be 
+ * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
- * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
- * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
- * SOFTWARE. 
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package net.sf.etl.parsers;
 
@@ -35,7 +35,7 @@ import java.util.*;
  *
  * @author const
  */
-public final class ErrorInfo {
+public final class ErrorInfo implements Iterable<ErrorInfo> {
     // FIXME add related locations support
     /**
      * a bundle with lexical error messages
@@ -92,6 +92,13 @@ public final class ErrorInfo {
     public ErrorInfo(String id, Object args[], TextPos start, TextPos end,
                      String systemId) {
         this(id, args, start, end, systemId, null);
+    }
+
+    public ErrorInfo(String errorId, List<Object> errorArgs, SourceLocation location, ErrorInfo nextError) {
+        this.errorId = errorId;
+        this.errorArgs = errorArgs;
+        this.location = location;
+        this.nextError = nextError;
     }
 
     /**
@@ -170,6 +177,28 @@ public final class ErrorInfo {
     }
 
     /**
+     * Merge collection of error to the single ErrorInfo
+     *
+     * @param errors the errors to merge
+     * @return the error list
+     */
+    public static ErrorInfo merge(Collection<ErrorInfo> errors) {
+        ArrayList<ErrorInfo> list = new ArrayList<ErrorInfo>();
+        for (ErrorInfo error : errors) {
+            for (ErrorInfo e : error) {
+                list.add(e);
+            }
+        }
+        Collections.reverse(list);
+        ErrorInfo current = null;
+        for (ErrorInfo e : list) {
+            current = new ErrorInfo(e.errorId, e.errorArgs, e.location, current);
+        }
+        return current;
+    }
+
+
+    /**
      * @return the error message text
      */
     public String message() {
@@ -187,5 +216,29 @@ public final class ErrorInfo {
                     + errorId);
         }
         return MessageFormat.format(b.getString(errorId), errorArgs.toArray());
+    }
+
+    @Override
+    public Iterator<ErrorInfo> iterator() {
+        return new Iterator<ErrorInfo>() {
+            ErrorInfo current = ErrorInfo.this;
+
+            @Override
+            public boolean hasNext() {
+                return current != null;
+            }
+
+            @Override
+            public ErrorInfo next() {
+                ErrorInfo rc = current;
+                current = current.nextError;
+                return rc;
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException("Removing elements is not supported");
+            }
+        };
     }
 }

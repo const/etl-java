@@ -1,3 +1,4 @@
+doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0";
 // Reference ETL Parser for Java
 // Copyright (c) 2000-2009 Constantine A Plotnikov
 //
@@ -20,7 +21,6 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
 // SOFTWARE. 
-doctype public "-//IDN etl.sf.net//ETL//Grammar 0.2.1";
 
 /// This is a default grammar. It is used if one of the following happened:
 /// <ul>
@@ -36,7 +36,7 @@ doctype public "-//IDN etl.sf.net//ETL//Grammar 0.2.1";
 ///
 /// <author>const</author>
 grammar net.sf.etl.grammars.DefaultGrammar {
-	namespace default d = "http://etl.sf.net/etl/default/0.2.1";
+	namespace default d = "http://etl.sf.net/etl/default/0.3.0";
 
 	/// The only context in this grammar
 	context default DefaultContext {
