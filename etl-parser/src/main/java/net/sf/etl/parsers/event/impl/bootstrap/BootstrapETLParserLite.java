@@ -27,7 +27,7 @@ package net.sf.etl.parsers.event.impl.bootstrap;
 import net.sf.etl.parsers.LiteralUtils;
 import net.sf.etl.parsers.PhraseTokens;
 import net.sf.etl.parsers.Tokens;
-import net.sf.etl.parsers.grammar.model.*;
+import net.sf.etl.parsers.event.unstable.model.grammar.*;
 import net.sf.etl.parsers.streams.PhraseParserReader;
 
 import java.lang.reflect.Field;

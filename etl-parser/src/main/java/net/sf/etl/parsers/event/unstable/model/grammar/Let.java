@@ -22,33 +22,25 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-package net.sf.etl.parsers.event.impl.term.action;
-
-import net.sf.etl.parsers.event.grammar.TermParserContext;
-import net.sf.etl.parsers.event.grammar.TermParserStateFactory;
+package net.sf.etl.parsers.event.unstable.model.grammar;
 
 /**
- * The call action
+ * The Let node class. This class is a part of the lightweight grammar model.
+ *
+ * @author const
  */
-public class CallAction extends Action {
+public class Let extends SyntaxStatement {
     /**
-     * The point where to go on success
+     * name
      */
-    public Action success;
+    public java.lang.String name;
     /**
-     * The point where to go on the failure of the call
+     * operator
      */
-    public Action failure;
+    public java.lang.String operator;
     /**
-     * The state factory to call. This state factory is usually set using
-     * {@link net.sf.etl.parsers.event.impl.term.action.buildtime.ActionLinker}
-     * rather than directly during construction.
+     * expression
      */
-    public TermParserStateFactory stateFactory;
+    public Syntax expression;
 
-    @Override
-    public void parseMore(TermParserContext context, ActionState state) {
-        context.call(stateFactory);
-    }
 }

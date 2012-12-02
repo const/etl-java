@@ -27,7 +27,7 @@ package net.sf.etl.parsers.event.grammar;
 
 import net.sf.etl.parsers.ErrorInfo;
 import net.sf.etl.parsers.event.ParserState;
-import net.sf.etl.parsers.grammar.model.Grammar;
+import net.sf.etl.parsers.event.unstable.model.grammar.Grammar;
 import net.sf.etl.parsers.resource.ResolvedObject;
 import net.sf.etl.parsers.resource.ResourceRequest;
 

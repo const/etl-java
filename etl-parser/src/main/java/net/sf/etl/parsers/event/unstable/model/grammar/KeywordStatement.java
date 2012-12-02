@@ -23,32 +23,18 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers.event.impl.term.action;
-
-import net.sf.etl.parsers.event.grammar.TermParserContext;
-import net.sf.etl.parsers.event.grammar.TermParserStateFactory;
+package net.sf.etl.parsers.event.unstable.model.grammar;
 
 /**
- * The call action
+ * Keyword operation. Keywords are represent literal syntax that is not part of
+ * abstract syntax.
+ *
+ * @author const
  */
-public class CallAction extends Action {
+public class KeywordStatement extends SyntaxStatement {
     /**
-     * The point where to go on success
+     * value
      */
-    public Action success;
-    /**
-     * The point where to go on the failure of the call
-     */
-    public Action failure;
-    /**
-     * The state factory to call. This state factory is usually set using
-     * {@link net.sf.etl.parsers.event.impl.term.action.buildtime.ActionLinker}
-     * rather than directly during construction.
-     */
-    public TermParserStateFactory stateFactory;
+    public java.lang.String text;
 
-    @Override
-    public void parseMore(TermParserContext context, ActionState state) {
-        context.call(stateFactory);
-    }
 }

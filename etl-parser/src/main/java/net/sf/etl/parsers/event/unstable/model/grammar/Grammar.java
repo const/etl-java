@@ -22,33 +22,25 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-package net.sf.etl.parsers.event.impl.term.action;
-
-import net.sf.etl.parsers.event.grammar.TermParserContext;
-import net.sf.etl.parsers.event.grammar.TermParserStateFactory;
+package net.sf.etl.parsers.event.unstable.model.grammar;
 
 /**
- * The call action
+ * The Grammar node class. This class is a part of the lightweight grammar
+ * model.
+ *
+ * @author const
  */
-public class CallAction extends Action {
+public class Grammar extends AbstractStatement {
     /**
-     * The point where to go on success
+     * content
      */
-    public Action success;
+    public final java.util.ArrayList<GrammarMember> content = new java.util.ArrayList<GrammarMember>();
     /**
-     * The point where to go on the failure of the call
+     * abstractModifier
      */
-    public Action failure;
+    public Modifier abstractModifier;
     /**
-     * The state factory to call. This state factory is usually set using
-     * {@link net.sf.etl.parsers.event.impl.term.action.buildtime.ActionLinker}
-     * rather than directly during construction.
+     * name
      */
-    public TermParserStateFactory stateFactory;
-
-    @Override
-    public void parseMore(TermParserContext context, ActionState state) {
-        context.call(stateFactory);
-    }
+    public final java.util.ArrayList<java.lang.String> name = new java.util.ArrayList<java.lang.String>();
 }

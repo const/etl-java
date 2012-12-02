@@ -23,32 +23,18 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers.event.impl.term.action;
+package net.sf.etl.parsers.event.impl.term.action.buildtime;
 
 import net.sf.etl.parsers.event.grammar.TermParserContext;
-import net.sf.etl.parsers.event.grammar.TermParserStateFactory;
+import net.sf.etl.parsers.event.impl.term.action.Action;
+import net.sf.etl.parsers.event.impl.term.action.ActionState;
 
 /**
- * The call action
+ * The unreachable action, if this action is reached, then it means that there is some serious bug
  */
-public class CallAction extends Action {
-    /**
-     * The point where to go on success
-     */
-    public Action success;
-    /**
-     * The point where to go on the failure of the call
-     */
-    public Action failure;
-    /**
-     * The state factory to call. This state factory is usually set using
-     * {@link net.sf.etl.parsers.event.impl.term.action.buildtime.ActionLinker}
-     * rather than directly during construction.
-     */
-    public TermParserStateFactory stateFactory;
-
+public class UnreachableAction extends Action {
     @Override
     public void parseMore(TermParserContext context, ActionState state) {
-        context.call(stateFactory);
+        throw new IllegalStateException("The unreachable action is reached");
     }
 }

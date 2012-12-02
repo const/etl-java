@@ -29,8 +29,8 @@ import net.sf.etl.parsers.*;
 import net.sf.etl.parsers.event.grammar.CompiledGrammar;
 import net.sf.etl.parsers.event.grammar.TermParserStateFactory;
 import net.sf.etl.parsers.event.impl.term.action.*;
-import net.sf.etl.parsers.event.impl.term.actions.buildtime.ActionLinker;
-import net.sf.etl.parsers.event.impl.term.actions.buildtime.UnreachableAction;
+import net.sf.etl.parsers.event.impl.term.action.buildtime.ActionLinker;
+import net.sf.etl.parsers.event.impl.term.action.buildtime.UnreachableAction;
 import net.sf.etl.parsers.resource.ResourceDescriptor;
 
 import java.util.Collections;

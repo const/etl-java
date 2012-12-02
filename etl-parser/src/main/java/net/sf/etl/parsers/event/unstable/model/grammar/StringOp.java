@@ -22,33 +22,27 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package net.sf.etl.parsers.event.unstable.model.grammar;
 
-package net.sf.etl.parsers.event.impl.term.action;
-
-import net.sf.etl.parsers.event.grammar.TermParserContext;
-import net.sf.etl.parsers.event.grammar.TermParserStateFactory;
+import java.util.LinkedList;
 
 /**
- * The call action
+ * The StringOp node class. This class is a part of the lightweight grammar
+ * model.
+ *
+ * @author const
  */
-public class CallAction extends Action {
+public class StringOp extends TokenRefOp {
     /**
-     * The point where to go on success
+     * prefix for the string (identifier)
      */
-    public Action success;
+    public final LinkedList<String> prefix = new LinkedList<String>();
     /**
-     * The point where to go on the failure of the call
+     * quote for the string (for symmetric case)
      */
-    public Action failure;
+    public String quote;
     /**
-     * The state factory to call. This state factory is usually set using
-     * {@link net.sf.etl.parsers.event.impl.term.action.buildtime.ActionLinker}
-     * rather than directly during construction.
+     * multiline flag
      */
-    public TermParserStateFactory stateFactory;
-
-    @Override
-    public void parseMore(TermParserContext context, ActionState state) {
-        context.call(stateFactory);
-    }
+    public String multiline;
 }

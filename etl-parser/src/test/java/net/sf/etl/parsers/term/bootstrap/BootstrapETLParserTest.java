@@ -26,7 +26,7 @@ package net.sf.etl.parsers.term.bootstrap;
 
 import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.event.impl.bootstrap.BootstrapETLParserLite;
-import net.sf.etl.parsers.grammar.model.Grammar;
+import net.sf.etl.parsers.event.unstable.model.grammar.Grammar;
 import net.sf.etl.parsers.streams.LexerReader;
 import net.sf.etl.parsers.streams.PhraseParserReader;
 import org.junit.Test;

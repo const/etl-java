@@ -22,33 +22,34 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package net.sf.etl.parsers.event.unstable.model.grammar;
 
-package net.sf.etl.parsers.event.impl.term.action;
-
-import net.sf.etl.parsers.event.grammar.TermParserContext;
-import net.sf.etl.parsers.event.grammar.TermParserStateFactory;
+import net.sf.etl.parsers.TextPos;
 
 /**
- * The call action
+ * Base class for lightweight grammar objects
+ *
+ * @author const
  */
-public class CallAction extends Action {
+public abstract class EObject {
     /**
-     * The point where to go on success
+     * owner of the element
      */
-    public Action success;
+    public EObject ownerObject;
     /**
-     * The point where to go on the failure of the call
+     * feature of the owner that has this element
      */
-    public Action failure;
+    public java.lang.reflect.Field ownerFeature;
     /**
-     * The state factory to call. This state factory is usually set using
-     * {@link net.sf.etl.parsers.event.impl.term.action.buildtime.ActionLinker}
-     * rather than directly during construction.
+     * start line
      */
-    public TermParserStateFactory stateFactory;
-
-    @Override
-    public void parseMore(TermParserContext context, ActionState state) {
-        context.call(stateFactory);
-    }
+    public TextPos start;
+    /**
+     * end position
+     */
+    public TextPos end;
+    /**
+     * The system identifier for the node
+     */
+    public String systemId;
 }
