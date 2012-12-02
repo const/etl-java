@@ -22,18 +22,18 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.grammar.model;
+
+package net.sf.etl.parsers.event.impl.term.action;
+
+import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 /**
- * The Ref node class. This class is a part of the lightweight grammar model.
- * TODO Parameters?
- *
- * @author const
+ * Enable soft end for the segment
  */
-public class RefOp extends Syntax {
-    /**
-     * name
-     */
-    public java.lang.String name;
-
+public class DisableSoftEndAction extends SimpleAction {
+    @Override
+    public void parseMore(TermParserContext context, ActionState state) {
+        context.disableSoftEnd();
+        state.nextAction(next);
+    }
 }

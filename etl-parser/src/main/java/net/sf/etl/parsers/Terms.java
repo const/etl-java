@@ -115,11 +115,11 @@ public enum Terms {
     /**
      * start of segment
      */
-    SEGMENT_START,
+    STATEMENT_START,
     /**
      * end of segment
      */
-    SEGMENT_END,
+    STATEMENT_END,
     /**
      * start of block
      */

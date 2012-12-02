@@ -22,18 +22,19 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.grammar.model;
+
+package net.sf.etl.parsers.event.grammar;
 
 /**
- * The Ref node class. This class is a part of the lightweight grammar model.
- * TODO Parameters?
- *
- * @author const
+ * Term parser state factory
  */
-public class RefOp extends Syntax {
+public interface TermParserStateFactory {
     /**
-     * name
+     * Start parsing
+     *
+     * @param context  the context
+     * @param previous the previous state
+     * @return the new state
      */
-    public java.lang.String name;
-
+    TermParserState start(TermParserContext context, TermParserState previous);
 }

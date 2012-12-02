@@ -47,6 +47,10 @@ public final class TermToken extends AbstractToken {
      * property name or object name
      */
     private final Object structureId;
+    /**
+     * The location of definition for the term token
+     */
+    private final SourceLocation definedAt;
 
     /**
      * An error token. It is used to report syntax and grammar errors.
@@ -60,11 +64,28 @@ public final class TermToken extends AbstractToken {
      * @param errorInfo   the error information error info covered by error
      */
     public TermToken(Terms kind, SyntaxRole role, Object structureId, PhraseToken token, TextPos start, TextPos end, ErrorInfo errorInfo) {
+        this(kind, role, structureId, token, start, end, null, errorInfo);
+    }
+
+    /**
+     * An error token. It is used to report syntax and grammar errors.
+     *
+     * @param kind        the kind of error
+     * @param role        the role of the token
+     * @param structureId the structure identifier
+     * @param token       the phrase token
+     * @param start       the start of the token
+     * @param end         the end of the token
+     * @param definedAt   the grammar location there the token is defined
+     * @param errorInfo   the error information error info covered by error
+     */
+    public TermToken(Terms kind, SyntaxRole role, Object structureId, PhraseToken token, TextPos start, TextPos end, SourceLocation definedAt, ErrorInfo errorInfo) {
         super(start, end, errorInfo);
         this.kind = kind;
         this.role = role;
         this.token = token;
         this.structureId = structureId;
+        this.definedAt = definedAt;
         // TODO validation and helper methods
     }
 
@@ -72,18 +93,18 @@ public final class TermToken extends AbstractToken {
     /**
      * @return a context of the term
      */
-    public StatementContext statementContext() {
+    public DefinitionContext statementContext() {
         switch (kind()) {
             case BLOCK_START:
             case BLOCK_END:
-            case SEGMENT_START:
-            case SEGMENT_END:
+            case STATEMENT_START:
+            case STATEMENT_END:
             case ATTRIBUTES_START:
             case ATTRIBUTES_END:
             case DOC_COMMENT_START:
             case DOC_COMMENT_END:
             case GRAMMAR_IS_LOADED:
-                return (StatementContext) structureId;
+                return (DefinitionContext) structureId;
             default:
                 throw new IllegalStateException(
                         "Term context is not supported for kind: " + kind);
@@ -104,6 +125,12 @@ public final class TermToken extends AbstractToken {
         }
     }
 
+    /**
+     * @return the grammar where this token is defined. The value could be null, if there is no definition.
+     */
+    public SourceLocation definedAt() {
+        return definedAt;
+    }
 
     /**
      * @return kind of the term

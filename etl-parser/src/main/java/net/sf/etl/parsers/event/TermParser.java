@@ -25,8 +25,8 @@
 
 package net.sf.etl.parsers.event;
 
+import net.sf.etl.parsers.DefinitionContext;
 import net.sf.etl.parsers.PhraseToken;
-import net.sf.etl.parsers.StatementContext;
 import net.sf.etl.parsers.TermToken;
 import net.sf.etl.parsers.event.grammar.CompiledGrammar;
 import net.sf.etl.parsers.resource.ResolvedObject;
@@ -36,6 +36,16 @@ import net.sf.etl.parsers.resource.ResourceRequest;
  * The term parser interface that parses the stream. The initial
  */
 public interface TermParser {
+    /**
+     * Force the grammar for the parser as if doctype instruction with this grammar was executed before
+     * parsing the first line of source code.
+     *
+     * @param grammar    the provided grammar
+     * @param scriptMode if true, the grammar is forced in script mode
+     * @throws IllegalStateException if grammar is already provided or parsing is started
+     */
+    void forceGrammar(CompiledGrammar grammar, boolean scriptMode);
+
     /**
      * @return true after grammar was supplied to the term parser of the parser was constructed from compiled grammar
      */
@@ -51,7 +61,7 @@ public interface TermParser {
      * @return the initial context after it is resolved
      * @throws IllegalStateException if the grammar was determined yet
      */
-    StatementContext initialContext();
+    DefinitionContext initialContext();
 
     /**
      * Start parsing
@@ -89,4 +99,9 @@ public interface TermParser {
      * @return the parsed state
      */
     ParserState parse(Cell<PhraseToken> token);
+
+    /**
+     * @return get system id
+     */
+    String getSystemId();
 }

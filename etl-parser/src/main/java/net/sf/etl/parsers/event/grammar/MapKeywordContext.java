@@ -22,18 +22,32 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.grammar.model;
+
+package net.sf.etl.parsers.event.grammar;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * The Ref node class. This class is a part of the lightweight grammar model.
- * TODO Parameters?
- *
- * @author const
+ * Map keyword context
  */
-public class RefOp extends Syntax {
+public class MapKeywordContext implements KeywordContext {
     /**
-     * name
+     * The backing map
      */
-    public java.lang.String name;
+    private final HashMap<String, Integer> map;
 
+    /**
+     * The constructor
+     *
+     * @param map the map that describes the context, the map is copied in the constructor
+     */
+    public MapKeywordContext(Map<String, Integer> map) {
+        this.map = new HashMap<String, Integer>(map);
+    }
+
+    @Override
+    public Integer get(String text) {
+        return map.get(text);
+    }
 }

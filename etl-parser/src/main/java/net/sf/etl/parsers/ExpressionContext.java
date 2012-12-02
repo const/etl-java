@@ -34,11 +34,11 @@ public class ExpressionContext {
     /**
      * Context that includes this statement context
      */
-    private final StatementContext hostContext;
+    private final DefinitionContext hostContext;
     /**
      * The expression grammar
      */
-    private final String expressionGrammar;
+    private final GrammarInfo expressionGrammar;
     /**
      * The expression context name
      */
@@ -56,7 +56,7 @@ public class ExpressionContext {
      * @param context           the expression context name
      * @param precedenceLevel   the precedence level
      */
-    public ExpressionContext(StatementContext hostContext, String expressionGrammar, String context, int precedenceLevel) {
+    public ExpressionContext(DefinitionContext hostContext, GrammarInfo expressionGrammar, String context, int precedenceLevel) {
         this.hostContext = hostContext;
         this.expressionGrammar = expressionGrammar;
         this.context = context;
@@ -66,28 +66,28 @@ public class ExpressionContext {
     /**
      * @return the host statement context
      */
-    public StatementContext getHostContext() {
+    public DefinitionContext hostContext() {
         return hostContext;
     }
 
     /**
      * @return the expression grammar system id
      */
-    public String getExpressionGrammar() {
+    public GrammarInfo expressionGrammar() {
         return expressionGrammar;
     }
 
     /**
      * @return the context name
      */
-    public String getContext() {
+    public String context() {
         return context;
     }
 
     /**
      * @return the initial precedence level for the context
      */
-    public int getPrecedenceLevel() {
+    public int precedenceLevel() {
         return precedenceLevel;
     }
 

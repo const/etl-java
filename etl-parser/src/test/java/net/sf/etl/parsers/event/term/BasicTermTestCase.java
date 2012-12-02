@@ -22,18 +22,26 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.grammar.model;
+
+package net.sf.etl.parsers.event.term;
+
+import net.sf.etl.parsers.streams.TermParserReader;
 
 /**
- * The Ref node class. This class is a part of the lightweight grammar model.
- * TODO Parameters?
- *
- * @author const
+ * Basic test case for term parsing
  */
-public class RefOp extends Syntax {
+public class BasicTermTestCase {
     /**
-     * name
+     * The reader used for test
      */
-    public java.lang.String name;
+    protected TermParserReader reader;
 
+    /**
+     * Term parser reader used for the test
+     *
+     * @param reader the reader
+     */
+    protected void start(TermParserReader reader) {
+        this.reader = reader;
+    }
 }

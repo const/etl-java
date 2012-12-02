@@ -22,18 +22,36 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.grammar.model;
+
+package net.sf.etl.parsers.event.impl.term.action;
+
+import net.sf.etl.parsers.TermToken;
+import net.sf.etl.parsers.Terms;
+import net.sf.etl.parsers.TextPos;
+import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 /**
- * The Ref node class. This class is a part of the lightweight grammar model.
- * TODO Parameters?
- *
- * @author const
+ * Token action
  */
-public class RefOp extends Syntax {
+public class StructuralTokenAction extends SimpleAction {
     /**
-     * name
+     * The term token type
      */
-    public java.lang.String name;
+    public final Terms kind;
+    /**
+     * Object type
+     */
+    public final Object type;
 
+    public StructuralTokenAction(Terms kind, Object type) {
+        this.kind = kind;
+        this.type = type;
+    }
+
+    @Override
+    public void parseMore(TermParserContext context, ActionState state) {
+        TextPos start = context.current().start();
+        context.produce(new TermToken(kind, null, type, null, start, start, null));
+        state.nextAction(next);
+    }
 }

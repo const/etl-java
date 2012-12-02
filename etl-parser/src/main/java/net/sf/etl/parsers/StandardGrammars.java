@@ -66,8 +66,12 @@ public interface StandardGrammars {
     /**
      * System ID of doctype grammar
      */
-    public static final String DOCTYPE_SYSTEM_ID = StandardGrammars.class.getResource(
+    public static final String DOCTYPE_GRAMMAR_SYSTEM_ID = StandardGrammars.class.getResource(
             "/net/sf/etl/grammars/doctype.g.etl").toString();
+    /**
+     * The default grammar information
+     */
+    public static final GrammarInfo DOCTYPE_GRAMMAR_INFO = new GrammarInfo(DOCTYPE_GRAMMAR_SYSTEM_ID, DOCTYPE_GRAMMAR_NAME, null);
 
     /**
      * namespace of default object
@@ -85,11 +89,24 @@ public interface StandardGrammars {
     public static final String DEFAULT_GRAMMAR_SYSTEM_ID = StandardGrammars.class.getResource(
             "/net/sf/etl/grammars/default.g.etl").toString();
     /**
+     * The default grammar information
+     */
+    public static final GrammarInfo DEFAULT_GRAMMAR_INFO = new GrammarInfo(DEFAULT_GRAMMAR_SYSTEM_ID, DEFAULT_GRAMMAR_NAME, null);
+    /**
      * A context for default grammar
      */
-    public final static StatementContext DEFAULT_GRAMMAR_CONTEXT =
-            new StatementContext(DEFAULT_GRAMMAR_SYSTEM_ID, "DefaultContext");
-
+    public final static DefinitionContext DEFAULT_GRAMMAR_CONTEXT =
+            new DefinitionContext(DEFAULT_GRAMMAR_INFO, "DefaultContext");
+    /**
+     * Default grammar statement definition information
+     */
+    public final static DefinitionInfo DEFAULT_GRAMMAR_STATEMENT_DEFINITION_INFO =
+            new DefinitionInfo(DEFAULT_GRAMMAR_CONTEXT, "DefaultStatement", null);
+    /**
+     * Default grammar documentation definition information
+     */
+    public final static DefinitionInfo DEFAULT_GRAMMAR_DOCUMENTATION_DEFINITION_INFO =
+            new DefinitionInfo(DEFAULT_GRAMMAR_CONTEXT, "DefaultDocumentation", null);
     /**
      * object name of default statement
      */
@@ -104,7 +121,14 @@ public interface StandardGrammars {
      * content of default statement
      */
     public final static PropertyName DEFAULT_GRAMMAR_STATEMENT_DOCUMENTATION = new PropertyName("documentation");
-
+    /**
+     * content of default statement
+     */
+    public final static ObjectName DEFAULT_GRAMMAR_STATEMENT_DOCUMENTATION_OBJECT = new ObjectName(DEFAULT_NS, "DefaultDocumentationLine");
+    /**
+     * content of default statement
+     */
+    public final static PropertyName DEFAULT_GRAMMAR_STATEMENT_DOCUMENTATION_VALUE = new PropertyName("text");
     /**
      * object name of default block
      */
@@ -128,8 +152,8 @@ public interface StandardGrammars {
     /**
      * doctype context
      */
-    public static final StatementContext DOCTYPE_CONTEXT = new StatementContext(
-            DOCTYPE_SYSTEM_ID, "DoctypeContext");
+    public static final DefinitionContext DOCTYPE_CONTEXT = new DefinitionContext(
+            DOCTYPE_GRAMMAR_INFO, "DoctypeContext");
 
     /**
      * Object name for doctype object

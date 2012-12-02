@@ -22,18 +22,15 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.grammar.model;
+
+package net.sf.etl.parsers.event.impl.term.action;
 
 /**
- * The Ref node class. This class is a part of the lightweight grammar model.
- * TODO Parameters?
- *
- * @author const
+ * The simple action just have a next element
  */
-public class RefOp extends Syntax {
+public abstract class SimpleAction extends Action {
     /**
-     * name
+     * The next action
      */
-    public java.lang.String name;
-
+    public Action next;
 }

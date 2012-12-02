@@ -22,18 +22,26 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.grammar.model;
+
+package net.sf.etl.parsers.event.impl.term.action;
+
+import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 /**
- * The Ref node class. This class is a part of the lightweight grammar model.
- * TODO Parameters?
- *
- * @author const
+ * The choice between script and strict modes
  */
-public class RefOp extends Syntax {
+public class ScriptChoiceAction extends Action {
     /**
-     * name
+     * Action to run in the case of script mode
      */
-    public java.lang.String name;
+    public Action script;
+    /**
+     * Action to run in the case of strict mode
+     */
+    public Action strict;
 
+    @Override
+    public void parseMore(TermParserContext context, ActionState state) {
+        state.nextAction(context.isScriptMode() ? script : strict);
+    }
 }

@@ -26,75 +26,56 @@
 package net.sf.etl.parsers;
 
 /**
- * Statement context. It allows identifying the statement context within the grammar.
+ * Information about definition, this information could be used to locate definition location.
  */
-public class StatementContext {
+public final class DefinitionInfo {
     /**
-     * The context value used when actual context is not known
+     * The context for the definition
      */
-    public static final StatementContext UNKNOWN = new StatementContext("unknown:grammar", "unknown");
+    private final DefinitionContext context;
     /**
-     * Grammar
+     * The definition name withing context
      */
-    private final String grammar;
+    private final String name;
     /**
-     * Context
+     * The source location
      */
-    private final String context;
+    private final SourceLocation location;
 
     /**
      * The constructor
      *
-     * @param grammar the grammar system id
-     * @param context the context name
+     * @param context  definition context
+     * @param name     the definition name
+     * @param location the definition location
      */
-    public StatementContext(String grammar, String context) {
-        this.grammar = grammar;
+    public DefinitionInfo(DefinitionContext context, String name, SourceLocation location) {
         this.context = context;
+        this.name = name;
+        this.location = location;
     }
 
-    /**
-     * @return the grammar system id
-     */
-    public String getGrammar() {
-        return grammar;
-    }
-
-    /**
-     * @return the context
-     */
-    public String getContext() {
-        return context;
-    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        StatementContext that = (StatementContext) o;
+        DefinitionInfo that = (DefinitionInfo) o;
 
         if (context != null ? !context.equals(that.context) : that.context != null) return false;
+        if (location != null ? !location.equals(that.location) : that.location != null) return false;
         //noinspection RedundantIfStatement
-        if (grammar != null ? !grammar.equals(that.grammar) : that.grammar != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = grammar != null ? grammar.hashCode() : 0;
-        result = 31 * result + (context != null ? context.hashCode() : 0);
+        int result = context != null ? context.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (location != null ? location.hashCode() : 0);
         return result;
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("StatementContext");
-        sb.append("{grammar='").append(grammar).append('\'');
-        sb.append(", context='").append(context).append('\'');
-        sb.append('}');
-        return sb.toString();
     }
 }

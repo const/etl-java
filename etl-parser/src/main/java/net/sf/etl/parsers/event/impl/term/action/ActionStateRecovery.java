@@ -22,18 +22,11 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.grammar.model;
+
+package net.sf.etl.parsers.event.impl.term.action;
 
 /**
- * The Ref node class. This class is a part of the lightweight grammar model.
- * TODO Parameters?
- *
- * @author const
+ * The recovery record for the {@link ActionState}
  */
-public class RefOp extends Syntax {
-    /**
-     * name
-     */
-    public java.lang.String name;
-
+public class ActionStateRecovery {
 }

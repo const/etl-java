@@ -22,18 +22,39 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.grammar.model;
+
+package net.sf.etl.parsers.event.impl.term.action;
+
+import net.sf.etl.parsers.PhraseToken;
+import net.sf.etl.parsers.SyntaxRole;
+import net.sf.etl.parsers.TermToken;
+import net.sf.etl.parsers.Terms;
+import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 /**
- * The Ref node class. This class is a part of the lightweight grammar model.
- * TODO Parameters?
- *
- * @author const
+ * The action that reports current phrase token to the parser with the specified kind and syntax role
  */
-public class RefOp extends Syntax {
+public class ReportTokenAction extends SimpleAction {
     /**
-     * name
+     * Kind used for reporting
      */
-    public java.lang.String name;
+    Terms kind;
+    /**
+     * The syntax role
+     */
+    SyntaxRole role;
 
+    public ReportTokenAction(Terms kind, SyntaxRole role) {
+        this.kind = kind;
+        this.role = role;
+    }
+
+    @Override
+    public void parseMore(TermParserContext context, ActionState state) {
+        PhraseToken in = context.current();
+        TermToken out = new TermToken(kind, role, null, in, in.start(), in.end(), null);
+        context.produce(out);
+        context.consumePhraseToken();
+        state.nextAction(next);
+    }
 }

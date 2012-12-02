@@ -22,18 +22,33 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.grammar.model;
+
+package net.sf.etl.parsers.event.impl.term.action;
+
+import net.sf.etl.parsers.event.grammar.TermParserContext;
+
+import java.util.HashMap;
 
 /**
- * The Ref node class. This class is a part of the lightweight grammar model.
- * TODO Parameters?
- *
- * @author const
+ * The map choice action
  */
-public class RefOp extends Syntax {
-    /**
-     * name
-     */
-    public java.lang.String name;
+public abstract class MapChoiceAction<T> extends Action {
+    public final HashMap<T, Action> next = new HashMap<T, Action>();
+    public Action fallback;
 
+    @Override
+    public void parseMore(TermParserContext context, ActionState state) {
+        Action action = next.get(key(context, state));
+        action = action == null ? fallback : action;
+        state.nextAction(action);
+    }
+
+    /**
+     * Get key for the choice
+     *
+     * @param context the context
+     * @param state   the state to use
+     * @return the current key
+     */
+    protected abstract T key(TermParserContext context, ActionState state);
 }

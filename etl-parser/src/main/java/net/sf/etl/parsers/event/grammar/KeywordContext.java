@@ -22,18 +22,18 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.grammar.model;
+
+package net.sf.etl.parsers.event.grammar;
 
 /**
- * The Ref node class. This class is a part of the lightweight grammar model.
- * TODO Parameters?
- *
- * @author const
+ * Keyword context implementation
  */
-public class RefOp extends Syntax {
+public interface KeywordContext {
     /**
-     * name
+     * The keyword context
+     *
+     * @param text the text to classify as keyword
+     * @return the keyword identifier or null (if the text is not keyword)
      */
-    public java.lang.String name;
-
+    Integer get(String text);
 }

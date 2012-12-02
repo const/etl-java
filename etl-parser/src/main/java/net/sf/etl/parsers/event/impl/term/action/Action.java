@@ -22,18 +22,23 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.grammar.model;
+
+package net.sf.etl.parsers.event.impl.term.action;
+
+import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 /**
- * The Ref node class. This class is a part of the lightweight grammar model.
- * TODO Parameters?
- *
- * @author const
+ * The base class for the actions that does something with parser.
+ * <p/>
+ * The actions are generally mutable, but it is a design time interface. In runtime, the actions are not exposed
+ * outside of {@link ActionStateFactory} using public API, so their mutability is non-issue.
  */
-public class RefOp extends Syntax {
+public abstract class Action {
     /**
-     * name
+     * Parse more elements
+     *
+     * @param context the context of the parser
+     * @param state   the context state
      */
-    public java.lang.String name;
-
+    public abstract void parseMore(TermParserContext context, ActionState state);
 }

@@ -22,18 +22,18 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.grammar.model;
+
+package net.sf.etl.parsers.event.impl.term;
 
 /**
- * The Ref node class. This class is a part of the lightweight grammar model.
- * TODO Parameters?
- *
- * @author const
+ * The document type state factory
  */
-public class RefOp extends Syntax {
+public class DocTypeStateFactory {
     /**
-     * name
+     * Doctype state skips ignorable tokens, if first non-ignorable is token "doctype", then it specifies doctype
+     * to the parsers. Otherwise, it specifies that default document type should be used for that source. Note,
+     * that the state also exits in case when doc comment is encountered.
      */
-    public java.lang.String name;
-
+    public static class DocTypeState {
+    }
 }

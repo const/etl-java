@@ -22,18 +22,33 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.grammar.model;
+
+package net.sf.etl.parsers.event.impl.term.action;
+
+import net.sf.etl.parsers.event.grammar.TermParserContext;
+import net.sf.etl.parsers.event.grammar.TermParserState;
+import net.sf.etl.parsers.event.grammar.TermParserStateFactory;
 
 /**
- * The Ref node class. This class is a part of the lightweight grammar model.
- * TODO Parameters?
- *
- * @author const
+ * Create new action state
  */
-public class RefOp extends Syntax {
+public class ActionStateFactory implements TermParserStateFactory {
     /**
-     * name
+     * The start action
      */
-    public java.lang.String name;
+    private final Action start;
 
+    /**
+     * The constructor
+     *
+     * @param start the start action
+     */
+    public ActionStateFactory(Action start) {
+        this.start = start;
+    }
+
+    @Override
+    public TermParserState start(TermParserContext context, TermParserState previous) {
+        return new ActionState(context, previous, start);
+    }
 }

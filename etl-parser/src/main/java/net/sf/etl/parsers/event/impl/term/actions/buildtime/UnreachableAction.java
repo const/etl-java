@@ -22,18 +22,19 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.grammar.model;
+
+package net.sf.etl.parsers.event.impl.term.actions.buildtime;
+
+import net.sf.etl.parsers.event.grammar.TermParserContext;
+import net.sf.etl.parsers.event.impl.term.action.Action;
+import net.sf.etl.parsers.event.impl.term.action.ActionState;
 
 /**
- * The Ref node class. This class is a part of the lightweight grammar model.
- * TODO Parameters?
- *
- * @author const
+ * The unreachable action, if this action is reached, then it means that there is some serious bug
  */
-public class RefOp extends Syntax {
-    /**
-     * name
-     */
-    public java.lang.String name;
-
+public class UnreachableAction extends Action {
+    @Override
+    public void parseMore(TermParserContext context, ActionState state) {
+        throw new IllegalStateException("The unreachable action is reached");
+    }
 }

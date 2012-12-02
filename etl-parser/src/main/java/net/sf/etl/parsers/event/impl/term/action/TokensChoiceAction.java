@@ -22,18 +22,20 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.grammar.model;
+
+package net.sf.etl.parsers.event.impl.term.action;
+
+import net.sf.etl.parsers.PhraseToken;
+import net.sf.etl.parsers.Tokens;
+import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 /**
- * The Ref node class. This class is a part of the lightweight grammar model.
- * TODO Parameters?
- *
- * @author const
+ * The choice based on token kind
  */
-public class RefOp extends Syntax {
-    /**
-     * name
-     */
-    public java.lang.String name;
-
+public class TokensChoiceAction extends MapChoiceAction<Tokens> {
+    @Override
+    protected Tokens key(TermParserContext context, ActionState state) {
+        PhraseToken t = context.current();
+        return t.hasToken() ? t.token().kind() : null;
+    }
 }

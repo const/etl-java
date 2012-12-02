@@ -25,10 +25,9 @@
 
 package net.sf.etl.parsers.event.grammar;
 
+import net.sf.etl.parsers.DefinitionContext;
 import net.sf.etl.parsers.ErrorInfo;
 import net.sf.etl.parsers.ExpressionContext;
-import net.sf.etl.parsers.StatementContext;
-import net.sf.etl.parsers.event.TermParser;
 import net.sf.etl.parsers.resource.ResourceDescriptor;
 
 import java.util.List;
@@ -41,6 +40,11 @@ import java.util.List;
  * only for caching purposes.</p>
  */
 public interface CompiledGrammar {
+    /**
+     * The request type for the grammar associated with the ETL source
+     */
+    String GRAMMAR_REQUEST_TYPE = "http://etl.sf.net/document_type";
+
     /**
      * Get other compiled grammars that were produced as result of compilation of this grammar
      * because they were referenced from this grammar. These grammars could be also registered
@@ -66,12 +70,12 @@ public interface CompiledGrammar {
     /**
      * @return the default context for this grammar
      */
-    StatementContext getDefaultContext();
+    DefinitionContext getDefaultContext();
 
     /**
      * @return get all available statement contexts
      */
-    List<StatementContext> getStatementContexts();
+    List<DefinitionContext> getStatementContexts();
 
     /**
      * @return expression contexts (for all actually used combinations of host contexts and expression contexts,
@@ -80,9 +84,9 @@ public interface CompiledGrammar {
     List<ExpressionContext> getExpressionContexts();
 
     /**
-     * @return the statement parser with default context
+     * @return the statement sequence parser with default context
      */
-    TermParser parser();
+    TermParserStateFactory statementSequenceParser();
 
     /**
      * The statement parser with the specified context. Note that the context is not necessary from this grammar,
@@ -92,7 +96,7 @@ public interface CompiledGrammar {
      * @return the statement context
      * @throws IllegalArgumentException if context is not defined within the grammar
      */
-    TermParser parser(StatementContext context);
+    TermParserStateFactory statementSequenceParser(DefinitionContext context);
 
     /**
      * The parser for expression context hosted within some statement context
@@ -101,5 +105,5 @@ public interface CompiledGrammar {
      * @return the expression parser
      * @throws IllegalArgumentException if context is not defined within the grammar
      */
-    TermParser parser(ExpressionContext context);
+    TermParserStateFactory expressionParser(ExpressionContext context);
 }
