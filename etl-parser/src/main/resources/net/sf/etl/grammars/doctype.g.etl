@@ -60,7 +60,9 @@ grammar net.sf.etl.grammars.DoctypeDeclaration {
 		statement DoctypeStatement {
 			^ dc:DoctypeDeclaration {
 				% doctype {
-				    @ type = {token(script) | token(strict);}?;
+				    {
+				        @ type = token(script) | token(strict);
+				    }?;
 					{
 						@ systemId = ref(String);
 						% public {
