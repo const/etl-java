@@ -71,7 +71,7 @@ public interface StandardGrammars {
     /**
      * The default grammar information
      */
-    public static final GrammarInfo DOCTYPE_GRAMMAR_INFO = new GrammarInfo(DOCTYPE_GRAMMAR_SYSTEM_ID, DOCTYPE_GRAMMAR_NAME, null);
+    public static final GrammarInfo DOCTYPE_GRAMMAR_INFO = new GrammarInfo(DOCTYPE_GRAMMAR_SYSTEM_ID, DOCTYPE_GRAMMAR_NAME, VERSION);
 
     /**
      * namespace of default object
@@ -91,7 +91,7 @@ public interface StandardGrammars {
     /**
      * The default grammar information
      */
-    public static final GrammarInfo DEFAULT_GRAMMAR_INFO = new GrammarInfo(DEFAULT_GRAMMAR_SYSTEM_ID, DEFAULT_GRAMMAR_NAME, null);
+    public static final GrammarInfo DEFAULT_GRAMMAR_INFO = new GrammarInfo(DEFAULT_GRAMMAR_SYSTEM_ID, DEFAULT_GRAMMAR_NAME, VERSION);
     /**
      * A context for default grammar
      */
@@ -175,4 +175,8 @@ public interface StandardGrammars {
      */
     public static final PropertyName DOCTYPE_GRAMMAR_DOCTYPE_CONTEXT = new PropertyName("context");
 
+    /**
+     * The doctype declaration
+     */
+    public static final DefinitionInfo DOCTYPE_DEFINITION_INFO = new DefinitionInfo(DEFAULT_GRAMMAR_CONTEXT, "DoctypeDeclaration", null);
 }

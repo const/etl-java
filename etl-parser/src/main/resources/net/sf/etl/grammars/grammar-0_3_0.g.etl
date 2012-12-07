@@ -69,7 +69,7 @@ doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0";
 /// and tokens.
 /// 
 /// @author const
-grammar net.sf.etl.grammars.Grammar {
+grammar net.sf.etl.grammars.Grammar "0.3.0" {
 	namespace default g = "http://etl.sf.net/etl/grammar/0.3.0";
 	
 	/// This abstract context contains definition used across this grammar. 
@@ -755,6 +755,9 @@ grammar net.sf.etl.grammars.Grammar {
 				@ abstractModifier = modifier abstract;
 			};
 			@ name += list . {identifier;};
+			{
+			    @ version = ref(String);
+			}?;
 			@ content += block(GrammarContent);
 		};
 	};

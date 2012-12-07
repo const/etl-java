@@ -43,4 +43,8 @@ public class Grammar extends AbstractStatement {
      * name
      */
     public final java.util.ArrayList<java.lang.String> name = new java.util.ArrayList<java.lang.String>();
+    /**
+     * The version of the grammar
+     */
+    public String version;
 }

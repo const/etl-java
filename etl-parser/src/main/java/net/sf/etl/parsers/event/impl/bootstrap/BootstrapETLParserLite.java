@@ -207,6 +207,9 @@ public class BootstrapETLParserLite {
         do {
             value(field(Grammar.class, "name"));
         } while (tryToken("."));
+        if (match(Tokens.STRING)) {
+            value(field(Grammar.class, "version"));
+        }
         startBlock();
         startProperty(field(Grammar.class, "content"));
         while (trySegment()) {

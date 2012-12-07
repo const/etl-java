@@ -32,7 +32,7 @@ doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0";
 /// universal mapping that is suitable for all.
 ///
 /// <author>const</author>
-grammar net.sf.etl.grammars.DoctypeDeclaration {
+grammar net.sf.etl.grammars.DoctypeDeclaration "0.3.0" {
 	namespace dc = "http://etl.sf.net/etl/doctype/0.3.0";
 	
 	/// This is the only context in the grammar	
