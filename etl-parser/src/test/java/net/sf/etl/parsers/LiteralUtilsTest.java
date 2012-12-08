@@ -26,7 +26,7 @@ package net.sf.etl.parsers;
 
 import junit.framework.TestCase;
 import net.sf.etl.parsers.literals.LiteralUtils;
-import net.sf.etl.parsers.literals.LiteralUtils.NumberInfo;
+import net.sf.etl.parsers.literals.NumberInfo;
 
 /**
  * A test for literal utilities
