@@ -1,29 +1,30 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2011 Constantine A Plotnikov
+ * Copyright (c) 2000-2012 Constantine A Plotnikov
  *
- * Permission is hereby granted, free of charge, to any person 
- * obtaining a copy of this software and associated documentation 
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, 
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * including without limitation the rights to use, copy, modify, merge,
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be 
+ * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
- * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
- * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
- * SOFTWARE. 
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
-package net.sf.etl.parsers;
+package net.sf.etl.parsers.literals;
 
+import net.sf.etl.parsers.Tokens;
 import net.sf.etl.parsers.characters.Identifiers;
 import net.sf.etl.parsers.characters.Numbers;
 import net.sf.etl.parsers.characters.QuoteClass;
@@ -272,19 +273,7 @@ public final class LiteralUtils {
     /**
      * This is a parser of number. It is loosely based on lexer code.
      */
-    private static class NumberParser {
-        /**
-         * Buffer used for consuming characters
-         */
-        StringBuffer buffer = new StringBuffer();
-        /**
-         * Input text
-         */
-        final String inputText;
-        /**
-         * position in input text
-         */
-        int pos = 0;
+    private static class NumberParser extends BaseLiteralParser {
         /**
          * number base
          */
@@ -313,82 +302,7 @@ public final class LiteralUtils {
          * @param inputText the input text
          */
         NumberParser(String inputText) {
-            this.inputText = inputText;
-        }
-
-        /**
-         * Look at character
-         *
-         * @param n position relatively to current.
-         * @return -1 if end of string or character at the current position.
-         */
-        private int la(int n) {
-            return (pos + n) >= inputText.length() ? -1 : inputText.charAt(pos
-                    + n);
-        }
-
-        /**
-         * Look at character
-         *
-         * @return -1 if end of string or character at the current position.
-         */
-        private int la() {
-            return pos >= inputText.length() ? -1 : inputText.charAt(pos);
-        }
-
-        /**
-         * check if next symbol match specified
-         *
-         * @param ch character to match
-         * @return true if character is matched
-         */
-        private boolean lach(char ch) {
-            return la() == ch;
-        }
-
-        /**
-         * Consume character and possibly add it to buffer.
-         *
-         * @param addToBuffer if true the character should be added to the buffer
-         */
-        private void consume(boolean addToBuffer) {
-            if (pos > inputText.length()) {
-                throw new NumberFormatException();
-            }
-            if (addToBuffer) {
-                buffer.append(inputText.charAt(pos));
-            }
-            pos++;
-        }
-
-        /**
-         * check if next symbol is digit
-         *
-         * @param n look ahead position
-         * @return true if next symbol is digit
-         */
-        private boolean laDigit(int n) {
-            final int ch = la(n);
-            return ('0' <= ch && ch <= '9');
-        }
-
-        /**
-         * check if next symbol is digit
-         *
-         * @return true if next symbol is digit
-         */
-        private boolean laDigit() {
-            return laDigit(0);
-        }
-
-        /**
-         * look ahead alpha
-         *
-         * @return true if letter
-         */
-        private boolean laAlpha() {
-            final int ch = la();
-            return ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z');
+            super(inputText);
         }
 
         /**
