@@ -24,20 +24,23 @@
  */
 package net.sf.etl.parsers;
 
-import junit.framework.TestCase;
 import net.sf.etl.parsers.literals.LiteralUtils;
 import net.sf.etl.parsers.literals.NumberInfo;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * A test for literal utilities
  *
  * @author const
  */
-public class LiteralUtilsTest extends TestCase {
+public class LiteralUtilsTest {
 
     /**
      * THis test checks parsing numbers
      */
+    @Test
     public void testParseIntegerNumber() {
         NumberInfo n = LiteralUtils.parseNumber("" + Integer.MAX_VALUE + "qwe");
         assertEquals(Tokens.INTEGER_WITH_SUFFIX, n.kind);
@@ -56,6 +59,7 @@ public class LiteralUtilsTest extends TestCase {
     /**
      * THis test checks parsing numbers
      */
+    @Test
     public void testParseFloatNumber() {
         String text = "+" + Integer.MAX_VALUE + ".0e3qwe";
         NumberInfo n = LiteralUtils.parseNumber(text);
@@ -63,19 +67,20 @@ public class LiteralUtilsTest extends TestCase {
         assertEquals(10, n.base);
         assertEquals(1, n.sign);
         assertEquals(2, n.exponent);
-        assertEquals(Integer.MAX_VALUE * 1000.0, LiteralUtils.parseDouble(text));
+        assertEquals(Integer.MAX_VALUE * 1000.0, LiteralUtils.parseDouble(text), 0.1);
         assertEquals("qwe", n.suffix);
         text = "-16#da.da#e+2";
         n = LiteralUtils.parseNumber(text);
         assertEquals(16, n.base);
         assertEquals(-1, n.sign);
         assertEquals(0, n.exponent);
-        assertEquals((double) -0xdada, LiteralUtils.parseDouble(text));
+        assertEquals((double) -0xdada, LiteralUtils.parseDouble(text), 0.1);
     }
 
     /**
      * Test parsing integers
      */
+    @Test
     public void testParseInt() {
         assertEquals(Integer.MAX_VALUE, LiteralUtils.parseInt(""
                 + Integer.MAX_VALUE));
@@ -92,6 +97,7 @@ public class LiteralUtilsTest extends TestCase {
     /**
      * Test parse strings
      */
+    @Test
     public void testParseString() {
         assertEquals("a\bc", LiteralUtils.parseString("'\\a\\b\\c'"));
         assertEquals("a\bc", LiteralUtils.parseString("PFX12'\\a\\b\\c'"));
@@ -100,6 +106,6 @@ public class LiteralUtilsTest extends TestCase {
         assertEquals("a\bc\f\r\n", LiteralUtils
                 .parseString("'\\a\\b\\c\\f\\r\\n'"));
         assertEquals("\u0001\u00FF\u0403\u0404\u0405", LiteralUtils
-                .parseString("'\\U1;\\xFF\\U00403;\\U404;\\u0405'"));
+                .parseString("'\\x{1}\\xFF\\x{00403}\\x{404}\\u0405'"));
     }
 }

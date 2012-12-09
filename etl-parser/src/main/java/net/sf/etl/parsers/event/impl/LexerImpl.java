@@ -203,7 +203,7 @@ public class LexerImpl implements Lexer {
             // TODO make invalid characters a range token rather than single character one
             // invalid character
             codepoint(buffer, eof);
-            error("net.sf.etl.parsers.errors.lexical.InvalidCharacter", start, current());
+            error("lexical.InvalidCharacter", start, current());
             kind = Tokens.WHITESPACE;
             return makeToken();
         } else {
@@ -267,7 +267,7 @@ public class LexerImpl implements Lexer {
                         codepoint(buffer, eof);
                         phase = NUMBER_BASED;
                         if (numberBase < 2 || numberBase > 36) {
-                            error("net.sf.etl.parsers.errors.lexical.NumberBaseIsOutOfRange", start, current());
+                            error("lexical.NumberBaseIsOutOfRange", start, current());
                             numberBase = 36; // using it for sake of parsing only
                         }
                     } else if (codepoint == '.') {
@@ -280,7 +280,7 @@ public class LexerImpl implements Lexer {
                             kind = Tokens.FLOAT;
                             phase = NUMBER_DECIMAL_FRACTION;
                             codepoint(buffer, eof);
-                            error("net.sf.etl.parsers.errors.lexical.SomeDigitAreOutOfBase", start, current());
+                            error("lexical.SomeDigitAreOutOfBase", start, current());
                         } else {
                             return makeToken();
                         }
@@ -310,7 +310,7 @@ public class LexerImpl implements Lexer {
                         if (phase == NUMBER_BASED_FRACTION) {
                             TextPos p = current();
                             codepoint(buffer, eof);
-                            error("net.sf.etl.parsers.errors.lexical.FloatTooManyDots", p, current());
+                            error("lexical.FloatTooManyDots", p, current());
                         } else {
                             phase = NUMBER_BASED_FRACTION;
                             codepoint(buffer, eof);
@@ -318,9 +318,9 @@ public class LexerImpl implements Lexer {
                     } else if (Numbers.isAnyDigit(codepoint)) {
                         TextPos p = current();
                         codepoint(buffer, eof);
-                        error("net.sf.etl.parsers.errors.lexical.SomeDigitAreOutOfBase", p, current());
+                        error("lexical.SomeDigitAreOutOfBase", p, current());
                     } else {
-                        error("net.sf.etl.parsers.errors.lexical.UnterminatedBasedNumber", start, current());
+                        error("lexical.UnterminatedBasedNumber", start, current());
                         return makeToken();
                     }
                     break;
@@ -344,7 +344,7 @@ public class LexerImpl implements Lexer {
                         codepoint(buffer, eof);
                         phase = NUMBER_IN_EXPONENT_VALUE;
                     } else {
-                        error("net.sf.etl.parsers.errors.lexical.UnterminatedNumberExponent", start, current());
+                        error("lexical.UnterminatedNumberExponent", start, current());
                         phase = NUMBER_BEFORE_SUFFIX;
                     }
                     break;
@@ -421,10 +421,10 @@ public class LexerImpl implements Lexer {
                         codepoint(buffer, eof);
                         phase = STRING_ESCAPED;
                     } else if (Whitespaces.isNewline(codepoint)) {
-                        error("net.sf.etl.parsers.errors.lexical.NewLineInString", start, current());
+                        error("lexical.NewLineInString", start, current());
                         return makeToken();
                     } else if (codepoint == -1) {
-                        error("net.sf.etl.parsers.errors.lexical.EOFInString", start, current());
+                        error("lexical.EOFInString", start, current());
                         return makeToken();
                     } else {
                         codepoint(buffer, eof);
@@ -438,10 +438,10 @@ public class LexerImpl implements Lexer {
                 case STRING_ESCAPED:
                     phase = STRING_NORMAL;
                     if (Whitespaces.isNewline(codepoint)) {
-                        error("net.sf.etl.parsers.errors.lexical.NewLineInString", start, current());
+                        error("lexical.NewLineInString", start, current());
                         return makeToken();
                     } else if (codepoint == -1) {
-                        error("net.sf.etl.parsers.errors.lexical.EOFInString", start, current());
+                        error("lexical.EOFInString", start, current());
                         return makeToken();
                     } else {
                         codepoint(buffer, eof);
@@ -456,7 +456,7 @@ public class LexerImpl implements Lexer {
                             return ParserState.INPUT_NEEDED;
                         }
                     } else if (codepoint == -1) {
-                        error("net.sf.etl.parsers.errors.lexical.EOFInString", start, current());
+                        error("lexical.EOFInString", start, current());
                         return makeToken();
                     } else {
                         QuoteClass endQuoteClass = QuoteClass.classify(codepoint);
@@ -470,7 +470,7 @@ public class LexerImpl implements Lexer {
                     break;
                 case STRING_MULTILINE_ESCAPED:
                     if (codepoint == -1) {
-                        error("net.sf.etl.parsers.errors.lexical.EOFInString", start, current());
+                        error("lexical.EOFInString", start, current());
                         return makeToken();
                     }
                     phase = STRING_MULTILINE_NORMAL;
@@ -484,7 +484,7 @@ public class LexerImpl implements Lexer {
                     break;
                 case STRING_MULTILINE_AFTER_CR:
                     if (codepoint == -1) {
-                        error("net.sf.etl.parsers.errors.lexical.EOFInString", start, current());
+                        error("lexical.EOFInString", start, current());
                         return makeToken();
                     }
                     if (!consumeNewLine(buffer, eof, STRING_MULTILINE_AFTER_CR, STRING_MULTILINE_NORMAL)) {
@@ -494,7 +494,7 @@ public class LexerImpl implements Lexer {
                     break;
                 case STRING_MULTILINE_END_FIRST_QUOTE:
                     if (codepoint == -1) {
-                        error("net.sf.etl.parsers.errors.lexical.EOFInString", start, current());
+                        error("lexical.EOFInString", start, current());
                         return makeToken();
                     }
                     if (codepoint == endQuote) {
@@ -507,7 +507,7 @@ public class LexerImpl implements Lexer {
                     break;
                 case STRING_MULTILINE_END_SECOND_QUOTE:
                     if (codepoint == -1) {
-                        error("net.sf.etl.parsers.errors.lexical.EOFInString", start, current());
+                        error("lexical.EOFInString", start, current());
                         return makeToken();
                     }
                     if (codepoint == endQuote) {
@@ -738,7 +738,7 @@ public class LexerImpl implements Lexer {
             }
             int codepoint = peek(buffer, eof);
             if (codepoint == -1) {
-                error("net.sf.etl.parsers.errors.lexical.EOFInBlockComment", start, current());
+                error("lexical.EOFInBlockComment", start, current());
                 return makeToken();
             }
             switch (phase) {

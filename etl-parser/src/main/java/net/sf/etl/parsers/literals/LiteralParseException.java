@@ -55,7 +55,8 @@ public class LiteralParseException extends ParserException {
         StringBuilder b = new StringBuilder();
         b.append("Error parsing ").append(type).append(" '").append(text).append("':");
         while (errors != null) {
-            b.append("\n  ").append(errors.message());
+            b.append("\n  ").append(errors.message()).append(" ").append(errors.end());
+            errors = errors.cause();
         }
         return b.toString();
     }

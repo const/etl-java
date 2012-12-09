@@ -87,11 +87,11 @@ class NumberParser extends BaseLiteralParser {
             try {
                 base = Integer.parseInt(buffer.toString());
             } catch (final Exception ex) {
-                error("net.sf.etl.parsers.errors.lexical.NumberBaseIsOutOfRange");
+                error("lexical.NumberBaseIsOutOfRange");
                 base = Character.MAX_RADIX;
             }
             if (2 > base || base > Character.MAX_RADIX) {
-                error("net.sf.etl.parsers.errors.lexical.NumberBaseIsOutOfRange");
+                error("lexical.NumberBaseIsOutOfRange");
                 base = Character.MAX_RADIX;
             }
             buffer.setLength(0);
@@ -102,14 +102,14 @@ class NumberParser extends BaseLiteralParser {
                 } else if (Numbers.isDecimalDot(ch)) {
                     beforeDot = buffer.length();
                     if (kind == Tokens.FLOAT) {
-                        error("net.sf.etl.parsers.errors.lexical.FloatTooManyDots");
+                        error("lexical.FloatTooManyDots");
                     }
                     kind = Tokens.FLOAT;
                     ch = next(false);
                 } else if (Numbers.isValidDigit(ch, base)) {
                     ch = next(true);
                 } else if (Numbers.isAnyDigit(ch)) {
-                    error("net.sf.etl.parsers.errors.lexical.SomeDigitAreOutOfBase");
+                    error("lexical.SomeDigitAreOutOfBase");
                     ch = next(true);
                 } else if (Numbers.isBasedNumberChar(ch)) {
                     ch = next(false);
@@ -117,7 +117,7 @@ class NumberParser extends BaseLiteralParser {
                     buffer.setLength(0);
                     break;
                 } else {
-                    error("net.sf.etl.parsers.errors.lexical.UnterminatedBasedNumber");
+                    error("lexical.UnterminatedBasedNumber");
                     return new NumberInfo(inputText, kind, sign, base, text, exponent, suffix, errors);
                 }
             } // end while
@@ -143,7 +143,7 @@ class NumberParser extends BaseLiteralParser {
                 ch = next(Numbers.isMinus(ch));
             }
             if (!Numbers.isDecimal(ch)) {
-                error("net.sf.etl.parsers.errors.lexical.UnterminatedNumberExponent");
+                error("lexical.UnterminatedNumberExponent");
                 return new NumberInfo(inputText, kind, sign, base, text, exponent, suffix, errors);
             } else {
                 ch = next(true);
@@ -155,7 +155,7 @@ class NumberParser extends BaseLiteralParser {
             buffer.setLength(0);
         }
         exponent -= beforeDot == -1 ? 0 : text.length() - beforeDot;
-        if (Character.isUnicodeIdentifierStart(ch) && !Numbers.isExponentChar(ch)) {
+        if (Identifiers.isIdentifierStart(ch) && !Numbers.isExponentChar(ch)) {
             if (kind == Tokens.FLOAT) {
                 kind = Tokens.FLOAT_WITH_SUFFIX;
             } else {
@@ -168,7 +168,7 @@ class NumberParser extends BaseLiteralParser {
             buffer.setLength(0);
         }
         if (pos != inputText.length()) {
-            error("net.sf.etl.parsers.errors.lexical.TooManyCharactersInNumber");
+            error("lexical.TooManyCharactersInToken");
         }
         return new NumberInfo(inputText, kind, sign, base, text, exponent, suffix, errors);
     }
