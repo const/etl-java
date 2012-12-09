@@ -25,6 +25,7 @@
 
 package net.sf.etl.parsers.literals;
 
+import net.sf.etl.parsers.ErrorInfo;
 import net.sf.etl.parsers.Tokens;
 
 /**
@@ -48,6 +49,10 @@ public class NumberInfo {
      */
     public final int exponent;
     /**
+     * The input string
+     */
+    public final String input;
+    /**
      * a base of number
      */
     public final int base;
@@ -55,26 +60,43 @@ public class NumberInfo {
      * a sign of the number (1 for positive numbers and -1 for negative)
      */
     public final int sign;
+    /**
+     * the errors
+     */
+    public final ErrorInfo errors;
 
     /**
      * A constructor
      *
-     * @param kind     A kind of token
-     * @param base     a base of number
-     * @param sign     a sign of the number (1 for positive numbers and -1 for
-     *                 negative)
-     * @param suffix   a suffix attached to number
-     * @param text     a text of number with underscores removed.
-     * @param exponent Exponent associated with the token
+     * @param kind     the kind of token
+     * @param sign     the sign of the number (1 for positive numbers and -1 for
+     *                 negative, 0 for unspecified)
+     * @param base     the base of number
+     * @param text     the text of number with underscores removed.
+     * @param exponent the exponent associated with the token
+     * @param suffix   the suffix attached to number
+     * @param errors   the errors collected during parsing
      */
-    public NumberInfo(Tokens kind, int sign, int base, String text,
-                      int exponent, String suffix) {
+    public NumberInfo(String input, Tokens kind, int sign, int base, String text,
+                      int exponent, String suffix, ErrorInfo errors) {
         super();
+        this.input = input;
         this.base = base;
         this.exponent = exponent;
         this.kind = kind;
         this.sign = sign;
         this.suffix = suffix;
         this.text = text;
+        this.errors = errors;
     }
+
+    /**
+     * Check for errors and throw an exception if there are ones
+     */
+    public void checkErrors() {
+        if (errors != null) {
+            throw new LiteralParseException("number", input, errors);
+        }
+    }
+
 }

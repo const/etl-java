@@ -42,7 +42,7 @@ public class LiteralUtilsTest extends TestCase {
         NumberInfo n = LiteralUtils.parseNumber("" + Integer.MAX_VALUE + "qwe");
         assertEquals(Tokens.INTEGER_WITH_SUFFIX, n.kind);
         assertEquals(10, n.base);
-        assertEquals(1, n.sign);
+        assertEquals(0, n.sign);
         assertEquals(0, n.exponent);
         assertEquals(Integer.MAX_VALUE, Integer.parseInt(n.text));
         assertEquals("qwe", n.suffix);
@@ -57,7 +57,7 @@ public class LiteralUtilsTest extends TestCase {
      * THis test checks parsing numbers
      */
     public void testParseFloatNumber() {
-        String text = "" + Integer.MAX_VALUE + ".0e3qwe";
+        String text = "+" + Integer.MAX_VALUE + ".0e3qwe";
         NumberInfo n = LiteralUtils.parseNumber(text);
         assertEquals(Tokens.FLOAT_WITH_SUFFIX, n.kind);
         assertEquals(10, n.base);

@@ -25,6 +25,13 @@
 
 package net.sf.etl.parsers.literals;
 
+import net.sf.etl.parsers.ErrorInfo;
+import net.sf.etl.parsers.ParserException;
+import net.sf.etl.parsers.SourceLocation;
+import net.sf.etl.parsers.TextPos;
+
+import java.util.Collections;
+
 /**
  * Base parser for literal values
  */
@@ -34,6 +41,14 @@ public class BaseLiteralParser {
      */
     protected final String inputText;
     /**
+     * The start position
+     */
+    private final TextPos start;
+    /**
+     * The system id
+     */
+    private final String systemId;
+    /**
      * Buffer used for consuming characters
      */
     protected final StringBuilder buffer = new StringBuilder();
@@ -41,6 +56,36 @@ public class BaseLiteralParser {
      * position in input text
      */
     protected int pos = 0;
+    /**
+     * The line
+     */
+    protected int line;
+    /**
+     * The column
+     */
+    protected int column;
+    /**
+     * The offset
+     */
+    protected long offset;
+    /**
+     * The errors to use
+     */
+    protected ErrorInfo errors;
+
+    /**
+     * The constructor
+     *
+     * @param inputText the input text
+     */
+    public BaseLiteralParser(String inputText, TextPos start, String systemId) {
+        this.inputText = inputText;
+        this.start = start;
+        this.systemId = systemId;
+        this.line = start.line();
+        this.column = start.column();
+        this.offset = start.offset();
+    }
 
     /**
      * The constructor
@@ -48,18 +93,23 @@ public class BaseLiteralParser {
      * @param inputText the input text
      */
     public BaseLiteralParser(String inputText) {
-        this.inputText = inputText;
+        this(inputText, TextPos.START, "unknown");
     }
 
+
     /**
-     * Look at codepoint relatively to the current
+     * Look at codepoint relatively to the current, note that the method is doing a linear detection of
+     * code points.
      *
      * @param n position relatively to current.
      * @return -1 if end of string or character at the current position.
      */
-    private int la(int n) {
-        return (pos + n) >= inputText.length() ? -1 : inputText.charAt(pos
-                + n);
+    protected int la(int n) {
+        int p = pos;
+        for (int i = 0; i < n; i++) {
+            p = p + Character.charCount(inputText.codePointAt(p));
+        }
+        return p >= inputText.length() ? -1 : inputText.codePointAt(p);
     }
 
     /**
@@ -68,17 +118,7 @@ public class BaseLiteralParser {
      * @return -1 if end of string or character at the current position.
      */
     protected int la() {
-        return pos >= inputText.length() ? -1 : inputText.charAt(pos);
-    }
-
-    /**
-     * check if next symbol match specified
-     *
-     * @param ch character to match
-     * @return true if character is matched
-     */
-    protected boolean lach(char ch) {
-        return la() == ch;
+        return pos >= inputText.length() ? -1 : inputText.codePointAt(pos);
     }
 
     /**
@@ -87,43 +127,37 @@ public class BaseLiteralParser {
      * @param addToBuffer if true the character should be added to the buffer
      */
     protected void consume(boolean addToBuffer) {
-        if (pos > inputText.length()) {
-            throw new NumberFormatException();
+        if (pos >= inputText.length()) {
+            throw new ParserException();
         }
+        int c = inputText.codePointAt(pos);
+        int count = Character.charCount(c);
+        pos += count;
+        offset += count;
+        column++;
         if (addToBuffer) {
-            buffer.append(inputText.charAt(pos));
+            buffer.appendCodePoint(c);
         }
-        pos++;
     }
 
     /**
-     * check if next symbol is digit
+     * Consume current codepoint and get next codepoint
      *
-     * @param n look ahead position
-     * @return true if next symbol is digit
+     * @param addToBuffer the buffer to add to
+     * @return the next codepoint
      */
-    protected boolean laDigit(int n) {
-        final int ch = la(n);
-        return ('0' <= ch && ch <= '9');
+    protected int next(boolean addToBuffer) {
+        consume(addToBuffer);
+        return la();
     }
 
     /**
-     * check if next symbol is digit
+     * Create error
      *
-     * @return true if next symbol is digit
+     * @param key the error key
      */
-    protected boolean laDigit() {
-        return laDigit(0);
-    }
-
-    /**
-     * look ahead alpha
-     *
-     * @return true if letter
-     */
-    protected boolean laAlpha() {
-        final int ch = la();
-        return ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z');
+    protected void error(String key) {
+        errors = new ErrorInfo(key, Collections.emptyList(), new SourceLocation(start, new TextPos(line, column, offset), systemId), errors);
     }
 }
 

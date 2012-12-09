@@ -1,3 +1,28 @@
+/*
+ * Reference ETL Parser for Java
+ * Copyright (c) 2000-2012 Constantine A Plotnikov
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge,
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package net.sf.etl.parsers.event.impl;
 
 import net.sf.etl.parsers.*;
@@ -20,7 +45,8 @@ public class LexerImpl implements Lexer {
     private static final int NUMBER_BEFORE_SUFFIX = 5;
     private static final int NUMBER_AFTER_EXPONENT = 6;
     private static final int NUMBER_AFTER_EXPONENT_SIGN = 7;
-    private static final int NUMBER_SUFFIX = 8;
+    private static final int NUMBER_IN_EXPONENT_VALUE = 8;
+    private static final int NUMBER_SUFFIX = 9;
     private static final int GRAPHICS_NORMAL = 10;
     private static final int LINE_COMMENT_NORMAL = 60;
     private static final int LINE_COMMENT_START = 61;
@@ -225,7 +251,7 @@ public class LexerImpl implements Lexer {
                 case NUMBER_DECIMAL:
                     if (Numbers.isDecimal(codepoint) || Identifiers.isConnectorChar(codepoint)) {
                         codepoint(buffer, eof);
-                    } else if (codepoint == '#' && !Identifiers.isConnectorChar(Character.codePointBefore(text, text.length()))) {
+                    } else if (Numbers.isBasedNumberChar(codepoint) && !Identifiers.isConnectorChar(Character.codePointBefore(text, text.length()))) {
                         if (moreDataNeededNext(buffer, eof)) {
                             return ParserState.INPUT_NEEDED;
                         }
@@ -275,7 +301,7 @@ public class LexerImpl implements Lexer {
                         codepoint(buffer, eof);
                     } else if (Identifiers.isConnectorChar(codepoint)) {
                         codepoint(buffer, eof);
-                    } else if (codepoint == '#') {
+                    } else if (Numbers.isBasedNumberChar(codepoint)) {
                         phase = NUMBER_BEFORE_EXPONENT;
                         codepoint(buffer, eof);
                         break;
@@ -299,7 +325,7 @@ public class LexerImpl implements Lexer {
                     }
                     break;
                 case NUMBER_BEFORE_EXPONENT:
-                    if ((codepoint == 'e' || codepoint == 'E') && !Identifiers.isConnectorChar(Character.codePointBefore(text, text.length()))) {
+                    if (Numbers.isExponentChar(codepoint) && !Identifiers.isConnectorChar(Character.codePointBefore(text, text.length()))) {
                         kind = Tokens.FLOAT;
                         codepoint(buffer, eof);
                         phase = NUMBER_AFTER_EXPONENT;
@@ -308,7 +334,7 @@ public class LexerImpl implements Lexer {
                     }
                     break;
                 case NUMBER_AFTER_EXPONENT:
-                    if (codepoint == '-' || codepoint == '+') {
+                    if (Numbers.isMinus(codepoint) || Numbers.isPlus(codepoint)) {
                         codepoint(buffer, eof);
                     }
                     phase = NUMBER_AFTER_EXPONENT_SIGN;
@@ -316,12 +342,21 @@ public class LexerImpl implements Lexer {
                 case NUMBER_AFTER_EXPONENT_SIGN:
                     if (Numbers.isDecimal(codepoint) || Identifiers.isConnectorChar(codepoint)) {
                         codepoint(buffer, eof);
+                        phase = NUMBER_IN_EXPONENT_VALUE;
+                    } else {
+                        error("net.sf.etl.parsers.errors.lexical.UnterminatedNumberExponent", start, current());
+                        phase = NUMBER_BEFORE_SUFFIX;
+                    }
+                    break;
+                case NUMBER_IN_EXPONENT_VALUE:
+                    if (Numbers.isDecimal(codepoint) || Identifiers.isConnectorChar(codepoint)) {
+                        codepoint(buffer, eof);
                     } else {
                         phase = NUMBER_BEFORE_SUFFIX;
                     }
                     break;
                 case NUMBER_BEFORE_SUFFIX:
-                    if (Identifiers.isIdentifierStart(codepoint) && codepoint != 'e' && codepoint != 'E' &&
+                    if (Identifiers.isIdentifierStart(codepoint) && !Numbers.isExponentChar(codepoint) &&
                             !Identifiers.isConnectorChar(codepoint) &&
                             !Identifiers.isConnectorChar(Character.codePointBefore(text, text.length()))) {
                         phase = NUMBER_SUFFIX;
@@ -751,17 +786,6 @@ public class LexerImpl implements Lexer {
         return makeToken();
     }
 
-
-    private char consumeChar(CharBuffer buffer) {
-        char ch = buffer.get();
-        if (text == null) {
-            text = new StringBuilder();
-        }
-        text.append(ch);
-        return ch;
-    }
-
-
     /**
      * Consume single code point
      *
@@ -771,14 +795,21 @@ public class LexerImpl implements Lexer {
      */
     private int codepoint(CharBuffer buffer, boolean eof) {
         assert !moreDataNeeded(buffer, eof) : "Can consume only if there is data available";
-        char ch = consumeChar(buffer);
-        if (Character.isHighSurrogate(ch)) {
-            offset += 2;
-            return Character.toCodePoint(ch, consumeChar(buffer));
-        } else {
-            offset++;
-            return ch;
+        int c = Character.codePointAt(buffer, 0);
+        if (text == null) {
+            text = new StringBuilder();
         }
+        int s = Character.charCount(c);
+        if (s == 2) {
+            buffer.get();
+            buffer.get();
+            offset += 2;
+        } else {
+            buffer.get();
+            offset++;
+        }
+        text.appendCodePoint(c);
+        return c;
     }
 
     private int peek(CharBuffer buffer, boolean eof) {

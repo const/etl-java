@@ -26,6 +26,8 @@
 package net.sf.etl.parsers.literals;
 
 import net.sf.etl.parsers.Tokens;
+import net.sf.etl.parsers.characters.Identifiers;
+import net.sf.etl.parsers.characters.Numbers;
 
 /**
  * This is a parser of number. It is loosely based on lexer code.
@@ -36,9 +38,9 @@ class NumberParser extends BaseLiteralParser {
      */
     int base = 10;
     /**
-     * A sign of the number
+     * A sign of the number, 0 - unspecified
      */
-    int sign = 1;
+    int sign = 0;
     /**
      * Exponent
      */
@@ -69,106 +71,105 @@ class NumberParser extends BaseLiteralParser {
         Tokens kind = Tokens.INTEGER;
         int beforeDot = -1;
         // parsing integer of decimal, or floating point number
-        if (lach('+')) {
-            consume(false);
-        } else if (lach('-')) {
+        int ch = la();
+        if (Numbers.isPlus(la())) {
+            sign = 1;
+            ch = next(false);
+        } else if (Numbers.isMinus(la())) {
             sign = -1;
-            consume(false);
+            ch = next(false);
         }
-        while (laDigit() || lach('_')) {
-            consume(!lach('_')); // '0'
+        while (Numbers.isDecimal(ch) || Identifiers.isConnectorChar(ch)) {
+            ch = next(!Identifiers.isConnectorChar(ch)); // '0'
         }
-        if (lach('#')) {
+        if (Numbers.isBasedNumberChar(ch)) {
             // based number
             try {
                 base = Integer.parseInt(buffer.toString());
             } catch (final Exception ex) {
-                throw new NumberFormatException();
+                error("net.sf.etl.parsers.errors.lexical.NumberBaseIsOutOfRange");
+                base = Character.MAX_RADIX;
             }
-            if (2 > base || base > 36) {
-                throw new NumberFormatException();
+            if (2 > base || base > Character.MAX_RADIX) {
+                error("net.sf.etl.parsers.errors.lexical.NumberBaseIsOutOfRange");
+                base = Character.MAX_RADIX;
             }
             buffer.setLength(0);
-            consume(false); // '\#'
-            while (laDigit() || laAlpha() || lach('.') || lach('_')) {
-                final int ch = la();
-                if (ch != '.' && ch != '_') {
-                    // check if digit conform to the base
-                    if (base <= 10) {
-                        if (!('0' <= ch && ch < '0' + base)) {
-                            throw new NumberFormatException();
-                        }
-                    } else {
-                        if (!(('0' <= ch && ch <= '9')
-                                || ('a' <= ch && ch < 'a' + base - 10) || ('A' <= ch && ch < 'A' + base - 10))) {
-                            throw new NumberFormatException();
-                        }
-                    }
-                } else if (ch == '.') {
+            ch = next(false); // '\#'
+            while (true) {
+                if (Identifiers.isConnectorChar(ch)) {
+                    ch = next(false);
+                } else if (Numbers.isDecimalDot(ch)) {
                     beforeDot = buffer.length();
                     if (kind == Tokens.FLOAT) {
-                        throw new NumberFormatException();
+                        error("net.sf.etl.parsers.errors.lexical.FloatTooManyDots");
                     }
                     kind = Tokens.FLOAT;
+                    ch = next(false);
+                } else if (Numbers.isValidDigit(ch, base)) {
+                    ch = next(true);
+                } else if (Numbers.isAnyDigit(ch)) {
+                    error("net.sf.etl.parsers.errors.lexical.SomeDigitAreOutOfBase");
+                    ch = next(true);
+                } else if (Numbers.isBasedNumberChar(ch)) {
+                    ch = next(false);
+                    text = buffer.toString();
+                    buffer.setLength(0);
+                    break;
+                } else {
+                    error("net.sf.etl.parsers.errors.lexical.UnterminatedBasedNumber");
+                    return new NumberInfo(inputText, kind, sign, base, text, exponent, suffix, errors);
                 }
-                consume(!lach('_') && !lach('.'));
             } // end while
-            if (lach('#')) {
-                consume(false);
-                text = buffer.toString();
-                buffer.setLength(0);
-            } else {
-                throw new NumberFormatException();
-            }
         } else {
             // parse non based integer
-            if (lach('.') && laDigit(1)) {
+            if (Numbers.isDecimalDot(ch) && Numbers.isDecimal(la(1))) {
                 // floating point number
                 kind = Tokens.FLOAT;
                 beforeDot = buffer.length();
                 consume(false); // '.'
-                consume(true);
-                while (laDigit()) {
-                    consume(true); // '0'
+                ch = next(true);
+                while (Numbers.isDecimal(ch) || Identifiers.isConnectorChar(ch)) {
+                    ch = next(!Identifiers.isConnectorChar(ch)); // '0'
                 }
             }
             text = buffer.toString();
             buffer.setLength(0);
         }
-        if (lach('e') || lach('E')) {
+        if (Numbers.isExponentChar(ch)) {
             kind = Tokens.FLOAT;
-            consume(false); // 'e'
-            if (lach('+') || lach('-')) {
-                consume(lach('-'));
+            ch = next(false); // 'e'
+            if (Numbers.isPlus(ch) || Numbers.isMinus(ch)) {
+                ch = next(Numbers.isMinus(ch));
             }
-            if (!laDigit()) {
-                throw new NumberFormatException();
+            if (!Numbers.isDecimal(ch)) {
+                error("net.sf.etl.parsers.errors.lexical.UnterminatedNumberExponent");
+                return new NumberInfo(inputText, kind, sign, base, text, exponent, suffix, errors);
             } else {
-                while (laDigit() || lach('_')) {
-                    consume(!lach('_')); // digit
+                ch = next(true);
+                while (Numbers.isDecimal(ch) || Identifiers.isConnectorChar(ch)) {
+                    ch = next(!Identifiers.isConnectorChar(ch)); // '0'
                 }
             }
             exponent = Integer.parseInt(buffer.toString());
             buffer.setLength(0);
         }
         exponent -= beforeDot == -1 ? 0 : text.length() - beforeDot;
-        if (laAlpha() && !lach('E') && !lach('e')) {
+        if (Character.isUnicodeIdentifierStart(ch) && !Numbers.isExponentChar(ch)) {
             if (kind == Tokens.FLOAT) {
                 kind = Tokens.FLOAT_WITH_SUFFIX;
             } else {
                 kind = Tokens.INTEGER_WITH_SUFFIX;
             }
             do {
-                consume(true);
-            } while (laAlpha() || lach('_') || laDigit());
+                ch = next(true);
+            } while (Identifiers.isIdentifierPart(ch));
             suffix = buffer.toString();
             buffer.setLength(0);
         }
         if (pos != inputText.length()) {
-            throw new NumberFormatException(
-                    "Some characters left in the string "
-                            + (inputText.length() - pos));
+            error("net.sf.etl.parsers.errors.lexical.TooManyCharactersInNumber");
         }
-        return new NumberInfo(kind, sign, base, text, exponent, suffix);
+        return new NumberInfo(inputText, kind, sign, base, text, exponent, suffix, errors);
     }
 }

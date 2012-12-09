@@ -62,6 +62,7 @@ public final class LiteralUtils {
      */
     public static int parseInt(String intToken) {
         final NumberInfo n = parseNumber(intToken);
+        n.checkErrors();
         if (n.kind != Tokens.INTEGER && n.kind != Tokens.INTEGER_WITH_SUFFIX) {
             throw new NumberFormatException("wrong token kind: " + n.kind);
         }
@@ -80,6 +81,7 @@ public final class LiteralUtils {
      */
     public static double parseDouble(String doubleToken) {
         final NumberInfo n = parseNumber(doubleToken);
+        n.checkErrors();
         BigInteger digits = new BigInteger((n.sign >= 0 ? "" : "-") + n.text,
                 n.base);
         double exp = 1;
