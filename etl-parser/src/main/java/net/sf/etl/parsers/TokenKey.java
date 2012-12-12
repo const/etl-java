@@ -1,59 +1,76 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2009 Constantine A Plotnikov
+ * Copyright (c) 2000-2012 Constantine A Plotnikov
  *
- * Permission is hereby granted, free of charge, to any person 
- * obtaining a copy of this software and associated documentation 
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, 
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * including without limitation the rights to use, copy, modify, merge,
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be 
+ * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
  * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
- * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
- * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
- * SOFTWARE. 
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package net.sf.etl.parsers;
 
-import java.util.HashMap;
+import net.sf.etl.parsers.characters.QuoteClass;
+
+import java.util.EnumMap;
 
 /**
- * The key that uniquely specifies the token kind. Note that each token key is
- * unique and stored is forever. In future, a weak hash map should be used to clean up.
+ * The key that specifies the extended token kind. If token has additional properties like modifiers and quotes,
+ * they are also included into token key.
  *
  * @author const
  */
 public final class TokenKey {
     /**
-     * Map for string tokens
-     */
-    private final static HashMap<StringKey, TokenKey> stringMap = new HashMap<StringKey, TokenKey>();
-    /**
-     * Map for number tokens + modifier
-     */
-    private final static HashMap<ModifierKey, TokenKey> modifierMap = new HashMap<ModifierKey, TokenKey>();
-    /**
      * Map for tokens without modifiers
      */
-    private final static HashMap<Tokens, TokenKey> kindMap;
+    private final static EnumMap<Tokens, TokenKey> kindMap;
+    /**
+     * The map for the strings without prefix
+     */
+    private final static EnumMap<QuoteClass, TokenKey> stringMap;
+    /**
+     * The map for multiline strings without prefix
+     */
+    private final static EnumMap<QuoteClass, TokenKey> multiLineStringMap;
 
     static {
-        HashMap<Tokens, TokenKey> map = new HashMap<Tokens, TokenKey>();
+        EnumMap<Tokens, TokenKey> tokenKindMap = new EnumMap<Tokens, TokenKey>(Tokens.class);
         for (Tokens k : Tokens.values()) {
-            map.put(k, new TokenKey(k, null, -1, -1));
+            tokenKindMap.put(k, new TokenKey(k, null, null));
         }
-        kindMap = map;
+        kindMap = tokenKindMap;
+        EnumMap<QuoteClass, TokenKey> stringEnumMap = new EnumMap<QuoteClass, TokenKey>(QuoteClass.class);
+        for (QuoteClass quoteClass : QuoteClass.values()) {
+            stringEnumMap.put(quoteClass, new TokenKey(Tokens.STRING, null, quoteClass));
+        }
+        stringMap = stringEnumMap;
+        EnumMap<QuoteClass, TokenKey> multiLineStringEnumMap = new EnumMap<QuoteClass, TokenKey>(QuoteClass.class);
+        for (QuoteClass quoteClass : QuoteClass.values()) {
+            multiLineStringEnumMap.put(quoteClass, new TokenKey(Tokens.STRING, null, quoteClass));
+        }
+        multiLineStringMap = multiLineStringEnumMap;
     }
 
+    /**
+     * Pre-calculated hash code, the token key is used in hash maps extensively, so hash code is pre-calculated
+     * to speed up lookup and equality comparison
+     */
+    private final int hashCode;
     /**
      * The token kind
      */
@@ -65,25 +82,20 @@ public final class TokenKey {
     /**
      * The first quote for strings
      */
-    private final int start;
-    /**
-     * The second quote for strings
-     */
-    private final int end;
+    private final QuoteClass quoteClass;
 
     /**
      * The private constructor from fields
      *
-     * @param kind     the token kind
-     * @param modifier the token modifier
-     * @param start    the start of the token
-     * @param end      the end of the token
+     * @param kind       the token kind
+     * @param modifier   the token modifier
+     * @param quoteClass the quote class
      */
-    private TokenKey(Tokens kind, String modifier, int start, int end) {
+    private TokenKey(Tokens kind, String modifier, QuoteClass quoteClass) {
         this.kind = kind;
-        this.modifier = modifier == null ? null : modifier.intern();
-        this.start = start;
-        this.end = end;
+        this.modifier = modifier;
+        this.quoteClass = quoteClass;
+        hashCode = calculateHashCode();
     }
 
     /**
@@ -94,15 +106,7 @@ public final class TokenKey {
     }
 
     /**
-     * @return true if the string has prefix
-     */
-    public boolean hasPrefix() {
-        return modifier != null;
-    }
-
-    /**
-     * @return the prefix for prefixed strings (string is
-     *         {@link String#intern()}-ed)
+     * @return the prefix for prefixed strings
      */
     public String prefix() {
         if (modifier == null) {
@@ -113,7 +117,7 @@ public final class TokenKey {
     }
 
     /**
-     * @return the suffix for numbers (string is {@link String#intern()}-ed)
+     * @return the suffix for numbers
      */
     public String suffix() {
         if (modifier == null) {
@@ -124,66 +128,22 @@ public final class TokenKey {
     }
 
     /**
-     * @return the start quote (string is {@link String#intern()}-ed)
+     * @return the quote class
      */
-    public int startQuote() {
-        if (start == -1) {
-            throw new IllegalStateException("The token key is not string key: "
-                    + this);
-        }
-        return start;
+    public QuoteClass quoteClass() {
+        return quoteClass;
     }
 
-    /**
-     * @return the end quote (string is {@link String#intern()}-ed)
-     */
-    public int endQuote() {
-        if (start == -1) {
-            throw new IllegalStateException("The token key is not string key: "
-                    + this);
-        }
-        return end;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String toString() {
-        StringBuilder rc = new StringBuilder();
-        rc.append(kind);
-        if (modifier != null || start != -1 || end != -1) {
-            rc.append('[');
-            boolean printed = false;
-            if (modifier != null) {
-                rc.append(modifier);
-                printed = true;
-            }
-            if (start != -1 && start == end) {
-                if (printed) {
-                    rc.append(", ");
-                }
-                rc.append("quote=");
-                rc.append(Character.toChars(start));
-            } else {
-                if (start != -1) {
-                    if (printed) {
-                        rc.append(", ");
-                    }
-                    rc.append("start=");
-                    rc.append(Character.toChars(start));
-                }
-                if (end != -1) {
-                    if (printed) {
-                        rc.append(", ");
-                    }
-                    rc.append("end=");
-                    rc.append(Character.toChars(end));
-                }
-            }
-            rc.append(']');
-        }
-        return rc.toString();
+        final StringBuilder sb = new StringBuilder();
+        sb.append("TokenKey");
+        sb.append("{hashCode=").append(hashCode);
+        sb.append(", kind=").append(kind);
+        sb.append(", modifier='").append(modifier).append('\'');
+        sb.append(", quoteClass=").append(quoteClass);
+        sb.append('}');
+        return sb.toString();
     }
 
     /**
@@ -197,6 +157,23 @@ public final class TokenKey {
      */
     public static TokenKey quoted(Tokens kind, String prefix, int start,
                                   int end) {
+        if (start == -1 || end == -1) {
+            throw new IllegalArgumentException(
+                    "Start and end quoted should be defined: " + start + " : "
+                            + end);
+        }
+        return quoted(kind, prefix, QuoteClass.classify(start));
+    }
+
+    /**
+     * Get string token key
+     *
+     * @param kind       the token kind
+     * @param prefix     the string prefix (or null for not prefixed string)
+     * @param quoteClass the quote class
+     * @return the token key with specified parameters
+     */
+    public static TokenKey quoted(Tokens kind, String prefix, QuoteClass quoteClass) {
         switch (kind) {
             case PREFIXED_STRING:
             case PREFIXED_MULTILINE_STRING:
@@ -206,30 +183,23 @@ public final class TokenKey {
                 }
                 break;
             case STRING:
+                if (prefix != null) {
+                    throw new IllegalArgumentException(
+                            "There must not be prefix for unprefixed string: "
+                                    + kind);
+                }
+                return stringMap.get(quoteClass);
             case MULTILINE_STRING:
                 if (prefix != null) {
                     throw new IllegalArgumentException(
                             "There must not be prefix for unprefixed string: "
                                     + kind);
                 }
-                break;
+                return multiLineStringMap.get(quoteClass);
             default:
                 throw new IllegalArgumentException("Not a string token: " + kind);
         }
-        if (start == -1 || end == -1) {
-            throw new IllegalArgumentException(
-                    "Start and end quoted should be defined: " + start + " : "
-                            + end);
-        }
-        StringKey key = new StringKey(kind, prefix, start, end);
-        synchronized (stringMap) {
-            TokenKey rc = stringMap.get(key);
-            if (rc == null) {
-                rc = new TokenKey(kind, prefix, start, end);
-                stringMap.put(key, rc);
-            }
-            return rc;
-        }
+        return new TokenKey(kind, prefix, quoteClass);
     }
 
     /**
@@ -269,15 +239,7 @@ public final class TokenKey {
      * @return the create key
      */
     private static TokenKey modifierKey(Tokens kind, String suffix) {
-        ModifierKey key = new ModifierKey(kind, suffix);
-        synchronized (modifierMap) {
-            TokenKey rc = modifierMap.get(key);
-            if (rc == null) {
-                rc = new TokenKey(kind, suffix, -1, -1);
-                modifierMap.put(key, rc);
-            }
-            return rc;
-        }
+        return new TokenKey(kind, suffix, null);
     }
 
     /**
@@ -311,118 +273,33 @@ public final class TokenKey {
         return quoted(kind, null, quote, quote);
     }
 
-    /**
-     * The key for strings map
-     */
-    private static class StringKey {
-        /**
-         * hash code
-         */
-        final int hash;
-        /**
-         * kind of token
-         */
-        final Tokens kind;
-        /**
-         * suffix for token
-         */
-        final String prefix;
-        /**
-         * start quote for token
-         */
-        final int start;
-        /**
-         * end quote for token
-         */
-        final int end;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        /**
-         * A constructor from fields
-         *
-         * @param kind   the token kind
-         * @param prefix the token suffix
-         * @param start  the start quote
-         * @param end    the end quote
-         */
-        StringKey(Tokens kind, String prefix, int start, int end) {
-            this.kind = kind;
-            this.prefix = prefix;
-            this.start = start;
-            this.end = end;
-            hash = ((kind.hashCode() + (prefix != null ? prefix.hashCode() : 0)) * 17 + start) * 17 + end;
-        }
+        TokenKey tokenKey = (TokenKey) o;
+        if (hashCode != tokenKey.hashCode) return false;
+        if (quoteClass != tokenKey.quoteClass) return false;
+        if (kind != tokenKey.kind) return false;
+        //noinspection RedundantIfStatement
+        if (modifier != null ? !modifier.equals(tokenKey.modifier) : tokenKey.modifier != null) return false;
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int hashCode() {
-            return hash;
-        }
+        return true;
+    }
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof StringKey)) {
-                return false;
-            }
-            StringKey k = (StringKey) obj;
-            return kind == k.kind
-                    && (prefix == null ? k.prefix == null : prefix
-                    .equals(k.prefix)) && start == k.start
-                    && end == k.end;
-        }
+    @Override
+    public int hashCode() {
+        return hashCode;
     }
 
     /**
-     * The key for token+modifier map
+     * @return calculated hash code
      */
-    private static class ModifierKey {
-        /**
-         * hash code
-         */
-        final int hash;
-        /**
-         * kind of token
-         */
-        final Tokens kind;
-        /**
-         * suffix for token
-         */
-        final String modifier;
-
-        /**
-         * A constructor from fields
-         *
-         * @param kind     the token kind
-         * @param modifier the token modifier
-         */
-        ModifierKey(Tokens kind, String modifier) {
-            this.kind = kind;
-            this.modifier = modifier;
-            hash = kind.hashCode() + modifier.hashCode();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int hashCode() {
-            return hash;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof ModifierKey)) {
-                return false;
-            }
-            ModifierKey k = (ModifierKey) obj;
-            return kind == k.kind && modifier.equals(k.modifier);
-        }
+    private int calculateHashCode() {
+        int result = kind != null ? kind.hashCode() : 0;
+        result = 31 * result + (modifier != null ? modifier.hashCode() : 0);
+        result = 31 * result + (quoteClass != null ? quoteClass.hashCode() : 0);
+        return result;
     }
 }

@@ -866,7 +866,7 @@ public class LexerImpl implements Lexer {
         TextPos end = current();
         TokenKey key;
         if (kind.hasQuotes()) {
-            key = TokenKey.quoted(kind, modifier, startQuote, endQuote);
+            key = TokenKey.quoted(kind, modifier, quoteClass);
         } else if (kind.hasModifier()) {
             key = TokenKey.modified(kind, modifier);
         } else {
