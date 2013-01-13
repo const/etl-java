@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 /**
- * <p>This package contains a lightweight implementation of 
+ * <p>This package contains a lightweight implementation of
  * grammar model and utility classes required to support this.
  * The package is generally unstable and it can change with
  * each new version of the parser implementation.</p>
