@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -27,6 +27,8 @@ package net.sf.etl.parsers.event.impl.term;
 
 import net.sf.etl.parsers.*;
 import net.sf.etl.parsers.event.grammar.CompiledGrammar;
+import net.sf.etl.parsers.event.grammar.KeywordContext;
+import net.sf.etl.parsers.event.grammar.MapKeywordContext;
 import net.sf.etl.parsers.event.grammar.TermParserStateFactory;
 import net.sf.etl.parsers.event.impl.term.action.*;
 import net.sf.etl.parsers.event.impl.term.action.buildtime.ActionLinker;
@@ -37,7 +39,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Implementation of the default grammar that is used when actual grammar could not be found
+ * The implementation of the default grammar that is used when actual grammar could not be found
  */
 public class DefaultCompiledGrammar implements CompiledGrammar {
     /**
@@ -52,13 +54,21 @@ public class DefaultCompiledGrammar implements CompiledGrammar {
      * Factory instance
      */
     private final static TermParserStateFactory DEFAULT_GRAMMAR_STATE_FACTORY = makeStateFactory();
+    /**
+     * Blank context
+     */
+    private static final MapKeywordContext BLANK_CONTEXT = new MapKeywordContext();
+    /**
+     * The statement production
+     */
+    private static ActionStateFactory statement;
 
     /**
      * @return make state factory
      */
     private static TermParserStateFactory makeStateFactory() {
         ActionLinker actionLinker = new ActionLinker();
-        ActionStateFactory statement = new ActionStateFactory(createStatement(actionLinker));
+        statement = new ActionStateFactory(createStatement(actionLinker));
         StatementSequenceStateFactory statements = new StatementSequenceStateFactory(statement);
         BlockStateFactory block = new BlockStateFactory(StandardGrammars.DEFAULT_GRAMMAR_CONTEXT, statements);
         actionLinker.resolveBlock(StandardGrammars.DEFAULT_GRAMMAR_CONTEXT, block);
@@ -96,6 +106,11 @@ public class DefaultCompiledGrammar implements CompiledGrammar {
     }
 
     @Override
+    public KeywordContext getKeywordContext(DefinitionContext context) {
+        return BLANK_CONTEXT;
+    }
+
+    @Override
     public TermParserStateFactory statementSequenceParser() {
         return DEFAULT_GRAMMAR_STATE_FACTORY;
     }
@@ -104,6 +119,13 @@ public class DefaultCompiledGrammar implements CompiledGrammar {
     public TermParserStateFactory statementSequenceParser(DefinitionContext context) {
         if (context.equals(getDefaultContext()))
             return DEFAULT_GRAMMAR_STATE_FACTORY;
+        throw new IllegalArgumentException("Unknown context: " + context);
+    }
+
+    @Override
+    public TermParserStateFactory statementParser(DefinitionContext context) {
+        if (context.equals(getDefaultContext()))
+            return statement;
         throw new IllegalArgumentException("Unknown context: " + context);
     }
 
@@ -191,7 +213,7 @@ public class DefaultCompiledGrammar implements CompiledGrammar {
         contentEnd.next = end;
         StructuralTokenAction stEnd = new StructuralTokenAction(Terms.STATEMENT_END, StandardGrammars.DEFAULT_GRAMMAR_STATEMENT_DEFINITION_INFO);
         end.next = stEnd;
-        stEnd.next = new ReturnAction();
+        stEnd.next = new ReturnAction(true);
         return stStart;
     }
 

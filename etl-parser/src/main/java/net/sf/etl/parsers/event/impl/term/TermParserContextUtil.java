@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -25,20 +25,29 @@
 
 package net.sf.etl.parsers.event.impl.term;
 
-import net.sf.etl.parsers.PhraseToken;
-import net.sf.etl.parsers.SyntaxRole;
-import net.sf.etl.parsers.TermToken;
-import net.sf.etl.parsers.Terms;
+import net.sf.etl.parsers.*;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 /**
- * Utilities related to term parser context
+ * The utilities related to term parser context
  */
 public class TermParserContextUtil {
+    /**
+     * Report control token
+     *
+     * @param context the parser context
+     * @param token   the reported token
+     */
     public static void reportControl(TermParserContext context, PhraseToken token) {
         context.produce(new TermToken(Terms.CONTROL, SyntaxRole.CONTROL, null, token, token.start(), token.end(), null));
     }
 
+    /**
+     * Report ignorable token and auto-detect role
+     *
+     * @param context the context
+     * @param token   the reported token
+     */
     public static void reportIgnorable(TermParserContext context, PhraseToken token) {
         SyntaxRole role;
         switch (token.token().kind()) {
@@ -53,7 +62,56 @@ public class TermParserContextUtil {
         reportIgnorable(context, role, token);
     }
 
+    /**
+     * Report ignorable token with specified role
+     *
+     * @param context the context
+     * @param role    the role
+     * @param token   the token to report
+     */
     public static void reportIgnorable(TermParserContext context, SyntaxRole role, PhraseToken token) {
         context.produce(new TermToken(Terms.IGNORABLE, role, null, token, token.start(), token.end(), null));
+    }
+
+    /**
+     * Skip ignorable token
+     *
+     * @param context           the context
+     * @param skipDocumentation if true, the documentation tokens are skipped as well
+     * @return true if current token was skipped and this method should be called again when
+     *         next phrase token become available
+     */
+    public static boolean skipIgnorable(TermParserContext context, boolean skipDocumentation) {
+        if (context.isAdvanceNeeded()) {
+            PhraseToken t = context.current();
+            switch (t.kind()) {
+                case SOFT_STATEMENT_END:
+                    if (!context.isScriptMode() || !context.canSoftEndStatement()) {
+                        context.produce(new TermToken(Terms.IGNORABLE, SyntaxRole.IGNORABLE, null, t, t.start(), t.end(), null));
+                        context.consumePhraseToken();
+                        return true;
+                    }
+                    break;
+                case IGNORABLE:
+                    reportIgnorable(context, t);
+                    context.consumePhraseToken();
+                    return true;
+                case CONTROL:
+                    reportControl(context, t);
+                    context.consumePhraseToken();
+                    return true;
+                case SIGNIFICANT:
+                    if (skipDocumentation) {
+                        if (t.hasToken() && t.token().kind() == Tokens.DOC_COMMENT) {
+                            context.produce(new TermToken(Terms.IGNORABLE, SyntaxRole.DOCUMENTATION, null, t, t.start(), t.end(), null));
+                            context.consumePhraseToken();
+                            return true;
+                        }
+                    }
+                    break;
+            }
+            context.advanced();
+        }
+        return false;
     }
 }

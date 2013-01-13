@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -25,19 +25,9 @@
 
 package net.sf.etl.parsers.event.term;
 
-import net.sf.etl.parsers.TermToken;
 import net.sf.etl.parsers.Terms;
-import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.event.impl.term.DefaultCompiledGrammar;
-import net.sf.etl.parsers.streams.LexerReader;
-import net.sf.etl.parsers.streams.PhraseParserReader;
-import net.sf.etl.parsers.streams.TermParserReader;
 import org.junit.Test;
-
-import java.io.StringReader;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * The test for default grammar
@@ -66,13 +56,7 @@ public class DefaultGrammarTest extends BasicTermTestCase {
         read(Terms.EOF);
     }
 
-    private void read(Terms term) {
-        assertTrue(reader.advance());
-        TermToken current = reader.current();
-        assertEquals("Current token: " + current, term, current.kind());
-    }
-
     private void startDefaultGrammar(String text) {
-        start(new TermParserReader(new PhraseParserReader(new LexerReader(new StringReader(text), "t", TextPos.START)), DefaultCompiledGrammar.INSTANCE, false));
+        startCompiledGrammar(DefaultCompiledGrammar.INSTANCE, text);
     }
 }

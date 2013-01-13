@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -25,29 +25,29 @@
 
 package net.sf.etl.parsers.literals;
 
+import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.Tokens;
 import net.sf.etl.parsers.characters.Identifiers;
 import net.sf.etl.parsers.characters.Numbers;
 
 /**
- * This is a parser of number. It is loosely based on lexer code.
+ * A parser of number. It is loosely based on lexer code.
  */
 class NumberParser extends BaseLiteralParser {
     /**
-     * number base
+     * the number base
      */
     int base = 10;
     /**
-     * A sign of the number, 0 - unspecified
+     * The sign of the number, 0 - unspecified
      */
     int sign = 0;
     /**
-     * Exponent
+     * THe exponent
      */
     int exponent = 0;
-
     /**
-     * a suffix attached to number
+     * The suffix attached to number
      */
     String suffix;
     /**
@@ -56,16 +56,16 @@ class NumberParser extends BaseLiteralParser {
     String text;
 
     /**
-     * A constructor for parser
+     * The constructor for parser
      *
      * @param inputText the input text
      */
-    NumberParser(String inputText) {
-        super(inputText);
+    NumberParser(String inputText, TextPos start, String systemId) {
+        super(inputText, start, systemId);
     }
 
     /**
-     * @return parsed number
+     * @return the parsed number
      */
     NumberInfo parse() {
         Tokens kind = Tokens.INTEGER;

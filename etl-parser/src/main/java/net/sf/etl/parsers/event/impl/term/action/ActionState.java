@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -41,12 +41,11 @@ public class ActionState extends TermParserState {
      */
     private ActionStateRecovery recovery;
 
-
     /**
      * The constructor
      *
-     * @param context  context
-     * @param previous previous state on the stack
+     * @param context  the context
+     * @param previous the previous state on the stack
      * @param start    the start state
      */
     public ActionState(TermParserContext context, TermParserState previous, Action start) {
@@ -55,18 +54,18 @@ public class ActionState extends TermParserState {
     }
 
     @Override
-    public boolean canRecover() {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    public RecoverableStatus canRecover() {
+        return RecoverableStatus.UNKNOWN;
     }
 
     @Override
     public void forceFinish() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //TODO implement recovery
     }
 
     @Override
     public void startRecover() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //TODO implement recovery
     }
 
 

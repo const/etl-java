@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -38,16 +38,16 @@ public class ResourceUsage implements Serializable {
     /**
      * The used resource
      */
-    private final ResourceDescriptor resource;
+    private final ResourceDescriptor descriptor;
     /**
      * The resource role
      */
     private final String role;
 
 
-    public ResourceUsage(ResourceReference reference, ResourceDescriptor resource, String role) {
+    public ResourceUsage(ResourceReference reference, ResourceDescriptor descriptor, String role) {
         this.reference = reference;
-        this.resource = resource;
+        this.descriptor = descriptor;
         this.role = role;
     }
 
@@ -55,8 +55,8 @@ public class ResourceUsage implements Serializable {
         return reference;
     }
 
-    public ResourceDescriptor getResource() {
-        return resource;
+    public ResourceDescriptor getDescriptor() {
+        return descriptor;
     }
 
     public String getRole() {

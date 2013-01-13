@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -24,6 +24,7 @@
  */
 package net.sf.etl.parsers.event.unstable.model.grammar;
 
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.TextPos;
 
 /**
@@ -52,4 +53,11 @@ public abstract class EObject {
      * The system identifier for the node
      */
     public String systemId;
+
+    /**
+     * @return source location for object
+     */
+    public SourceLocation sourceLocation() {
+        return new SourceLocation(start, end, systemId);
+    }
 }

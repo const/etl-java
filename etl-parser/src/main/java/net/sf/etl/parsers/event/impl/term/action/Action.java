@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -25,6 +25,7 @@
 
 package net.sf.etl.parsers.event.impl.term.action;
 
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 /**
@@ -34,6 +35,11 @@ import net.sf.etl.parsers.event.grammar.TermParserContext;
  * outside of {@link ActionStateFactory} using public API, so their mutability is non-issue.
  */
 public abstract class Action {
+    /**
+     * The source of action
+     */
+    public SourceLocation source;
+
     /**
      * Parse more elements
      *

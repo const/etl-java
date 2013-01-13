@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -22,18 +22,34 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-package net.sf.etl.parsers.event.impl.term;
+package net.sf.etl.parsers.event.grammar.impl.nodes;
 
 /**
- * The document type state factory
+ * Abstract scope node for term events that support marks
+ *
+ * @author const
  */
-public class DocTypeStateFactory {
+public abstract class TermScopeNode extends CleanupScopeNode {
     /**
-     * Doctype state skips ignorable tokens, if first non-ignorable is token "doctype", then it specifies doctype
-     * to the parsers. Otherwise, it specifies that default document type should be used for that source. Note,
-     * that the state also exits in case when doc comment is encountered.
+     * "at mark" flag
      */
-    public static class DocTypeState {
+    private final boolean isAtMark;
+
+    /**
+     * The constructor
+     *
+     * @param isAtMark if true term scope will be started at mark rather than locally
+     */
+    public TermScopeNode(boolean isAtMark) {
+        super();
+        this.isAtMark = isAtMark;
     }
+
+    /**
+     * @return true if term should be started at mark.
+     */
+    public boolean isAtMark() {
+        return isAtMark;
+    }
+
 }

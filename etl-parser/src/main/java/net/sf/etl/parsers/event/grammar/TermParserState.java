@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -25,7 +25,7 @@
 
 package net.sf.etl.parsers.event.grammar;
 
-import net.sf.etl.parsers.SourceLocation;
+import java.util.Iterator;
 
 /**
  * The state for term parser. The state represent runtime state of the parser. The states are organized in the stack.
@@ -40,9 +40,9 @@ public abstract class TermParserState {
      */
     private final TermParserState previous;
     /**
-     * Current location in the source code
+     * The call status
      */
-    private SourceLocation location;
+    private CallStatus callStatus = CallStatus.NONE;
 
     /**
      * The constructor
@@ -56,22 +56,6 @@ public abstract class TermParserState {
     }
 
     /**
-     * @return the source location
-     */
-    public SourceLocation getLocation() {
-        return location;
-    }
-
-    /**
-     * Set current location
-     *
-     * @param location the location
-     */
-    protected void setLocation(SourceLocation location) {
-        this.location = location;
-    }
-
-    /**
      * @return the previous state
      */
     public TermParserState getPreviousState() {
@@ -79,13 +63,42 @@ public abstract class TermParserState {
     }
 
     /**
+     * @return previous states for iterator
+     */
+    public Iterable<TermParserState> previousStates() {
+        return new Iterable<TermParserState>() {
+            @Override
+            public Iterator<TermParserState> iterator() {
+                return new Iterator<TermParserState>() {
+                    TermParserState state = previous;
+
+                    @Override
+                    public boolean hasNext() {
+                        return state != null;
+                    }
+
+                    @Override
+                    public TermParserState next() {
+                        final TermParserState rc = state;
+                        state = state.getPreviousState();
+                        return rc;
+                    }
+
+                    @Override
+                    public void remove() {
+                        throw new UnsupportedOperationException("The operation is not supported");
+                    }
+                };
+            }
+        };
+    }
+
+    /**
      * Attempt the recovery
-     * <p/>
-     * TODO three states RECOVER, UNKNOWN, SKIP
      *
      * @return true if this state can recover basing on the current token.
      */
-    public abstract boolean canRecover();
+    public abstract RecoverableStatus canRecover();
 
     /**
      * If this state has returned false from {@link #canRecover()}, and some method returned true from recover,
@@ -120,6 +133,71 @@ public abstract class TermParserState {
      * Exit for this state, so the previous state will be in control
      */
     protected void exit() {
-        context.exit(this);
+        context.exit(this, true);
+    }
+
+    /**
+     * Set call status from the call
+     *
+     * @param callStatus the call status
+     */
+    public void setCallStatus(boolean callStatus) {
+        setCallStatus(callStatus ? CallStatus.SUCCESS : CallStatus.FAILURE);
+    }
+
+    /**
+     * Set the call status
+     *
+     * @param callStatus the call status
+     */
+    private void setCallStatus(CallStatus callStatus) {
+        this.callStatus = callStatus;
+    }
+
+    /**
+     * Get call status and set it none
+     *
+     * @return the consumed call status
+     */
+    public CallStatus consumeCallStatus() {
+        final CallStatus status = callStatus;
+        callStatus = CallStatus.NONE;
+        return status;
+    }
+
+    /**
+     * The call status
+     */
+    public static enum CallStatus {
+        /**
+         * No was made
+         */
+        NONE,
+        /**
+         * The call was successful
+         */
+        SUCCESS,
+        /**
+         * The call failed
+         */
+        FAILURE
+    }
+
+    /**
+     * The recoverable status
+     */
+    public static enum RecoverableStatus {
+        /**
+         * This state could not recover at the moment
+         */
+        UNKNOWN,
+        /**
+         * This state can recover here
+         */
+        RECOVER,
+        /**
+         * The current token or block should be skipped
+         */
+        SKIP,
     }
 }

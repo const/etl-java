@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -24,6 +24,8 @@
  */
 package net.sf.etl.parsers.event.unstable.model.grammar;
 
+import net.sf.etl.parsers.Token;
+
 /**
  * The OperatorDefinition node class. This class is a part of the lightweight
  * grammar model.
@@ -34,15 +36,15 @@ public class OperatorDefinition extends SyntaxDefinition {
     /**
      * associativity
      */
-    public Associativity associativity;
+    public Token associativity;
     /**
      * precedence
      */
-    public java.lang.Integer precedence;
+    public Token precedence;
     /**
      * text
      */
-    public java.lang.String text;
+    public Token text;
     /**
      * a composite modifier
      */

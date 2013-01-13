@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -33,7 +33,13 @@ import java.util.HashMap;
  * The map choice action
  */
 public abstract class MapChoiceAction<T> extends Action {
+    /**
+     * The chosen alternatives
+     */
     public final HashMap<T, Action> next = new HashMap<T, Action>();
+    /**
+     * The action performed if none of the alternatives matched
+     */
     public Action fallback;
 
     @Override

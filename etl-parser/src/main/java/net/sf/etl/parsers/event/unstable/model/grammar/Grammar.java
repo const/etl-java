@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -24,6 +24,8 @@
  */
 package net.sf.etl.parsers.event.unstable.model.grammar;
 
+import net.sf.etl.parsers.Token;
+
 /**
  * The Grammar node class. This class is a part of the lightweight grammar
  * model.
@@ -36,15 +38,15 @@ public class Grammar extends AbstractStatement {
      */
     public final java.util.ArrayList<GrammarMember> content = new java.util.ArrayList<GrammarMember>();
     /**
-     * abstractModifier
+     * abstract modifier
      */
     public Modifier abstractModifier;
     /**
-     * name
+     * The name
      */
-    public final java.util.ArrayList<java.lang.String> name = new java.util.ArrayList<java.lang.String>();
+    public final java.util.ArrayList<Token> name = new java.util.ArrayList<Token>();
     /**
      * The version of the grammar
      */
-    public String version;
+    public Token version;
 }

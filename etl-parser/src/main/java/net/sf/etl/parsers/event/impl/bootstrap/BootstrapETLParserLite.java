@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -25,6 +25,7 @@
 package net.sf.etl.parsers.event.impl.bootstrap;
 
 import net.sf.etl.parsers.PhraseTokens;
+import net.sf.etl.parsers.Token;
 import net.sf.etl.parsers.Tokens;
 import net.sf.etl.parsers.event.unstable.model.grammar.*;
 import net.sf.etl.parsers.literals.LiteralUtils;
@@ -86,8 +87,7 @@ public class BootstrapETLParserLite {
     /**
      * a logger used by this class to log the problems
      */
-    private static final Logger log = Logger.getLogger(BootstrapETLParserLite.class
-            .getName());
+    private static final Logger log = Logger.getLogger(BootstrapETLParserLite.class.getName());
 
     /**
      * stack of properties
@@ -473,15 +473,30 @@ public class BootstrapETLParserLite {
         parseChoiceLevel();
     }
 
+
+    /**
+     * parse choice level operators
+     */
+    private void parseFirstChoiceLevel() {
+        parseRepeatLevel();
+        while (tryToken("/")) {
+            wrapTopObject(new FirstChoiceOp(), field(FirstChoiceOp.class, "first"));
+            startProperty(field(FirstChoiceOp.class, "second"));
+            parseRepeatLevel();
+            endProperty();
+            endObject();
+        }
+    }
+
     /**
      * parse choice level operators
      */
     private void parseChoiceLevel() {
-        parseRepeatLevel();
+        parseFirstChoiceLevel();
         while (tryToken("|")) {
             wrapTopObject(new ChoiceOp(), field(ChoiceOp.class, "options"));
             startProperty(field(ChoiceOp.class, "options"));
-            parseRepeatLevel();
+            parseFirstChoiceLevel();
             endProperty();
             endObject();
         }
@@ -680,20 +695,6 @@ public class BootstrapETLParserLite {
         consume(":");
         value(field(ObjectName.class, "name"));
         endObject();
-    }
-
-    /**
-     * Try token
-     *
-     * @param tk token to try
-     * @return true if phrase token matched and consumed, false otherwise
-     */
-    private boolean tryToken(PhraseTokens tk) {
-        if (match(tk)) {
-            advance();
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -896,13 +897,17 @@ public class BootstrapETLParserLite {
                 featureId.set(top, value);
             } else if (type == String.class) {
                 featureId.set(top, text());
+            } else if (type == Token.class) {
+                featureId.set(top, token());
             } else if (type == Integer.class || type == int.class) {
                 featureId.set(top, LiteralUtils.parseInt(text()));
             } else if (type == ArrayList.class) {
                 Type gType = featureId.getGenericType();
                 if (gType instanceof ParameterizedType) {
                     ParameterizedType pt = (ParameterizedType) gType;
-                    if (pt.getActualTypeArguments()[0] == String.class) {
+                    if (pt.getActualTypeArguments()[0] == Token.class) {
+                        ((ArrayList<Token>) featureId.get(top)).add(token());
+                    } else if (pt.getActualTypeArguments()[0] == String.class) {
                         ((ArrayList<String>) featureId.get(top)).add(text());
                     } else {
                         throw new RuntimeException("Unsupported argument type:"
@@ -929,10 +934,14 @@ public class BootstrapETLParserLite {
      * @return text of current token
      */
     private String text() {
+        return token().text();
+    }
+
+    private Token token() {
         if (!parser.current().hasToken()) {
             fail();
         }
-        return parser.current().token().text();
+        return parser.current().token();
     }
 
     /**

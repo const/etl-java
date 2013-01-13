@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -25,9 +25,7 @@
 package net.sf.etl.parsers.literals;
 
 import net.sf.etl.parsers.TextPos;
-import net.sf.etl.parsers.Tokens;
-
-import java.math.BigInteger;
+import net.sf.etl.parsers.Token;
 
 /**
  * This class contains utilities useful for examining string token contents.
@@ -45,50 +43,48 @@ public final class LiteralUtils {
     /**
      * Parse number
      *
-     * @param input an input token
+     * @param input the input token
      * @return information about number.
      */
     public static NumberInfo parseNumber(String input) {
-        return new NumberParser(input).parse();
+        return parseNumber(input, TextPos.START, "unknown:");
     }
+
+    /**
+     * Parse number
+     *
+     * @param input    the input token
+     * @param start    the start position
+     * @param systemId the system id
+     * @return information about number.
+     */
+    public static NumberInfo parseNumber(String input, TextPos start, String systemId) {
+        return new NumberParser(input, start, systemId).parse();
+    }
+
 
     /**
      * Parse text of integer token to integer value.
      *
-     * @param intToken a integer token to parse
+     * @param intToken the integer token to parse
      * @return parsed value
      */
     public static int parseInt(String intToken) {
         final NumberInfo n = parseNumber(intToken);
         n.checkErrors();
-        if (n.kind != Tokens.INTEGER && n.kind != Tokens.INTEGER_WITH_SUFFIX) {
-            throw new NumberFormatException("wrong token kind: " + n.kind);
-        }
-        String textToParse = n.text;
-        if (n.sign == -1) {
-            textToParse = "-" + textToParse;
-        }
-        return Integer.parseInt(textToParse, n.base);
+        return n.parseInt();
     }
 
     /**
      * Parse text of floating point or integer token to double.
      *
-     * @param doubleToken a floating point or integer token to parse
+     * @param doubleToken the floating point or integer token to parse
      * @return parsed double
      */
     public static double parseDouble(String doubleToken) {
         final NumberInfo n = parseNumber(doubleToken);
         n.checkErrors();
-        BigInteger digits = new BigInteger((n.sign >= 0 ? "" : "-") + n.text,
-                n.base);
-        double exp = 1;
-        int a = Math.abs(n.exponent);
-        for (int i = 0; i < a; i++) {
-            exp *= n.base;
-        }
-        double rc = digits.doubleValue();
-        return n.exponent < 0 ? rc / exp : rc * exp;
+        return n.parseDouble();
     }
 
     /**
@@ -96,13 +92,33 @@ public final class LiteralUtils {
      * ignored. Note it is assumed that the token has been already parsed by the
      * lexer, so minimal additional validation is performed.
      *
-     * @param stringToken a string token to parse or null
+     * @param stringToken the string token to parse or null
      * @return parsed string or null if null has been passed as argument
      */
     public static String parseString(String stringToken) {
+        if (stringToken == null) {
+            return null;
+        }
         final StringInfo parseResult = new StringParser(stringToken, TextPos.START, "unknown:").parse();
         parseResult.checkErrors();
         return parseResult.text;
     }
 
+    /**
+     * Parse text of string token to unicode characters. The string prefix is
+     * ignored. Note it is assumed that the token has been already parsed by the
+     * lexer, so minimal additional validation is performed.
+     *
+     * @param stringToken the string token to parse or null
+     * @param systemId    the  report system id
+     * @return parsed string or null if null has been passed as argument
+     */
+    public static String parseString(Token stringToken, String systemId) {
+        if (stringToken == null) {
+            return null;
+        }
+        final StringInfo parseResult = new StringParser(stringToken.text(), stringToken.start(), systemId).parse();
+        parseResult.checkErrors();
+        return parseResult.text;
+    }
 }

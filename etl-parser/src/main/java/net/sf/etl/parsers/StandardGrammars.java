@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -115,12 +115,12 @@ public interface StandardGrammars {
     /**
      * content of default statement
      */
-    public final static PropertyName DEFAULT_GRAMMAR_STATEMENT_CONTENT = new PropertyName("content");
+    public final static PropertyName DEFAULT_GRAMMAR_STATEMENT_CONTENT = new PropertyName("Content");
 
     /**
      * content of default statement
      */
-    public final static PropertyName DEFAULT_GRAMMAR_STATEMENT_DOCUMENTATION = new PropertyName("documentation");
+    public final static PropertyName DEFAULT_GRAMMAR_STATEMENT_DOCUMENTATION = new PropertyName("Documentation");
     /**
      * content of default statement
      */
@@ -128,7 +128,7 @@ public interface StandardGrammars {
     /**
      * content of default statement
      */
-    public final static PropertyName DEFAULT_GRAMMAR_STATEMENT_DOCUMENTATION_VALUE = new PropertyName("text");
+    public final static PropertyName DEFAULT_GRAMMAR_STATEMENT_DOCUMENTATION_VALUE = new PropertyName("Text");
     /**
      * object name of default block
      */
@@ -137,7 +137,7 @@ public interface StandardGrammars {
     /**
      * content of the block
      */
-    public final static PropertyName DEFAULT_GRAMMAR_BLOCK_CONTENT = new PropertyName("content");
+    public final static PropertyName DEFAULT_GRAMMAR_BLOCK_CONTENT = new PropertyName("Content");
 
     /**
      * object name for default tokens
@@ -147,7 +147,7 @@ public interface StandardGrammars {
     /**
      * values for default tokens
      */
-    public final static PropertyName DEFAULT_GRAMMAR_TOKENS_VALUES = new PropertyName("values");
+    public final static PropertyName DEFAULT_GRAMMAR_TOKENS_VALUES = new PropertyName("Values");
 
     /**
      * doctype context
@@ -163,17 +163,21 @@ public interface StandardGrammars {
     /**
      * Property name for system id property
      */
-    public static final PropertyName DOCTYPE_GRAMMAR_DOCTYPE_SYSTEM_ID = new PropertyName("systemId");
+    public static final PropertyName DOCTYPE_GRAMMAR_DOCTYPE_TYPE = new PropertyName("Type");
+    /**
+     * Property name for system id property
+     */
+    public static final PropertyName DOCTYPE_GRAMMAR_DOCTYPE_SYSTEM_ID = new PropertyName("SystemId");
 
     /**
      * Property name for public id property
      */
-    public static final PropertyName DOCTYPE_GRAMMAR_DOCTYPE_PUBLIC_ID = new PropertyName("publicId");
+    public static final PropertyName DOCTYPE_GRAMMAR_DOCTYPE_PUBLIC_ID = new PropertyName("PublicId");
 
     /**
      * Property name for context property
      */
-    public static final PropertyName DOCTYPE_GRAMMAR_DOCTYPE_CONTEXT = new PropertyName("context");
+    public static final PropertyName DOCTYPE_GRAMMAR_DOCTYPE_CONTEXT = new PropertyName("Context");
 
     /**
      * The doctype declaration

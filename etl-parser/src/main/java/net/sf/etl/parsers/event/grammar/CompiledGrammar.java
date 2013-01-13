@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -44,6 +44,10 @@ public interface CompiledGrammar {
      * The request type for the grammar associated with the ETL source
      */
     String GRAMMAR_REQUEST_TYPE = "http://etl.sf.net/document_type";
+    /**
+     * The used grammar request type
+     */
+    String USED_GRAMMAR_REQUEST_TYPE = "http://etl.sf.net/used_grammar";
 
     /**
      * Get other compiled grammars that were produced as result of compilation of this grammar
@@ -84,6 +88,15 @@ public interface CompiledGrammar {
     List<ExpressionContext> getExpressionContexts();
 
     /**
+     * Get keyword context for the definition context. This keyword context could be used for syntax highlighters and
+     * to check if name conflicts with some keyword defined in the context for source transformation tools.
+     *
+     * @param context the keyword context
+     * @return keyword context or null, if context does not have keywords defined.
+     */
+    KeywordContext getKeywordContext(DefinitionContext context);
+
+    /**
      * @return the statement sequence parser with default context
      */
     TermParserStateFactory statementSequenceParser();
@@ -97,6 +110,16 @@ public interface CompiledGrammar {
      * @throws IllegalArgumentException if context is not defined within the grammar
      */
     TermParserStateFactory statementSequenceParser(DefinitionContext context);
+
+    /**
+     * The statement parser with the specified context. Note that the context is not necessary from this grammar,
+     * it could be from reused grammars imported by this one.
+     *
+     * @param context the statement context
+     * @return the statement context
+     * @throws IllegalArgumentException if context is not defined within the grammar
+     */
+    TermParserStateFactory statementParser(DefinitionContext context);
 
     /**
      * The parser for expression context hosted within some statement context

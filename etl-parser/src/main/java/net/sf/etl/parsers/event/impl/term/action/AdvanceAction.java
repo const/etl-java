@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -25,7 +25,6 @@
 
 package net.sf.etl.parsers.event.impl.term.action;
 
-import net.sf.etl.parsers.*;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 import net.sf.etl.parsers.event.impl.term.TermParserContextUtil;
 
@@ -38,46 +37,45 @@ public class AdvanceAction extends SimpleAction {
      */
     boolean skipDocumentation;
 
-    public AdvanceAction(boolean skipDocumentation) {
+    /**
+     * The constructor
+     *
+     * @param next              the next action
+     * @param skipDocumentation if true doc comments are skipped
+     */
+    public AdvanceAction(Action next, boolean skipDocumentation) {
+        super(next);
         this.skipDocumentation = skipDocumentation;
     }
 
+    /**
+     * The constructor
+     *
+     * @param next the next action
+     */
+    public AdvanceAction(Action next) {
+        this(next, true);
+    }
+
+    /**
+     * The constructor
+     *
+     * @param skipDocumentation if true doc comments are skipped
+     */
+    public AdvanceAction(boolean skipDocumentation) {
+        this(null, skipDocumentation);
+    }
+
+    /**
+     * The constructor
+     */
     public AdvanceAction() {
         this(true);
     }
 
     @Override
     public void parseMore(TermParserContext context, ActionState state) {
-        if (context.isAdvanceNeeded()) {
-            PhraseToken t = context.current();
-            switch (t.kind()) {
-                case SOFT_STATEMENT_END:
-                    if (!context.isScriptMode() || !context.canSoftEndStatement()) {
-                        context.produce(new TermToken(Terms.IGNORABLE, SyntaxRole.IGNORABLE, null, t, t.start(), t.end(), null));
-                        context.consumePhraseToken();
-                        return;
-                    }
-                    break;
-                case IGNORABLE:
-                    TermParserContextUtil.reportIgnorable(context, t);
-                    context.consumePhraseToken();
-                    return;
-                case CONTROL:
-                    TermParserContextUtil.reportControl(context, t);
-                    context.consumePhraseToken();
-                    return;
-                case SIGNIFICANT:
-                    if (skipDocumentation) {
-                        if (t.hasToken() && t.token().kind() == Tokens.DOC_COMMENT) {
-                            context.produce(new TermToken(Terms.IGNORABLE, SyntaxRole.DOCUMENTATION, null, t, t.start(), t.end(), null));
-                            context.consumePhraseToken();
-                            return;
-                        }
-                    }
-                    break;
-            }
-        }
-        context.advanced();
+        if (TermParserContextUtil.skipIgnorable(context, skipDocumentation)) return;
         state.nextAction(next);
     }
 

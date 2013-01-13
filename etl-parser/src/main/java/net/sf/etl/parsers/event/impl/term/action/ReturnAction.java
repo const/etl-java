@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -31,9 +31,22 @@ import net.sf.etl.parsers.event.grammar.TermParserContext;
  * Return to the caller
  */
 public class ReturnAction extends Action {
+    /**
+     * If true, the method is returning successfully
+     */
+    public final boolean success;
+
+    /**
+     * The constructor
+     *
+     * @param success if true, the method is returning successfully
+     */
+    public ReturnAction(boolean success) {
+        this.success = success;
+    }
 
     @Override
     public void parseMore(TermParserContext context, ActionState state) {
-        context.exit(state);
+        context.exit(state, success);
     }
 }

@@ -1,18 +1,66 @@
+/*
+ * Reference ETL Parser for Java
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge,
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package net.sf.etl.parsers.characters;
 
 /**
  * The classes of the quotes
  */
 public enum QuoteClass {
-    DOUBLE_QUOTE,
-    SINGLE_QUOTE,
-    DOUBLE_ANGLE,
-    SINGLE_ANGLE,
-    SINGLE_CORNER,
-    DOUBLE_CORNER,
-    SINGLE_DIRECTED,
-    DOUBLE_DIRECTED,
-    DOUBLE_PRIME;
+    DOUBLE_QUOTE(0x0022),
+    SINGLE_QUOTE(0x0027),
+    DOUBLE_ANGLE(0x00AB),
+    SINGLE_ANGLE(0x2039),
+    SINGLE_CORNER(0x300C),
+    DOUBLE_CORNER(0x300E),
+    SINGLE_DIRECTED(0x2018),
+    DOUBLE_DIRECTED(0x201C),
+    DOUBLE_PRIME(0x301D);
+
+    /**
+     * The sample codepoint
+     */
+    private final int sample;
+
+
+    /**
+     * The constructor
+     *
+     * @param sample the sample code point
+     */
+    private QuoteClass(int sample) {
+        this.sample = sample;
+    }
+
+    /**
+     * @return sample codepoint
+     */
+    public int sample() {
+        return sample;
+    }
+
 
     /**
      * Classify codepoint with respect to quote class.
@@ -63,5 +111,10 @@ public enum QuoteClass {
             default:
                 return null;
         }
+    }
+
+    @Override
+    public String toString() {
+        return name();
     }
 }

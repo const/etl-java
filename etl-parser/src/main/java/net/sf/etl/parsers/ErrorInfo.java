@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -38,59 +38,58 @@ import java.util.*;
 public final class ErrorInfo implements Iterable<ErrorInfo> {
     // FIXME add related locations support
     /**
-     * a bundle with lexical error messages
+     * The bundle with lexical error messages
      */
     private static final ResourceBundle LEXICAL_ERRORS = ResourceBundle
             .getBundle("net.sf.etl.parsers.errors.LexicalErrors");
     /**
-     * a bundle with phrase error messages
+     * The bundle with phrase error messages
      */
     private static final ResourceBundle PHRASE_ERRORS = ResourceBundle
             .getBundle("net.sf.etl.parsers.errors.PhraseErrors");
     /**
-     * a bundle with syntax error messages
+     * the bundle with syntax error messages
      */
     private static final ResourceBundle SYNTAX_ERRORS = ResourceBundle
             .getBundle("net.sf.etl.parsers.errors.TermErrors");
     /**
-     * a bundle with grammar error messages
+     * The bundle with grammar error messages
      */
     private static final ResourceBundle GRAMMAR_ERRORS = ResourceBundle
             .getBundle("net.sf.etl.parsers.errors.GrammarErrors");
     /**
-     * no arguments constant
+     * The no arguments constant
      */
     public static final Object NO_ARGS[] = new Object[0];
     /**
-     * id of error
+     * The id of error
      */
     private final String errorId;
     /**
-     * arguments of error
+     * The arguments of error
      */
     private final List<Object> errorArgs;
     /**
-     * source location for the error
+     * The source location for the error
      */
     private final SourceLocation location;
     /**
-     * the nextError for this error info
+     * the next error for this error info
      */
     private final ErrorInfo nextError;
 
     /**
-     * A constructor for error info
+     * The constructor for error info
      *
-     * @param id       a identifier of the error
+     * @param id       the identifier of the error
      * @param args     additional information associated with the error (usually used
      *                 for localized reporting). Note that array must contain
      *                 immutable objects that are preferably of primitive types.
      * @param start    the start of the error scope
      * @param end      the end of the error scope
-     * @param systemId a system identifier for error
+     * @param systemId the system identifier for error
      */
-    public ErrorInfo(String id, Object args[], TextPos start, TextPos end,
-                     String systemId) {
+    public ErrorInfo(String id, Object args[], TextPos start, TextPos end, String systemId) {
         this(id, args, start, end, systemId, null);
     }
 
@@ -104,19 +103,18 @@ public final class ErrorInfo implements Iterable<ErrorInfo> {
     /**
      * A constructor for error info
      *
-     * @param id        a identifier of the error
+     * @param id        the identifier of the error
      * @param args      additional information associated with the error (usually used
      *                  for localized reporting). Note that array must contain
      *                  immutable objects that are preferably of primitive types.
      * @param start     the start of the error scope
      * @param end       the end of the error scope
-     * @param systemId  a system identifier for error
-     * @param nextError a nextError of this error
+     * @param systemId  the system identifier for error
+     * @param nextError the nextError of this error
      */
-    public ErrorInfo(String id, Object args[], TextPos start, TextPos end,
-                     String systemId, ErrorInfo nextError) {
+    public ErrorInfo(String id, Object args[], TextPos start, TextPos end, String systemId, ErrorInfo nextError) {
         location = new SourceLocation(start, end, systemId);
-        this.errorArgs = args.length == 0 ?
+        this.errorArgs = args == null || args.length == 0 ?
                 Collections.emptyList() :
                 Collections.unmodifiableList(new ArrayList<Object>(Arrays.asList(args)));
         this.errorId = id;
@@ -124,7 +122,7 @@ public final class ErrorInfo implements Iterable<ErrorInfo> {
     }
 
     /**
-     * @return location information for the error
+     * @return the location information for the error
      */
     public SourceLocation location() {
         return location;

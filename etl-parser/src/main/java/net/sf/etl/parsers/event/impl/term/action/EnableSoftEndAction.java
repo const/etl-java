@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -31,6 +31,21 @@ import net.sf.etl.parsers.event.grammar.TermParserContext;
  * Enable soft end for the segment
  */
 public class EnableSoftEndAction extends SimpleAction {
+    /**
+     * The default constructor
+     */
+    public EnableSoftEndAction() {
+    }
+
+    /**
+     * The constructor from next action
+     *
+     * @param next the next action
+     */
+    public EnableSoftEndAction(Action next) {
+        super(next);
+    }
+
     @Override
     public void parseMore(TermParserContext context, ActionState state) {
         context.enableSoftEnd();

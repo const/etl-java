@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -44,7 +44,25 @@ public class ReportTokenAction extends SimpleAction {
      */
     SyntaxRole role;
 
+    /**
+     * The constructor
+     *
+     * @param kind the kind of token
+     * @param role the role of token
+     */
     public ReportTokenAction(Terms kind, SyntaxRole role) {
+        this(null, kind, role);
+    }
+
+    /**
+     * The constructor
+     *
+     * @param next the next ation
+     * @param kind the kind of token
+     * @param role the role of token
+     */
+    public ReportTokenAction(Action next, Terms kind, SyntaxRole role) {
+        super(next);
         this.kind = kind;
         this.role = role;
     }

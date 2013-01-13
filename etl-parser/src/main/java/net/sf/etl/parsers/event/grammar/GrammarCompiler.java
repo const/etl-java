@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -30,8 +30,9 @@ import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.unstable.model.grammar.Grammar;
 import net.sf.etl.parsers.resource.ResolvedObject;
 import net.sf.etl.parsers.resource.ResourceRequest;
+import net.sf.etl.parsers.resource.ResourceUsage;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * The public grammar compiler engine interface. The grammar compiler allows making complied grammars
@@ -53,7 +54,7 @@ public interface GrammarCompiler {
     /**
      * @return get more grammars needed to compile
      */
-    List<ResourceRequest> requests();
+    Collection<ResourceRequest> requests();
 
     /**
      * Parse and provide grammar object
@@ -63,6 +64,24 @@ public interface GrammarCompiler {
      * @throws IllegalStateException if grammar was already provided of there is no active requests for this grammar
      */
     void provide(ResolvedObject<Grammar> grammar, ErrorInfo errors);
+
+    /**
+     * This method is invoked if the resource request fails to be satisfied
+     *
+     * @param request   the resource request
+     * @param resources the used resources
+     * @param errors    the errors related to the request
+     */
+    void fail(ResourceRequest request, Collection<ResourceUsage> resources, ErrorInfo errors);
+
+    /**
+     * Get already provided object by resolved system id the resolved objects with the same resolved system id
+     * are considered the same from point of view of the compiler.
+     *
+     * @param systemId the system id that was previously provided as a resolved object
+     * @return the first provided resolved object with the same system id
+     */
+    ResolvedObject<Grammar> getProvided(String systemId);
 
     /**
      * @return read compiled grammar

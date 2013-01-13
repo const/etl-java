@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -25,12 +25,21 @@
 
 package net.sf.etl.parsers.event.unstable.model.doctype;
 
+import net.sf.etl.parsers.ErrorInfo;
+import net.sf.etl.parsers.SourceLocation;
+import net.sf.etl.parsers.Token;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Document type object
  */
 public class Doctype {
-    public String type;
-    public String systemId;
-    public String publicId;
-    public String context;
+    public final List<ErrorInfo> errors = new ArrayList<ErrorInfo>();
+    public SourceLocation location;
+    public Token type;
+    public Token systemId;
+    public Token publicId;
+    public Token context;
 }

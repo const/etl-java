@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -195,6 +195,14 @@ public final class TermToken extends AbstractToken {
      */
     public boolean hasLexicalToken() {
         return hasPhraseToken() && token.hasToken();
+    }
+
+
+    /**
+     * @return true if there are errors associated on any level of the token
+     */
+    public boolean hasAnyErrors() {
+        return hasErrors() || hasPhraseToken() && token().hasErrors() || hasLexicalToken() && token().token().hasErrors();
     }
 
     /**

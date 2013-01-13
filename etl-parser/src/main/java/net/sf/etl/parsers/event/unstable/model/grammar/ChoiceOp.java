@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -34,6 +34,5 @@ public class ChoiceOp extends Syntax {
     /**
      * options
      */
-    public final java.util.ArrayList<Syntax> options = new java.util.ArrayList<Syntax>(
-            2);
+    public final java.util.ArrayList<Syntax> options = new java.util.ArrayList<Syntax>(2);
 }

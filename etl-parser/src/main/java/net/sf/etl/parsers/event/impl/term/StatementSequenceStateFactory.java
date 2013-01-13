@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -25,8 +25,10 @@
 
 package net.sf.etl.parsers.event.impl.term;
 
+import net.sf.etl.parsers.ErrorInfo;
 import net.sf.etl.parsers.PhraseToken;
-import net.sf.etl.parsers.SyntaxRole;
+import net.sf.etl.parsers.TermToken;
+import net.sf.etl.parsers.Terms;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 import net.sf.etl.parsers.event.grammar.TermParserState;
 import net.sf.etl.parsers.event.grammar.TermParserStateFactory;
@@ -39,6 +41,10 @@ public class StatementSequenceStateFactory implements TermParserStateFactory {
      * The factory for the statement
      */
     private final TermParserStateFactory statementStateFactory;
+    /**
+     * The single statement mode
+     */
+    private final boolean singleStatement;
 
     /**
      * The state factory
@@ -46,12 +52,23 @@ public class StatementSequenceStateFactory implements TermParserStateFactory {
      * @param statementStateFactory the statement state factory
      */
     public StatementSequenceStateFactory(TermParserStateFactory statementStateFactory) {
+        this(statementStateFactory, false);
+    }
+
+    /**
+     * The state factory
+     *
+     * @param statementStateFactory the statement state factory
+     * @param singleStatement       if true, the parser is in single statement mode
+     */
+    public StatementSequenceStateFactory(TermParserStateFactory statementStateFactory, boolean singleStatement) {
         this.statementStateFactory = statementStateFactory;
+        this.singleStatement = singleStatement;
     }
 
     @Override
     public TermParserState start(TermParserContext context, TermParserState previous) {
-        return new StatementSequenceState(context, previous, statementStateFactory);
+        return new StatementSequenceState(context, previous, statementStateFactory, singleStatement);
     }
 
     /**
@@ -59,38 +76,46 @@ public class StatementSequenceStateFactory implements TermParserStateFactory {
      */
     private static class StatementSequenceState extends TermParserState {
         /**
-         * The state before statement
-         */
-        private static final int BEFORE_STATEMENT = 0;
-        /**
-         * The state (in recovery)
-         */
-        private static final int RECOVERING = 1;
-        /**
          * Statement state factory
          */
         private final TermParserStateFactory statementStateFactory;
         /**
-         * The current mode
+         * If true, the factory is working in single statement mode
          */
-        private int mode = BEFORE_STATEMENT;
+        private final boolean singleStatement;
+        /**
+         * If true, the factory just called statement factory and have not yet processed the result
+         */
+        private boolean afterCall;
 
         /**
          * The constructor
          *
-         * @param context               context
-         * @param previous              previous state on the stack
+         * @param context               the context
+         * @param previous              the previous state on the stack
          * @param statementStateFactory the constructor
+         * @param singleStatement       the single statement indicator
          */
-        public StatementSequenceState(TermParserContext context, TermParserState previous, TermParserStateFactory statementStateFactory) {
+        public StatementSequenceState(TermParserContext context, TermParserState previous, TermParserStateFactory statementStateFactory, boolean singleStatement) {
             super(context, previous);
             this.statementStateFactory = statementStateFactory;
+            this.singleStatement = singleStatement;
         }
 
 
         @Override
-        public boolean canRecover() {
-            return true;
+        public RecoverableStatus canRecover() {
+            PhraseToken t = context.current();
+            switch (t.kind()) {
+                case END_BLOCK:
+                case EOF:
+                case STATEMENT_END:
+                case SOFT_STATEMENT_END:
+                    return RecoverableStatus.RECOVER;
+                default:
+                    // always use skip recover strategy
+                    return RecoverableStatus.SKIP;
+            }
         }
 
         @Override
@@ -100,7 +125,7 @@ public class StatementSequenceStateFactory implements TermParserStateFactory {
 
         @Override
         public void startRecover() {
-            mode = RECOVERING;
+            // nothing special hast to be done here
         }
 
         @Override
@@ -111,9 +136,12 @@ public class StatementSequenceStateFactory implements TermParserStateFactory {
                 case SOFT_STATEMENT_END:
                     // soft statement end is treated as statement end, since it would have been ignored
                     // calling statement otherwise
-                    mode = BEFORE_STATEMENT;
+                    afterCall = false;
                     TermParserContextUtil.reportControl(context, t);
                     context.consumePhraseToken();
+                    if (singleStatement) {
+                        exit();
+                    }
                     break;
                 case IGNORABLE:
                     TermParserContextUtil.reportIgnorable(context, t);
@@ -125,16 +153,20 @@ public class StatementSequenceStateFactory implements TermParserStateFactory {
                     break;
                 case SIGNIFICANT:
                 case START_BLOCK:
-                    if (mode == RECOVERING) {
-                        TermParserContextUtil.reportIgnorable(context, SyntaxRole.UNKNOWN, t);
-                        context.consumePhraseToken();
+                    if (afterCall) {
+                        context.produce(new TermToken(Terms.SYNTAX_ERROR, null, null, null, t.start(), t.end(),
+                                new ErrorInfo("syntax.UnexpectedToken.expectingEndOfSegment", new Object[]{t},
+                                        t.start(), t.end(), context.parser().getSystemId())));
+                        context.call(RecoveryStateFactory.INSTANCE);
+                        afterCall = false;
                     } else {
                         context.call(statementStateFactory);
+                        afterCall = true;
                     }
                     break;
                 case END_BLOCK:
                 case EOF:
-                    context.exit(this);
+                    exit();
                     break;
             }
         }

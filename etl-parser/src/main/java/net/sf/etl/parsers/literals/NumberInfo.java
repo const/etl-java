@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -28,24 +28,26 @@ package net.sf.etl.parsers.literals;
 import net.sf.etl.parsers.ErrorInfo;
 import net.sf.etl.parsers.Tokens;
 
+import java.math.BigInteger;
+
 /**
  * Information about number that is being parsed.
  */
 public class NumberInfo {
     /**
-     * A kind of number
+     * The kind of number
      */
     public final Tokens kind;
     /**
-     * a text of number with underscores removed.
+     * The text of number with underscores removed.
      */
     public final String text;
     /**
-     * a suffix attached to number
+     * The suffix attached to number
      */
     public final String suffix;
     /**
-     * exponent (adjusted according the dot position)
+     * The exponent (adjusted according the dot position)
      */
     public final int exponent;
     /**
@@ -53,20 +55,20 @@ public class NumberInfo {
      */
     public final String input;
     /**
-     * a base of number
+     * The base of number
      */
     public final int base;
     /**
-     * a sign of the number (1 for positive numbers and -1 for negative)
+     * The sign of the number (1 for positive numbers and -1 for negative)
      */
     public final int sign;
     /**
-     * the errors
+     * The errors
      */
     public final ErrorInfo errors;
 
     /**
-     * A constructor
+     * The constructor
      *
      * @param kind     the kind of token
      * @param sign     the sign of the number (1 for positive numbers and -1 for
@@ -99,4 +101,36 @@ public class NumberInfo {
         }
     }
 
+    /**
+     * Parse as integer value
+     *
+     * @return the parsed value
+     */
+    public int parseInt() {
+        if (kind != Tokens.INTEGER && kind != Tokens.INTEGER_WITH_SUFFIX) {
+            throw new NumberFormatException("wrong token kind: " + kind);
+        }
+        String textToParse = text;
+        if (sign == -1) {
+            textToParse = "-" + textToParse;
+        }
+        return Integer.parseInt(textToParse, base);
+    }
+
+
+    /**
+     * Parse as double value
+     *
+     * @return the parsed value
+     */
+    public double parseDouble() {
+        BigInteger digits = new BigInteger((sign >= 0 ? "" : "-") + text, base);
+        double exp = 1;
+        int a = Math.abs(exponent);
+        for (int i = 0; i < a; i++) {
+            exp *= base;
+        }
+        double rc = digits.doubleValue();
+        return exponent < 0 ? rc / exp : rc * exp;
+    }
 }

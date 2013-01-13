@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -26,10 +26,8 @@
 package net.sf.etl.parsers.event.impl.term;
 
 import net.sf.etl.parsers.*;
-import net.sf.etl.parsers.event.grammar.CompiledGrammar;
-import net.sf.etl.parsers.event.grammar.TermParserContext;
-import net.sf.etl.parsers.event.grammar.TermParserState;
-import net.sf.etl.parsers.event.grammar.TermParserStateFactory;
+import net.sf.etl.parsers.event.grammar.*;
+import net.sf.etl.parsers.event.impl.TermParserImpl;
 
 /**
  * The source state factory
@@ -39,6 +37,20 @@ public class SourceStateFactory implements TermParserStateFactory {
      * The factory instance
      */
     public final static SourceStateFactory INSTANCE = new SourceStateFactory();
+    /**
+     * The factory for doctype statements
+     */
+    private static final TermParserStateFactory DOCTYPE_STATE_FACTORY = makeDoctypeFactory();
+
+    /**
+     * Make single statement parser state factory for a document type instruction
+     *
+     * @return the state factory
+     */
+    private static TermParserStateFactory makeDoctypeFactory() {
+        final CompiledGrammar doctype = BootstrapGrammars.doctypeGrammar();
+        return new StatementSequenceStateFactory(doctype.statementParser(doctype.getDefaultContext()), true);
+    }
 
     @Override
     public TermParserState start(TermParserContext context, TermParserState previous) {
@@ -49,9 +61,22 @@ public class SourceStateFactory implements TermParserStateFactory {
      * The state that parses source code including doctype and content
      */
     public static class SourceState extends TermParserState {
-        private final static int BEFORE_STATEMENT = 0;
-        private final static int PARSING_STATEMENTS = 1;
-        private int state = BEFORE_STATEMENT;
+        /**
+         * The state when document type is not yet known
+         */
+        private final static int BEFORE_DOCTYPE = 0;
+        /**
+         * The state after doctype, but before first statement
+         */
+        private final static int BEFORE_STATEMENT = 1;
+        /**
+         * The state while parsing statements using statement sequence parser
+         */
+        private final static int PARSING_STATEMENTS = 2;
+        /**
+         * The the current state
+         */
+        private int state;
 
         /**
          * The constructor
@@ -61,12 +86,16 @@ public class SourceStateFactory implements TermParserStateFactory {
          */
         protected SourceState(TermParserContext context, TermParserState previous) {
             super(context, previous);
+            if (context.parser().grammar() != null) {
+                state = BEFORE_STATEMENT;
+            } else {
+                state = BEFORE_DOCTYPE;
+            }
         }
 
         @Override
-        public boolean canRecover() {
-            // recovery relies on statement sequence
-            return false;
+        public RecoverableStatus canRecover() {
+            throw new IllegalStateException("The recovery is not supported here.");
         }
 
         @Override
@@ -83,11 +112,25 @@ public class SourceStateFactory implements TermParserStateFactory {
 
         @Override
         public void parseMore() {
+            if (TermParserContextUtil.skipIgnorable(context, false)) {
+                return;
+            }
+            final PhraseToken current = context.current();
             switch (state) {
+                case BEFORE_DOCTYPE:
+                    if (current.hasToken() && current.token().text().equals("doctype")) {
+                        context.call(DOCTYPE_STATE_FACTORY);
+                        new DoctypeTokenListener((TermParserImpl) context.parser());
+                        state = BEFORE_STATEMENT;
+                        return;
+                    } else {
+                        // TODO support default grammars
+                        throw new RuntimeException("Support default grammars");
+                    }
                 case BEFORE_STATEMENT:
                     CompiledGrammar grammar = context.parser().grammar();
                     if (grammar == null) {
-                        throw new IllegalStateException("The statement could not be parsed");
+                        throw new IllegalStateException("The grammar should be already defined here");
                     }
                     DefinitionContext definitionContext = context.parser().initialContext();
                     if (definitionContext == null) {
@@ -97,12 +140,12 @@ public class SourceStateFactory implements TermParserStateFactory {
                     state = PARSING_STATEMENTS;
                     break;
                 case PARSING_STATEMENTS:
-                    if (context.current().kind() == PhraseTokens.EOF) {
-                        context.produce(new TermToken(Terms.EOF, SyntaxRole.CONTROL, null, context.current(), context.current().start(), context.current().end(), null));
+                    if (current.kind() == PhraseTokens.EOF) {
+                        context.produce(new TermToken(Terms.EOF, SyntaxRole.CONTROL, null, current, current.start(), current.end(), null));
                         context.consumePhraseToken();
-                        context.exit(this);
+                        context.exit(this, true);
                     } else {
-                        throw new IllegalStateException("Invalid token for end of source: " + context.current());
+                        throw new IllegalStateException("Invalid token for end of source: " + current);
                     }
             }
             // TODO check for doctype and default grammar and context

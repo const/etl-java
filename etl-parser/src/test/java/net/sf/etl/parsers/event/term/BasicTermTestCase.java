@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -25,7 +25,21 @@
 
 package net.sf.etl.parsers.event.term;
 
+import net.sf.etl.parsers.TermToken;
+import net.sf.etl.parsers.Terms;
+import net.sf.etl.parsers.TextPos;
+import net.sf.etl.parsers.event.grammar.CompiledGrammar;
+import net.sf.etl.parsers.streams.LexerReader;
+import net.sf.etl.parsers.streams.PhraseParserReader;
 import net.sf.etl.parsers.streams.TermParserReader;
+import org.junit.After;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.net.URL;
+
+import static org.junit.Assert.*;
 
 /**
  * Basic test case for term parsing
@@ -35,6 +49,10 @@ public class BasicTermTestCase {
      * The reader used for test
      */
     protected TermParserReader reader;
+    /**
+     * Skip all non structural tokens
+     */
+    protected boolean skipIgnorable;
 
     /**
      * Term parser reader used for the test
@@ -42,6 +60,75 @@ public class BasicTermTestCase {
      * @param reader the reader
      */
     protected void start(TermParserReader reader) {
+        closeReader();
         this.reader = reader;
+        reader.advance();
     }
+
+    /**
+     * Read single term and check for the kind
+     *
+     * @param term the term to pase
+     */
+    protected TermToken read(Terms term) {
+        skipIgnorable();
+        TermToken current = reader.current();
+        assertFalse("Current token: " + current, current.hasAnyErrors());
+        reader.advance();
+        assertEquals("Current token: " + current, term, current.kind());
+        return current;
+    }
+
+    private void skipIgnorable() {
+        if (!skipIgnorable) {
+            return;
+        }
+        final TermToken current = reader.current();
+        assertFalse("Current token: " + current, current.hasAnyErrors());
+    }
+
+    /**
+     * Read token and check the value
+     *
+     * @param token the token to read
+     * @param text  the text
+     */
+    protected void read(Terms token, String text) {
+        final TermToken read = read(token);
+        assertTrue("Current token: " + read, read.hasLexicalToken());
+        assertEquals("Current token: " + read, text, read.token().token().text());
+    }
+
+
+    /**
+     * Start parsing the grammar
+     *
+     * @param grammar the grammar to parse
+     * @param text    the text to parse
+     */
+    protected void startCompiledGrammar(CompiledGrammar grammar, String text) {
+        start(new TermParserReader(new PhraseParserReader(new LexerReader(new StringReader(text), "t", TextPos.START)), grammar, false));
+    }
+
+    /**
+     * Start parsing the grammar
+     *
+     * @param systemId the systemId name
+     */
+    protected void startSystemId(String systemId) throws IOException {
+        start(new TermParserReader(new PhraseParserReader(new LexerReader(new InputStreamReader(new URL(systemId).openStream(), "UTF-8"), "t", TextPos.START))));
+    }
+
+
+    @After
+    public void closeReader() {
+        if (reader != null) {
+            try {
+                reader.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }

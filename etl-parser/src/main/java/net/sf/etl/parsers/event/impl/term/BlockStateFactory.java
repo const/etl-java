@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -39,15 +39,15 @@ public class BlockStateFactory implements TermParserStateFactory {
      */
     private final DefinitionContext statementContext;
     /**
-     * Statement state factory
+     * The statement sequence state factory
      */
     private final TermParserStateFactory statementSequenceFactory;
 
     /**
      * The constructor
      *
-     * @param statementContext         statement context information for the block
-     * @param statementSequenceFactory statement sequence factory for the block
+     * @param statementContext         the statement context information for the block
+     * @param statementSequenceFactory the statement sequence factory for the block
      */
     public BlockStateFactory(DefinitionContext statementContext, TermParserStateFactory statementSequenceFactory) {
         this.statementContext = statementContext;
@@ -71,6 +71,10 @@ public class BlockStateFactory implements TermParserStateFactory {
          * Inside the block
          */
         private static final int IN_BLOCK = 1;
+        /**
+         * Inside the block
+         */
+        private static final int AFTER_BLOCK = 2;
         /**
          * The current mode of the state
          */
@@ -97,9 +101,8 @@ public class BlockStateFactory implements TermParserStateFactory {
         }
 
         @Override
-        public boolean canRecover() {
-            // can never recover
-            return false;
+        public RecoverableStatus canRecover() {
+            throw new IllegalStateException("Recovery is not handled here: " + mode);
         }
 
         @Override
@@ -109,7 +112,7 @@ public class BlockStateFactory implements TermParserStateFactory {
 
         @Override
         public void startRecover() {
-            // this method is never called because, because blocks rely on
+            throw new IllegalStateException("Recovery is not handled here: " + mode);
         }
 
         @Override
@@ -130,10 +133,19 @@ public class BlockStateFactory implements TermParserStateFactory {
                     if (current.kind() != PhraseTokens.END_BLOCK) {
                         throw new IllegalStateException("Invalid state for the call" + mode + " : " + current);
                     }
+                    final CallStatus callStatus = consumeCallStatus();
+                    if (callStatus != CallStatus.SUCCESS) {
+                        throw new IllegalStateException("Unexpected call status: " + callStatus);
+                    }
                     context.endSoftEndContext();
                     context.produce(new TermToken(Terms.BLOCK_END, null, statementContext, current, current.start(), current.end(), null));
                     context.consumePhraseToken();
-                    context.exit(this);
+                    mode = AFTER_BLOCK;
+                    break;
+                case AFTER_BLOCK:
+                    if (!TermParserContextUtil.skipIgnorable(context, true)) {
+                        context.exit(this, true);
+                    }
                     break;
                 default:
                     throw new IllegalStateException("Invalid state for the call: " + mode);

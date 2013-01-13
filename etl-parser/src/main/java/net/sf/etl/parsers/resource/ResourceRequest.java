@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -31,6 +31,68 @@ import java.io.Serializable;
  * The request for the resource
  */
 public class ResourceRequest implements Serializable {
-    ResourceReference resource;
-    String role;
+    /**
+     * The resource reference
+     */
+    private final ResourceReference resource;
+    /**
+     * The role
+     */
+    private final String role;
+
+    /**
+     * The constructor
+     *
+     * @param resource the resource
+     * @param role     the role of the resource
+     */
+    public ResourceRequest(ResourceReference resource, String role) {
+        this.resource = resource;
+        this.role = role;
+    }
+
+    /**
+     * @return the resource reference
+     */
+    public ResourceReference getReference() {
+        return resource;
+    }
+
+    /**
+     * @return the role of the resource
+     */
+    public String getRole() {
+        return role;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("ResourceRequest");
+        sb.append("{resource=").append(resource);
+        sb.append(", role='").append(role).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ResourceRequest that = (ResourceRequest) o;
+
+        if (resource != null ? !resource.equals(that.resource) : that.resource != null) return false;
+        //noinspection RedundantIfStatement
+        if (role != null ? !role.equals(that.role) : that.role != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = resource != null ? resource.hashCode() : 0;
+        result = 31 * result + (role != null ? role.hashCode() : 0);
+        return result;
+    }
 }

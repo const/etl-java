@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -34,7 +34,12 @@ import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.TermParser;
 import net.sf.etl.parsers.event.grammar.*;
 import net.sf.etl.parsers.event.impl.term.SourceStateFactory;
+import net.sf.etl.parsers.event.impl.term.TermTokenListener;
+import net.sf.etl.parsers.event.impl.util.ListStack;
+import net.sf.etl.parsers.event.unstable.model.doctype.Doctype;
+import net.sf.etl.parsers.literals.LiteralUtils;
 import net.sf.etl.parsers.resource.ResolvedObject;
+import net.sf.etl.parsers.resource.ResourceReference;
 import net.sf.etl.parsers.resource.ResourceRequest;
 
 import java.util.ArrayList;
@@ -87,6 +92,31 @@ public class TermParserImpl implements TermParser {
      * The count for disabled soft ends
      */
     private int disabledSoftEndCount = 0;
+    /**
+     * The classified keyword
+     */
+    private Keyword classifiedKeyword;
+    /**
+     * True if keyword is actually classified
+     */
+    private boolean isKeywordClassified;
+    /**
+     * The list stack
+     */
+    private ListStack<KeywordContext> keywords = new ListStack<KeywordContext>();
+    /**
+     * The token listener to handle some special conditions (currently only parsing and gathering
+     * information from document type)
+     */
+    private TermTokenListener termTokenListener;
+    /**
+     * The grammar request
+     */
+    private ResourceRequest grammarRequest;
+    /**
+     * The initial context name
+     */
+    private String initialContextName;
 
     @Override
     public void forceGrammar(CompiledGrammar grammar, boolean scriptMode) {
@@ -120,12 +150,33 @@ public class TermParserImpl implements TermParser {
 
     @Override
     public ResourceRequest grammarRequest() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return grammarRequest;
     }
 
     @Override
-    public void provideGrammar(ResolvedObject<CompiledGrammar> grammar) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void provideGrammar(ResolvedObject<CompiledGrammar> resolvedGrammar) {
+        if (this.grammar != null) {
+            throw new IllegalStateException("Grammar is already provided");
+        }
+        if (!resolvedGrammar.getRequest().equals(grammarRequest)) {
+            throw new IllegalStateException("The grammar request " + resolvedGrammar.getRequest() +
+                    " do not match original " + grammarRequest);
+        }
+        this.grammar = resolvedGrammar.getObject();
+        if (initialContextName != null) {
+            for (DefinitionContext definitionContext : this.grammar.getStatementContexts()) {
+                if (definitionContext.context().equals(initialContextName)) {
+                    initialContext = definitionContext;
+                    break;
+                }
+            }
+            if (initialContext == null) {
+                // TODO better error handling
+                throw new IllegalStateException("Initial context is not found!");
+            }
+        } else {
+            initialContext = this.grammar.getDefaultContext();
+        }
     }
 
     @Override
@@ -133,7 +184,11 @@ public class TermParserImpl implements TermParser {
         if (queue.hasMark() || queue.isEmpty()) {
             throw new ParserException("Unable to get element");
         }
-        return queue.get();
+        TermToken termToken = queue.get();
+        if (termTokenListener != null) {
+            termTokenListener.observe(termToken);
+        }
+        return termToken;
     }
 
     @Override
@@ -141,6 +196,9 @@ public class TermParserImpl implements TermParser {
         tokenCell = token;
         try {
             while (true) {
+                if (grammarRequest != null && grammar == null) {
+                    return ParserState.RESOURCE_NEEDED;
+                }
                 if (queue.hasElement()) {
                     return ParserState.OUTPUT_AVAILABLE;
                 }
@@ -162,7 +220,48 @@ public class TermParserImpl implements TermParser {
         return systemId;
     }
 
+    /**
+     * Add listener for tokens
+     *
+     * @param termTokenListener the listener
+     */
+    public void addListener(TermTokenListener termTokenListener) {
+        if (this.termTokenListener != null) {
+            throw new IllegalStateException("The listener is already installed");
+        }
+        this.termTokenListener = termTokenListener;
+    }
+
+    /**
+     * Remove listener for term tokens
+     *
+     * @param termTokenListener the listener
+     */
+    public void removeListener(TermTokenListener termTokenListener) {
+        if (this.termTokenListener == termTokenListener) {
+            this.termTokenListener = null;
+        }
+    }
+
+    public void setDoctype(Doctype doctype) {
+        if (grammar != null) {
+            throw new IllegalStateException("Grammar is already available");
+        }
+        if (grammarRequest != null) {
+            throw new IllegalStateException("The grammar request is already set");
+        }
+        // TODO implement better error handling
+        grammarRequest = new ResourceRequest(
+                new ResourceReference(
+                        LiteralUtils.parseString(doctype.systemId, systemId),
+                        LiteralUtils.parseString(doctype.publicId, systemId)
+                ),
+                CompiledGrammar.GRAMMAR_REQUEST_TYPE);
+        initialContextName = LiteralUtils.parseString(doctype.context, systemId);
+    }
+
     private class TermParserContextImpl implements TermParserContext {
+
 
         @Override
         public boolean isScriptMode() {
@@ -186,6 +285,7 @@ public class TermParserImpl implements TermParser {
             ensureTokenCellNonEmpty();
             tokenCell.take();
             advanceNeeded = true;
+            isKeywordClassified = false;
         }
 
         @Override
@@ -201,8 +301,18 @@ public class TermParserImpl implements TermParser {
         }
 
         @Override
+        public void produceBeforeMark(TermToken termToken) {
+            queue.insertBeforeMark(termToken);
+        }
+
+        @Override
         public void pushMark() {
             queue.pushMark();
+        }
+
+        @Override
+        public void commitMark() {
+            queue.commitMark();
         }
 
         @Override
@@ -212,17 +322,28 @@ public class TermParserImpl implements TermParser {
 
         @Override
         public void pushKeywordContext(KeywordContext context) {
-            //To change body of implemented methods use File | Settings | File Templates.
+            keywords.push(context);
+            isKeywordClassified = false;
         }
 
         @Override
-        public Integer classify() {
-            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        public Keyword classify() {
+            if (!isKeywordClassified) {
+                isKeywordClassified = true;
+                final PhraseToken current = current();
+                if (keywords.isEmpty() || !current.hasToken()) {
+                    classifiedKeyword = null;
+                } else {
+                    classifiedKeyword = keywords.peek().get(current.token().text());
+                }
+            }
+            return classifiedKeyword;
         }
 
         @Override
         public void popKeywordContext(KeywordContext context) {
-            //To change body of implemented methods use File | Settings | File Templates.
+            isKeywordClassified = false;
+            keywords.pop();
         }
 
         @Override
@@ -231,7 +352,15 @@ public class TermParserImpl implements TermParser {
         }
 
         @Override
-        public void exit(TermParserState state) {
+        public void exit(TermParserState state, boolean success) {
+            exitSystemState(state);
+            if (stateStack != null) {
+                stateStack.setCallStatus(success);
+            }
+        }
+
+        @Override
+        public void exitSystemState(TermParserState state) {
             if (state != stateStack) {
                 throw new IllegalArgumentException("Exiting wrong state");
             }
@@ -284,6 +413,11 @@ public class TermParserImpl implements TermParser {
         @Override
         public TermParser parser() {
             return TermParserImpl.this;
+        }
+
+        @Override
+        public TermToken peekObjectAtMark() {
+            return queue.peekObjectAfterMark();
         }
     }
 
@@ -415,6 +549,9 @@ public class TermParserImpl implements TermParser {
         }
 
 
+        /**
+         * @return check if queue has element to return to the user
+         */
         boolean hasElement() {
             return !hasMark() && !isEmpty();
         }
@@ -483,18 +620,11 @@ public class TermParserImpl implements TermParser {
         }
 
         /**
-         * Insert value before mark. This is a dirty hack that is required in
-         * the precisely one situation: when first segment of the source is not
-         * a doctype instruction. So there is exactly one mark on the stack and
-         * it is null.
+         * Insert value before mark. This used to report statement start.
          *
          * @param value a value to insert.
          */
         void insertBeforeMark(T value) {
-            if (markStack.size() != 1 || peekMark() != null) {
-                throw new RuntimeException("[BUG]The method is used in "
-                        + "unintended way: " + markStack);
-            }
             final Link<T> link = new Link<T>(value);
             markStack.set(0, link);
             link.next = first;

@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -26,6 +26,7 @@
 package net.sf.etl.parsers.event.impl.term.action;
 
 import net.sf.etl.parsers.event.grammar.TermParserContext;
+import net.sf.etl.parsers.event.grammar.TermParserState;
 import net.sf.etl.parsers.event.grammar.TermParserStateFactory;
 
 /**
@@ -49,6 +50,19 @@ public class CallAction extends Action {
 
     @Override
     public void parseMore(TermParserContext context, ActionState state) {
-        context.call(stateFactory);
+        final TermParserState.CallStatus status = state.consumeCallStatus();
+        switch (status) {
+            case NONE:
+                context.call(stateFactory);
+                break;
+            case SUCCESS:
+                state.nextAction(success);
+                break;
+            case FAILURE:
+                state.nextAction(failure);
+                break;
+            default:
+                throw new RuntimeException("Unexpected call status: " + status);
+        }
     }
 }

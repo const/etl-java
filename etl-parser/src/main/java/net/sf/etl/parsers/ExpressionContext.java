@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -56,11 +56,26 @@ public class ExpressionContext {
      * @param context           the expression context name
      * @param precedenceLevel   the precedence level
      */
-    public ExpressionContext(DefinitionContext hostContext, GrammarInfo expressionGrammar, String context, int precedenceLevel) {
+    public ExpressionContext(DefinitionContext hostContext, GrammarInfo expressionGrammar, String context, Integer precedenceLevel) {
         this.hostContext = hostContext;
         this.expressionGrammar = expressionGrammar;
         this.context = context;
-        this.precedenceLevel = precedenceLevel;
+        this.precedenceLevel = precedenceLevel == null ? Integer.MAX_VALUE : 0;
+    }
+
+
+    /**
+     * The constructor
+     *
+     * @param hostContext       the host statement context
+     * @param referencedContext the expression context name
+     * @param precedenceLevel   the precedence level
+     */
+    public ExpressionContext(DefinitionContext hostContext, DefinitionContext referencedContext, Integer precedenceLevel) {
+        this.hostContext = hostContext;
+        this.expressionGrammar = referencedContext.grammar();
+        this.context = referencedContext.context();
+        this.precedenceLevel = precedenceLevel == null ? Integer.MAX_VALUE : 0;
     }
 
     /**

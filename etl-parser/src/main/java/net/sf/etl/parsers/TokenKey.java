@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -103,6 +103,13 @@ public final class TokenKey {
      */
     public Tokens kind() {
         return kind;
+    }
+
+    /**
+     * @return the modifier or null
+     */
+    public String modifier() {
+        return modifier;
     }
 
     /**

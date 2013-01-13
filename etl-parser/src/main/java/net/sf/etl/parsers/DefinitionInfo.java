@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -55,6 +55,19 @@ public final class DefinitionInfo {
         this.location = location;
     }
 
+    /**
+     * @return the definition name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @return the definition location
+     */
+    public SourceLocation getLocation() {
+        return location;
+    }
 
     @Override
     public boolean equals(Object o) {

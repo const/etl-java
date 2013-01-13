@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -32,6 +32,7 @@ import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.TermParser;
 import net.sf.etl.parsers.event.grammar.CompiledGrammar;
 import net.sf.etl.parsers.event.impl.TermParserImpl;
+import net.sf.etl.parsers.streams.util.CachingGrammarResolver;
 
 /**
  * The reader for term parser
@@ -49,6 +50,10 @@ public class TermParserReader extends AbstractReaderImpl<TermToken> {
      * The phrase parser
      */
     private final Cell<PhraseToken> cell = new Cell<PhraseToken>();
+    /**
+     * The grammar resolver
+     */
+    private GrammarResolver resolver = new CachingGrammarResolver();
 
     /**
      * The constructor that forces usage for the specific grammar
@@ -78,6 +83,9 @@ public class TermParserReader extends AbstractReaderImpl<TermToken> {
         while (true) {
             ParserState state = termParser.parse(cell);
             switch (state) {
+                case RESOURCE_NEEDED:
+                    termParser.provideGrammar(resolver.resolve(termParser.grammarRequest()));
+                    break;
                 case EOF:
                     return false;
                 case OUTPUT_AVAILABLE:
@@ -102,5 +110,14 @@ public class TermParserReader extends AbstractReaderImpl<TermToken> {
     @Override
     public String getSystemId() {
         return termParser.getSystemId();
+    }
+
+    /**
+     * Change resolver for th parser
+     *
+     * @param resolver the resolver
+     */
+    public void setResolver(GrammarResolver resolver) {
+        this.resolver = resolver;
     }
 }

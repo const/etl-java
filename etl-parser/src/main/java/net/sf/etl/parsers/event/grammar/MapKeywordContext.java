@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -25,8 +25,8 @@
 
 package net.sf.etl.parsers.event.grammar;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Map keyword context
@@ -35,19 +35,36 @@ public class MapKeywordContext implements KeywordContext {
     /**
      * The backing map
      */
-    private final HashMap<String, Integer> map;
+    private final HashMap<String, Keyword> map;
 
     /**
-     * The constructor
+     * Map keyword context that numerate keywords form zero, if keyword is mentioned several times, it numbered
+     * with the latest occurrence.
      *
-     * @param map the map that describes the context, the map is copied in the constructor
+     * @param keywords the keywords
      */
-    public MapKeywordContext(Map<String, Integer> map) {
-        this.map = new HashMap<String, Integer>(map);
+    public MapKeywordContext(Keyword... keywords) {
+        this.map = new HashMap<String, Keyword>(keywords.length);
+        for (Keyword value : keywords) {
+            map.put(value.text(), value);
+        }
+    }
+
+    /**
+     * Map keyword context that numerate keywords form zero, if keyword is mentioned several times, it numbered
+     * with the latest occurrence.
+     *
+     * @param keywords the keywords
+     */
+    public MapKeywordContext(Collection<Keyword> keywords) {
+        this.map = new HashMap<String, Keyword>(keywords.size());
+        for (Keyword value : keywords) {
+            map.put(value.text(), value);
+        }
     }
 
     @Override
-    public Integer get(String text) {
+    public Keyword get(String text) {
         return map.get(text);
     }
 }

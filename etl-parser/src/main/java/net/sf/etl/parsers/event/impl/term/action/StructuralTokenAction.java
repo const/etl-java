@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -42,16 +42,32 @@ public class StructuralTokenAction extends SimpleAction {
      * Object type
      */
     public final Object type;
+    /**
+     * If true, object is created at the specified mark
+     */
+    public final boolean atMark;
 
     public StructuralTokenAction(Terms kind, Object type) {
+        this(null, kind, type, false);
+    }
+
+    public StructuralTokenAction(Action next, Terms kind, Object type, boolean atMark) {
+        super(next);
         this.kind = kind;
         this.type = type;
+        this.atMark = atMark;
     }
 
     @Override
     public void parseMore(TermParserContext context, ActionState state) {
-        TextPos start = context.current().start();
-        context.produce(new TermToken(kind, null, type, null, start, start, null));
+        if (atMark) {
+            final TermToken termToken = context.peekObjectAtMark();
+            TextPos start = termToken != null ? termToken.start() : context.current().start();
+            context.produceAfterMark(new TermToken(kind, null, type, null, start, start, null));
+        } else {
+            TextPos start = context.current().start();
+            context.produce(new TermToken(kind, null, type, null, start, start, null));
+        }
         state.nextAction(next);
     }
 }

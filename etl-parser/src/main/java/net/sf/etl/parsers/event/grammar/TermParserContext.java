@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -66,9 +66,21 @@ public interface TermParserContext {
     boolean produceAfterMark(TermToken token);
 
     /**
+     * Produce before mark
+     *
+     * @param termToken the token mark
+     */
+    void produceBeforeMark(TermToken termToken);
+
+    /**
      * Push mark at mark stack
      */
     void pushMark();
+
+    /**
+     * Commit the current mark, the mark could be committed only if all previous marks were committed
+     */
+    void commitMark();
 
     /**
      * Pop mark at mark stack
@@ -85,7 +97,7 @@ public interface TermParserContext {
     /**
      * @return classify as keyword
      */
-    Integer classify();
+    Keyword classify();
 
     /**
      * Pop keyword context
@@ -104,9 +116,18 @@ public interface TermParserContext {
     /**
      * Exit using state
      *
-     * @param state the state
+     * @param state   the state
+     * @param success if ended successfully
      */
-    void exit(TermParserState state);
+    void exit(TermParserState state, boolean success);
+
+    /**
+     * Exist that just exist the current state, without setting call status,
+     * this is created for the special recovery states
+     *
+     * @param state the system state to drop
+     */
+    void exitSystemState(TermParserState state);
 
     /**
      * Change state of flag is skip ignorable is needed
@@ -153,4 +174,9 @@ public interface TermParserContext {
      * @return term parser for this context
      */
     TermParser parser();
+
+    /**
+     * @return the current token at mark or null
+     */
+    TermToken peekObjectAtMark();
 }

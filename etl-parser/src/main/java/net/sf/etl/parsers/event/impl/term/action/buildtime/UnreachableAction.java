@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -33,8 +33,29 @@ import net.sf.etl.parsers.event.impl.term.action.ActionState;
  * The unreachable action, if this action is reached, then it means that there is some serious bug
  */
 public class UnreachableAction extends Action {
+    /**
+     * The message
+     */
+    private final String message;
+
+    /**
+     * The constructor from message
+     *
+     * @param message the message
+     */
+    public UnreachableAction(String message) {
+        this.message = message;
+    }
+
+    /**
+     * The default constructor with null message
+     */
+    public UnreachableAction() {
+        this(null);
+    }
+
     @Override
     public void parseMore(TermParserContext context, ActionState state) {
-        throw new IllegalStateException("The unreachable action is reached");
+        throw new IllegalStateException(message == null ? "The unreachable action is reached" : message);
     }
 }

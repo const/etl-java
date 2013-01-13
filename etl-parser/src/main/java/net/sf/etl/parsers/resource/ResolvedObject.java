@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2012 Constantine A Plotnikov
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -26,29 +26,71 @@
 package net.sf.etl.parsers.resource;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
- * The resolved object
+ * The resolved object wrapper that is used to describe a resolution process to the compiler. The object is immutable.
  */
 public class ResolvedObject<T> implements Serializable {
+    /**
+     * The original resource request
+     */
     private final ResourceRequest request;
-    private final ResourceDescriptor resource;
+    /**
+     * The resources consulted while resolving the object
+     */
+    private final List<ResourceUsage> resolutionHistory;
+    /**
+     * The descriptor of resource (assuming that system id is known, so it does not contains resolution history)
+     */
+    private final ResourceDescriptor descriptor;
+    /**
+     * The resolved object itself
+     */
     private final T object;
 
-    public ResolvedObject(ResourceRequest request, ResourceDescriptor resource, T object) {
+    /**
+     * The constructor
+     *
+     * @param request           the original request
+     * @param resolutionHistory the resolution history
+     * @param descriptor        the resource descriptor
+     * @param object            the resolved object
+     */
+    public ResolvedObject(ResourceRequest request, List<ResourceUsage> resolutionHistory, ResourceDescriptor descriptor, T object) {
+        if (request == null) {
+            throw new IllegalArgumentException("the request must not be null");
+        }
+        if (descriptor == null) {
+            throw new IllegalArgumentException("the descriptor must not be null");
+        }
         this.request = request;
-        this.resource = resource;
+        this.resolutionHistory = resolutionHistory == null || resolutionHistory.isEmpty() ?
+                Collections.<ResourceUsage>emptyList() :
+                Collections.unmodifiableList(new ArrayList<ResourceUsage>(resolutionHistory));
+        this.descriptor = descriptor;
         this.object = object;
     }
 
+    /**
+     * @return original request
+     */
     public ResourceRequest getRequest() {
         return request;
     }
 
-    public ResourceDescriptor getResource() {
-        return resource;
+    /**
+     * @return the resource descriptor
+     */
+    public ResourceDescriptor getDescriptor() {
+        return descriptor;
     }
 
+    /**
+     * @return the resolved object
+     */
     public T getObject() {
         return object;
     }
@@ -61,29 +103,27 @@ public class ResolvedObject<T> implements Serializable {
         ResolvedObject that = (ResolvedObject) o;
 
         if (object != null ? !object.equals(that.object) : that.object != null) return false;
-        if (request != null ? !request.equals(that.request) : that.request != null) return false;
+        if (!request.equals(that.request)) return false;
+        if (!resolutionHistory.equals(that.resolutionHistory)) return false;
         //noinspection RedundantIfStatement
-        if (resource != null ? !resource.equals(that.resource) : that.resource != null) return false;
+        if (!descriptor.equals(that.descriptor)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = request != null ? request.hashCode() : 0;
-        result = 31 * result + (resource != null ? resource.hashCode() : 0);
+        int result = request.hashCode();
+        result = 31 * result + resolutionHistory.hashCode();
+        result = 31 * result + descriptor.hashCode();
         result = 31 * result + (object != null ? object.hashCode() : 0);
         return result;
     }
 
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("ResolvedObject");
-        sb.append("{request=").append(request);
-        sb.append(", resource=").append(resource);
-        sb.append(", object=").append(object);
-        sb.append('}');
-        return sb.toString();
+    /**
+     * @return the resolution history
+     */
+    public List<ResourceUsage> getResolutionHistory() {
+        return resolutionHistory;
     }
 }
