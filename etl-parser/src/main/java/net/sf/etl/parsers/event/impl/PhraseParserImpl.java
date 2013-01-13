@@ -1,3 +1,28 @@
+/*
+ * Reference ETL Parser for Java
+ * Copyright (c) 2000-2013 Constantine A Plotnikov
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge,
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package net.sf.etl.parsers.event.impl;
 
 import net.sf.etl.parsers.*;
@@ -58,7 +83,7 @@ public class PhraseParserImpl implements PhraseParser {
                             break;
                         case END_BLOCK:
                             if (blockStarts.isEmpty()) {
-                                error("net.sf.etl.parsers.errors.phrase.UnmatchedClosingCurly", t.start(), t.end());
+                                error("phrase.UnmatchedClosingCurly", t.start(), t.end());
                                 return consume(token, PhraseTokens.CONTROL);
                             } else {
                                 blockStarts.remove(blockStarts.size() - 1);
@@ -108,7 +133,7 @@ public class PhraseParserImpl implements PhraseParser {
                         return consume(token, PhraseTokens.EOF, AFTER_EOF);
                     } else {
                         TextPos startPos = blockStarts.remove(blockStarts.size() - 1);
-                        error("net.sf.etl.parsers.errors.phrase.UnterminatedBlock", startPos);
+                        error("phrase.UnterminatedBlock", startPos);
                         return before(t, PhraseTokens.END_BLOCK, STATEMENT);
                     }
             }
