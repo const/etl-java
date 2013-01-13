@@ -47,17 +47,7 @@ public class ReportTokenAction extends SimpleAction {
     /**
      * The constructor
      *
-     * @param kind the kind of token
-     * @param role the role of token
-     */
-    public ReportTokenAction(Terms kind, SyntaxRole role) {
-        this(null, kind, role);
-    }
-
-    /**
-     * The constructor
-     *
-     * @param next the next ation
+     * @param next the next action
      * @param kind the kind of token
      * @param role the role of token
      */

@@ -25,17 +25,42 @@
 
 package net.sf.etl.parsers.event.impl.term.action;
 
-import net.sf.etl.parsers.PhraseToken;
-import net.sf.etl.parsers.Tokens;
+import net.sf.etl.parsers.TermToken;
+import net.sf.etl.parsers.Terms;
+import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 /**
- * The choice based on token kind
+ * Token action
  */
-public class TokensChoiceAction extends MapChoiceAction<Tokens> {
+public class ReportBeforeMarkAction extends SimpleAction {
+    /**
+     * The term token type
+     */
+    public final Terms kind;
+    /**
+     * Object type
+     */
+    public final Object type;
+
+    /**
+     * The constructor
+     *
+     * @param next the next action
+     * @param kind the term kind
+     * @param type the structure id
+     */
+    public ReportBeforeMarkAction(Action next, Terms kind, Object type) {
+        super(next);
+        this.kind = kind;
+        this.type = type;
+    }
+
     @Override
-    protected Tokens key(TermParserContext context, ActionState state) {
-        PhraseToken t = context.current();
-        return t.hasToken() ? t.token().kind() : null;
+    public void parseMore(TermParserContext context, ActionState state) {
+        final TermToken termToken = context.peekObjectAtMark();
+        TextPos start = termToken != null ? termToken.start() : context.current().start();
+        context.produceBeforeMark(new TermToken(kind, null, type, null, start, start, null));
+        state.nextAction(next);
     }
 }

@@ -31,13 +31,6 @@ import net.sf.etl.parsers.event.grammar.TermParserContext;
  * Enable soft end for the segment
  */
 public class DisableSoftEndAction extends SimpleAction {
-
-    /**
-     * The constructor
-     */
-    public DisableSoftEndAction() {
-    }
-
     /**
      * The constructor
      *

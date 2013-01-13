@@ -32,12 +32,6 @@ import net.sf.etl.parsers.event.grammar.TermParserContext;
  */
 public class EnableSoftEndAction extends SimpleAction {
     /**
-     * The default constructor
-     */
-    public EnableSoftEndAction() {
-    }
-
-    /**
      * The constructor from next action
      *
      * @param next the next action

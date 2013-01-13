@@ -47,10 +47,14 @@ public class StructuralTokenAction extends SimpleAction {
      */
     public final boolean atMark;
 
-    public StructuralTokenAction(Terms kind, Object type) {
-        this(null, kind, type, false);
-    }
-
+    /**
+     * The constructor
+     *
+     * @param next   the next action
+     * @param kind   the token kind
+     * @param type   the structure type
+     * @param atMark if true, the token is reported after mark
+     */
     public StructuralTokenAction(Action next, Terms kind, Object type, boolean atMark) {
         super(next);
         this.kind = kind;

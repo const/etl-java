@@ -27,8 +27,8 @@ package net.sf.etl.parsers.event.grammar.impl.nodes;
 import net.sf.etl.parsers.Terms;
 import net.sf.etl.parsers.event.grammar.impl.ActionBuilder;
 import net.sf.etl.parsers.event.impl.term.action.Action;
+import net.sf.etl.parsers.event.impl.term.action.ReportBeforeMarkAction;
 import net.sf.etl.parsers.event.impl.term.action.StructuralTokenAction;
-import net.sf.etl.parsers.event.impl.term.action.buildtime.ReportBeforeMarkAction;
 
 /**
  * An simple term context scope node

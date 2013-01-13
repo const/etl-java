@@ -57,22 +57,6 @@ public class AdvanceAction extends SimpleAction {
         this(next, true);
     }
 
-    /**
-     * The constructor
-     *
-     * @param skipDocumentation if true doc comments are skipped
-     */
-    public AdvanceAction(boolean skipDocumentation) {
-        this(null, skipDocumentation);
-    }
-
-    /**
-     * The constructor
-     */
-    public AdvanceAction() {
-        this(true);
-    }
-
     @Override
     public void parseMore(TermParserContext context, ActionState state) {
         if (TermParserContextUtil.skipIgnorable(context, skipDocumentation)) return;
