@@ -24,10 +24,10 @@
  */
 package net.sf.etl.parsers.event.impl.bootstrap;
 
-import net.sf.etl.parsers.PhraseTokens;
-import net.sf.etl.parsers.Token;
-import net.sf.etl.parsers.Tokens;
+import net.sf.etl.parsers.*;
+import net.sf.etl.parsers.event.impl.util.ListStack;
 import net.sf.etl.parsers.event.unstable.model.grammar.*;
+import net.sf.etl.parsers.event.unstable.model.grammar.ObjectName;
 import net.sf.etl.parsers.literals.LiteralUtils;
 import net.sf.etl.parsers.streams.PhraseParserReader;
 
@@ -92,13 +92,15 @@ public class BootstrapETLParserLite {
     /**
      * stack of properties
      */
-    final private Stack<Field> propertyStack = new Stack<Field>();
-
+    final private ListStack<Field> propertyStack = new ListStack<Field>();
     /**
      * stack of objects
      */
-    final private Stack<EObject> objectStack = new Stack<EObject>();
-
+    final private ListStack<Element> objectStack = new ListStack<Element>();
+    /**
+     * stack of objects
+     */
+    final private ListStack<TextPos> objectStartStack = new ListStack<TextPos>();
     /**
      * a phrase parser used by bootstrap parser
      */
@@ -711,8 +713,7 @@ public class BootstrapETLParserLite {
             final Field pp = topProperty();
             Element v;
             if (pp.getType() == ArrayList.class) {
-                final java.util.ArrayList<?> l = (java.util.ArrayList<?>) pp
-                        .get(po);
+                final java.util.ArrayList<?> l = (java.util.ArrayList<?>) pp.get(po);
                 v = (Element) l.remove(l.size() - 1);
             } else {
                 v = (Element) pp.get(po);
@@ -727,7 +728,7 @@ public class BootstrapETLParserLite {
             object.ownerFeature = v.ownerFeature;
             v.ownerObject = object;
             v.ownerFeature = property;
-            object.start = v.start;
+            objectStartStack.push(objectStartStack.peek());
             pushObject(object);
         } catch (RuntimeException e) {
             throw e;
@@ -863,9 +864,9 @@ public class BootstrapETLParserLite {
      * @return pop object
      */
     private Element endObject() {
-        final Element object = (Element) objectStack.pop();
-        object.end = parser.current().start();
-        object.systemId = parser.getSystemId();
+        final Element object = objectStack.pop();
+        final TextPos start = objectStartStack.pop();
+        object.location = new SourceLocation(start, parser.current().start(), parser.getSystemId());
         return object;
     }
 
@@ -948,7 +949,7 @@ public class BootstrapETLParserLite {
      * @return object at top of the stack
      */
     private Element topObject() {
-        return (Element) objectStack.peek();
+        return objectStack.peek();
     }
 
     /**
@@ -956,7 +957,7 @@ public class BootstrapETLParserLite {
      */
     private void startObject(Element object) {
         pushObject(object);
-        object.start = parser.current().start();
+        objectStartStack.push(parser.current().start());
     }
 
     /**

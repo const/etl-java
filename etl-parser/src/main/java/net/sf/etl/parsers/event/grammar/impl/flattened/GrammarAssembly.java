@@ -172,7 +172,7 @@ public class GrammarAssembly {
      * @param args        the error args
      */
     public void error(GrammarView grammarView, Element element, String errorId, Object[] args) {
-        error(new ErrorInfo(errorId, args, element.start, element.end, grammarView.getSystemId()));
+        error(new ErrorInfo(errorId, Arrays.asList(args), element.location, null));
     }
 
     /**

@@ -25,7 +25,6 @@
 package net.sf.etl.parsers.event.unstable.model.grammar;
 
 import net.sf.etl.parsers.SourceLocation;
-import net.sf.etl.parsers.TextPos;
 
 /**
  * Base class for lightweight grammar objects
@@ -42,22 +41,14 @@ public abstract class EObject {
      */
     public java.lang.reflect.Field ownerFeature;
     /**
-     * start line
+     * The source location
      */
-    public TextPos start;
-    /**
-     * end position
-     */
-    public TextPos end;
-    /**
-     * The system identifier for the node
-     */
-    public String systemId;
+    public SourceLocation location;
 
     /**
      * @return source location for object
      */
     public SourceLocation sourceLocation() {
-        return new SourceLocation(start, end, systemId);
+        return location;
     }
 }

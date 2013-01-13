@@ -64,7 +64,7 @@ public abstract class DefinitionView extends ContextMemberView {
         this.definitionInfo = new DefinitionInfo(
                 context.getDefinitionContext(),
                 definition.name.text(),
-                new SourceLocation(definition.start, definition.end, context.grammar().getSystemId()));
+                definition.location);
     }
 
     /**

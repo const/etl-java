@@ -638,10 +638,8 @@ public abstract class AbstractTreeParser<BaseObjectType, FeatureType, MetaObject
                 setToFeature(rc, endFeature, pos);
                 break;
             case SOURCE_LOCATION:
-                final FeatureType locationFeature = getPropertyMetaObject(rc,
-                        metaObject, "location");
-                setToFeature(rc, locationFeature, new SourceLocation(
-                        (TextPos) startValue, pos, systemId));
+                final FeatureType locationFeature = getPropertyMetaObject(rc, metaObject, "location");
+                setToFeature(rc, locationFeature, new SourceLocation((TextPos) startValue, pos, systemId));
                 break;
             default:
                 throw new IllegalStateException("Unknown or unsupported position policy: " + positionPolicy);

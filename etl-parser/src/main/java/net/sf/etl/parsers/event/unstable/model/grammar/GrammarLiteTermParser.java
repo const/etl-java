@@ -52,6 +52,7 @@ public class GrammarLiteTermParser extends FieldTermParser<Element> {
      */
     public GrammarLiteTermParser(TermParserReader parser) {
         super(parser, Element.class.getClassLoader());
+        setPosPolicy(PositionPolicy.SOURCE_LOCATION);
         mapNamespaceToPackage(StandardGrammars.ETL_GRAMMAR_NAMESPACE, "net.sf.etl.parsers.event.unstable.model.grammar");
         ignoreNamespace(StandardGrammars.DOCTYPE_NS);
         setAbortOnDefaultGrammar(true);
@@ -86,16 +87,5 @@ public class GrammarLiteTermParser extends FieldTermParser<Element> {
             e.ownerFeature = f;
         }
         super.valueEnlisted(rc, f, v);
-    }
-
-    @Override
-    protected Object setObjectStartPos(Element rc, Class<?> metaObject, TermToken token) {
-        rc.start = token.start();
-        return rc.start;
-    }
-
-    @Override
-    protected void setObjectEndPos(Element rc, Class<?> metaObject, Object starValue, TermToken token) {
-        rc.end = token.start();
     }
 }

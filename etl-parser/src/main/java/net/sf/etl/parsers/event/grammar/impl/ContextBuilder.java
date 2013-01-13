@@ -324,7 +324,7 @@ public class ContextBuilder {
         } else if (body instanceof ExpressionRef) {
             final ExpressionRef s = (ExpressionRef) body;
             final DefinitionView v = b.topDefinition().originalDefinition();
-            final Integer precedence = parseInteger(s.precedence, s.systemId);
+            final Integer precedence = parseInteger(s.precedence, s.location.systemId());
             final ActionBuilder f = getExpressionBuilder(v, s, text(s.context), precedence);
             if (f != null) {
                 // TODO register context with the statement, so compiled grammar will contain needed activations.
@@ -370,7 +370,7 @@ public class ContextBuilder {
             compileSyntax(visited, b, s.syntax);
             b.startRepeat();
             final Token sep = s.separator == null ?
-                    new Token(TokenKey.simple(Tokens.COMMA), ",", s.start, s.end, null) :
+                    new Token(TokenKey.simple(Tokens.COMMA), ",", s.location.start(), s.location.end(), null) :
                     s.separator;
             b.tokenText(Terms.STRUCTURAL, SyntaxRole.SEPARATOR, sep);
             compileSyntax(visited, b, s.syntax);
