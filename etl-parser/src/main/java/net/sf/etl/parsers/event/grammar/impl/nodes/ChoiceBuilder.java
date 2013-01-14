@@ -25,14 +25,11 @@
 
 package net.sf.etl.parsers.event.grammar.impl.nodes;
 
-import net.sf.etl.parsers.PhraseTokens;
 import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.LookAheadSet;
 import net.sf.etl.parsers.event.grammar.impl.ActionBuilder;
 import net.sf.etl.parsers.event.impl.term.action.Action;
-import net.sf.etl.parsers.event.impl.term.action.KeywordChoiceAction;
-import net.sf.etl.parsers.event.impl.term.action.PhraseTokenChoiceAction;
-import net.sf.etl.parsers.event.impl.term.action.TokenKeyChoiceAction;
+import net.sf.etl.parsers.event.impl.term.action.ChoiceAction;
 
 import java.util.ArrayList;
 
@@ -89,13 +86,11 @@ public class ChoiceBuilder {
     /**
      * Build choice nodes
      *
+     * @param b the action builder used to report the errors
      * @return the choice node
      */
     public Action build(ActionBuilder b) {
-        PhraseTokenChoiceAction phraseChoice = new PhraseTokenChoiceAction(source);
-        KeywordChoiceAction keywords = new KeywordChoiceAction(source);
-        TokenKeyChoiceAction tokens = new TokenKeyChoiceAction(source);
-        phraseChoice.next.put(PhraseTokens.SIGNIFICANT, keywords);
+        ChoiceAction choice = new ChoiceAction(source);
         LookAheadSet la = new LookAheadSet();
         // do sanity check
         Action emptyFallback = fallback;
@@ -117,19 +112,16 @@ public class ChoiceBuilder {
         if (anyFallback == null) {
             anyFallback = emptyFallback;
         }
-        phraseChoice.fallback = emptyFallback;
-        keywords.otherKeyword = anyFallback;
-        keywords.nonKeyword = tokens;
-        tokens.fallback = anyFallback;
-        // TODO optimize it later, it creates a lot of unneeded actions
+        choice.unmatchedToken = anyFallback;
+        choice.unmatchedPhrase = emptyFallback;
         for (ChoiceOption option : options) {
             for (LookAheadSet.Entry entry : option.lookAhead.entries()) {
                 if (entry instanceof LookAheadSet.KeywordEntry) {
-                    keywords.next.put(((LookAheadSet.KeywordEntry) entry).keyword, option.action);
+                    choice.keywords.put(((LookAheadSet.KeywordEntry) entry).keyword, option.action);
                 } else if (entry instanceof LookAheadSet.TokenKeyEntry) {
-                    tokens.next.put(((LookAheadSet.TokenKeyEntry) entry).key, option.action);
+                    choice.tokens.put(((LookAheadSet.TokenKeyEntry) entry).key, option.action);
                 } else if (entry instanceof LookAheadSet.PhraseEntry) {
-                    phraseChoice.next.put(((LookAheadSet.PhraseEntry) entry).kind, option.action);
+                    choice.phrase.put(((LookAheadSet.PhraseEntry) entry).kind, option.action);
                 } else if (entry instanceof LookAheadSet.EmptyEntry) {
                     // do nothing, it was processed as fallback
                 } else if (entry instanceof LookAheadSet.AnyTokenEntry) {
@@ -137,7 +129,7 @@ public class ChoiceBuilder {
                 }
             }
         }
-        return phraseChoice;
+        return choice;
     }
 
 
