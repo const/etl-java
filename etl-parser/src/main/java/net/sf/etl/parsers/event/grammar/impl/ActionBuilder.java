@@ -89,17 +89,29 @@ public class ActionBuilder {
      *
      * @param n the node to start
      */
-    private void startNode(Node n) {
-        setNodeContext(n);
+    private void startNode(Element e, Node n) {
+        startNode(e.location, n);
+    }
+
+    /**
+     * Start node
+     *
+     * @param n the node to start
+     */
+    private void startNode(SourceLocation location, Node n) {
+        setNodeContext(location, n);
         stack.push(n);
     }
+
 
     /**
      * Supply context information to node
      *
-     * @param n the node to update
+     * @param location the element location
+     * @param n        the node to update
      */
-    private void setNodeContext(Node n) {
+    private void setNodeContext(SourceLocation location, Node n) {
+        n.source = location;
         n.setBuilder(this);
         if (!definitionStack.isEmpty()) {
             n.setDefinition(topDefinition());
@@ -135,7 +147,6 @@ public class ActionBuilder {
      * @param ct the node to add
      */
     private void processNode(Node ct) {
-        // TODO for recovery sequences and choices need to be flattened, since recovery will recover only to next node in the sequence
         final Node top = stack.peek();
         if (top instanceof GroupNode) {
             final GroupNode sn = (GroupNode) top;
@@ -151,10 +162,15 @@ public class ActionBuilder {
     /**
      * Write current single node
      *
+     * @param e the element
      * @param n node to write
      */
-    private void singleNode(Node n) {
-        setNodeContext(n);
+    private void singleNode(Element e, Node n) {
+        singleNode(e.location, n);
+    }
+
+    private void singleNode(SourceLocation location, Node n) {
+        setNodeContext(location, n);
         if (stack.isEmpty()) {
             assert returnNode == null : "there already is return node";
             returnNode = n;
@@ -166,9 +182,11 @@ public class ActionBuilder {
 
     /**
      * Start keyword scope node
+     *
+     * @param e the element
      */
-    public void startKeywords() {
-        startNode(new KeywordScopeNode());
+    public void startKeywords(Element e) {
+        startNode(e, new KeywordScopeNode());
     }
 
     /**
@@ -180,9 +198,11 @@ public class ActionBuilder {
 
     /**
      * start choice node
+     *
+     * @param e the element
      */
-    public void startFirstChoice() {
-        startNode(new FirstChoiceNode());
+    public void startFirstChoice(Element e) {
+        startNode(e, new FirstChoiceNode());
     }
 
     /**
@@ -196,9 +216,11 @@ public class ActionBuilder {
 
     /**
      * start choice node
+     *
+     * @param e the element
      */
-    public void startChoice() {
-        startNode(new ChoiceNode());
+    public void startChoice(Element e) {
+        startNode(e, new ChoiceNode());
     }
 
     /**
@@ -210,9 +232,11 @@ public class ActionBuilder {
 
     /**
      * start repeat node
+     *
+     * @param e the element
      */
-    public void startRepeat() {
-        startNode(new RepeatNode());
+    public void startRepeat(Element e) {
+        startNode(e, new RepeatNode());
     }
 
     /**
@@ -225,40 +249,32 @@ public class ActionBuilder {
     /**
      * start repeat node
      *
+     * @param e       the element
      * @param context a context of the block
      */
-    public void startBlock(DefinitionContext context, SourceLocation source) {
-        // TODO fix it, it is non scope node
-        final BlockNode n = new BlockNode(context);
-        n.source = source;
-        startNode(n);
-    }
-
-    /**
-     * end repeat node
-     */
-    public void endBlock() {
-        endNode(BlockNode.class);
+    public void block(Element e, DefinitionContext context) {
+        singleNode(e, new BlockNode(context));
     }
 
     /**
      * Create call node
      *
+     * @param e       the element
      * @param builder a builder for factory associated with the node
      */
-    public void call(ActionBuilder builder, SourceLocation location) {
+    public void call(Element e, ActionBuilder builder) {
         final CallNode n = new CallNode(builder);
-        n.source = location;
-        singleNode(n);
+        singleNode(e, n);
     }
 
     /**
      * start object node
      *
+     * @param e    the element
      * @param name the name of object
      */
-    public void startObject(ObjectName name) {
-        startNode(new ObjectNode(name, false, null));
+    public void startObject(Element e, ObjectName name) {
+        startNode(e, new ObjectNode(name, false, null));
     }
 
     /**
@@ -273,21 +289,34 @@ public class ActionBuilder {
     /**
      * start property node
      *
+     * @param e      the element
      * @param name   the name of property
      * @param isList flag indicating if it is a list property
      */
-    public void startProperty(PropertyName name, boolean isList) {
-        startNode(new PropertyNode(name, isList, false));
+    public void startProperty(Element e, PropertyName name, boolean isList) {
+        startProperty(e.location, name, isList);
+    }
+
+    /**
+     * Start property node
+     *
+     * @param location the element location
+     * @param name     the name of property
+     * @param isList   flag indicating if it is a list property
+     */
+    private void startProperty(SourceLocation location, PropertyName name, boolean isList) {
+        startNode(location, new PropertyNode(name, isList, false));
     }
 
     /**
      * start property node at mark
      *
+     * @param e      the element
      * @param name   the name of property
      * @param isList flag indicating if it is a list property
      */
-    public void startPropertyAtMark(PropertyName name, boolean isList) {
-        startNode(new PropertyNode(name, isList, true));
+    public void startPropertyAtMark(Element e, PropertyName name, boolean isList) {
+        startNode(e, new PropertyNode(name, isList, true));
     }
 
     /**
@@ -299,9 +328,11 @@ public class ActionBuilder {
 
     /**
      * start sequence node
+     *
+     * @param e the element
      */
-    public void startSequence() {
-        startNode(new SequenceNode());
+    public void startSequence(Element e) {
+        startNode(e, new SequenceNode());
     }
 
     /**
@@ -314,10 +345,11 @@ public class ActionBuilder {
     /**
      * start expression node
      *
+     * @param e       the element
      * @param context the context for the node
      */
-    public void startExpression(ExpressionContext context) {
-        startNode(new TermContextScope(Terms.EXPRESSION_START, Terms.EXPRESSION_END, context));
+    public void startExpression(Element e, ExpressionContext context) {
+        startNode(e, new TermContextScope(Terms.EXPRESSION_START, Terms.EXPRESSION_END, context));
     }
 
     /**
@@ -330,10 +362,11 @@ public class ActionBuilder {
     /**
      * start attributes node
      *
+     * @param e       the element
      * @param context the context for the node
      */
-    public void startAttributes(DefinitionInfo context) {
-        startNode(new TermContextScope(Terms.ATTRIBUTES_START, Terms.ATTRIBUTES_END, context));
+    public void startAttributes(Element e, DefinitionInfo context) {
+        startNode(e, new TermContextScope(Terms.ATTRIBUTES_START, Terms.ATTRIBUTES_END, context));
     }
 
     /**
@@ -346,10 +379,11 @@ public class ActionBuilder {
     /**
      * start attributes node
      *
+     * @param e       the element
      * @param context the context for the node
      */
-    public void startDocComment(DefinitionInfo context) {
-        startNode(new TermContextScope(Terms.DOC_COMMENT_START, Terms.DOC_COMMENT_END, context));
+    public void startDocComment(Element e, DefinitionInfo context) {
+        startNode(e, new TermContextScope(Terms.DOC_COMMENT_START, Terms.DOC_COMMENT_END, context));
     }
 
     /**
@@ -361,9 +395,11 @@ public class ActionBuilder {
 
     /**
      * start modifiers node
+     *
+     * @param e the element
      */
-    public void startModifiers() {
-        startNode(new TermContextScope(Terms.MODIFIERS_START, Terms.MODIFIERS_END, null));
+    public void startModifiers(Element e) {
+        startNode(e, new TermContextScope(Terms.MODIFIERS_START, Terms.MODIFIERS_END, null));
     }
 
     /**
@@ -376,11 +412,12 @@ public class ActionBuilder {
     /**
      * Create node that matches specified text
      *
+     * @param e     the element
      * @param kind  the term kind of node
      * @param role  the role of the node
-     * @param token the text of the node
+     * @param token the text of the node (must be in the same source as element)
      */
-    public void tokenText(Terms kind, SyntaxRole role, Token token) {
+    public void tokenText(Element e, Terms kind, SyntaxRole role, Token token) {
         TokenKey key = token.key();
         switch (key.kind()) {
             case STRING:
@@ -398,19 +435,20 @@ public class ActionBuilder {
                         + token.key() + " for value: "
                         + token.text());
         }
-        token(kind, role, key, token.text());
+        token(new SourceLocation(token.start(), token.end(), e.location.systemId()), kind, role, key, token.text());
     }
 
     /**
      * Generic method that add token node
      *
+     * @param location the element location
      * @param kind     the term kind
      * @param role     the syntax role
      * @param tokenKey the token kind
      * @param text     the text of token
      */
-    private void token(Terms kind, SyntaxRole role, TokenKey tokenKey, String text) {
-        singleNode(new TokenNode(kind, role, tokenKey, text));
+    private void token(SourceLocation location, Terms kind, SyntaxRole role, TokenKey tokenKey, String text) {
+        singleNode(location, new TokenNode(kind, role, tokenKey, text));
     }
 
     /**
@@ -419,36 +457,40 @@ public class ActionBuilder {
      * @param errorId   the error id
      * @param errorArgs the error arguments
      */
-    public void error(String errorId, Object... errorArgs) {
-        singleNode(new ErrorNode(errorId, errorArgs));
+    public void error(Element e, String errorId, Object... errorArgs) {
+        singleNode(e, new ErrorNode(errorId, errorArgs));
     }
 
     /**
      * Create node that matches specified token kind
      *
+     * @param e        the element
      * @param kind     the term kind of node
      * @param role     the role of the node
      * @param tokenKey the token kind
      */
-    public void tokenText(Terms kind, SyntaxRole role, TokenKey tokenKey) {
-        token(kind, role, tokenKey, null);
+    public void tokenText(Element e, Terms kind, SyntaxRole role, TokenKey tokenKey) {
+        token(e.location, kind, role, tokenKey, null);
     }
 
     /**
      * Create node that matches specified token
      *
+     * @param e    the element
      * @param kind the term kind of node
      * @param role the role of the node
      */
-    public void anyToken(Terms kind, SyntaxRole role) {
-        token(kind, role, null, null);
+    public void anyToken(Element e, Terms kind, SyntaxRole role) {
+        token(e.location, kind, role, null, null);
     }
 
     /**
      * start marked region node
+     *
+     * @param e the element
      */
-    public void startMarked() {
-        startNode(new MarkedNode());
+    public void startMarked(Element e) {
+        startNode(e, new MarkedNode());
     }
 
     /**
@@ -460,9 +502,11 @@ public class ActionBuilder {
 
     /**
      * create commit mark node
+     *
+     * @param e the element
      */
-    public void commitMark() {
-        singleNode(new CommitMarkNode());
+    public void commitMark(Element e) {
+        singleNode(e, new CommitMarkNode());
     }
 
     /**
@@ -477,11 +521,12 @@ public class ActionBuilder {
     /**
      * Start statement
      *
+     * @param e    the element
      * @param view the statement definition
      */
-    public void startStatement(DefinitionView view) {
+    public void startStatement(Element e, DefinitionView view) {
         startDefinition(view);
-        startNode(new TermContextScope(Terms.STATEMENT_START, Terms.STATEMENT_END, view.definitionInfo(), TermContextScope.MarkMode.BEFORE_MARK));
+        startNode(e, new TermContextScope(Terms.STATEMENT_START, Terms.STATEMENT_END, view.definitionInfo(), TermContextScope.MarkMode.BEFORE_MARK));
     }
 
     /**
@@ -502,21 +547,23 @@ public class ActionBuilder {
     /**
      * Start object at mark
      *
+     * @param e        the element
      * @param name     the object to start
      * @param wrappers the wrappers for this object node
      */
-    public void startObjectAtMark(ObjectName name, WrapperLink wrappers) {
-        startNode(new ObjectNode(name, true, wrappers));
+    public void startObjectAtMark(Element e, ObjectName name, WrapperLink wrappers) {
+        startNode(e, new ObjectNode(name, true, wrappers));
     }
 
     /**
      * Start fallback scope, the scope has to be initialized at some time
      *
+     * @param e the element
      * @return the created node
      */
-    public FallbackObjectNode startFallbackScope() {
+    public FallbackObjectNode startFallbackScope(Element e) {
         final FallbackObjectNode rc = new FallbackObjectNode();
-        startNode(rc);
+        startNode(e, rc);
         return rc;
     }
 
@@ -530,10 +577,11 @@ public class ActionBuilder {
     /**
      * Start object at mark
      *
+     * @param e    the element
      * @param name the object to start
      */
-    public void startObjectAtMark(ObjectName name) {
-        startNode(new ObjectNode(name, true, null));
+    public void startObjectAtMark(Element e, ObjectName name) {
+        startNode(e, new ObjectNode(name, true, null));
     }
 
     /**
@@ -544,8 +592,9 @@ public class ActionBuilder {
     public void startWrapper(Wrapper w) {
         if (w != null) {
             final DefinitionView d = topDefinition();
-            startObject(d.convertName(w.object));
-            startProperty(new PropertyName(w.property.text()), false);
+            startObject(w.object, d.convertName(w.object));
+            startProperty(new SourceLocation(w.property.start(), w.property.end(), w.location.systemId()),
+                    new PropertyName(w.property.text()), false);
         }
     }
 

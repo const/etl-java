@@ -132,7 +132,7 @@ public class OpDefinitionView extends ObjectDefinitionView {
         }
         rc.rootObject = topObject(context);
         LinkedList<SyntaxStatement> syntax = rc.rootObject.syntax.syntax;
-        parseSyntaxContent(new HashSet<DefinitionView>(), context, this, rc, od, syntax);
+        parseSyntaxContent(new HashSet<DefinitionView>(), context, this, rc, syntax);
         return rc;
     }
 
@@ -143,12 +143,11 @@ public class OpDefinitionView extends ObjectDefinitionView {
      * @param context the current context
      * @param current the current definition
      * @param rc      the object info to update
-     * @param od      the root operator definition
      * @param syntax  the syntax statements to parse
      */
     private void parseSyntaxContent(Set<DefinitionView> visited,
                                     ContextView context, DefinitionView current, OpInfo rc,
-                                    OperatorDefinition od, List<SyntaxStatement> syntax) {
+                                    List<SyntaxStatement> syntax) {
         for (final Object element : syntax) {
             if (element instanceof BlankSyntaxStatement) {
                 // do nothing
@@ -168,7 +167,7 @@ public class OpDefinitionView extends ObjectDefinitionView {
                             case YFX:
                             case YFY:
                                 if (rc.leftProperty == null) {
-                                    rc.leftProperty = new PropertyInfo(let.name.text(), isList);
+                                    rc.leftProperty = new PropertyInfo(let, let.name.text(), isList);
                                 } else {
                                     // Only one left operand is
                                     // allowed.
@@ -187,7 +186,7 @@ public class OpDefinitionView extends ObjectDefinitionView {
                             case YFX:
                             case YFY:
                                 if (rc.rightProperty == null) {
-                                    rc.rightProperty = new PropertyInfo(let.name.text(), isList);
+                                    rc.rightProperty = new PropertyInfo(let, let.name.text(), isList);
                                 } else {
                                     // Only one right operand is
                                     // allowed.
@@ -212,7 +211,7 @@ public class OpDefinitionView extends ObjectDefinitionView {
                         if (!enterDefContext(visited, d)) {
                             return;
                         }
-                        parseSyntaxContent(visited, context, d, rc, od, d.statements());
+                        parseSyntaxContent(visited, context, d, rc, d.statements());
                         leaveDefContext(visited, d);
                     }
                 } else {
@@ -298,15 +297,23 @@ public class OpDefinitionView extends ObjectDefinitionView {
          */
         private final boolean isList;
         /**
+         * The element
+         */
+        private final Element element;
+        /**
          * name of the property
          */
         private final String name;
 
         /**
-         * @param name   the property name
-         * @param isList if true, this is a list property
+         * The constructor
+         *
+         * @param element the element that defines the property
+         * @param name    the property name
+         * @param isList  if true, this is a list property
          */
-        public PropertyInfo(String name, boolean isList) {
+        public PropertyInfo(Element element, String name, boolean isList) {
+            this.element = element;
             this.name = name;
             this.isList = isList;
         }
@@ -323,6 +330,13 @@ public class OpDefinitionView extends ObjectDefinitionView {
          */
         public String getName() {
             return name;
+        }
+
+        /**
+         * @return the element that defines the property
+         */
+        public Element element() {
+            return element;
         }
     }
 }

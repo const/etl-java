@@ -205,35 +205,38 @@ public class ContextBuilder {
      */
     private void buildStatementNodes() {
         final ActionBuilder b = actionBuilder;
-        b.startMarked();
-        b.startKeywords();
+        final Element contextElement = contextView().reportingContext();
+        b.startMarked(contextElement);
+        b.startKeywords(contextElement);
         // Start fallback scope. This scope causes creation of object at mark.
         // This is used to prevent the case of dangling properties.
-        final FallbackObjectNode fallbackNode = b.startFallbackScope();
+        final FallbackObjectNode fallbackNode = b.startFallbackScope(contextElement);
         // parse documentation comments in the context.
         if (contextView.documentation() != null) {
             // if documentation statement present in the context, comments
             // are parsed according to it.
             b.startDefinition(contextView.documentation());
-            b.startChoice();
-            b.startDocComment(contextView.documentation().definitionInfo());
+            final SyntaxDefinition definition = contextView.documentation().definition();
+            b.startChoice(definition);
+            b.startDocComment(definition, contextView.documentation().definitionInfo());
             compileSyntax(new HashSet<DefView>(), b, contextView.documentation().statements());
             b.endDocComment();
-            b.startSequence();
+            b.startSequence(definition);
             b.endSequence();
             b.endChoice();
             b.endDefinition();
         } else {
             // otherwise comments are treated as ignorable
-            b.startRepeat();
-            b.tokenText(Terms.IGNORABLE, SyntaxRole.DOCUMENTATION, TokenKey.simple(Tokens.DOC_COMMENT));
+            b.startRepeat(contextElement);
+            b.tokenText(contextElement, Terms.IGNORABLE, SyntaxRole.DOCUMENTATION, TokenKey.simple(Tokens.DOC_COMMENT));
             b.endRepeat();
         }
         // Compile attributes if they are available
         if (contextView.attributes() != null) {
             b.startDefinition(contextView.attributes());
-            b.startRepeat();
-            b.startAttributes(contextView().attributes().definitionInfo());
+            final SyntaxDefinition definition = contextView.attributes().definition();
+            b.startRepeat(definition);
+            b.startAttributes(definition, contextView().attributes().definitionInfo());
             compileSyntax(new HashSet<DefView>(), b, contextView.attributes().statements());
             b.endAttributes();
             b.endRepeat();
@@ -242,26 +245,27 @@ public class ContextBuilder {
         b.endFallbackScope();
         // Finally compile statement choice.
         // NOTE POST 0.2: add alternative that reports error better.
-        b.startChoice();
+        b.startChoice(contextElement);
         boolean wasEmpty = false;
         StatementView fallback = null;
         for (final StatementView s : contextView.statements()) {
             final DefinitionView def = s.topObjectDefinition(contextView);
+            final SyntaxDefinition definition = s.definition();
             if (def == null) {
-                contextView.error(s.definition(),
+                contextView.error(definition,
                         "grammar.ObjectDefinition.missingTopObject", name(),
                         grammarBuilder.grammarView().getSystemId());
             } else {
                 final WrapperLink wrappers = s.wrappers(contextView);
-                b.startStatement(s);
-                b.startSequence();
+                b.startStatement(definition, s);
+                b.startSequence(definition);
                 // handle the case when def/ref has been used
                 final ObjectOp o = s.topObject(contextView);
                 if (def != s) {
                     b.startDefinition(def);
                 }
-                b.startObjectAtMark(def.convertName(o.name), wrappers);
-                b.commitMark(); // this statement tries to commit mark
+                b.startObjectAtMark(definition, def.convertName(o.name), wrappers);
+                b.commitMark(definition); // this statement tries to commit mark
                 // now body of root object is compiled
                 compileSyntax(new HashSet<DefView>(), b, o.syntax);
                 // object ends here
@@ -291,9 +295,9 @@ public class ContextBuilder {
             // reporting. If statement starts with unknown token, fallback
             // will be executed and error "end of segment expected" reported.
             // better reaction would have been list of statements.
-            b.startObjectAtMark(fallback.topObjectName(contextView), fallback.wrappers(contextView));
-            b.commitMark();
-            b.error("syntax.UnexpectedToken.expectingStatementFromContext", contextName);
+            b.startObjectAtMark(contextElement, fallback.topObjectName(contextView), fallback.wrappers(contextView));
+            b.commitMark(contextElement);
+            b.error(contextElement, "syntax.UnexpectedToken.expectingStatementFromContext", contextName);
             b.endObject();
         }
         b.endChoice();
@@ -315,9 +319,7 @@ public class ContextBuilder {
             final DefinitionView v = b.topDefinition().originalDefinition();
             final ActionBuilder f = getStatementSequenceBuilder(v, s, text(s.context));
             if (f != null) {
-                b.startBlock(f.context(), s.sourceLocation());
-                //b.call(f);
-                b.endBlock();
+                b.block(s, f.context());
             } else {
                 error(b, s, "grammar.Block.referringContextWithoutStatements", s.context);
             }
@@ -329,18 +331,18 @@ public class ContextBuilder {
             if (f != null) {
                 // TODO register context with the statement, so compiled grammar will contain needed activations.
                 final ExpressionContext c = new ExpressionContext(contextView.getDefinitionContext(), f.context(), precedence);
-                b.startExpression(c);
-                b.startMarked();
-                b.call(f, s.sourceLocation());
+                b.startExpression(s, c);
+                b.startMarked(s);
+                b.call(s, f);
                 b.endMarked();
                 b.endExpression();
             }
         } else if (body instanceof ModifiersOp) {
             final ModifiersOp s = (ModifiersOp) body;
             final Wrapper defaultWrapper = s.wrapper;
-            b.startModifiers();
-            b.startRepeat();
-            b.startChoice();
+            b.startModifiers(s);
+            b.startRepeat(s);
+            b.startChoice(s);
             // modifiers block contains only let instructions
             for (final Object sso : s.modifiers) {
                 final SyntaxStatement ss = (SyntaxStatement) sso;
@@ -350,9 +352,9 @@ public class ContextBuilder {
                     Wrapper w = m.wrapper;
                     w = w == null ? defaultWrapper : w;
                     final boolean isList = match("+=", let.operator);
-                    b.startProperty(new PropertyName(text(let.name)), isList);
+                    b.startProperty(let, new PropertyName(text(let.name)), isList);
                     b.startWrapper(w);
-                    b.tokenText(Terms.VALUE, SyntaxRole.MODIFIER, m.value);
+                    b.tokenText(m, Terms.VALUE, SyntaxRole.MODIFIER, m.value);
                     b.endWrapper(w);
                     b.endProperty();
                 } else if (ss instanceof BlankSyntaxStatement) {
@@ -366,39 +368,39 @@ public class ContextBuilder {
             b.endModifiers();
         } else if (body instanceof ListOp) {
             final ListOp s = (ListOp) body;
-            b.startSequence();
+            b.startSequence(s);
             compileSyntax(visited, b, s.syntax);
-            b.startRepeat();
+            b.startRepeat(s);
             final Token sep = s.separator == null ?
                     new Token(TokenKey.simple(Tokens.COMMA), ",", s.location.start(), s.location.end(), null) :
                     s.separator;
-            b.tokenText(Terms.STRUCTURAL, SyntaxRole.SEPARATOR, sep);
+            b.tokenText(s, Terms.STRUCTURAL, SyntaxRole.SEPARATOR, sep);
             compileSyntax(visited, b, s.syntax);
             b.endRepeat();
             b.endSequence();
         } else if (body instanceof OptionalOp) {
             final OptionalOp s = (OptionalOp) body;
-            b.startChoice();
+            b.startChoice(s);
             compileSyntax(visited, b, s.syntax);
-            b.startSequence();
+            b.startSequence(s);
             b.endSequence();
             b.endChoice();
         } else if (body instanceof ZeroOrMoreOp) {
             final ZeroOrMoreOp s = (ZeroOrMoreOp) body;
-            b.startRepeat();
+            b.startRepeat(s);
             compileSyntax(visited, b, s.syntax);
             b.endRepeat();
         } else if (body instanceof OneOrMoreOp) {
             final OneOrMoreOp s = (OneOrMoreOp) body;
-            b.startSequence();
+            b.startSequence(s);
             compileSyntax(visited, b, s.syntax);
-            b.startRepeat();
+            b.startRepeat(s);
             compileSyntax(visited, b, s.syntax);
             b.endRepeat();
             b.endSequence();
         } else if (body instanceof FirstChoiceOp) {
             final FirstChoiceOp s = (FirstChoiceOp) body;
-            b.startFirstChoice();
+            b.startFirstChoice(s);
             compileSyntax(visited, b, s.first);
             compileSyntax(visited, b, s.second);
             FirstChoiceNode n = b.endFirstChoice();
@@ -411,7 +413,7 @@ public class ContextBuilder {
             }
         } else if (body instanceof ChoiceOp) {
             final ChoiceOp s = (ChoiceOp) body;
-            b.startChoice();
+            b.startChoice(s);
             for (final Object option_o : s.options) {
                 final Syntax option = (Syntax) option_o;
                 compileSyntax(visited, b, option);
@@ -420,20 +422,20 @@ public class ContextBuilder {
         } else if (body instanceof IdentifierOp) {
             final IdentifierOp s = (IdentifierOp) body;
             b.startWrapper(s.wrapper);
-            b.tokenText(Terms.VALUE, SyntaxRole.PRIMARY, TokenKey.simple(Tokens.IDENTIFIER));
+            b.tokenText(s, Terms.VALUE, SyntaxRole.PRIMARY, TokenKey.simple(Tokens.IDENTIFIER));
             b.endWrapper(s.wrapper);
         } else if (body instanceof GraphicsOp) {
             final GraphicsOp s = (GraphicsOp) body;
             b.startWrapper(s.wrapper);
-            b.tokenText(Terms.VALUE, SyntaxRole.PRIMARY, TokenKey.simple(Tokens.GRAPHICS));
+            b.tokenText(s, Terms.VALUE, SyntaxRole.PRIMARY, TokenKey.simple(Tokens.GRAPHICS));
             b.endWrapper(s.wrapper);
         } else if (body instanceof TokenOp) {
             final TokenOp s = (TokenOp) body;
             b.startWrapper(s.wrapper);
             if (s.value != null) {
-                b.tokenText(Terms.VALUE, SyntaxRole.KEYWORD, s.value);
+                b.tokenText(s, Terms.VALUE, SyntaxRole.KEYWORD, s.value);
             } else {
-                b.anyToken(Terms.VALUE, SyntaxRole.PRIMARY);
+                b.anyToken(s, Terms.VALUE, SyntaxRole.PRIMARY);
             }
             b.endWrapper(s.wrapper);
         } else if (body instanceof StringOp) {
@@ -456,7 +458,7 @@ public class ContextBuilder {
                         compileString(b, s, quote, text(s.prefix.getFirst()));
                         break;
                     default:
-                        b.startChoice();
+                        b.startChoice(s);
                         for (Token prefix : s.prefix) {
                             compileString(b, s, quote, text(prefix));
                         }
@@ -470,7 +472,7 @@ public class ContextBuilder {
             compileNumber(b, (FloatOp) body, Tokens.FLOAT, Tokens.FLOAT_WITH_SUFFIX);
         } else if (body instanceof ObjectOp) {
             final ObjectOp s = (ObjectOp) body;
-            b.startObject(b.topDefinition().convertName(s.name));
+            b.startObject(s, b.topDefinition().convertName(s.name));
             compileSyntax(visited, b, s.syntax);
             b.endObject();
         } else if (body instanceof RefOp) {
@@ -482,7 +484,7 @@ public class ContextBuilder {
                 } else {
                     visited.add(d);
                     b.startDefinition(d);
-                    b.startSequence();
+                    b.startSequence(s);
                     compileSyntax(visited, b, d.statements());
                     b.endSequence();
                     visited.remove(d);
@@ -492,18 +494,18 @@ public class ContextBuilder {
         } else if (body instanceof DoclinesOp) {
             final DoclinesOp s = (DoclinesOp) body;
             b.startWrapper(s.wrapper);
-            b.tokenText(Terms.VALUE, SyntaxRole.DOCUMENTATION, TokenKey.simple(Tokens.DOC_COMMENT));
+            b.tokenText(s, Terms.VALUE, SyntaxRole.DOCUMENTATION, TokenKey.simple(Tokens.DOC_COMMENT));
             b.endWrapper(s.wrapper);
-            b.startRepeat();
+            b.startRepeat(s);
             b.startWrapper(s.wrapper);
-            b.tokenText(Terms.VALUE, SyntaxRole.DOCUMENTATION, TokenKey.simple(Tokens.DOC_COMMENT));
+            b.tokenText(s, Terms.VALUE, SyntaxRole.DOCUMENTATION, TokenKey.simple(Tokens.DOC_COMMENT));
             b.endWrapper(s.wrapper);
             b.endRepeat();
         } else if (body instanceof OperandOp) {
             error(b, body, "grammar.Operand.misplacedOperand");
         } else if (body instanceof Sequence) {
             final Sequence s = (Sequence) body;
-            b.startSequence();
+            b.startSequence(s);
             compileSyntax(visited, b, s.syntax);
             b.endSequence();
         } else {
@@ -574,7 +576,7 @@ public class ContextBuilder {
         }
         termKind = Terms.VALUE;
         final TokenKey key = TokenKey.quoted(kind, prefix, quote.codePointAt(0), quote.codePointAt(0));
-        b.tokenText(termKind, SyntaxRole.PRIMARY, key);
+        b.tokenText(s, termKind, SyntaxRole.PRIMARY, key);
         b.endWrapper(s.wrapper);
     }
 
@@ -589,13 +591,12 @@ public class ContextBuilder {
     private void compileNumber(ActionBuilder b, final NumberOp s, Tokens simpleKind, Tokens suffixKind) {
         if (s.suffix.size() == 0) {
             b.startWrapper(s.wrapper);
-            b.tokenText(Terms.VALUE, SyntaxRole.PRIMARY, TokenKey
-                    .simple(simpleKind));
+            b.tokenText(s, Terms.VALUE, SyntaxRole.PRIMARY, TokenKey.simple(simpleKind));
             b.endWrapper(s.wrapper);
         } else if (s.suffix.size() == 1) {
             compileNumberWithSuffix(b, s, suffixKind, text(s.suffix.getFirst()));
         } else {
-            b.startChoice();
+            b.startChoice(s);
             for (Token suffix : s.suffix) {
                 compileNumberWithSuffix(b, s, suffixKind, text(suffix));
             }
@@ -617,7 +618,7 @@ public class ContextBuilder {
             error(b, s, "grammar.NumberOp.invalidSuffix", s.suffix);
         }
         b.startWrapper(s.wrapper);
-        b.tokenText(Terms.VALUE, SyntaxRole.PRIMARY, TokenKey.modified(suffixKind, suffix));
+        b.tokenText(s, Terms.VALUE, SyntaxRole.PRIMARY, TokenKey.modified(suffixKind, suffix));
         b.endWrapper(s.wrapper);
     }
 
@@ -776,7 +777,7 @@ public class ContextBuilder {
                                         ActionBuilder b, SyntaxStatement statement) {
         if (statement instanceof BlankSyntaxStatement) {
             // compile empty sequence. This sequence is to be optimized out.
-            b.startSequence();
+            b.startSequence(statement);
             b.endSequence();
         } else if (statement instanceof Let) {
             final Let s = (Let) statement;
@@ -792,7 +793,7 @@ public class ContextBuilder {
                 final boolean isList = "+=".equals(op);
                 if (isList || "=".equals(op)) {
                     // simple property
-                    b.startProperty(new PropertyName(text(s.name)), isList);
+                    b.startProperty(s, new PropertyName(text(s.name)), isList);
                     compileSyntax(visited, b, s.expression);
                     b.endProperty();
                 } else {
@@ -801,10 +802,10 @@ public class ContextBuilder {
             }
         } else if (statement instanceof KeywordStatement) {
             final KeywordStatement s = (KeywordStatement) statement;
-            b.tokenText(Terms.STRUCTURAL, SyntaxRole.KEYWORD, s.text);
+            b.tokenText(s, Terms.STRUCTURAL, SyntaxRole.KEYWORD, s.text);
         } else if (statement instanceof ExpressionStatement) {
             final ExpressionStatement s = (ExpressionStatement) statement;
-            b.startSequence();
+            b.startSequence(s);
             compileSyntax(visited, b, s.syntax);
             b.endSequence();
         }

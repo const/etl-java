@@ -24,6 +24,8 @@
  */
 package net.sf.etl.parsers.event.grammar.impl.flattened;
 
+import net.sf.etl.parsers.SourceLocation;
+
 /**
  * A link in wrapper chain used to include other context in this context. By
  * construction of the object there can be no cycles.
@@ -31,6 +33,14 @@ package net.sf.etl.parsers.event.grammar.impl.flattened;
  * @author const
  */
 public final class WrapperLink {
+    /**
+     * The source location for the wrapper link
+     */
+    private final SourceLocation objectLocation;
+    /**
+     * The property location for the wrapper link
+     */
+    private final SourceLocation propertyLocation;
     /**
      * The object name
      */
@@ -51,13 +61,17 @@ public final class WrapperLink {
     /**
      * The constructor from fields
      *
-     * @param innerWrapper the inner wrapper in the chain
-     * @param namespace    the object namespace
-     * @param name         the object name
-     * @param property     the property to contain definition from included context
+     * @param innerWrapper     the inner wrapper in the chain
+     * @param namespace        the object namespace
+     * @param name             the object name
+     * @param property         the property to contain definition from included context
+     * @param objectLocation   the object location
+     * @param propertyLocation the property location
      */
-    public WrapperLink(WrapperLink innerWrapper, String namespace, String name, String property) {
+    public WrapperLink(WrapperLink innerWrapper, String namespace, String name, String property, SourceLocation objectLocation, SourceLocation propertyLocation) {
         this.innerWrapper = innerWrapper;
+        this.objectLocation = objectLocation;
+        this.propertyLocation = propertyLocation;
         this.name = checkNull(name, "name");
         this.namespace = checkNull(namespace, "namespace");
         this.property = checkNull(property, "property");
@@ -75,6 +89,20 @@ public final class WrapperLink {
             throw new NullPointerException("The argument " + argName + " cannot be null.");
         }
         return argValue;
+    }
+
+    /**
+     * @return the object location
+     */
+    public SourceLocation objectLocation() {
+        return objectLocation;
+    }
+
+    /**
+     * @return the property location
+     */
+    public SourceLocation propertyLocation() {
+        return propertyLocation;
     }
 
     /**
@@ -169,7 +197,7 @@ public final class WrapperLink {
             return second;
         } else {
             return new WrapperLink(concatenate(first.innerWrapper, second),
-                    first.namespace, first.name, first.property);
+                    first.namespace, first.name, first.property, first.objectLocation, first.propertyLocation);
         }
     }
 }

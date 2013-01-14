@@ -25,6 +25,7 @@
 package net.sf.etl.parsers.event.grammar.impl.flattened;
 
 import net.sf.etl.parsers.DefinitionContext;
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.impl.flattened.DirectedAcyclicGraph.DefinitionGatherer;
 import net.sf.etl.parsers.event.grammar.impl.flattened.DirectedAcyclicGraph.ImportDefinitionGatherer;
 import net.sf.etl.parsers.event.grammar.impl.flattened.DirectedAcyclicGraph.Node;
@@ -174,15 +175,17 @@ public class ContextView {
                 WrapperLink wrapperLink = null;
                 for (final ListIterator<Wrapper> j = ci.wrappers.listIterator(ci.wrappers.size()); j.hasPrevious(); ) {
                     final Wrapper w = j.previous();
-                    final String name = w.object.name.text();
-                    final String prefix = w.object.prefix.text();
-                    final String property = w.property.text();
-                    if (name != null && prefix != null && property != null) {
+                    if (w.object != null && w.object.name != null && w.object.prefix != null && w.property != null) {
+                        final String name = w.object.name.text();
+                        final String prefix = w.object.prefix.text();
+                        final String property = w.property.text();
                         final String namespace = grammar.namespace(prefix);
                         if (namespace == null) {
                             error(w, "grammar.Wrapper.undefinedWrapperPrefix", prefix);
                         } else {
-                            wrapperLink = new WrapperLink(wrapperLink, namespace, name, property);
+                            wrapperLink = new WrapperLink(wrapperLink, namespace, name, property,
+                                    w.object.sourceLocation(),
+                                    new SourceLocation(w.property.start(), w.property.end(), w.location.systemId()));
                         }
                     } else {
                         // there were syntax error
@@ -258,6 +261,13 @@ public class ContextView {
      */
     public void error(String errorId, Object... args) {
         error(reportingContext, errorId, args);
+    }
+
+    /**
+     * @return the reporting context
+     */
+    public Element reportingContext() {
+        return reportingContext;
     }
 
 
