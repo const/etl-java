@@ -76,7 +76,7 @@ public class ErrorNode extends Node {
 
     @Override
     protected LookAheadSet createLookAhead(Set<ActionBuilder> visitedBuilders) {
-        return LookAheadSet.getWithEmpty();
+        return LookAheadSet.getWithEmpty(source);
     }
 
 }

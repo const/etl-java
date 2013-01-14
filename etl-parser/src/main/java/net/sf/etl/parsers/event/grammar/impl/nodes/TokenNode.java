@@ -124,9 +124,9 @@ public class TokenNode extends Node {
     @Override
     protected LookAheadSet createLookAhead(Set<ActionBuilder> visitedBuilders) {
         if (text == null) {
-            return LookAheadSet.get(tokenKey);
+            return LookAheadSet.get(source, tokenKey);
         } else {
-            return LookAheadSet.getWithText(tokenKey, text);
+            return LookAheadSet.getWithText(source, tokenKey, text);
         }
     }
 }

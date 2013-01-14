@@ -33,13 +33,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Document type object
+ * Document type object. Note that this object is just a place holder for the information,
+ * and some fields could be missing from it.
  */
 public class Doctype {
+    /**
+     * The list of errors
+     */
     public final List<ErrorInfo> errors = new ArrayList<ErrorInfo>();
+    /**
+     * The location where document type is defined
+     */
     public SourceLocation location;
+    /**
+     * The type token
+     */
     public Token type;
+    /**
+     * The system id string token
+     */
     public Token systemId;
+    /**
+     * The public id token
+     */
     public Token publicId;
+    /**
+     * The context token
+     */
     public Token context;
 }

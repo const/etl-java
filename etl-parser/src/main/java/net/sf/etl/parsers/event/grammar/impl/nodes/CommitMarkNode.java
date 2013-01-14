@@ -55,6 +55,6 @@ public class CommitMarkNode extends Node {
 
     @Override
     protected LookAheadSet createLookAhead(Set<ActionBuilder> visitedBuilders) {
-        return LookAheadSet.getWithEmpty();
+        return LookAheadSet.getWithEmpty(source);
     }
 }

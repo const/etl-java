@@ -73,7 +73,7 @@ public class SequenceNode extends GroupNode {
     @Override
     protected LookAheadSet createLookAhead(Set<ActionBuilder> visitedBuilders) {
         if (nodes().isEmpty()) {
-            return LookAheadSet.getWithEmpty();
+            return LookAheadSet.getWithEmpty(source);
         }
         if (nodes().size() == 1) {
             return (nodes().get(0)).buildLookAhead(visitedBuilders);

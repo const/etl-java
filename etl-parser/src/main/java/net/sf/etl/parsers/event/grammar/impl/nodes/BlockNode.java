@@ -76,6 +76,6 @@ public class BlockNode extends Node {
 
     @Override
     protected LookAheadSet createLookAhead(Set<ActionBuilder> visitedBuilders) {
-        return LookAheadSet.get(PhraseTokens.START_BLOCK);
+        return LookAheadSet.get(source, PhraseTokens.START_BLOCK);
     }
 }

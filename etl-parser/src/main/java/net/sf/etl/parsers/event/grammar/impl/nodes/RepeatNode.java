@@ -67,7 +67,7 @@ public class RepeatNode extends ScopeNode {
             rc = inner;
         } else {
             rc = new LookAheadSet(inner);
-            rc.addEmpty();
+            rc.addEmpty(source);
         }
         return rc;
     }

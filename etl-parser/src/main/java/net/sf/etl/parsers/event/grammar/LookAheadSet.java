@@ -25,6 +25,7 @@
 package net.sf.etl.parsers.event.grammar;
 
 import net.sf.etl.parsers.PhraseTokens;
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.TokenKey;
 import net.sf.etl.parsers.characters.QuoteClass;
 
@@ -49,11 +50,11 @@ public class LookAheadSet {
     /**
      * Sample of empty entry
      */
-    public static final EmptyEntry EMPTY_ENTRY_SAMPLE = new EmptyEntry();
+    public static final EmptyEntry EMPTY_ENTRY_SAMPLE = new EmptyEntry(null);
     /**
      * Sample any token entry
      */
-    public static final AnyTokenEntry ANY_TOKEN_ENTRY_SAMPLE = new AnyTokenEntry();
+    public static final AnyTokenEntry ANY_TOKEN_ENTRY_SAMPLE = new AnyTokenEntry(null);
     /**
      * if true, the lookahead info is frozen
      */
@@ -102,12 +103,13 @@ public class LookAheadSet {
     /**
      * Get instance of lookahead info for phrase token
      *
-     * @param token a phrase token for lookahead
+     * @param location the location
+     * @param token    the phrase token for lookahead
      * @return lookahead information
      */
-    public static LookAheadSet get(PhraseTokens token) {
+    public static LookAheadSet get(SourceLocation location, PhraseTokens token) {
         final LookAheadSet rc = new LookAheadSet();
-        rc.add(token);
+        rc.add(location, token);
         return rc;
     }
 
@@ -128,56 +130,64 @@ public class LookAheadSet {
 
     /**
      * Add empty sequence to lookahead
+     *
+     * @param location the cause location for this entry
      */
-    public void addEmpty() {
+    public void addEmpty(SourceLocation location) {
         checkModifiable();
-        entries.add(EMPTY_ENTRY_SAMPLE);
+        entries.add(new EmptyEntry(location));
     }
 
     /**
+     * @param location the cause location for this node
      * @return LookAheadInfo that contains only empty value
      */
-    public static LookAheadSet getWithEmpty() {
+    public static LookAheadSet getWithEmpty(SourceLocation location) {
         final LookAheadSet rc = new LookAheadSet();
-        rc.addEmpty();
+        rc.addEmpty(location);
         return rc;
     }
 
     /**
      * Create look ahead set with key
      *
+     * @param location the cause location for this entry
      * @param tokenKey the token kind
      * @return get look ahead info that matches token of the specified kind
      */
-    public static LookAheadSet get(TokenKey tokenKey) {
-        return getWithText(tokenKey, ALL_TOKENS);
+    public static LookAheadSet get(SourceLocation location, TokenKey tokenKey) {
+        return getWithText(location, tokenKey, ALL_TOKENS);
     }
 
     /**
-     * @param tokenKey token kind
-     * @param text     a text to match
+     * Create a node with single text
+     *
+     * @param location the cause location
+     * @param tokenKey the token kind
+     * @param text     the text to match
      * @return get lookahead info that matches specific special
      */
-    public static LookAheadSet getWithText(TokenKey tokenKey, String text) {
+    public static LookAheadSet getWithText(SourceLocation location, TokenKey tokenKey, String text) {
         final LookAheadSet rc = new LookAheadSet();
-        rc.addToken(tokenKey, text);
+        rc.addToken(tokenKey, text, location);
         return rc;
     }
 
     /**
      * Add token to match
      *
-     * @param tokenKey a token kind to match
-     * @param text     a text to match
+     * @param tokenKey the token kind to match
+     * @param text     the text to match
+     * @param location the location that needs this token
      */
-    private void addToken(TokenKey tokenKey, String text) {
+    private void addToken(TokenKey tokenKey, String text, SourceLocation location) {
         checkModifiable();
         if (text != null) {
-            entries.add(new KeywordEntry(Keyword.forText(text, tokenKey)));
+            entries.add(new KeywordEntry(location, Keyword.forText(text, tokenKey)));
         } else if (tokenKey != null) {
-            entries.add(new TokenKeyEntry(tokenKey));
+            entries.add(new TokenKeyEntry(location, tokenKey));
         } else {
-            entries.add(new AnyTokenEntry());
+            entries.add(new AnyTokenEntry(location));
         }
     }
 
@@ -212,11 +222,12 @@ public class LookAheadSet {
     /**
      * Add phrase token
      *
-     * @param token a token to add
+     * @param location the location that needs this token
+     * @param token    the token to add
      */
-    public void add(PhraseTokens token) {
+    public void add(SourceLocation location, PhraseTokens token) {
         checkModifiable();
-        entries.add(new PhraseEntry(token));
+        entries.add(new PhraseEntry(location, token));
     }
 
     /**
@@ -234,7 +245,7 @@ public class LookAheadSet {
      * @return true if look ahead contains token
      */
     public boolean contains(PhraseTokens token) {
-        return entries.contains(new PhraseEntry(token));
+        return entries.contains(new PhraseEntry(null, token));
     }
 
     /**
@@ -246,9 +257,6 @@ public class LookAheadSet {
     }
 
 
-    /**
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         // NOTE POST 0.2: this value is used in syntax error reporting. Make it
@@ -260,8 +268,19 @@ public class LookAheadSet {
      * The entry in look ahead set
      */
     public abstract static class Entry {
-        // TODO private final SourceLocation sourceLocation; // in order to report errors better
+        /**
+         * The source location
+         */
+        public final SourceLocation location;
 
+        /**
+         * The source location
+         *
+         * @param location the location
+         */
+        protected Entry(SourceLocation location) {
+            this.location = location;
+        }
     }
 
     /**
@@ -272,6 +291,15 @@ public class LookAheadSet {
          * The hash code to use for all instances of this entry
          */
         private static final int HASH = 2222;
+
+        /**
+         * The location that caused empty entry
+         *
+         * @param location the location
+         */
+        public EmptyEntry(SourceLocation location) {
+            super(location);
+        }
 
         @Override
         public boolean equals(Object o) {
@@ -301,6 +329,15 @@ public class LookAheadSet {
          * The hash code to use for all instances of this entry
          */
         private static final int HASH = 3333;
+
+        /**
+         * The constructor from location
+         *
+         * @param location the location
+         */
+        public AnyTokenEntry(SourceLocation location) {
+            super(location);
+        }
 
         @Override
         public boolean equals(Object o) {
@@ -334,9 +371,11 @@ public class LookAheadSet {
         /**
          * The constructor
          *
-         * @param key the token key
+         * @param location the location
+         * @param key      the token key
          */
-        public TokenKeyEntry(TokenKey key) {
+        public TokenKeyEntry(SourceLocation location, TokenKey key) {
+            super(location);
             if (key == null) {
                 throw new IllegalArgumentException("Key cannot be null");
             }
@@ -398,9 +437,11 @@ public class LookAheadSet {
         /**
          * The constructor
          *
-         * @param kind the token kind
+         * @param location the location that caused this entry to appear
+         * @param kind     the token kind
          */
-        public PhraseEntry(PhraseTokens kind) {
+        public PhraseEntry(SourceLocation location, PhraseTokens kind) {
+            super(location);
             if (kind == null) {
                 throw new IllegalArgumentException("Kind must not be null");
             }
@@ -443,9 +484,11 @@ public class LookAheadSet {
         /**
          * The constructor
          *
-         * @param keyword the keyword
+         * @param location the location that caused this entry to appear
+         * @param keyword  the keyword
          */
-        public KeywordEntry(Keyword keyword) {
+        public KeywordEntry(SourceLocation location, Keyword keyword) {
+            super(location);
             if (keyword == null) {
                 throw new IllegalArgumentException("Keyword must not be null");
             }
