@@ -25,6 +25,8 @@
 
 package net.sf.etl.parsers.event.impl.term.action;
 
+import net.sf.etl.parsers.SourceLocation;
+
 /**
  * The simple action just have a next element
  */
@@ -36,17 +38,21 @@ public abstract class SimpleAction extends Action {
 
     /**
      * The constructor
+     *
+     * @param source the source location in the grammar that caused this node creation
      */
-    public SimpleAction() {
-        // do nothing
+    public SimpleAction(SourceLocation source) {
+        super(source);
     }
 
     /**
      * The constructor
      *
-     * @param next the next action
+     * @param source the source location in the grammar that caused this node creation
+     * @param next   the next action
      */
-    public SimpleAction(Action next) {
+    public SimpleAction(SourceLocation source, Action next) {
+        super(source);
         this.next = next;
     }
 }

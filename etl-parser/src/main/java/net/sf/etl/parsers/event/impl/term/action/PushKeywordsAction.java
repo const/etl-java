@@ -25,6 +25,7 @@
 
 package net.sf.etl.parsers.event.impl.term.action;
 
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.KeywordContext;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 
@@ -37,8 +38,15 @@ public class PushKeywordsAction extends SimpleAction {
      */
     public KeywordContext keywordContext;
 
-    public PushKeywordsAction(KeywordContext context, Action next) {
-        super(next);
+    /**
+     * The constructor
+     *
+     * @param source  the source location in the grammar that caused this node creation
+     * @param context the keyword context
+     * @param next    the next action
+     */
+    public PushKeywordsAction(SourceLocation source, KeywordContext context, Action next) {
+        super(source, next);
         keywordContext = context;
     }
 

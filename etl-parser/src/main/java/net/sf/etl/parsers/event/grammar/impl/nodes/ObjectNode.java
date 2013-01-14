@@ -67,13 +67,13 @@ public class ObjectNode extends TermScopeNode {
 
     @Override
     protected Action buildStartState(ActionBuilder b, Action bodyStates, Action errorExit, Action errorCloseState) {
-        return ActionUtil.startObject(b, bodyStates, name, wrappers, isAtMark());
+        return ActionUtil.startObject(source, bodyStates, name, wrappers, isAtMark());
     }
 
 
     @Override
     protected Action buildEndState(ActionBuilder b, Action normalExit, Action errorExit) {
-        return ActionUtil.endObject(b, normalExit, name, wrappers);
+        return ActionUtil.endObject(source, normalExit, name, wrappers);
     }
 
 }

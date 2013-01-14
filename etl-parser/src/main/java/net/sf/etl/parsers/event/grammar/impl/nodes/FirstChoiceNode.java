@@ -57,7 +57,7 @@ public class FirstChoiceNode extends GroupNode {
         }
         Collections.reverse(nodes);
         for (Node node : nodes) {
-            ChoiceBuilder choiceBuilder = new ChoiceBuilder();
+            ChoiceBuilder choiceBuilder = new ChoiceBuilder(source);
             choiceBuilder.setFallback(current);
             LookAheadSet la = new LookAheadSet(node.buildLookAhead(visitedSet));
             la.removeEmpty();

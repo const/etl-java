@@ -25,8 +25,8 @@
 
 package net.sf.etl.parsers.event.impl.term.action.buildtime;
 
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
-import net.sf.etl.parsers.event.impl.term.action.Action;
 import net.sf.etl.parsers.event.impl.term.action.ActionState;
 import net.sf.etl.parsers.event.impl.term.action.SimpleAction;
 
@@ -37,18 +37,12 @@ public class NopAction extends SimpleAction {
 
     /**
      * The constructor
-     */
-    public NopAction() {
-        // do nothing
-    }
-
-    /**
-     * The constructor
      *
-     * @param next the next action
+     * @param source the source location in the grammar that caused this node creation
      */
-    public NopAction(Action next) {
-        super(next);
+    public NopAction(SourceLocation source) {
+        // do nothing
+        super(source);
     }
 
     @Override

@@ -67,11 +67,10 @@ public class BlockNode extends Node {
     @Override
     public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit) {
         // TODO use statement sequence production, and report location for block
-        final CallAction callAction = new CallAction();
-        callAction.source = source;
+        final CallAction callAction = new CallAction(source);
         b.getLinker().linkBlock(callAction, context);
         callAction.success = normalExit;
-        callAction.failure = new UnreachableAction("The errors are unreachable after block!");
+        callAction.failure = new UnreachableAction(source, "The errors are unreachable after block!");
         return callAction;
     }
 

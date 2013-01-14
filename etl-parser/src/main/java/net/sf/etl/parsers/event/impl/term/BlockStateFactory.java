@@ -143,7 +143,7 @@ public class BlockStateFactory implements TermParserStateFactory {
                     mode = AFTER_BLOCK;
                     break;
                 case AFTER_BLOCK:
-                    if (!TermParserContextUtil.skipIgnorable(context, true)) {
+                    if (!TermParserContextUtil.skipIgnorable(null, context, true)) {
                         context.exit(this, true);
                     }
                     break;

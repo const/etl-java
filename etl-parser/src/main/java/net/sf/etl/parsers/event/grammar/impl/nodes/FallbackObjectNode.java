@@ -61,9 +61,9 @@ public class FallbackObjectNode extends ScopeNode {
     @Override
     public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit) {
         assert name != null : "Fallback scope should have been initialized";
-        errorExit = ActionUtil.endObject(b, errorExit, name, wrappers);
-        errorExit = new CommitMarkAction(errorExit);
-        errorExit = ActionUtil.startObject(b, errorExit, name, wrappers, true);
+        errorExit = ActionUtil.endObject(source, errorExit, name, wrappers);
+        errorExit = new CommitMarkAction(source, errorExit);
+        errorExit = ActionUtil.startObject(source, errorExit, name, wrappers, true);
         return innerNode().buildActions(b, normalExit, errorExit);
     }
 }

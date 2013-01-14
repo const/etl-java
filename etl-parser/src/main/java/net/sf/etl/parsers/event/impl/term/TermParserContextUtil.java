@@ -76,18 +76,19 @@ public class TermParserContextUtil {
     /**
      * Skip ignorable token
      *
+     * @param source            the source location
      * @param context           the context
      * @param skipDocumentation if true, the documentation tokens are skipped as well
      * @return true if current token was skipped and this method should be called again when
      *         next phrase token become available
      */
-    public static boolean skipIgnorable(TermParserContext context, boolean skipDocumentation) {
+    public static boolean skipIgnorable(SourceLocation source, TermParserContext context, boolean skipDocumentation) {
         if (context.isAdvanceNeeded()) {
             PhraseToken t = context.current();
             switch (t.kind()) {
                 case SOFT_STATEMENT_END:
                     if (!context.isScriptMode() || !context.canSoftEndStatement()) {
-                        context.produce(new TermToken(Terms.IGNORABLE, SyntaxRole.IGNORABLE, null, t, t.start(), t.end(), null));
+                        context.produce(new TermToken(Terms.IGNORABLE, SyntaxRole.IGNORABLE, null, t, t.start(), t.end(), source, null));
                         context.consumePhraseToken();
                         return true;
                     }
@@ -103,7 +104,7 @@ public class TermParserContextUtil {
                 case SIGNIFICANT:
                     if (skipDocumentation) {
                         if (t.hasToken() && t.token().kind() == Tokens.DOC_COMMENT) {
-                            context.produce(new TermToken(Terms.IGNORABLE, SyntaxRole.DOCUMENTATION, null, t, t.start(), t.end(), null));
+                            context.produce(new TermToken(Terms.IGNORABLE, SyntaxRole.DOCUMENTATION, null, t, t.start(), t.end(), source, null));
                             context.consumePhraseToken();
                             return true;
                         }

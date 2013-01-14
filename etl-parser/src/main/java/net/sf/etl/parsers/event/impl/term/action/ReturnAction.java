@@ -25,6 +25,7 @@
 
 package net.sf.etl.parsers.event.impl.term.action;
 
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 /**
@@ -39,9 +40,11 @@ public class ReturnAction extends Action {
     /**
      * The constructor
      *
+     * @param source  the source location in the grammar that caused this node creation
      * @param success if true, the method is returning successfully
      */
-    public ReturnAction(boolean success) {
+    public ReturnAction(SourceLocation source, boolean success) {
+        super(source);
         this.success = success;
     }
 

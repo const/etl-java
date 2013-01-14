@@ -71,7 +71,7 @@ public class ErrorNode extends Node {
 
     @Override
     public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit) {
-        return new ReportErrorAction(errorExit, errorId, errorArgs);
+        return new ReportErrorAction(source, errorExit, errorId, errorArgs);
     }
 
     @Override

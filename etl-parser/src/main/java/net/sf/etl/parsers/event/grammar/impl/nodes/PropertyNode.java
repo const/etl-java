@@ -75,13 +75,13 @@ public class PropertyNode extends TermScopeNode {
 
     @Override
     protected Action buildStartState(ActionBuilder b, Action bodyStates, Action errorExit, Action errorCloseState) {
-        return new StructuralTokenAction(bodyStates, isList ? Terms.LIST_PROPERTY_START : Terms.PROPERTY_START,
+        return new StructuralTokenAction(source, bodyStates, isList ? Terms.LIST_PROPERTY_START : Terms.PROPERTY_START,
                 name, isAtMark());
     }
 
     @Override
     protected Action buildEndState(ActionBuilder b, Action normalExit, Action errorExit) {
-        return new StructuralTokenAction(normalExit, isList ? Terms.LIST_PROPERTY_END
+        return new StructuralTokenAction(source, normalExit, isList ? Terms.LIST_PROPERTY_END
                 : Terms.PROPERTY_END, name, false);
     }
 

@@ -51,11 +51,11 @@ public class SequenceNode extends GroupNode {
             head = node.buildActions(b, head, errorExit);
             if (!wasNonEmpty && !node.matchesEmpty() && i.hasPrevious()) {
                 wasNonEmpty = true;
-                head = new EnableSoftEndAction(head);
+                head = new EnableSoftEndAction(source, head);
             }
         }
         if (wasNonEmpty) {
-            head = new DisableSoftEndAction(head);
+            head = new DisableSoftEndAction(source, head);
         }
         return head;
     }

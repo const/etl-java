@@ -40,10 +40,10 @@ import java.util.Set;
 public class RepeatNode extends ScopeNode {
     @Override
     public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit) {
-        final NopAction loopExit = new NopAction();
+        final NopAction loopExit = new NopAction(source);
         final Action inner = innerNode().buildActions(b, loopExit, errorExit);
         LookAheadSet la = innerNode().buildLookAhead(new HashSet<ActionBuilder>());
-        final ChoiceBuilder choiceBuilder = new ChoiceBuilder().setFallback(normalExit);
+        final ChoiceBuilder choiceBuilder = new ChoiceBuilder(source).setFallback(normalExit);
         final Action rc;
         // if inner node matches empty, it is tried at least once because it
         // could contain object creation expressions.

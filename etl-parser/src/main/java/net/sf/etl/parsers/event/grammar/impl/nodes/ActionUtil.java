@@ -26,8 +26,8 @@ package net.sf.etl.parsers.event.grammar.impl.nodes;
 
 import net.sf.etl.parsers.ObjectName;
 import net.sf.etl.parsers.PropertyName;
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.Terms;
-import net.sf.etl.parsers.event.grammar.impl.ActionBuilder;
 import net.sf.etl.parsers.event.grammar.impl.flattened.WrapperLink;
 import net.sf.etl.parsers.event.impl.term.action.Action;
 import net.sf.etl.parsers.event.impl.term.action.StructuralTokenAction;
@@ -48,34 +48,35 @@ class ActionUtil {
     /**
      * Start object states
      *
-     * @param b          the state machine builder
+     * @param source     the source location that defined this action
      * @param bodyStates the body states
      * @param name       the name of object
      * @param wrappers   the wrappers of the object
      * @param atMark     if true, object should be started at mark
      * @return a report object state
      */
-    static StructuralTokenAction startObject(ActionBuilder b, Action bodyStates, ObjectName name, WrapperLink wrappers,
+    static StructuralTokenAction startObject(SourceLocation source, Action bodyStates,
+                                             ObjectName name, WrapperLink wrappers,
                                              boolean atMark) {
-        return new StructuralTokenAction(startIncludeWrappers(b, bodyStates, wrappers),
+        return new StructuralTokenAction(source, startIncludeWrappers(bodyStates, wrappers),
                 Terms.OBJECT_START, name, atMark);
     }
 
     /**
      * Start include wrappers associated with this object
      *
-     * @param b          the builder that is used to get names
      * @param bodyStates the body states
      * @param wrappers   the wrappers to process
      * @return a new begin state
      */
-    private static Action startIncludeWrappers(ActionBuilder b, Action bodyStates, WrapperLink wrappers) {
+    private static Action startIncludeWrappers(Action bodyStates, WrapperLink wrappers) {
         if (wrappers != null) {
             final ObjectName wrapperObject = new ObjectName(wrappers.namespace(), wrappers.name());
             final PropertyName wrapperProperty = new PropertyName(wrappers.property());
-            return startIncludeWrappers(b,
+            return startIncludeWrappers(
                     new StructuralTokenAction(
-                            new StructuralTokenAction(bodyStates, Terms.OBJECT_START, wrapperObject, true),
+                            wrappers.propertyLocation(),
+                            new StructuralTokenAction(wrappers.objectLocation(), bodyStates, Terms.OBJECT_START, wrapperObject, true),
                             Terms.PROPERTY_START, wrapperProperty, true),
                     wrappers.innerWrapper());
         }
@@ -85,31 +86,31 @@ class ActionUtil {
     /**
      * Generate end object states
      *
-     * @param b          the state machine builder
+     * @param source     the source location that defined this action
      * @param normalExit the exit state
      * @param name       the name of object
      * @param wrappers   the wrappers of the object
      * @return the generated state
      */
-    static StructuralTokenAction endObject(ActionBuilder b, Action normalExit, ObjectName name, WrapperLink wrappers) {
-        return new StructuralTokenAction(endIncludeWrappers(b, normalExit, wrappers), Terms.OBJECT_END, name, false);
+    static StructuralTokenAction endObject(SourceLocation source, Action normalExit, ObjectName name, WrapperLink wrappers) {
+        return new StructuralTokenAction(source, endIncludeWrappers(normalExit, wrappers), Terms.OBJECT_END, name, false);
     }
 
     /**
      * End include wrappers associated with this object
      *
-     * @param b        the builder that is used to get names
      * @param next     the next states
      * @param wrappers the wrappers to process
      * @return the new begin state
      */
-    private static Action endIncludeWrappers(ActionBuilder b, Action next, WrapperLink wrappers) {
+    private static Action endIncludeWrappers(Action next, WrapperLink wrappers) {
         if (wrappers != null) {
-            next = endIncludeWrappers(b, next, wrappers.innerWrapper());
+            next = endIncludeWrappers(next, wrappers.innerWrapper());
             final ObjectName wrapperObject = new ObjectName(wrappers.namespace(), wrappers.name());
             final PropertyName wrapperProperty = new PropertyName(wrappers.property());
             return new StructuralTokenAction(
-                    new StructuralTokenAction(next, Terms.OBJECT_END, wrapperObject, false),
+                    wrappers.propertyLocation(),
+                    new StructuralTokenAction(wrappers.objectLocation(), next, Terms.OBJECT_END, wrapperObject, false),
                     Terms.PROPERTY_END, wrapperProperty, false);
         }
         return next;

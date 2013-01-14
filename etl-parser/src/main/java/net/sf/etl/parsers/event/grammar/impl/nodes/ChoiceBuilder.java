@@ -26,6 +26,7 @@
 package net.sf.etl.parsers.event.grammar.impl.nodes;
 
 import net.sf.etl.parsers.PhraseTokens;
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.LookAheadSet;
 import net.sf.etl.parsers.event.grammar.impl.ActionBuilder;
 import net.sf.etl.parsers.event.impl.term.action.Action;
@@ -45,9 +46,22 @@ public class ChoiceBuilder {
      */
     private Action fallback;
     /**
+     * The source node
+     */
+    private final SourceLocation source;
+    /**
      * The choice options
      */
     private final ArrayList<ChoiceOption> options = new ArrayList<ChoiceOption>();
+
+    /**
+     * The constructor
+     *
+     * @param source the source location in the grammar that caused this node creation
+     */
+    public ChoiceBuilder(SourceLocation source) {
+        this.source = source;
+    }
 
     /**
      * Set fallback node that is executed when no choice are available
@@ -78,9 +92,9 @@ public class ChoiceBuilder {
      * @return the choice node
      */
     public Action build(ActionBuilder b) {
-        PhraseTokenChoiceAction phraseChoice = new PhraseTokenChoiceAction();
-        KeywordChoiceAction keywords = new KeywordChoiceAction();
-        TokenKeyChoiceAction tokens = new TokenKeyChoiceAction();
+        PhraseTokenChoiceAction phraseChoice = new PhraseTokenChoiceAction(source);
+        KeywordChoiceAction keywords = new KeywordChoiceAction(source);
+        TokenKeyChoiceAction tokens = new TokenKeyChoiceAction(source);
         phraseChoice.next.put(PhraseTokens.SIGNIFICANT, keywords);
         LookAheadSet la = new LookAheadSet();
         // do sanity check

@@ -25,6 +25,7 @@
 
 package net.sf.etl.parsers.event.impl.term.action.buildtime;
 
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 import net.sf.etl.parsers.event.impl.term.action.Action;
 import net.sf.etl.parsers.event.impl.term.action.ActionState;
@@ -41,17 +42,12 @@ public class UnreachableAction extends Action {
     /**
      * The constructor from message
      *
+     * @param source  the source location in the grammar that caused this node creation
      * @param message the message
      */
-    public UnreachableAction(String message) {
+    public UnreachableAction(SourceLocation source, String message) {
+        super(source);
         this.message = message;
-    }
-
-    /**
-     * The default constructor with null message
-     */
-    public UnreachableAction() {
-        this(null);
     }
 
     @Override

@@ -25,10 +25,7 @@
 
 package net.sf.etl.parsers.event.impl.term.action;
 
-import net.sf.etl.parsers.PhraseToken;
-import net.sf.etl.parsers.SyntaxRole;
-import net.sf.etl.parsers.TermToken;
-import net.sf.etl.parsers.Terms;
+import net.sf.etl.parsers.*;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 /**
@@ -47,12 +44,13 @@ public class ReportTokenAction extends SimpleAction {
     /**
      * The constructor
      *
-     * @param next the next action
-     * @param kind the kind of token
-     * @param role the role of token
+     * @param source the source location in the grammar that caused this node creation
+     * @param next   the next action
+     * @param kind   the kind of token
+     * @param role   the role of token
      */
-    public ReportTokenAction(Action next, Terms kind, SyntaxRole role) {
-        super(next);
+    public ReportTokenAction(SourceLocation source, Action next, Terms kind, SyntaxRole role) {
+        super(source, next);
         this.kind = kind;
         this.role = role;
     }
@@ -60,7 +58,7 @@ public class ReportTokenAction extends SimpleAction {
     @Override
     public void parseMore(TermParserContext context, ActionState state) {
         PhraseToken in = context.current();
-        TermToken out = new TermToken(kind, role, null, in, in.start(), in.end(), null);
+        TermToken out = new TermToken(kind, role, null, in, in.start(), in.end(), source, null);
         context.produce(out);
         context.consumePhraseToken();
         state.nextAction(next);

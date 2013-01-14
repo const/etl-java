@@ -26,12 +26,22 @@
 package net.sf.etl.parsers.event.impl.term.action;
 
 import net.sf.etl.parsers.PhraseTokens;
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 /**
  * The choice based on phrase token kind
  */
 public class PhraseTokenChoiceAction extends MapChoiceAction<PhraseTokens> {
+    /**
+     * The constructor
+     *
+     * @param source the source location in the grammar that caused this node creation
+     */
+    public PhraseTokenChoiceAction(SourceLocation source) {
+        super(source);
+    }
+
     @Override
     protected PhraseTokens key(TermParserContext context, ActionState state) {
         return context.current().kind();

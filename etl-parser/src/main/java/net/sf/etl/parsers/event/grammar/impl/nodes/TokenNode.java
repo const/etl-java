@@ -102,15 +102,15 @@ public class TokenNode extends Node {
         }
         // Redefine error. Note that general choice does own error reporting
         // and does not invokes this state in case of error.
-        final ReportErrorAction choiceErrorExit = new ReportErrorAction(errorExit, errorId, arg);
+        final ReportErrorAction choiceErrorExit = new ReportErrorAction(source, errorExit, errorId, arg);
         // skip ignorable tokens after this token. Note that when token is
         // not a doc comment, doc comments are treated as ignorable tokens.
-        Action head = new AdvanceAction(normalExit, tokenKey == null || tokenKey.kind() != Tokens.DOC_COMMENT);
+        Action head = new AdvanceAction(source, normalExit, tokenKey == null || tokenKey.kind() != Tokens.DOC_COMMENT);
         // advance to next token.
-        head = new AdvanceAction(head);
+        head = new AdvanceAction(head, source);
         // report token
-        head = new ReportTokenAction(head, termKind, role);
-        return new ChoiceBuilder().
+        head = new ReportTokenAction(source, head, termKind, role);
+        return new ChoiceBuilder(source).
                 setFallback(choiceErrorExit).
                 add(buildLookAhead(Collections.<ActionBuilder>emptySet()), head).
                 build(b);

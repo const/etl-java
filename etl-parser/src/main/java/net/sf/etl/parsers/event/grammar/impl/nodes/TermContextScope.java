@@ -94,15 +94,15 @@ public class TermContextScope extends CleanupScopeNode {
     @Override
     protected Action buildStartState(ActionBuilder b, Action bodyStates, Action errorExit, Action errorCloseState) {
         if (atMark == MarkMode.BEFORE_MARK) {
-            return new ReportBeforeMarkAction(bodyStates, startEvent, definition);
+            return new ReportBeforeMarkAction(bodyStates, startEvent, definition, source);
         } else {
-            return new StructuralTokenAction(bodyStates, startEvent, definition, atMark == MarkMode.AFTER_MARK);
+            return new StructuralTokenAction(source, bodyStates, startEvent, definition, atMark == MarkMode.AFTER_MARK);
         }
     }
 
     @Override
     protected Action buildEndState(ActionBuilder b, Action normalExit, Action errorExit) {
-        return new StructuralTokenAction(normalExit, endEvent, definition, false);
+        return new StructuralTokenAction(source, normalExit, endEvent, definition, false);
     }
 
     /**

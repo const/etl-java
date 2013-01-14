@@ -38,7 +38,16 @@ public abstract class Action {
     /**
      * The source of action
      */
-    public SourceLocation source;
+    public final SourceLocation source;
+
+    /**
+     * The action
+     *
+     * @param source the source location in the grammar that caused this node creation
+     */
+    protected Action(SourceLocation source) {
+        this.source = source;
+    }
 
     /**
      * Parse more elements

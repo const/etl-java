@@ -37,11 +37,11 @@ import net.sf.etl.parsers.event.impl.term.action.PushMarkAction;
 public class MarkedNode extends CleanupScopeNode {
     @Override
     protected Action buildStartState(ActionBuilder b, Action bodyStates, Action errorExit, Action errorCloseState) {
-        return new PushMarkAction(bodyStates);
+        return new PushMarkAction(source, bodyStates);
     }
 
     @Override
     protected Action buildEndState(ActionBuilder b, Action normalExit, Action errorExit) {
-        return new PopMarkAction(normalExit);
+        return new PopMarkAction(source, normalExit);
     }
 }

@@ -25,6 +25,7 @@
 
 package net.sf.etl.parsers.event.impl.term.action;
 
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 import java.util.HashMap;
@@ -41,6 +42,15 @@ public abstract class MapChoiceAction<T> extends Action {
      * The action performed if none of the alternatives matched
      */
     public Action fallback;
+
+    /**
+     * The constructor
+     *
+     * @param source the source location in the grammar that caused this node creation
+     */
+    public MapChoiceAction(SourceLocation source) {
+        super(source);
+    }
 
     @Override
     public void parseMore(TermParserContext context, ActionState state) {

@@ -25,6 +25,7 @@
 
 package net.sf.etl.parsers.event.impl.term.action;
 
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.KeywordContext;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 
@@ -40,11 +41,12 @@ public class PopKeywordsAction extends SimpleAction {
     /**
      * The constructor
      *
+     * @param source  the source location in the grammar that caused this node creation
      * @param context the context to pop
      * @param next    the next action
      */
-    public PopKeywordsAction(KeywordContext context, Action next) {
-        super(next);
+    public PopKeywordsAction(SourceLocation source, KeywordContext context, Action next) {
+        super(source, next);
         keywordContext = context;
     }
 

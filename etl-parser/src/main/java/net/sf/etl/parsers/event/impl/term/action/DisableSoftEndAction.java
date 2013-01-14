@@ -25,19 +25,22 @@
 
 package net.sf.etl.parsers.event.impl.term.action;
 
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 /**
  * Enable soft end for the segment
  */
 public class DisableSoftEndAction extends SimpleAction {
+
     /**
      * The constructor
      *
-     * @param next the next action
+     * @param source the source location in the grammar that caused this node creation
+     * @param next   the next action
      */
-    public DisableSoftEndAction(Action next) {
-        super(next);
+    public DisableSoftEndAction(SourceLocation source, Action next) {
+        super(source, next);
     }
 
     @Override

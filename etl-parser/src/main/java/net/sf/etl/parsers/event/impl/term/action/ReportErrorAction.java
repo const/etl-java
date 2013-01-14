@@ -45,8 +45,16 @@ public class ReportErrorAction extends SimpleAction {
      */
     private final List<Object> objects;
 
-    public ReportErrorAction(Action next, String errorId, Object... objects) {
-        super(next);
+    /**
+     * The report tokens action
+     *
+     * @param source  the source location in the grammar that caused this node creation
+     * @param next    the next action
+     * @param errorId the error id
+     * @param objects the error arguments
+     */
+    public ReportErrorAction(SourceLocation source, Action next, String errorId, Object... objects) {
+        super(source, next);
         this.errorId = errorId;
         this.objects = objects == null || objects.length == 0 ?
                 Collections.emptyList() :
@@ -59,6 +67,7 @@ public class ReportErrorAction extends SimpleAction {
         final TextPos pos = current.start();
         context.produce(new TermToken(Terms.SYNTAX_ERROR, SyntaxRole.UNKNOWN, null, null,
                 pos, pos,
+                source,
                 new ErrorInfo(errorId, objects,
                         new SourceLocation(pos, pos, context.parser().getSystemId()), null)));
     }

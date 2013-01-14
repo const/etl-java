@@ -112,7 +112,7 @@ public class SourceStateFactory implements TermParserStateFactory {
 
         @Override
         public void parseMore() {
-            if (TermParserContextUtil.skipIgnorable(context, false)) {
+            if (TermParserContextUtil.skipIgnorable(null, context, false)) {
                 return;
             }
             final PhraseToken current = context.current();

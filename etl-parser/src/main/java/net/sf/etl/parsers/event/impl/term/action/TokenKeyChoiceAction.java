@@ -26,6 +26,7 @@
 package net.sf.etl.parsers.event.impl.term.action;
 
 import net.sf.etl.parsers.PhraseToken;
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.TokenKey;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 
@@ -33,6 +34,15 @@ import net.sf.etl.parsers.event.grammar.TermParserContext;
  * The choice based on token kind
  */
 public class TokenKeyChoiceAction extends MapChoiceAction<TokenKey> {
+    /**
+     * The constructor
+     *
+     * @param source the source location in the grammar that caused this node creation
+     */
+    public TokenKeyChoiceAction(SourceLocation source) {
+        super(source);
+    }
+
     @Override
     protected TokenKey key(TermParserContext context, ActionState state) {
         PhraseToken t = context.current();

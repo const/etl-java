@@ -46,8 +46,8 @@ public class ChoiceNode extends GroupNode {
     public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit) {
         final HashSet<ActionBuilder> visitedSet = new HashSet<ActionBuilder>();
         final LookAheadSet choiceLa = buildLookAhead(new HashSet<ActionBuilder>());
-        ChoiceBuilder builder = new ChoiceBuilder();
-        builder.setFallback(new ReportErrorAction(errorExit,
+        ChoiceBuilder builder = new ChoiceBuilder(source);
+        builder.setFallback(new ReportErrorAction(source, errorExit,
                 "syntax.UnexpectedToken.expectingTokens",
                 choiceLa.toString()));
         for (Node node : nodes()) {

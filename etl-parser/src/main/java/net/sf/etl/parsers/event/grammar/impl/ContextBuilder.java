@@ -264,7 +264,7 @@ public class ContextBuilder {
                 if (def != s) {
                     b.startDefinition(def);
                 }
-                b.startObjectAtMark(definition, def.convertName(o.name), wrappers);
+                b.startObjectAtMark(o, def.convertName(o.name), wrappers);
                 b.commitMark(definition); // this statement tries to commit mark
                 // now body of root object is compiled
                 compileSyntax(new HashSet<DefView>(), b, o.syntax);

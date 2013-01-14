@@ -25,6 +25,7 @@
 
 package net.sf.etl.parsers.event.impl.term.action;
 
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 /**
@@ -34,10 +35,11 @@ public class EnableSoftEndAction extends SimpleAction {
     /**
      * The constructor from next action
      *
-     * @param next the next action
+     * @param source the source location in the grammar that caused this node creation
+     * @param next   the next action
      */
-    public EnableSoftEndAction(Action next) {
-        super(next);
+    public EnableSoftEndAction(SourceLocation source, Action next) {
+        super(source, next);
     }
 
     @Override

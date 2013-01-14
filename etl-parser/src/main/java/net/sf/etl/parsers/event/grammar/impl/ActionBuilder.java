@@ -666,7 +666,10 @@ public class ActionBuilder {
      */
     public void buildActions() {
         returnNode = returnNode.flatten();
-        targetFactory = new ActionStateFactory(returnNode.buildActions(this, new ReturnAction(true), new ReturnAction(false)));
+        targetFactory = new ActionStateFactory(
+                returnNode.buildActions(this,
+                        new ReturnAction(returnNode.source, true),
+                        new ReturnAction(returnNode.source, false)));
         for (CallAction referrer : referrers) {
             referrer.stateFactory = targetFactory;
         }

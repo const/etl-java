@@ -81,7 +81,7 @@ public class RecoveryStateFactory implements TermParserStateFactory {
 
         @Override
         public void parseMore() {
-            if (TermParserContextUtil.skipIgnorable(context, true)) {
+            if (TermParserContextUtil.skipIgnorable(null, context, true)) {
                 return;
             }
             if (blockSkip > 0) {

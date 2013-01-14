@@ -25,6 +25,7 @@
 
 package net.sf.etl.parsers.event.impl.term.action;
 
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.TermToken;
 import net.sf.etl.parsers.Terms;
 import net.sf.etl.parsers.TextPos;
@@ -50,13 +51,14 @@ public class StructuralTokenAction extends SimpleAction {
     /**
      * The constructor
      *
+     * @param source the source location in the grammar that caused this node creation
      * @param next   the next action
      * @param kind   the token kind
      * @param type   the structure type
      * @param atMark if true, the token is reported after mark
      */
-    public StructuralTokenAction(Action next, Terms kind, Object type, boolean atMark) {
-        super(next);
+    public StructuralTokenAction(SourceLocation source, Action next, Terms kind, Object type, boolean atMark) {
+        super(source, next);
         this.kind = kind;
         this.type = type;
         this.atMark = atMark;
@@ -67,10 +69,10 @@ public class StructuralTokenAction extends SimpleAction {
         if (atMark) {
             final TermToken termToken = context.peekObjectAtMark();
             TextPos start = termToken != null ? termToken.start() : context.current().start();
-            context.produceAfterMark(new TermToken(kind, null, type, null, start, start, null));
+            context.produceAfterMark(new TermToken(kind, null, type, null, start, start, source, null));
         } else {
             TextPos start = context.current().start();
-            context.produce(new TermToken(kind, null, type, null, start, start, null));
+            context.produce(new TermToken(kind, null, type, null, start, start, source, null));
         }
         state.nextAction(next);
     }

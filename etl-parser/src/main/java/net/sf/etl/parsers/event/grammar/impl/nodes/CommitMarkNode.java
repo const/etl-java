@@ -50,7 +50,7 @@ public class CommitMarkNode extends Node {
 
     @Override
     public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit) {
-        return new CommitMarkAction(normalExit);
+        return new CommitMarkAction(source, normalExit);
     }
 
     @Override

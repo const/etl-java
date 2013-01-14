@@ -47,13 +47,13 @@ public class KeywordScopeNode extends CleanupScopeNode {
     @Override
     protected Action buildStartState(ActionBuilder b, Action bodyStates, Action errorExit, Action errorCloseState) {
         ensureKeywordsGathered(b);
-        return new PushKeywordsAction(context, bodyStates);
+        return new PushKeywordsAction(source, context, bodyStates);
     }
 
     @Override
     protected Action buildEndState(ActionBuilder b, Action normalExit, Action errorExit) {
         ensureKeywordsGathered(b);
-        return new PopKeywordsAction(context, normalExit);
+        return new PopKeywordsAction(source, context, normalExit);
     }
 
     /**

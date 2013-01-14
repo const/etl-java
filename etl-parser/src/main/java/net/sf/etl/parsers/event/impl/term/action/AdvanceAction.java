@@ -25,6 +25,7 @@
 
 package net.sf.etl.parsers.event.impl.term.action;
 
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 import net.sf.etl.parsers.event.impl.term.TermParserContextUtil;
 
@@ -40,26 +41,28 @@ public class AdvanceAction extends SimpleAction {
     /**
      * The constructor
      *
+     * @param source            the source location in the grammar that caused this node creation
      * @param next              the next action
      * @param skipDocumentation if true doc comments are skipped
      */
-    public AdvanceAction(Action next, boolean skipDocumentation) {
-        super(next);
+    public AdvanceAction(SourceLocation source, Action next, boolean skipDocumentation) {
+        super(source, next);
         this.skipDocumentation = skipDocumentation;
     }
 
     /**
      * The constructor
      *
-     * @param next the next action
+     * @param next   the next action
+     * @param source the source location in the grammar that caused this node creation
      */
-    public AdvanceAction(Action next) {
-        this(next, true);
+    public AdvanceAction(Action next, SourceLocation source) {
+        this(source, next, true);
     }
 
     @Override
     public void parseMore(TermParserContext context, ActionState state) {
-        if (TermParserContextUtil.skipIgnorable(context, skipDocumentation)) return;
+        if (TermParserContextUtil.skipIgnorable(source, context, skipDocumentation)) return;
         state.nextAction(next);
     }
 

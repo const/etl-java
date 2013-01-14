@@ -25,6 +25,7 @@
 
 package net.sf.etl.parsers.event.impl.term.action;
 
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.Keyword;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 
@@ -46,6 +47,15 @@ public class KeywordChoiceAction extends Action {
      * The keyword that is not on the choice
      */
     public Action otherKeyword;
+
+    /**
+     * The constructor
+     *
+     * @param source the source location in the grammar that caused this node creation
+     */
+    public KeywordChoiceAction(SourceLocation source) {
+        super(source);
+    }
 
     @Override
     public void parseMore(TermParserContext context, ActionState state) {
