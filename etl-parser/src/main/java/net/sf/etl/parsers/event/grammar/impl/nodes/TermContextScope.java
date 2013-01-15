@@ -73,7 +73,7 @@ public class TermContextScope extends CleanupScopeNode {
      * @param atMark     if true, scope is started at the mark
      */
     public TermContextScope(Terms startEvent, Terms endEvent, Object definition, boolean atMark) {
-        this(startEvent, endEvent, definition, atMark ? MarkMode.AFTER_MARK : MarkMode.BEFORE_MARK);
+        this(startEvent, endEvent, definition, atMark ? MarkMode.AFTER_MARK : MarkMode.NORMAL);
     }
 
     /**

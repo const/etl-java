@@ -400,7 +400,7 @@ public class ActionBuilder {
      * @param e the element
      */
     public void startModifiers(Element e) {
-        startNode(e, new TermContextScope(Terms.MODIFIERS_START, Terms.MODIFIERS_END, null));
+        startNode(e, new TermContextScope(Terms.MODIFIERS_START, Terms.MODIFIERS_END, null, false));
     }
 
     /**
