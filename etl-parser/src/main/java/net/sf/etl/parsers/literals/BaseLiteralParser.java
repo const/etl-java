@@ -88,16 +88,6 @@ public class BaseLiteralParser {
     }
 
     /**
-     * The constructor
-     *
-     * @param inputText the input text
-     */
-    public BaseLiteralParser(String inputText) {
-        this(inputText, TextPos.START, "unknown");
-    }
-
-
-    /**
      * Look at codepoint relatively to the current, note that the method is doing a linear detection of
      * code points.
      *

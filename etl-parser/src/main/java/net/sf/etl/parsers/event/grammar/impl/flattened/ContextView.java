@@ -837,7 +837,7 @@ public class ContextView {
 
         @Override
         protected String errorId() {
-            return "grammar.Context.ContextImport.duplciateWrappersByGrammarInclude";
+            return "grammar.Context.ContextImport.duplicateWrappersByGrammarInclude";
         }
 
         @Override
@@ -860,7 +860,7 @@ public class ContextView {
         @Override
         protected ContextIncludeView includingDefinition(ContextView holder, ContextIncludeView definition) {
             final ContextIncludeView wrappingInclude = holder.contextIncludes.get(definition.includingContext().name());
-            assert wrappingInclude != null : "that is immediatly included context";
+            assert wrappingInclude != null : "that is immediately included context";
             return new ContextIncludeView(wrappingInclude, definition);
         }
 
@@ -871,7 +871,7 @@ public class ContextView {
 
         @Override
         protected String errorId() {
-            return "grammar.Context.ContextImport.duplciateWrappersByContextInclude";
+            return "grammar.Context.ContextImport.duplicateWrappersByContextInclude";
         }
 
         @Override

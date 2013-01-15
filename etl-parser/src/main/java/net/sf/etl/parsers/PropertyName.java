@@ -77,9 +77,6 @@ public final class PropertyName {
         return name != null ? name.hashCode() : 0;
     }
 
-    /**
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         return name;

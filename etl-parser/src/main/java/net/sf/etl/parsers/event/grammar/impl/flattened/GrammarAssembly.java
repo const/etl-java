@@ -166,12 +166,11 @@ public class GrammarAssembly {
     /**
      * Add error
      *
-     * @param grammarView the grammar where error happened
-     * @param element     the element in error
-     * @param errorId     the error id
-     * @param args        the error args
+     * @param element the element in error
+     * @param errorId the error id
+     * @param args    the error args
      */
-    public void error(GrammarView grammarView, Element element, String errorId, Object[] args) {
+    public void error(Element element, String errorId, Object[] args) {
         error(new ErrorInfo(errorId, Arrays.asList(args), element.location, null));
     }
 

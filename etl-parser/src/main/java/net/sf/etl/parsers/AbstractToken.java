@@ -55,23 +55,12 @@ public abstract class AbstractToken {
             throw new NullPointerException("Start must not be null");
         }
         if (end == null) {
-            throw new NullPointerException("Start must not be null");
+            throw new NullPointerException("End must not be null");
         }
         this.start = start;
         this.end = end;
         this.errorInfo = errorInfo;
     }
-
-    /**
-     * The constructor for non erroneous token
-     *
-     * @param start start position
-     * @param end   end position
-     */
-    protected AbstractToken(TextPos start, TextPos end) {
-        this(start, end, null);
-    }
-
 
     /**
      * @return a position of next character right after token

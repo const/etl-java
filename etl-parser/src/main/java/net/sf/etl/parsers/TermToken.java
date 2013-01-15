@@ -205,9 +205,6 @@ public final class TermToken extends AbstractToken {
         return hasErrors() || hasPhraseToken() && token().hasErrors() || hasLexicalToken() && token().token().hasErrors();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String toString() {
         return "Token[" + kind + " " + start() + "-" + end() + ", role=" + role

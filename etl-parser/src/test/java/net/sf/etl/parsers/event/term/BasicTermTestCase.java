@@ -68,11 +68,10 @@ public class BasicTermTestCase {
     /**
      * Read single term and check for the kind
      *
-     * @param term the term to pase
+     * @param term the term to parse
      */
     protected TermToken read(Terms term) {
-        boolean haveErrors = false;
-        return read(term, haveErrors);
+        return read(term, false);
     }
 
     /**

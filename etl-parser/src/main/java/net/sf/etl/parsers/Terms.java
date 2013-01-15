@@ -79,7 +79,7 @@ public enum Terms {
     IGNORABLE,
     /**
      * this token kind is reported only if report_ignorable is true It is
-     * structural token that is required by syntax but which's value is not
+     * structural token that is required by syntax but whose value is not
      * mapped to any property. Modifiers w/o property are mapped to this event
      * too.
      */

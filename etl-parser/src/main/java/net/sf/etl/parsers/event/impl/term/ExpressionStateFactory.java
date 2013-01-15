@@ -25,7 +25,6 @@
 
 package net.sf.etl.parsers.event.impl.term;
 
-import net.sf.etl.parsers.PhraseToken;
 import net.sf.etl.parsers.event.grammar.KeywordContext;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 import net.sf.etl.parsers.event.grammar.TermParserState;
@@ -90,7 +89,6 @@ public class ExpressionStateFactory implements TermParserStateFactory {
 
             @Override
             public void parseMore() {
-                final PhraseToken current = context.current();
                 switch (state) {
                     case STARTING:
                         state = FINISHING;

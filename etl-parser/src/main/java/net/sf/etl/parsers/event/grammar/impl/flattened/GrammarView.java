@@ -303,7 +303,7 @@ public class GrammarView {
             } else if (m instanceof Namespace) {
                 final Namespace ns = (Namespace) m;
                 if (namespaceDeclarations.containsKey(ns.prefix.text())) {
-                    error(ns, "grammar.Grammar.duplicateNamespaceDeclation",
+                    error(ns, "grammar.Grammar.duplicateNamespaceDeclaration",
                             ns.prefix, namespaceDeclarations.get(ns.prefix.text()));
                 }
                 try {
@@ -342,7 +342,7 @@ public class GrammarView {
      * @param args    the error arguments
      */
     public void error(Element e, String errorId, Object... args) {
-        assembly.error(this, e, errorId, args);
+        assembly.error(e, errorId, args);
     }
 
 

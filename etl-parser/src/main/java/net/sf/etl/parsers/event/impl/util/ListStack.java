@@ -47,7 +47,7 @@ public class ListStack<E> extends ArrayList<E> {
     }
 
     /**
-     * @return poped item
+     * @return popped item
      */
     public E pop() {
         final E remove = remove(size() - 1);

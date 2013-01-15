@@ -353,18 +353,13 @@ public class TermParserImpl implements TermParser {
 
         @Override
         public void exit(TermParserState state, boolean success) {
-            exitSystemState(state);
-            if (stateStack != null) {
-                stateStack.setCallStatus(success);
-            }
-        }
-
-        @Override
-        public void exitSystemState(TermParserState state) {
             if (state != stateStack) {
                 throw new IllegalArgumentException("Exiting wrong state");
             }
             stateStack = state.getPreviousState();
+            if (stateStack != null) {
+                stateStack.setCallStatus(success);
+            }
         }
 
         @Override
@@ -375,11 +370,6 @@ public class TermParserImpl implements TermParser {
         @Override
         public boolean isAdvanceNeeded() {
             return advanceNeeded;
-        }
-
-        @Override
-        public boolean isMoreTokensNeeded() {
-            return queue.hasMark();
         }
 
         @Override
@@ -636,9 +626,6 @@ public class TermParserImpl implements TermParser {
             first = link;
         }
 
-        /**
-         * @see java.lang.Object#toString()
-         */
         @Override
         public String toString() {
             final StringBuilder rc = new StringBuilder();

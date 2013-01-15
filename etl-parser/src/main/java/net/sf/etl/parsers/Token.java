@@ -24,8 +24,6 @@
  */
 package net.sf.etl.parsers;
 
-import net.sf.etl.parsers.characters.QuoteClass;
-
 /**
  * Objects of this class represent tokens in token stream. The object is
  * immutable provided that error arguments are immutable if it is a error token.
@@ -81,22 +79,12 @@ public final class Token extends AbstractToken {
     }
 
     /**
-     * @return quote character for string
-     */
-    public QuoteClass quoteClass() {
-        return key.quoteClass();
-    }
-
-    /**
      * @return suffix for numeric literal with suffix
      */
     public String suffix() {
         return key.suffix();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String toString() {
         return "Token["

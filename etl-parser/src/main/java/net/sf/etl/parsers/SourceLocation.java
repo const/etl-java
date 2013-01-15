@@ -95,9 +95,6 @@ public final class SourceLocation {
         return shortSystemId() + start + "-" + end;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String toString() {
         final StringBuilder rc = new StringBuilder();

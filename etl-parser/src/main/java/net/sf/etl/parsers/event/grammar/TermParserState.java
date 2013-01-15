@@ -121,15 +121,6 @@ public abstract class TermParserState {
     public abstract void parseMore();
 
     /**
-     * Call other state, so the next request will be handled by new state
-     *
-     * @param factory the factory that creates the state
-     */
-    protected void call(TermParserStateFactory factory) {
-        context.call(factory);
-    }
-
-    /**
      * Exit for this state, so the previous state will be in control
      */
     protected void exit() {

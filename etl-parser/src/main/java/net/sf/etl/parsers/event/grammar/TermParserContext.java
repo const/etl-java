@@ -122,14 +122,6 @@ public interface TermParserContext {
     void exit(TermParserState state, boolean success);
 
     /**
-     * Exist that just exist the current state, without setting call status,
-     * this is created for the special recovery states
-     *
-     * @param state the system state to drop
-     */
-    void exitSystemState(TermParserState state);
-
-    /**
      * Change state of flag is skip ignorable is needed
      */
     void advanced();
@@ -138,11 +130,6 @@ public interface TermParserContext {
      * @return true if skip ignorable is needed
      */
     boolean isAdvanceNeeded();
-
-    /**
-     * @return true if more tokens are needed to be produced
-     */
-    boolean isMoreTokensNeeded();
 
     /**
      * @return true if statement could be ended now by soft statement end

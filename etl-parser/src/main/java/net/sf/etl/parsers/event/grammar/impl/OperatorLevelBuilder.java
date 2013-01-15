@@ -303,7 +303,7 @@ public class OperatorLevelBuilder {
     }
 
     /**
-     * @return get buidler for the previous level
+     * @return get builder for the previous level
      */
     private ActionBuilder getPreviousBuilder() {
         final int previousPrecedence = level.previousLevel.precedence;

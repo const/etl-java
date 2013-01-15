@@ -84,7 +84,7 @@ public class LexerReader extends AbstractReaderImpl<Token> {
                     return false;
                 case INPUT_NEEDED:
                     buffer.compact();
-                    int n = 0;
+                    int n;
                     try {
                         n = input.read(buffer.array(), buffer.arrayOffset() + buffer.position(), buffer.limit() - buffer.position());
                     } catch (IOException e) {
