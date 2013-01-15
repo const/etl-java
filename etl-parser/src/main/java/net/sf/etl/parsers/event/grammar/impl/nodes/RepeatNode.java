@@ -27,9 +27,11 @@ package net.sf.etl.parsers.event.grammar.impl.nodes;
 import net.sf.etl.parsers.event.grammar.LookAheadSet;
 import net.sf.etl.parsers.event.grammar.impl.ActionBuilder;
 import net.sf.etl.parsers.event.impl.term.action.Action;
+import net.sf.etl.parsers.event.impl.term.action.RecoveryChoiceAction;
+import net.sf.etl.parsers.event.impl.term.action.RecoverySetupAction;
+import net.sf.etl.parsers.event.impl.term.action.RecoveryVoteAction;
 import net.sf.etl.parsers.event.impl.term.action.buildtime.NopAction;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -39,24 +41,26 @@ import java.util.Set;
  */
 public class RepeatNode extends ScopeNode {
     @Override
-    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit) {
-        final NopAction loopExit = new NopAction(source);
-        final Action inner = innerNode().buildActions(b, loopExit, errorExit);
-        LookAheadSet la = innerNode().buildLookAhead(new HashSet<ActionBuilder>());
-        final ChoiceBuilder choiceBuilder = new ChoiceBuilder(source).setFallback(normalExit);
-        final Action rc;
+    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit, Action recoveryTest) {
+        final NopAction loopEntry = new NopAction(source);
+        LookAheadSet la = innerNode().buildLookAhead();
         // if inner node matches empty, it is tried at least once because it
         // could contain object creation expressions.
         if (la.containsEmpty()) {
             la = new LookAheadSet(la);
             la.removeEmpty();
-            loopExit.next = choiceBuilder.add(la, inner).build(b);
-            rc = inner;
-        } else {
-            rc = choiceBuilder.add(la, inner).build(b);
-            loopExit.next = rc;
         }
-        return rc;
+        normalExit = new RecoverySetupAction(source, normalExit, recoveryTest);
+        errorExit = new RecoverySetupAction(source, errorExit, recoveryTest);
+        RecoveryChoiceAction recoveryChoiceAction = new RecoveryChoiceAction(source, errorExit);
+        recoveryChoiceAction.recoveryPath = loopEntry;
+        errorExit = recoveryChoiceAction;
+        recoveryTest = new ChoiceBuilder(source).
+                setFallback(recoveryTest).
+                add(la, new RecoveryVoteAction(source, recoveryChoiceAction)).build(b);
+        final Action inner = innerNode().buildActions(b, loopEntry, errorExit, recoveryTest);
+        loopEntry.next = new ChoiceBuilder(source).setFallback(normalExit).add(la, inner).build(b);
+        return loopEntry.next;
     }
 
     @Override

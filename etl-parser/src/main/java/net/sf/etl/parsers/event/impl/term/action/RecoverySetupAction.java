@@ -27,43 +27,37 @@ package net.sf.etl.parsers.event.impl.term.action;
 
 import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
-import net.sf.etl.parsers.event.impl.term.TermParserContextUtil;
 
 /**
- * The action that advances to the next significant token skipping whitespaces and comments
+ * The action that sets up recovery test
  */
-public class AdvanceAction extends SimpleAction {
+public class RecoverySetupAction extends SimpleAction {
     /**
-     * If true, doc comments are skipped
+     * New recovery test
      */
-    boolean skipDocumentation;
+    private final Action recoveryTest;
 
     /**
      * The constructor
      *
-     * @param source            the source location in the grammar that caused this node creation
-     * @param next              the next action
-     * @param skipDocumentation if true doc comments are skipped
+     * @param source       the source location in the grammar that caused this node creation
+     * @param next         the next action
+     * @param recoveryTest the recovery test
      */
-    public AdvanceAction(SourceLocation source, Action next, boolean skipDocumentation) {
+    public RecoverySetupAction(SourceLocation source, Action next, Action recoveryTest) {
         super(source, next);
-        this.skipDocumentation = skipDocumentation;
+        this.recoveryTest = recoveryTest;
     }
 
     /**
-     * The constructor
+     * Parse more elements
      *
-     * @param source the source location in the grammar that caused this node creation
-     * @param next   the next action
+     * @param context the context of the parser
+     * @param state   the context state
      */
-    public AdvanceAction(SourceLocation source, Action next) {
-        this(source, next, true);
-    }
-
     @Override
     public void parseMore(TermParserContext context, ActionState state) {
-        if (TermParserContextUtil.skipIgnorable(source, context, skipDocumentation)) return;
+        state.setRecoveryTest(recoveryTest);
         state.nextAction(next);
     }
-
 }

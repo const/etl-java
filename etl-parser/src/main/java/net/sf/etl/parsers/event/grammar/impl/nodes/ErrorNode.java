@@ -28,7 +28,6 @@ import net.sf.etl.parsers.event.grammar.Keyword;
 import net.sf.etl.parsers.event.grammar.LookAheadSet;
 import net.sf.etl.parsers.event.grammar.impl.ActionBuilder;
 import net.sf.etl.parsers.event.impl.term.action.Action;
-import net.sf.etl.parsers.event.impl.term.action.ReportErrorAction;
 
 import java.util.Set;
 
@@ -70,8 +69,8 @@ public class ErrorNode extends Node {
     }
 
     @Override
-    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit) {
-        return new ReportErrorAction(source, errorExit, errorId, errorArgs);
+    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit, Action recoveryTest) {
+        return ActionUtil.createReportErrorAction(source, errorExit, errorId, errorArgs);
     }
 
     @Override

@@ -70,6 +70,6 @@ public abstract class GroupNode extends Node {
                 i.set(next);
             }
         }
-        return nodes().size() == 1 ? nodes().get(0) : this;
+        return this;
     }
 }

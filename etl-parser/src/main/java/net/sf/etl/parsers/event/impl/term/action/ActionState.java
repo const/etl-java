@@ -31,7 +31,7 @@ import net.sf.etl.parsers.event.grammar.TermParserState;
 /**
  * The action state
  */
-public class ActionState extends TermParserState {
+public final class ActionState extends TermParserState {
     /**
      * The current action
      */
@@ -39,7 +39,11 @@ public class ActionState extends TermParserState {
     /**
      * The recovery state for the action state
      */
-    private ActionStateRecovery recovery;
+    private Action recoveryTest;
+    /**
+     * The recovery choice action
+     */
+    private RecoveryChoiceAction recoveryChoiceAction;
 
     /**
      * The constructor
@@ -55,17 +59,25 @@ public class ActionState extends TermParserState {
 
     @Override
     public RecoverableStatus canRecover() {
-        return RecoverableStatus.UNKNOWN;
+        recoveryChoiceAction = null;
+        Action suspended = current;
+        current = recoveryTest;
+        while (current != null) {
+            current.parseMore(context, this);
+        }
+        current = suspended;
+        return recoveryChoiceAction == null ? RecoverableStatus.UNKNOWN : RecoverableStatus.RECOVER;
     }
+
 
     @Override
     public void forceFinish() {
-        //TODO implement recovery
+        // do nothing
     }
 
     @Override
     public void startRecover() {
-        //TODO implement recovery
+        // do nothing
     }
 
 
@@ -81,5 +93,31 @@ public class ActionState extends TermParserState {
      */
     public void nextAction(Action next) {
         current = next;
+    }
+
+    /**
+     * @return check if the current point is a recovery point
+     */
+    boolean isRecoveryPoint(RecoveryChoiceAction recoveryChoiceAction) {
+        return this.recoveryChoiceAction == recoveryChoiceAction;
+    }
+
+    /**
+     * Set recovery point, it aborts recovery loop
+     *
+     * @param recoveryChoiceAction the recovery choice point
+     */
+    void setRecoveryPoint(RecoveryChoiceAction recoveryChoiceAction) {
+        this.recoveryChoiceAction = recoveryChoiceAction;
+        current = null;
+    }
+
+    /**
+     * The action
+     *
+     * @param action the recovery test action (might be null, if no recovery possible)
+     */
+    void setRecoveryTest(Action action) {
+        recoveryTest = action;
     }
 }

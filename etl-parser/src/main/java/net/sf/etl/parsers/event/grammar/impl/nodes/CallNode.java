@@ -60,7 +60,7 @@ public class CallNode extends Node {
     }
 
     @Override
-    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit) {
+    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit, Action recoveryTest) {
         final CallAction callAction = new CallAction(source);
         factoryBuilder.link(callAction);
         callAction.success = normalExit;

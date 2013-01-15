@@ -76,6 +76,79 @@ public class BootstrapGrammarsTest extends BasicTermTestCase {
 
 
     @Test
+    public void doctypeTestRecovery() {
+        final CompiledGrammar compiledGrammar = BootstrapGrammars.doctypeGrammar();
+        final DefinitionContext defaultContext = compiledGrammar.getDefaultContext();
+        assertEquals(StandardGrammars.VERSION, defaultContext.grammar().version());
+        assertEquals(StandardGrammars.DOCTYPE_GRAMMAR_NAME, defaultContext.grammar().name());
+        assertEquals("DoctypeContext", defaultContext.context());
+        assertNull(compiledGrammar.getErrors());
+        startCompiledGrammar(compiledGrammar, "doctype doctype public \"-//IDN etl.sf.net//ETL//Grammar 0.3.0\";");
+        read(Terms.STATEMENT_START);
+        read(Terms.OBJECT_START);
+        read(Terms.STRUCTURAL, "doctype");
+        read(Terms.IGNORABLE);
+        read(Terms.SYNTAX_ERROR, true);
+        read(Terms.IGNORABLE, "doctype");
+        read(Terms.IGNORABLE);
+        read(Terms.STRUCTURAL, "public");
+        read(Terms.IGNORABLE);
+        read(Terms.PROPERTY_START);
+        read(Terms.VALUE, "\"-//IDN etl.sf.net//ETL//Grammar 0.3.0\"");
+        read(Terms.PROPERTY_END);
+        read(Terms.OBJECT_END);
+        read(Terms.STATEMENT_END);
+        read(Terms.CONTROL);
+        read(Terms.CONTROL, ";");
+        read(Terms.EOF);
+    }
+
+
+    @Test
+    public void grammarTestRecovery() {
+        final CompiledGrammar compiledGrammar = BootstrapGrammars.grammarGrammar();
+        final DefinitionContext defaultContext = compiledGrammar.getDefaultContext();
+        assertEquals(StandardGrammars.VERSION, defaultContext.grammar().version());
+        assertEquals("net.sf.etl.grammars.Grammar", defaultContext.grammar().name());
+        assertEquals("GrammarSource", defaultContext.context());
+        assertNull(compiledGrammar.getErrors());
+        startCompiledGrammar(compiledGrammar, "grammar test1. .test2.\'test\' q{}");
+        read(Terms.STATEMENT_START);
+        read(Terms.OBJECT_START);
+        read(Terms.STRUCTURAL, "grammar");
+        read(Terms.IGNORABLE);
+        read(Terms.MODIFIERS_START);
+        read(Terms.MODIFIERS_END);
+        read(Terms.LIST_PROPERTY_START);
+        read(Terms.VALUE, "test1");
+        read(Terms.STRUCTURAL, ".");
+        read(Terms.IGNORABLE);
+        read(Terms.SYNTAX_ERROR, true);
+        read(Terms.STRUCTURAL, ".");
+        read(Terms.VALUE, "test2");
+        read(Terms.STRUCTURAL, ".");
+        read(Terms.SYNTAX_ERROR, true);
+        read(Terms.LIST_PROPERTY_END);
+        read(Terms.PROPERTY_START);
+        read(Terms.VALUE, "\'test\'");
+        read(Terms.IGNORABLE);
+        read(Terms.PROPERTY_END);
+        read(Terms.LIST_PROPERTY_START);
+        read(Terms.SYNTAX_ERROR, true);
+        read(Terms.IGNORABLE, "q");
+        read(Terms.BLOCK_START);
+        read(Terms.CONTROL, "{");
+        read(Terms.CONTROL, "}");
+        read(Terms.BLOCK_END);
+        read(Terms.LIST_PROPERTY_END);
+        read(Terms.OBJECT_END);
+        read(Terms.STATEMENT_END);
+        read(Terms.CONTROL);
+        read(Terms.EOF);
+    }
+
+
+    @Test
     public void defaultTest() {
         final CompiledGrammar compiledGrammar = BootstrapGrammars.defaultGrammar();
         final DefinitionContext defaultContext = compiledGrammar.getDefaultContext();

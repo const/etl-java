@@ -49,7 +49,7 @@ public class CommitMarkNode extends Node {
     }
 
     @Override
-    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit) {
+    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit, Action recoveryTest) {
         return new CommitMarkAction(source, normalExit);
     }
 

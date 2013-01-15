@@ -38,7 +38,7 @@ import java.util.*;
  */
 public class FirstChoiceNode extends GroupNode {
     @Override
-    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit) {
+    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit, Action recoveryTest) {
         final HashSet<ActionBuilder> visitedSet = new HashSet<ActionBuilder>();
         ArrayList<Node> nodes = new ArrayList<Node>(nodes());
         Action current = null;
@@ -46,14 +46,14 @@ public class FirstChoiceNode extends GroupNode {
             for (ListIterator<Node> i = nodes().listIterator(nodes().size()); i.hasPrevious(); ) {
                 Node node = i.previous();
                 if (node.matchesEmpty()) {
-                    current = node.buildActions(b, normalExit, errorExit);
+                    current = node.buildActions(b, normalExit, errorExit, recoveryTest);
                     break;
                 }
             }
             assert current != null;
         } else {
             Node node = nodes().remove(nodes().size() - 1);
-            current = node.buildActions(b, normalExit, errorExit);
+            current = node.buildActions(b, normalExit, errorExit, recoveryTest);
         }
         Collections.reverse(nodes);
         for (Node node : nodes) {
@@ -61,7 +61,7 @@ public class FirstChoiceNode extends GroupNode {
             choiceBuilder.setFallback(current);
             LookAheadSet la = new LookAheadSet(node.buildLookAhead(visitedSet));
             la.removeEmpty();
-            choiceBuilder.add(la, node.buildActions(b, normalExit, errorExit));
+            choiceBuilder.add(la, node.buildActions(b, normalExit, errorExit, recoveryTest));
             current = choiceBuilder.build(b);
         }
         return current;
@@ -86,5 +86,11 @@ public class FirstChoiceNode extends GroupNode {
             rc.addAll(node.buildLookAhead(visitedBuilders));
         }
         return rc;
+    }
+
+    @Override
+    public Node flatten() {
+        final FirstChoiceNode node = (FirstChoiceNode) super.flatten();
+        return node.nodes().size() == 1 ? nodes().get(0) : this;
     }
 }

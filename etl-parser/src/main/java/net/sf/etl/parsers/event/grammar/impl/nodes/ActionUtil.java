@@ -29,7 +29,10 @@ import net.sf.etl.parsers.PropertyName;
 import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.Terms;
 import net.sf.etl.parsers.event.grammar.impl.flattened.WrapperLink;
+import net.sf.etl.parsers.event.impl.term.RecoveryStateFactory;
 import net.sf.etl.parsers.event.impl.term.action.Action;
+import net.sf.etl.parsers.event.impl.term.action.CallAction;
+import net.sf.etl.parsers.event.impl.term.action.ReportErrorAction;
 import net.sf.etl.parsers.event.impl.term.action.StructuralTokenAction;
 
 /**
@@ -114,5 +117,22 @@ class ActionUtil {
                     Terms.PROPERTY_END, wrapperProperty, false);
         }
         return next;
+    }
+
+    /**
+     * Create an action that reports an error and start recovery process
+     *
+     * @param source    the source to report
+     * @param errorExit the error exit
+     * @param errorId   the error id
+     * @param args      the arguments
+     * @return the error reporting action
+     */
+    public static ReportErrorAction createReportErrorAction(SourceLocation source, Action errorExit, String errorId, Object... args) {
+        CallAction recovery = new CallAction(source);
+        recovery.stateFactory = RecoveryStateFactory.INSTANCE;
+        recovery.success = errorExit;
+        recovery.failure = errorExit;
+        return new ReportErrorAction(source, recovery, errorId, args);
     }
 }

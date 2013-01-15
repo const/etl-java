@@ -70,5 +70,6 @@ public class ReportErrorAction extends SimpleAction {
                 source,
                 new ErrorInfo(errorId, objects,
                         new SourceLocation(pos, pos, context.parser().getSystemId()), null)));
+        state.nextAction(next);
     }
 }

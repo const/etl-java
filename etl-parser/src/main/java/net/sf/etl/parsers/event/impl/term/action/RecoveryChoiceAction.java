@@ -27,28 +27,15 @@ package net.sf.etl.parsers.event.impl.term.action;
 
 import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
-import net.sf.etl.parsers.event.impl.term.TermParserContextUtil;
 
 /**
- * The action that advances to the next significant token skipping whitespaces and comments
+ * The recovery choice action
  */
-public class AdvanceAction extends SimpleAction {
+public class RecoveryChoiceAction extends SimpleAction {
     /**
-     * If true, doc comments are skipped
+     * The recovery path
      */
-    boolean skipDocumentation;
-
-    /**
-     * The constructor
-     *
-     * @param source            the source location in the grammar that caused this node creation
-     * @param next              the next action
-     * @param skipDocumentation if true doc comments are skipped
-     */
-    public AdvanceAction(SourceLocation source, Action next, boolean skipDocumentation) {
-        super(source, next);
-        this.skipDocumentation = skipDocumentation;
-    }
+    public Action recoveryPath;
 
     /**
      * The constructor
@@ -56,14 +43,18 @@ public class AdvanceAction extends SimpleAction {
      * @param source the source location in the grammar that caused this node creation
      * @param next   the next action
      */
-    public AdvanceAction(SourceLocation source, Action next) {
-        this(source, next, true);
+    public RecoveryChoiceAction(SourceLocation source, Action next) {
+        super(source, next);
     }
 
+    /**
+     * Parse more elements
+     *
+     * @param context the context of the parser
+     * @param state   the context state
+     */
     @Override
     public void parseMore(TermParserContext context, ActionState state) {
-        if (TermParserContextUtil.skipIgnorable(source, context, skipDocumentation)) return;
-        state.nextAction(next);
+        state.nextAction(state.isRecoveryPoint(this) ? recoveryPath : next);
     }
-
 }

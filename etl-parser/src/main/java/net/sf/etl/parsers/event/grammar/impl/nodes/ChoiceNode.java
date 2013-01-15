@@ -29,7 +29,6 @@ import net.sf.etl.parsers.event.grammar.impl.ActionBuilder;
 import net.sf.etl.parsers.event.grammar.impl.flattened.ContextView;
 import net.sf.etl.parsers.event.grammar.impl.flattened.DefinitionView;
 import net.sf.etl.parsers.event.impl.term.action.Action;
-import net.sf.etl.parsers.event.impl.term.action.ReportErrorAction;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -43,15 +42,15 @@ import java.util.Set;
 public class ChoiceNode extends GroupNode {
 
     @Override
-    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit) {
+    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit, Action recoveryTest) {
         final HashSet<ActionBuilder> visitedSet = new HashSet<ActionBuilder>();
-        final LookAheadSet choiceLa = buildLookAhead(new HashSet<ActionBuilder>());
+        final LookAheadSet choiceLa = buildLookAhead();
         ChoiceBuilder builder = new ChoiceBuilder(source);
-        builder.setFallback(new ReportErrorAction(source, errorExit,
+        builder.setFallback(ActionUtil.createReportErrorAction(source, errorExit,
                 "syntax.UnexpectedToken.expectingTokens",
                 choiceLa.toString()));
         for (Node node : nodes()) {
-            builder.add(node.buildLookAhead(visitedSet), node.buildActions(b, normalExit, errorExit));
+            builder.add(node.buildLookAhead(visitedSet), node.buildActions(b, normalExit, errorExit, recoveryTest));
         }
         return builder.build(b);
     }
@@ -95,5 +94,11 @@ public class ChoiceNode extends GroupNode {
             rc.addAll(nodeLA);
         }
         return rc;
+    }
+
+    @Override
+    public Node flatten() {
+        final ChoiceNode node = (ChoiceNode) super.flatten();
+        return node.nodes().size() == 1 ? nodes().get(0) : this;
     }
 }

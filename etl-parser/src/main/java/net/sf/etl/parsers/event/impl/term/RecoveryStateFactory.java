@@ -89,7 +89,8 @@ public class RecoveryStateFactory implements TermParserStateFactory {
                 return;
             }
             for (TermParserState state : previousStates()) {
-                switch (state.canRecover()) {
+                final RecoverableStatus recoverableStatus = state.canRecover();
+                switch (recoverableStatus) {
                     case SKIP:
                         skipToken();
                         return;

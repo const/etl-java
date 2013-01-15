@@ -232,10 +232,13 @@ public class LookAheadSet {
 
     /**
      * Remove empty from set
+     *
+     * @return this set
      */
-    public void removeEmpty() {
+    public LookAheadSet removeEmpty() {
         checkModifiable();
         entries.remove(EMPTY_ENTRY_SAMPLE);
+        return this;
     }
 
     /**
@@ -262,6 +265,13 @@ public class LookAheadSet {
         // NOTE POST 0.2: this value is used in syntax error reporting. Make it
         // more friendly.
         return "LA" + entries;
+    }
+
+    /**
+     * @return true if the set is empty
+     */
+    public boolean isEmpty() {
+        return entries.isEmpty();
     }
 
     /**

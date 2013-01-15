@@ -26,9 +26,7 @@ package net.sf.etl.parsers.event.grammar.impl.nodes;
 
 import net.sf.etl.parsers.event.grammar.LookAheadSet;
 import net.sf.etl.parsers.event.grammar.impl.ActionBuilder;
-import net.sf.etl.parsers.event.impl.term.action.Action;
-import net.sf.etl.parsers.event.impl.term.action.DisableSoftEndAction;
-import net.sf.etl.parsers.event.impl.term.action.EnableSoftEndAction;
+import net.sf.etl.parsers.event.impl.term.action.*;
 
 import java.util.ListIterator;
 import java.util.Set;
@@ -41,14 +39,36 @@ import java.util.Set;
 public class SequenceNode extends GroupNode {
 
     @Override
-    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit) {
+    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit, Action recoveryTest) {
         // A sequence node is built by creating a sequence of states that
         // correspond to the nodes. Empty sequence results in normalExit node.
         Action head = normalExit;
+        head = new RecoverySetupAction(source, head, recoveryTest);
+        errorExit = new RecoverySetupAction(source, errorExit, recoveryTest);
         boolean wasNonEmpty = false;
+        LookAheadSet previousLa = new LookAheadSet();
         for (final ListIterator<Node> i = nodes().listIterator(nodes().size()); i.hasPrevious(); ) {
             final Node node = i.previous();
-            head = node.buildActions(b, head, errorExit);
+            final LookAheadSet actualLa = node.buildLookAhead();
+            final LookAheadSet currentLa = new LookAheadSet(actualLa);
+            if (currentLa.containsEmpty()) {
+                currentLa.addAll(previousLa);
+                currentLa.removeEmpty();
+            }
+            previousLa = currentLa;
+            if (currentLa.isEmpty()) {
+                head = node.buildActions(b, head, errorExit, recoveryTest);
+            } else {
+                RecoveryChoiceAction recoveryChoiceAction = new RecoveryChoiceAction(node.source, errorExit);
+                errorExit = recoveryChoiceAction;
+                head = node.buildActions(b, head, errorExit, recoveryTest);
+                recoveryChoiceAction.recoveryPath = head;
+                recoveryTest = new ChoiceBuilder(node.source).
+                        setFallback(recoveryTest).
+                        add(currentLa, new RecoveryVoteAction(node.source, recoveryChoiceAction)).
+                        build(b);
+                head = new RecoverySetupAction(node.source, head, recoveryTest);
+            }
             if (!wasNonEmpty && !node.matchesEmpty() && i.hasPrevious()) {
                 wasNonEmpty = true;
                 head = new EnableSoftEndAction(source, head);

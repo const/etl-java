@@ -33,6 +33,7 @@ import net.sf.etl.parsers.event.grammar.impl.flattened.WrapperLink;
 import net.sf.etl.parsers.event.grammar.impl.nodes.*;
 import net.sf.etl.parsers.event.impl.term.action.ActionStateFactory;
 import net.sf.etl.parsers.event.impl.term.action.CallAction;
+import net.sf.etl.parsers.event.impl.term.action.RecoveryVoteAction;
 import net.sf.etl.parsers.event.impl.term.action.ReturnAction;
 import net.sf.etl.parsers.event.impl.term.action.buildtime.ActionLinker;
 import net.sf.etl.parsers.event.impl.util.ListStack;
@@ -669,7 +670,8 @@ public class ActionBuilder {
         targetFactory = new ActionStateFactory(
                 returnNode.buildActions(this,
                         new ReturnAction(returnNode.source, true),
-                        new ReturnAction(returnNode.source, false)));
+                        new ReturnAction(returnNode.source, false),
+                        RecoveryVoteAction.NO_RECOVERY));
         for (CallAction referrer : referrers) {
             referrer.stateFactory = targetFactory;
         }

@@ -33,7 +33,7 @@ import net.sf.etl.parsers.event.grammar.LookAheadSet;
 import net.sf.etl.parsers.event.grammar.impl.ActionBuilder;
 import net.sf.etl.parsers.event.impl.term.action.Action;
 import net.sf.etl.parsers.event.impl.term.action.AdvanceAction;
-import net.sf.etl.parsers.event.impl.term.action.ReportErrorAction;
+import net.sf.etl.parsers.event.impl.term.action.RecoverySetupAction;
 import net.sf.etl.parsers.event.impl.term.action.ReportTokenAction;
 
 import java.util.Collections;
@@ -88,7 +88,7 @@ public class TokenNode extends Node {
     }
 
     @Override
-    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit) {
+    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit, Action recoveryTest) {
         // Note that building states for the node usually done starting from
         // the last state because next state must be specified.
         final String errorId;
@@ -100,19 +100,16 @@ public class TokenNode extends Node {
             errorId = "syntax.UnexpectedToken.expectingKind";
             arg = tokenKey == null ? "*" : tokenKey.toString();
         }
-        // Redefine error. Note that general choice does own error reporting
-        // and does not invokes this state in case of error.
-        final ReportErrorAction choiceErrorExit = new ReportErrorAction(source, errorExit, errorId, arg);
+
         // skip ignorable tokens after this token. Note that when token is
         // not a doc comment, doc comments are treated as ignorable tokens.
-        Action head = new AdvanceAction(source, normalExit, tokenKey == null || tokenKey.kind() != Tokens.DOC_COMMENT);
-        // advance to next token.
-        head = new AdvanceAction(head, source);
+        normalExit = new AdvanceAction(source, normalExit, tokenKey == null || tokenKey.kind() != Tokens.DOC_COMMENT);
+        normalExit = new RecoverySetupAction(source, normalExit, recoveryTest);
         // report token
-        head = new ReportTokenAction(source, head, termKind, role);
+        normalExit = new ReportTokenAction(source, normalExit, termKind, role);
         return new ChoiceBuilder(source).
-                setFallback(choiceErrorExit).
-                add(buildLookAhead(Collections.<ActionBuilder>emptySet()), head).
+                setFallback(ActionUtil.createReportErrorAction(source, errorExit, errorId, arg)).
+                add(buildLookAhead(Collections.<ActionBuilder>emptySet()), normalExit).
                 build(b);
     }
 

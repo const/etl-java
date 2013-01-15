@@ -31,9 +31,12 @@ import net.sf.etl.parsers.event.grammar.Keyword;
 import net.sf.etl.parsers.event.grammar.LookAheadSet;
 import net.sf.etl.parsers.event.grammar.impl.ActionBuilder;
 import net.sf.etl.parsers.event.impl.term.action.Action;
+import net.sf.etl.parsers.event.impl.term.action.AdvanceAction;
 import net.sf.etl.parsers.event.impl.term.action.CallAction;
+import net.sf.etl.parsers.event.impl.term.action.RecoverySetupAction;
 import net.sf.etl.parsers.event.impl.term.action.buildtime.UnreachableAction;
 
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -65,13 +68,21 @@ public class BlockNode extends Node {
     }
 
     @Override
-    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit) {
+    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit, Action recoveryTest) {
         // TODO use statement sequence production, and report location for block
+        // skip ignorable tokens after this token. Note that when token is
+        // not a doc comment, doc comments are treated as ignorable tokens.
+        normalExit = new AdvanceAction(source, normalExit);
+        normalExit = new RecoverySetupAction(source, normalExit, recoveryTest);
+        // report token
         final CallAction callAction = new CallAction(source);
         b.getLinker().linkBlock(callAction, context);
         callAction.success = normalExit;
         callAction.failure = new UnreachableAction(source, "The errors are unreachable after block!");
-        return callAction;
+        return new ChoiceBuilder(source).
+                setFallback(ActionUtil.createReportErrorAction(source, errorExit, "syntax.UnexpectedToken.expectingBlock", context)).
+                add(buildLookAhead(Collections.<ActionBuilder>emptySet()), callAction).
+                build(b);
     }
 
     @Override

@@ -71,9 +71,20 @@ public class BasicTermTestCase {
      * @param term the term to pase
      */
     protected TermToken read(Terms term) {
+        boolean haveErrors = false;
+        return read(term, haveErrors);
+    }
+
+    /**
+     * Read single term and check for the kind
+     *
+     * @param term       the term to parse
+     * @param haveErrors if true, the token must have errors, if false it must not have
+     */
+    protected TermToken read(Terms term, boolean haveErrors) {
         skipIgnorable();
         TermToken current = reader.current();
-        assertFalse("Current token: " + current, current.hasAnyErrors());
+        assertEquals("Current token: " + current, haveErrors, current.hasAnyErrors());
         reader.advance();
         assertEquals("Current token: " + current, term, current.kind());
         return current;

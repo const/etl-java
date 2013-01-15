@@ -36,7 +36,7 @@ import net.sf.etl.parsers.event.impl.term.action.Action;
 public abstract class CleanupScopeNode extends ScopeNode {
 
     @Override
-    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit) {
+    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit, Action recoveryTest) {
         // This is a common implementation of scope node that needs cleanup that
         // works in the way to try/finally.
         // Build state that is invoked in the end of the scope in case of error
@@ -44,7 +44,7 @@ public abstract class CleanupScopeNode extends ScopeNode {
         // Build state that is invoked in the end of the scope in normal case
         final Action normalCloseState = buildEndState(b, normalExit, errorExit);
         // Build states for the body
-        final Action bodyStates = innerNode().buildActions(b, normalCloseState, errorCloseState);
+        final Action bodyStates = innerNode().buildActions(b, normalCloseState, errorCloseState, recoveryTest);
         // finally build start state. Note that both exit points are provided.
         return buildStartState(b, bodyStates, errorExit, errorCloseState);
     }

@@ -25,8 +25,42 @@
 
 package net.sf.etl.parsers.event.impl.term.action;
 
+import net.sf.etl.parsers.SourceLocation;
+import net.sf.etl.parsers.event.grammar.TermParserContext;
+
 /**
- * The recovery record for the {@link ActionState}
+ * The vote action for the recovery
  */
-public class ActionStateRecovery {
+public class RecoveryVoteAction extends Action {
+    /**
+     * The recovery vote action
+     */
+    public final static RecoveryVoteAction NO_RECOVERY = new RecoveryVoteAction(null, null);
+
+    /**
+     * The recovery choice action
+     */
+    public final RecoveryChoiceAction recoveryChoiceAction;
+
+    /**
+     * The action
+     *
+     * @param source               the source location in the grammar that caused this node creation
+     * @param recoveryChoiceAction the recovery choice action
+     */
+    public RecoveryVoteAction(SourceLocation source, RecoveryChoiceAction recoveryChoiceAction) {
+        super(source);
+        this.recoveryChoiceAction = recoveryChoiceAction;
+    }
+
+    /**
+     * Parse more elements
+     *
+     * @param context the context of the parser
+     * @param state   the context state
+     */
+    @Override
+    public void parseMore(TermParserContext context, ActionState state) {
+        state.setRecoveryPoint(recoveryChoiceAction);
+    }
 }

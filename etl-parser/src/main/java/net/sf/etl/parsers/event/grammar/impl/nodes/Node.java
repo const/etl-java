@@ -31,6 +31,7 @@ import net.sf.etl.parsers.event.grammar.impl.ActionBuilder;
 import net.sf.etl.parsers.event.grammar.impl.flattened.DefinitionView;
 import net.sf.etl.parsers.event.impl.term.action.Action;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -90,12 +91,13 @@ public abstract class Node {
     /**
      * Build state machine for the node.
      *
-     * @param b          the builder for state machine
-     * @param normalExit the normal exit for the node
-     * @param errorExit  the error exit for the node
+     * @param b            the builder for state machine
+     * @param normalExit   the normal exit for the node
+     * @param errorExit    the error exit for the node
+     * @param recoveryTest the current recovery test action
      * @return the first state of state machine described by this node
      */
-    public abstract Action buildActions(ActionBuilder b, Action normalExit, Action errorExit);
+    public abstract Action buildActions(ActionBuilder b, Action normalExit, Action errorExit, Action recoveryTest);
 
     /**
      * Build lookahead if does not exists
@@ -108,6 +110,13 @@ public abstract class Node {
             cachedLookAhead = createLookAhead(visitedBuilders);
         }
         return cachedLookAhead;
+    }
+
+    /**
+     * @return build look ahead starting from the current node
+     */
+    public LookAheadSet buildLookAhead() {
+        return buildLookAhead(new HashSet<ActionBuilder>());
     }
 
     /**
