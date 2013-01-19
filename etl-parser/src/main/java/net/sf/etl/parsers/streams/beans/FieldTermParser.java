@@ -216,7 +216,7 @@ public class FieldTermParser<BaseObject> extends AbstractReflectionParser<BaseOb
 
     /**
      * Get a field from class. The method maintains internal cache. Note that
-     * cache is private to this {@link FieldTermParser} instance.
+     * cache is private to this parser instance.
      *
      * @param c    class to example
      * @param name a name to get
@@ -224,11 +224,7 @@ public class FieldTermParser<BaseObject> extends AbstractReflectionParser<BaseOb
      */
     private Field field(Class<?> c, String name) {
         try {
-            // TODO more clean fix
-            if (Character.isUpperCase(name.codePointAt(0))) {
-                name = new StringBuilder().appendCodePoint(Character.toLowerCase(name.codePointAt(0))).
-                        append(name.substring(Character.charCount(name.codePointAt(0)))).toString();
-            }
+            name = lowerCaseFeatureName(name);
             HashMap<String, Field> classFields = fieldCache.get(c);
             if (classFields == null) {
                 classFields = new HashMap<String, Field>();
@@ -247,5 +243,4 @@ public class FieldTermParser<BaseObject> extends AbstractReflectionParser<BaseOb
             throw new RuntimeException("Unable to find field " + name + " in class " + c.getCanonicalName(), e);
         }
     }
-
 }

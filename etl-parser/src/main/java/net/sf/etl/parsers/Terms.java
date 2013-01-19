@@ -129,11 +129,11 @@ public enum Terms {
      */
     BLOCK_END,
     /**
-     * This event indicates that some grammar have been loaded. Namespace of
-     * event is a declared URI of the grammar and name is a name of root context
-     * for the grammar.
+     * This event indicates that some grammar have been loaded. The structure id is an instance of
+     * {@link LoadedGrammarInfo}.
      */
     GRAMMAR_IS_LOADED,
+
     /**
      * The syntax error (in case if it is not possible to meaningfully associate error with other token)
      */

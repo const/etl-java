@@ -76,7 +76,7 @@ public class GrammarAssemblyBuilder implements GrammarCompiler {
         if (assembly.hadErrors()) {
             // TODO assembly.buildStubGrammars();
             // return ParserState.OUTPUT_AVAILABLE;
-            throw new RuntimeException("Not implemented yet");
+            throw new RuntimeException("Not implemented yet: " + assembly.getErrors());
         }
         // all grammars are resolved by this point, proceed with processing them
         assembly.flatten();
@@ -163,7 +163,7 @@ public class GrammarAssemblyBuilder implements GrammarCompiler {
     @Override
     public ResolvedObject<CompiledGrammar> read() {
         // TODO error recovery
-        final ResolvedObject<GrammarView> grammarView = assembly.resolveGrammar(rootGrammar);
+        final ResolvedObject<GrammarView> grammarView = assembly.resolveGrammar(rootGrammar.getReference());
         final GrammarBuilder grammarBuilder = viewToBuilder.get(grammarView.getObject());
         return new ResolvedObject<CompiledGrammar>(rootGrammar, grammarView.getResolutionHistory(),
                 grammarView.getDescriptor(), grammarBuilder.compiledGrammar());

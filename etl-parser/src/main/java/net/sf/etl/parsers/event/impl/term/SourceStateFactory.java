@@ -27,7 +27,6 @@ package net.sf.etl.parsers.event.impl.term;
 
 import net.sf.etl.parsers.*;
 import net.sf.etl.parsers.event.grammar.*;
-import net.sf.etl.parsers.event.impl.TermParserImpl;
 
 /**
  * The source state factory

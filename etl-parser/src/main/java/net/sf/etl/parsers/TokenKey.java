@@ -61,7 +61,7 @@ public final class TokenKey {
         stringMap = stringEnumMap;
         EnumMap<QuoteClass, TokenKey> multiLineStringEnumMap = new EnumMap<QuoteClass, TokenKey>(QuoteClass.class);
         for (QuoteClass quoteClass : QuoteClass.values()) {
-            multiLineStringEnumMap.put(quoteClass, new TokenKey(Tokens.STRING, null, quoteClass));
+            multiLineStringEnumMap.put(quoteClass, new TokenKey(Tokens.MULTILINE_STRING, null, quoteClass));
         }
         multiLineStringMap = multiLineStringEnumMap;
     }

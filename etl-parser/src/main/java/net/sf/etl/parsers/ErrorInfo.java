@@ -183,8 +183,10 @@ public final class ErrorInfo implements Iterable<ErrorInfo> {
     public static ErrorInfo merge(Collection<ErrorInfo> errors) {
         ArrayList<ErrorInfo> list = new ArrayList<ErrorInfo>();
         for (ErrorInfo error : errors) {
-            for (ErrorInfo e : error) {
-                list.add(e);
+            if (error != null) {
+                for (ErrorInfo e : error) {
+                    list.add(e);
+                }
             }
         }
         Collections.reverse(list);
@@ -214,6 +216,16 @@ public final class ErrorInfo implements Iterable<ErrorInfo> {
                     + errorId);
         }
         return MessageFormat.format(b.getString(errorId), errorArgs.toArray());
+    }
+
+    /**
+     * Merge errors
+     *
+     * @param errors the errors to merge
+     * @return merged errors
+     */
+    public static ErrorInfo merge(ErrorInfo... errors) {
+        return merge(Arrays.asList(errors));
     }
 
     @Override

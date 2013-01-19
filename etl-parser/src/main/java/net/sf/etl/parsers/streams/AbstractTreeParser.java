@@ -138,12 +138,25 @@ public abstract class AbstractTreeParser<BaseObjectType, FeatureType, MetaObject
                     }
                     return !(abortOnDefault
                             && current.objectName().namespace().equals(StandardGrammars.DEFAULT_NS));
+                case GRAMMAR_IS_LOADED:
+                    handleLoadedGrammar((LoadedGrammarInfo) current.getStructureId());
+                    advanceParser();
+                    break;
                 case EOF:
                     return false;
                 default:
                     advanceParser();
             }
         }
+    }
+
+    /**
+     * Handle loaded grammar
+     *
+     * @param loadedGrammarInfo the grammar information
+     */
+    protected void handleLoadedGrammar(LoadedGrammarInfo loadedGrammarInfo) {
+        // do nothing
     }
 
     /**
@@ -358,6 +371,26 @@ public abstract class AbstractTreeParser<BaseObjectType, FeatureType, MetaObject
      * @param object the object that was processed
      */
     protected void objectEnded(BaseObjectType object) {
+    }
+
+    /**
+     * The field name from property name
+     *
+     * @param name the field name
+     * @return the adjusted field name
+     */
+    protected static String lowerCaseFeatureName(String name) {
+        if (name == null || name.length() == 0) {
+            return name;
+        }
+        final int first = name.codePointAt(0);
+        if (Character.isUpperCase(first)) {
+            name = new StringBuilder().
+                    appendCodePoint(Character.toLowerCase(first)).
+                    append(name.substring(Character.charCount(first))).
+                    toString();
+        }
+        return name;
     }
 
     /**

@@ -25,6 +25,8 @@
 
 package net.sf.etl.parsers.streams;
 
+import net.sf.etl.parsers.ErrorInfo;
+import net.sf.etl.parsers.event.Cell;
 import net.sf.etl.parsers.event.grammar.CompiledGrammar;
 import net.sf.etl.parsers.resource.ResolvedObject;
 import net.sf.etl.parsers.resource.ResourceRequest;
@@ -37,7 +39,8 @@ public interface GrammarResolver {
      * The grammar resolver
      *
      * @param request the request
+     * @param errors  the holder for resolution errors
      * @return the resolver
      */
-    ResolvedObject<CompiledGrammar> resolve(ResourceRequest request);
+    ResolvedObject<CompiledGrammar> resolve(ResourceRequest request, Cell<ErrorInfo> errors);
 }

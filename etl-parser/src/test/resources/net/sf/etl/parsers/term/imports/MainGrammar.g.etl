@@ -1,0 +1,24 @@
+doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0";
+/// This is an main grammar that imports expression grammar
+/// In its turn it imported from expression grammar. The cycle
+/// is here to make life interesting.
+grammar net.sf.etl.tests.data.imports.MainGrammar {
+	namespace default m = "http://etl.sf.net/2006/samples/imports/Main/0.1";
+	import expr = "ExpressionGrammar.g.etl";
+
+	context default Statements {
+		import expressions = Expressions from expr;
+
+		statement LetStatement {
+			% let {
+				@ Name = identifier;
+			} % = {
+				@ Value = expression(expressions);
+			};
+		};
+
+		statement ExpressionStatement {
+			@ Value = expression(expressions);
+		};
+	};
+};

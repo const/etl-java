@@ -185,13 +185,14 @@ public class BeansTermParser extends AbstractReflectionParser<Object, PropertyDe
 
     @Override
     protected PropertyDescriptor getPropertyMetaObject(Object rc, BeanInfo metaObject, String name) {
+        name = lowerCaseFeatureName(name);
         final PropertyDescriptor[] propertyDescriptors = metaObject.getPropertyDescriptors();
         for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
             if (propertyDescriptor.getName().equals(name)) {
                 return propertyDescriptor;
             }
         }
-        throw new ParserException("Cannot find feature " + name + " ind class "
+        throw new ParserException("Cannot find feature " + name + " in class "
                 + metaObject.getBeanDescriptor().getBeanClass().getName());
     }
 

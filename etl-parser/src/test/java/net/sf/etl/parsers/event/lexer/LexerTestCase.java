@@ -33,8 +33,7 @@ import net.sf.etl.parsers.event.impl.LexerImpl;
 
 import java.nio.CharBuffer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * The basic lexer test case
@@ -127,6 +126,9 @@ public abstract class LexerTestCase {
         // single token mode
         start(text);
         Token rc = read(text, kind);
+        if (rc.hasErrors()) {
+            fail("The token has errors: " + rc);
+        }
         readEof();
         return rc;
     }
@@ -210,6 +212,26 @@ public abstract class LexerTestCase {
         checkCurrent(text, kind);
         return current;
     }
+
+    /**
+     * Read single token and check it
+     *
+     * @param text the text to parse
+     * @param kind the expected token kind
+     * @return the parsed token
+     */
+    protected Token read(String text, TokenKey kind) {
+        next();
+        checkCurrent(text, kind);
+        return current;
+    }
+
+
+    protected void checkCurrent(String text, TokenKey tokenKey) {
+        assertEquals(text, current.text());
+        assertEquals(tokenKey, current.key());
+    }
+
 
     protected void checkCurrent(String text, Tokens kind) {
         assertEquals(text, current.text());

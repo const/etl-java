@@ -89,6 +89,17 @@ public class ResolvedObject<T> implements Serializable {
     }
 
     /**
+     * The same request but with other object
+     *
+     * @param object  the object
+     * @param <Other> the object type
+     * @return new resolved object instance
+     */
+    public <Other> ResolvedObject<Other> withOtherObject(Other object) {
+        return new ResolvedObject<Other>(request, resolutionHistory, descriptor, object);
+    }
+
+    /**
      * @return the resolved object
      */
     public T getObject() {

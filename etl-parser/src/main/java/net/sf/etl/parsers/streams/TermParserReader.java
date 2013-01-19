@@ -25,14 +25,22 @@
 
 package net.sf.etl.parsers.streams;
 
-import net.sf.etl.parsers.PhraseToken;
-import net.sf.etl.parsers.TermToken;
+import net.sf.etl.parsers.*;
 import net.sf.etl.parsers.event.Cell;
 import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.TermParser;
+import net.sf.etl.parsers.event.grammar.BootstrapGrammars;
 import net.sf.etl.parsers.event.grammar.CompiledGrammar;
-import net.sf.etl.parsers.event.impl.TermParserImpl;
+import net.sf.etl.parsers.event.impl.term.TermParserImpl;
+import net.sf.etl.parsers.resource.ResolvedObject;
+import net.sf.etl.parsers.resource.ResourceDescriptor;
+import net.sf.etl.parsers.resource.ResourceRequest;
+import net.sf.etl.parsers.resource.ResourceUsage;
 import net.sf.etl.parsers.streams.util.CachingGrammarResolver;
+
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * The reader for term parser
@@ -53,7 +61,7 @@ public class TermParserReader extends AbstractReaderImpl<TermToken> {
     /**
      * The grammar resolver
      */
-    private GrammarResolver resolver = new CachingGrammarResolver();
+    private GrammarResolver resolver = CachingGrammarResolver.INSTANCE;
 
     /**
      * The constructor that forces usage for the specific grammar
@@ -78,13 +86,42 @@ public class TermParserReader extends AbstractReaderImpl<TermToken> {
         this.termParser.start(phraseParserReader.getSystemId());
     }
 
+    /**
+     * Create parser basing on url
+     *
+     * @param url the url to use
+     */
+    public TermParserReader(URL url) {
+        this(new PhraseParserReader(url));
+    }
+
     @Override
     protected boolean doAdvance() {
         while (true) {
             ParserState state = termParser.parse(cell);
             switch (state) {
                 case RESOURCE_NEEDED:
-                    termParser.provideGrammar(resolver.resolve(termParser.grammarRequest()));
+                    Cell<ErrorInfo> errors = new Cell<ErrorInfo>();
+                    ResolvedObject<CompiledGrammar> resolve;
+                    final ResourceRequest request = termParser.grammarRequest();
+                    try {
+                        resolve = resolver.resolve(request, errors);
+                    } catch (Throwable t) {
+                        // TODO LOG it
+                        t.printStackTrace();
+                        resolve = new ResolvedObject<CompiledGrammar>(request,
+                                Collections.<ResourceUsage>emptyList(),
+                                new ResourceDescriptor(SourceLocation.UNKNOWN.systemId()),
+                                BootstrapGrammars.defaultGrammar());
+                        if (errors.isEmpty()) {
+                            errors.put(new ErrorInfo("syntax.FailedToResolve",
+                                    Collections.<Object>unmodifiableList(
+                                            Arrays.asList(request.getReference().getSystemId(),
+                                                    request.getReference().getPublicId(), t.toString())),
+                                    new SourceLocation(TextPos.START, TextPos.START, termParser.getSystemId()), null));
+                        }
+                    }
+                    termParser.provideGrammar(resolve, errors.isEmpty() ? null : errors.take());
                     break;
                 case EOF:
                     return false;

@@ -1,0 +1,53 @@
+doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0";
+
+/// This is a test grammar used to test fallback
+/// functionality in the parser.
+grammar net.sf.etl.tests.data.fallbacks.Fallbacks {
+	namespace default t = "http://etl.sf.net/2006/tests/fallbacks";
+	/// Base context. It contains definitions of documentation and attributes 
+	/// that will be used in later sections.
+	context abstract Base {
+		
+		/// Simple documentation production
+		documentation Documentation {
+			@ documentation += doclines;
+		};
+		
+		/// Simple attributes production
+		attributes Attributes {
+			% @ % [ {
+				@ attributes += list , {
+					identifier;
+				};		
+			} % ];
+		};
+	};
+
+	/// A context with empty fallbacks
+	context EmptyFallbacks {
+		include Base;
+		
+		/// This is a blank statement
+		statement BlankStatement {
+		};
+
+		/// Some non-empty statement
+		statement SomeStatement {
+			% some {
+				@ value = identifier;
+			};
+		};
+	};
+
+	/// A context with non-empty fallbacks
+	context NonEmptyFallbacks {
+		include Base;
+		
+		/// Some non-empty statement that is designated as statement
+		statement SomeStatement {
+			% some {
+				@ value = identifier;
+			};
+		};
+	};
+};

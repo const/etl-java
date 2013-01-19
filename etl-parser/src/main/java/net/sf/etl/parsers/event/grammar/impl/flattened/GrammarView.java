@@ -378,8 +378,7 @@ public class GrammarView {
      */
     public GrammarView getReferencedGrammar(GrammarRef gr) {
         final ResolvedObject<GrammarView> resolvedObject =
-                assembly.resolveGrammar(
-                        new ResourceRequest(toReference(gr), CompiledGrammar.USED_GRAMMAR_REQUEST_TYPE));
+                assembly.resolveGrammar(toReference(gr));
         if (resolvedObject == null) {
             assert assembly.hadErrors();
             return null;

@@ -68,7 +68,7 @@ public class GrammarAssembly {
     /**
      * The resolutions
      */
-    private final HashMap<ResourceRequest, ResolvedObject<Grammar>> resolutions = new HashMap<ResourceRequest, ResolvedObject<Grammar>>();
+    private final HashMap<ResourceReference, ResolvedObject<Grammar>> resolutions = new HashMap<ResourceReference, ResolvedObject<Grammar>>();
     /**
      * The failed grammars
      */
@@ -105,8 +105,14 @@ public class GrammarAssembly {
         if (grammarView == null) {
             grammarView = new GrammarView(this, grammar);
             grammarViews.put(systemId, grammarView);
+            final Set<ResourceReference> references = grammarView.referencedGrammars();
+            references.removeAll(allResourceReferences);
+            allResourceReferences.addAll(references);
+            for (ResourceReference reference : references) {
+                unresolvedResourceRequests.add(new ResourceRequest(reference, CompiledGrammar.USED_GRAMMAR_REQUEST_TYPE));
+            }
         }
-        resolutions.put(grammar.getRequest(), grammar);
+        resolutions.put(grammar.getRequest().getReference(), grammar);
         unresolvedResourceRequests.remove(grammar.getRequest());
         error(errors);
     }
@@ -118,12 +124,6 @@ public class GrammarAssembly {
      * @return the included node
      */
     public DirectedAcyclicGraph.Node<GrammarView> getIncludeNode(GrammarView grammarView) {
-        final Set<ResourceReference> references = grammarView.referencedGrammars();
-        references.removeAll(allResourceReferences);
-        allResourceReferences.addAll(references);
-        for (ResourceReference reference : references) {
-            unresolvedResourceRequests.add(new ResourceRequest(reference, CompiledGrammar.USED_GRAMMAR_REQUEST_TYPE));
-        }
         return grammarIncludeDAG.getNode(grammarView);
     }
 
@@ -147,7 +147,7 @@ public class GrammarAssembly {
      * @param reference the resource reference
      * @return the grammar view to use
      */
-    public ResolvedObject<GrammarView> resolveGrammar(ResourceRequest reference) {
+    public ResolvedObject<GrammarView> resolveGrammar(ResourceReference reference) {
         final ResolvedObject<Grammar> grammarResolvedObject = resolutions.get(reference);
         if (grammarResolvedObject == null) {
             return null;

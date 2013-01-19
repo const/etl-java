@@ -53,9 +53,9 @@ grammar net.sf.etl.grammars.DoctypeDeclaration "0.3.0" {
 		///
 		/// System identifier or public identifier or both might be used.
 		/// <example>
-		/// 	doctype public "-//IDN etl.sf.net/ETL/Grammar 0.3.0";
+		/// 	doctype public "-//IDN etl.sf.net/ETL/Grammar 0.3.0" context = CompositeSyntax;
 		/// 	doctype "http://etl.sf.net/2005/etl/grammar.g.etl" public '-//IDN etl.sf.net/ETL/Grammar 0.3';
-		/// 	doctype 'mygrammar.g.etl';
+		/// 	doctype "mygrammar.g.etl";
 		/// </example>
 		statement DoctypeStatement {
 			^ dc:DoctypeDeclaration {
@@ -73,8 +73,8 @@ grammar net.sf.etl.grammars.DoctypeDeclaration "0.3.0" {
 							@ PublicId = ref(String);
 						};
 					};
-					% context {
-						@ Context = ref(String);
+					% context % = {
+						@ Context = identifier;
 					}?;
 				};
 			};

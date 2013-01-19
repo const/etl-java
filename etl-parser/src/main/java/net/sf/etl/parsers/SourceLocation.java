@@ -32,6 +32,10 @@ package net.sf.etl.parsers;
  */
 public final class SourceLocation {
     /**
+     * The unknown location
+     */
+    public final static SourceLocation UNKNOWN = new SourceLocation(TextPos.START, TextPos.START, "unknown:");
+    /**
      * the start of source code fragment
      */
     private final TextPos start;

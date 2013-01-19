@@ -281,7 +281,6 @@ public class LexerImpl implements Lexer {
                             kind = Tokens.FLOAT;
                             phase = NUMBER_DECIMAL_FRACTION;
                             codepoint(buffer, eof);
-                            error("lexical.SomeDigitAreOutOfBase", start, current());
                         } else {
                             return makeToken();
                         }
@@ -361,8 +360,8 @@ public class LexerImpl implements Lexer {
                             !Identifiers.isConnectorChar(codepoint) &&
                             !Identifiers.isConnectorChar(Character.codePointBefore(text, text.length()))) {
                         phase = NUMBER_SUFFIX;
-                        codepoint(buffer, eof);
                         phaseStart = text.length();
+                        codepoint(buffer, eof);
                         kind = kind == Tokens.FLOAT ? Tokens.FLOAT_WITH_SUFFIX : Tokens.INTEGER_WITH_SUFFIX;
                         break;
                     } else {
@@ -879,6 +878,7 @@ public class LexerImpl implements Lexer {
         text = null;
         start = end;
         errorInfo = null;
+        modifier = null;
         return ParserState.OUTPUT_AVAILABLE;
     }
 

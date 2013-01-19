@@ -1,0 +1,53 @@
+doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0";
+/// This is an expression grammar is imported from main grammars
+/// In its turn, this grammar imports main grammar.
+grammar net.sf.etl.tests.data.imports.ExpressionGrammar {
+	namespace default i = "http://etl.sf.net/2006/samples/imports/Expression/0.1";
+	import main = "MainGrammar.g.etl";
+
+	context Expressions {
+		import statements = Statements from main;
+
+		op composite BlockExpression(f) {
+			@ Content += block(statements);
+		};
+
+		op composite Identifier(f) {
+			@ Name = identifier;
+		};
+
+		op composite IntegerLiteral(f) {
+			@ Value = integer;
+		};
+
+		// priority = 200 below, it here just to check if based number
+		// works.
+		op UnaryMinusOp(fy,16#C8#,-) {
+			@ Value =right;
+		};
+
+		op UnaryPlusOp(fy,200,+) {
+			@ Value =right;
+		};
+
+		op MultiplyOp(yfx,400,*) {
+			@ Multipliers += left; @ Multipliers +=right;
+		};
+
+		op DivideOp(yfx,400,/) {
+			@ Dividend = left; @ Divisor=right;
+		};
+
+		op ReminderOp(yfx,400,%) {
+			@ Dividend = left; @ Divisor=right;
+		};
+
+		op PlusOp(yfx,500,+) {
+			@ Summands += left; @ Summands += right;
+		};
+
+		op MinusOp(yfx,500,-) {
+			@ Minuend=left; @ Subtrahend=right;
+		};
+	};
+};

@@ -1,0 +1,11 @@
+doctype "MinimalEJ.g.etl";
+package test;
+/// Classical "Hello, World!" program.
+class public HelloWorld {
+  /// Application entry point
+  /// @param args application arguments
+  @SampleAttribute
+  to static public void main(array[String] args) {
+    System.out.println("Hello, World!");
+  };
+};

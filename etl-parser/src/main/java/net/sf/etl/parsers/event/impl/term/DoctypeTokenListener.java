@@ -26,7 +26,6 @@
 package net.sf.etl.parsers.event.impl.term;
 
 import net.sf.etl.parsers.*;
-import net.sf.etl.parsers.event.impl.TermParserImpl;
 import net.sf.etl.parsers.event.unstable.model.doctype.Doctype;
 
 /**
@@ -36,7 +35,6 @@ import net.sf.etl.parsers.event.unstable.model.doctype.Doctype;
  * all tokens, but collects all error information from them.
  */
 class DoctypeTokenListener implements TermTokenListener {
-    // TODO error handling
     /**
      * The parser to use
      */

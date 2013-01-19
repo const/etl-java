@@ -1,0 +1,22 @@
+doctype "FirstChoice.g.etl";
+id; //first
+1.0l; // first
+1.0L; // first
+"test2"; // first
+++; // first
+'ququ'; // first
+UTF8's'; // first
+utf8's'; // first
+
+"test"; // second
+1; // second
+1.0; // second
+'s'; // second
+/// documentation line
+; // second
+"""night,
+morning,
+day,
+evening"""; // second
+UTF8'''first
+second'''; // second

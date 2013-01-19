@@ -26,6 +26,7 @@
 package net.sf.etl.parsers.event;
 
 import net.sf.etl.parsers.DefinitionContext;
+import net.sf.etl.parsers.ErrorInfo;
 import net.sf.etl.parsers.PhraseToken;
 import net.sf.etl.parsers.TermToken;
 import net.sf.etl.parsers.event.grammar.CompiledGrammar;
@@ -82,10 +83,11 @@ public interface TermParser {
     /**
      * Supply grammar to the term parser according to the grammar request
      *
-     * @param grammar the provided grammar
+     * @param grammar          the provided grammar
+     * @param resolutionErrors the errors related to resolution process (they are reported to the parser)
      * @throws IllegalStateException if the grammar already determined
      */
-    void provideGrammar(ResolvedObject<CompiledGrammar> grammar);
+    void provideGrammar(ResolvedObject<CompiledGrammar> grammar, ErrorInfo resolutionErrors);
 
     /**
      * @return read current token for the parser

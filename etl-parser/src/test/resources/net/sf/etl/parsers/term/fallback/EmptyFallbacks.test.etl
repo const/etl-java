@@ -1,0 +1,18 @@
+doctype "Fallbacks.g.etl" context "EmptyFallbacks";
+
+// The line below demonstrate correct non-empty statement
+/// a documentation
+@[ok] some test;
+
+// The line below demonstrate correct empty statement
+/// a documentation
+@[ok];
+
+
+// The line below demonstrate error in the attributes
+/// a documentation
+@[1] some test;
+
+// The line below demonstrate error in the statement
+/// a documentation
+@[ok] error;

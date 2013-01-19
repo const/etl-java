@@ -25,6 +25,7 @@
 
 package net.sf.etl.parsers.event.lexer;
 
+import net.sf.etl.parsers.TokenKey;
 import net.sf.etl.parsers.Tokens;
 import org.junit.Test;
 
@@ -56,6 +57,8 @@ public class NumberTest extends LexerTestCase {
 
     @Test
     public void floats() {
+        single("1.0l", TokenKey.modified(Tokens.FLOAT_WITH_SUFFIX, "l"));
+        single("16#7F.FF_FFFF#DDDD", TokenKey.modified(Tokens.FLOAT_WITH_SUFFIX, "DDDD"));
         single("1e1", Tokens.FLOAT);
         single("0.1e+2", Tokens.FLOAT);
         single("3.1_4", Tokens.FLOAT);

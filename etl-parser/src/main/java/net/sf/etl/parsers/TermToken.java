@@ -112,6 +112,14 @@ public final class TermToken extends AbstractToken {
     }
 
     /**
+     * @return a structure identifier for the term
+     */
+    public Object getStructureId() {
+        return structureId;
+    }
+
+
+    /**
      * @return a context of the term
      */
     public ExpressionContext expressionContext() {

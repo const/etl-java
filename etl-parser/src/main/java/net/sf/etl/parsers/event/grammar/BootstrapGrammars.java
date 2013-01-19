@@ -57,7 +57,7 @@ public class BootstrapGrammars {
     /**
      * The UTF-8 encoding
      */
-    private static final Charset UTF8 = Charset.forName("UTF-8");
+    public static final Charset UTF8 = Charset.forName("UTF-8");
     /**
      * The lock that controls compilation of the grammars
      */

@@ -33,6 +33,8 @@ import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.PhraseParser;
 import net.sf.etl.parsers.event.impl.PhraseParserImpl;
 
+import java.net.URL;
+
 /**
  * The reader for the phrase parser
  */
@@ -58,6 +60,15 @@ public class PhraseParserReader extends AbstractReaderImpl<PhraseToken> {
     public PhraseParserReader(LexerReader lexer) {
         this.lexer = lexer;
         this.phraseParser.start(lexer.getSystemId());
+    }
+
+    /**
+     * The constructor from URL
+     *
+     * @param url the url to use
+     */
+    public PhraseParserReader(URL url) {
+        this(new LexerReader(url));
     }
 
     @Override

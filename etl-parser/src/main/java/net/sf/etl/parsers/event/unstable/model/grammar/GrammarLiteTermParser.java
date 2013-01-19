@@ -24,9 +24,8 @@
  */
 package net.sf.etl.parsers.event.unstable.model.grammar;
 
-import net.sf.etl.parsers.ErrorInfo;
-import net.sf.etl.parsers.StandardGrammars;
-import net.sf.etl.parsers.TermToken;
+import net.sf.etl.parsers.*;
+import net.sf.etl.parsers.ObjectName;
 import net.sf.etl.parsers.streams.TermParserReader;
 import net.sf.etl.parsers.streams.beans.FieldTermParser;
 
@@ -44,6 +43,10 @@ public class GrammarLiteTermParser extends FieldTermParser<Element> {
      * The errors
      */
     private final ArrayList<ErrorInfo> errors = new ArrayList<ErrorInfo>();
+    /**
+     * The loaded grammar
+     */
+    private LoadedGrammarInfo loadedGrammar;
 
     /**
      * A constructor
@@ -79,6 +82,17 @@ public class GrammarLiteTermParser extends FieldTermParser<Element> {
         }
     }
 
+    /**
+     * Check if object with specified object name should be ignored
+     *
+     * @param name the name to check
+     * @return true if object should be ignored
+     */
+    @Override
+    protected boolean isIgnorable(ObjectName name) {
+        return super.isIgnorable(name);    //To change body of overridden methods use File | Settings | File Templates.
+    }
+
     @Override
     protected void valueEnlisted(Element rc, Field f, Object v) {
         if (v instanceof Element) {
@@ -87,5 +101,17 @@ public class GrammarLiteTermParser extends FieldTermParser<Element> {
             e.ownerFeature = f;
         }
         super.valueEnlisted(rc, f, v);
+    }
+
+    @Override
+    protected void handleLoadedGrammar(LoadedGrammarInfo loadedGrammarInfo) {
+        loadedGrammar = loadedGrammarInfo;
+    }
+
+    /**
+     * @return the loaded grammar
+     */
+    public LoadedGrammarInfo getLoadedGrammar() {
+        return loadedGrammar;
     }
 }

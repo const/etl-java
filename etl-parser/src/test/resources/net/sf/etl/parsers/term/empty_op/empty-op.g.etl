@@ -1,0 +1,84 @@
+doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0";
+/// This is an grammar used to test empty operators
+grammar net.sf.etl.tests.empty_op.EmptyOpGrammar {
+	namespace default e = "http://etl.sf.net/2007/samples/empty_op/0.1";
+
+	context default Expression {
+
+		/// function apply operator (like haskell)
+		op composite Apply(yfx,1) {
+			@ function = left;
+			// note that there is no operator text
+			@ argument = right;
+		};
+
+
+		/// simple brackets
+		op composite Brackets(f) {
+			% (; @expression = expression; % );
+		};
+
+		/// integer literal
+		op composite Integer(f) {
+			@value = integer;
+		};
+
+		/// let statement
+		statement Let {
+			% let {
+				@ definitions += list , {
+					^ e:Def { @name = identifier; % :=; @value = expression; };
+				};
+			};
+		};
+
+
+		/// variable reference
+		op composite Var(f) {
+			@name = identifier;
+		};
+
+
+		/// simple brackets
+		op composite Block(f) {
+			@statements += block;
+		};
+
+
+		/// Unary minus
+		op UnaryMinus(fy,100, -) { ^e:Negation {@value = right;	};};
+
+		op Plus(yfx,300, +) {
+			@value1 = left;
+			@value2 = right;
+		};
+
+		op Minus(yfx,300, -) {
+			@value1 = left;
+			@value2 = right;
+		};
+
+		op Multiply(yfx,200, *) {
+			@value1 = left;
+			@value2 = right;
+		};
+
+		op Divide(yfx,200, /) {
+			@value1 = left;
+			@value2 = right;
+		};
+
+		op Lambda(f) {
+			% \;
+			@ arguments += identifier+;
+			% ->;
+			@ expression = expression;
+		};
+
+		statement Statement {
+			^ e:Expression {
+				@ expression = expression;
+			};
+		};
+	};
+};

@@ -1,0 +1,7 @@
+doctype "empty-op.g.etl";
+(f x) + (f y);
+- (f x) + y;
+{let x := 1, y := 2; x + y;};
+z + {let x := 1, y := 2; x + y;};
+\ x -> x-x % 4 c;
+z + \ x -> a+b*f c;

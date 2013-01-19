@@ -27,6 +27,7 @@ package net.sf.etl.parsers.event.lexer;
 
 import net.sf.etl.parsers.TokenKey;
 import net.sf.etl.parsers.Tokens;
+import net.sf.etl.parsers.characters.QuoteClass;
 import org.junit.Test;
 
 /**
@@ -45,6 +46,7 @@ public class StringsTest extends LexerTestCase {
         checkSingleStringToken("\"simple `string`\"", '\"');
         checkSingleStringToken("\"\\\\\"", '\"');
         checkSingleStringToken("\"\\x1F\\U00403;\\U404;\"", '\"');
+        single("\"test\"", TokenKey.quoted(Tokens.STRING, null, QuoteClass.DOUBLE_QUOTE));
     }
 
     private void checkSingleStringToken(String text, int quote) {
@@ -56,6 +58,11 @@ public class StringsTest extends LexerTestCase {
      */
     @Test
     public void testMutlitLineStrings() {
+        single("\"\"\"night,\n" +
+                "morning,\n" +
+                "day,\n" +
+                "evening\"\"\"",
+                TokenKey.quoted(Tokens.MULTILINE_STRING, null, QuoteClass.DOUBLE_QUOTE));
         checkSingleMultilineStringToken("\"\"\"simple string\"\"\"", '\"');
         checkSingleMultilineStringToken("\"\"\"simple \n string\"\"\"", '\"');
         checkSingleMultilineStringToken("\"\"\"simple \\\n string\"\"\"", '\"');

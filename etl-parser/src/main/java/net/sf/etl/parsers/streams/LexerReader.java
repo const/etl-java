@@ -34,13 +34,20 @@ import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.impl.LexerImpl;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.URL;
 import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 
 /**
  * The reader for the lexer
  */
 public class LexerReader extends AbstractReaderImpl<Token> {
+    /**
+     * The UTF8 charset
+     */
+    public static final Charset UTF8 = Charset.forName("UTF-8");
     /**
      * Reader
      */
@@ -63,11 +70,41 @@ public class LexerReader extends AbstractReaderImpl<Token> {
     boolean eofRead = false;
 
 
+    /**
+     * The constructor
+     *
+     * @param input    the input
+     * @param systemId the system id
+     * @param start    the start position for the lexer
+     */
     public LexerReader(Reader input, String systemId, TextPos start) {
         this.input = input;
         this.systemId = systemId;
         lexer.start(systemId, start);
         buffer.position(0).limit(0);
+    }
+
+    /**
+     * The constructor from url, it opens resource and starts reading its content. The assumed encoding is UTF-8.
+     *
+     * @param url the url of resource
+     */
+    public LexerReader(URL url) {
+        this(createReader(url), url.toString(), TextPos.START);
+    }
+
+    /**
+     * Open reader by URL
+     *
+     * @param url the URL to open
+     * @return the corresponding reader
+     */
+    private static Reader createReader(URL url) {
+        try {
+            return new InputStreamReader(url.openStream(), UTF8);
+        } catch (IOException ex) {
+            throw new ParserIOException("Unable to open resource: " + url, ex);
+        }
     }
 
 

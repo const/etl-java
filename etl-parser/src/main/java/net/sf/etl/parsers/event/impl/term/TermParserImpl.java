@@ -23,26 +23,24 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers.event.impl;
+package net.sf.etl.parsers.event.impl.term;
 
-import net.sf.etl.parsers.DefinitionContext;
-import net.sf.etl.parsers.ParserException;
-import net.sf.etl.parsers.PhraseToken;
-import net.sf.etl.parsers.TermToken;
+import net.sf.etl.parsers.*;
 import net.sf.etl.parsers.event.Cell;
 import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.TermParser;
 import net.sf.etl.parsers.event.grammar.*;
-import net.sf.etl.parsers.event.impl.term.SourceStateFactory;
-import net.sf.etl.parsers.event.impl.term.TermTokenListener;
 import net.sf.etl.parsers.event.impl.util.ListStack;
 import net.sf.etl.parsers.event.unstable.model.doctype.Doctype;
-import net.sf.etl.parsers.literals.LiteralUtils;
+import net.sf.etl.parsers.literals.StringInfo;
+import net.sf.etl.parsers.literals.StringParser;
 import net.sf.etl.parsers.resource.ResolvedObject;
 import net.sf.etl.parsers.resource.ResourceReference;
 import net.sf.etl.parsers.resource.ResourceRequest;
 
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Core implementation of term parser that delegates to other term parsers.
@@ -114,9 +112,21 @@ public class TermParserImpl implements TermParser {
      */
     private ResourceRequest grammarRequest;
     /**
+     * Errors detected during construction of grammar request from doctype (assuming that doctype parsed correctly)
+     */
+    private ErrorInfo grammarRequestErrors;
+    /**
      * The initial context name
      */
     private String initialContextName;
+    /**
+     * The document type object
+     */
+    private Doctype doctype;
+    /**
+     * The current position
+     */
+    private TextPos currentPos;
 
     @Override
     public void forceGrammar(CompiledGrammar grammar, boolean scriptMode) {
@@ -154,7 +164,7 @@ public class TermParserImpl implements TermParser {
     }
 
     @Override
-    public void provideGrammar(ResolvedObject<CompiledGrammar> resolvedGrammar) {
+    public void provideGrammar(ResolvedObject<CompiledGrammar> resolvedGrammar, ErrorInfo resolutionErrors) {
         if (this.grammar != null) {
             throw new IllegalStateException("Grammar is already provided");
         }
@@ -162,21 +172,44 @@ public class TermParserImpl implements TermParser {
             throw new IllegalStateException("The grammar request " + resolvedGrammar.getRequest() +
                     " do not match original " + grammarRequest);
         }
-        this.grammar = resolvedGrammar.getObject();
+        final DefinitionContext defaultContext = resolvedGrammar.getObject().getDefaultContext();
         if (initialContextName != null) {
-            for (DefinitionContext definitionContext : this.grammar.getStatementContexts()) {
+            for (DefinitionContext definitionContext : resolvedGrammar.getObject().getStatementContexts()) {
                 if (definitionContext.context().equals(initialContextName)) {
                     initialContext = definitionContext;
                     break;
                 }
             }
             if (initialContext == null) {
-                // TODO better error handling
-                throw new IllegalStateException("Initial context is not found!");
+                if (defaultContext != null) {
+                    initialContext = defaultContext;
+                    grammarRequestErrors = new ErrorInfo("syntax.InitialContextMissingDefault", new Object[]{
+                            initialContextName, defaultContext.context()
+                    }, doctype.context.start(), doctype.context.end(), systemId, grammarRequestErrors);
+                } else {
+                    grammarRequestErrors = new ErrorInfo("syntax.InitialContextMissing", new Object[]{
+                            initialContextName
+                    }, doctype.context.start(), doctype.context.end(), systemId, grammarRequestErrors);
+                }
             }
         } else {
-            initialContext = this.grammar.getDefaultContext();
+            initialContext = defaultContext;
+            if (initialContext == null) {
+                grammarRequestErrors = new ErrorInfo("syntax.NoDefaultContext", new Object[]{
+                        initialContextName
+                }, doctype.context.start(), doctype.context.end(), systemId, grammarRequestErrors);
+            }
         }
+        if (initialContext == null) {
+            this.grammar = BootstrapGrammars.defaultGrammar();
+            initialContext = grammar.getDefaultContext();
+        } else {
+            this.grammar = resolvedGrammar.getObject();
+        }
+        ErrorInfo merged = ErrorInfo.merge(grammarRequestErrors, resolvedGrammar.getObject().getErrors(), resolutionErrors);
+        queue.append(new TermToken(Terms.GRAMMAR_IS_LOADED, null,
+                new LoadedGrammarInfo(resolvedGrammar, grammar, initialContext),
+                null, currentPos, currentPos, merged));
     }
 
     @Override
@@ -194,6 +227,9 @@ public class TermParserImpl implements TermParser {
     @Override
     public ParserState parse(Cell<PhraseToken> token) {
         tokenCell = token;
+        if (tokenCell.hasElement()) {
+            currentPos = tokenCell.peek().start();
+        }
         try {
             while (true) {
                 if (grammarRequest != null && grammar == null) {
@@ -243,21 +279,54 @@ public class TermParserImpl implements TermParser {
         }
     }
 
-    public void setDoctype(Doctype doctype) {
+    /**
+     * Set parsed doctype to the sequence
+     *
+     * @param doctype the parsed doctype
+     */
+    void setDoctype(Doctype doctype) {
+        this.doctype = doctype;
         if (grammar != null) {
             throw new IllegalStateException("Grammar is already available");
         }
         if (grammarRequest != null) {
             throw new IllegalStateException("The grammar request is already set");
         }
-        // TODO implement better error handling
-        grammarRequest = new ResourceRequest(
-                new ResourceReference(
-                        LiteralUtils.parseString(doctype.systemId, systemId),
-                        LiteralUtils.parseString(doctype.publicId, systemId)
-                ),
+        String refPublicId = parseDoctypeString(doctype.publicId, "syntax.MalformedDoctypePublicId");
+        String refSystemId = parseDoctypeString(doctype.systemId, "syntax.MalformedDoctypeSystemId");
+        // attempt to parse system id relatively
+        if (refSystemId != null) {
+            try {
+                refSystemId = URI.create(systemId).resolve(refSystemId).toString();
+            } catch (final Throwable t) {
+                grammarRequestErrors = new ErrorInfo("syntax.MalformedDoctypeSystemIdURI", new Object[]{
+                        refSystemId, t.getMessage()
+                }, doctype.systemId.start(), doctype.systemId.end(), systemId, grammarRequestErrors);
+            }
+        }
+        grammarRequest = new ResourceRequest(new ResourceReference(refSystemId, refPublicId),
                 CompiledGrammar.GRAMMAR_REQUEST_TYPE);
-        initialContextName = LiteralUtils.parseString(doctype.context, systemId);
+        // context is identifier, so it always matches
+        initialContextName = doctype.context == null ? null : doctype.context.text();
+    }
+
+    private String parseDoctypeString(Token stringToken, String errorId) {
+        String rc;
+        if (stringToken == null) {
+            rc = null;
+        } else {
+            StringInfo parsed = new StringParser(stringToken.text(), stringToken.start(), systemId).parse();
+            if (parsed.text == null || parsed.text.length() == 0 || parsed.errors != null) {
+                grammarRequestErrors = new ErrorInfo(errorId,
+                        Collections.<Object>singletonList(stringToken.text()),
+                        new SourceLocation(stringToken.start(), stringToken.end(), systemId),
+                        grammarRequestErrors);
+                rc = null;
+            } else {
+                rc = parsed.text;
+            }
+        }
+        return rc;
     }
 
     private class TermParserContextImpl implements TermParserContext {
