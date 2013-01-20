@@ -3,7 +3,7 @@
  * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
+ * obtaining a copy of this software and associated documentation 
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
  * publish, distribute, sublicense, and/or sell copies of the Software,
@@ -27,6 +27,7 @@ package net.sf.etl.parsers.event.grammar.impl;
 
 import net.sf.etl.parsers.ErrorInfo;
 import net.sf.etl.parsers.event.ParserState;
+import net.sf.etl.parsers.event.grammar.BootstrapGrammars;
 import net.sf.etl.parsers.event.grammar.CompiledGrammar;
 import net.sf.etl.parsers.event.grammar.GrammarCompilerEngine;
 import net.sf.etl.parsers.event.grammar.impl.flattened.GrammarAssembly;
@@ -38,6 +39,7 @@ import net.sf.etl.parsers.resource.ResourceRequest;
 import net.sf.etl.parsers.resource.ResourceUsage;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -54,9 +56,13 @@ public class GrammarAssemblyBuilder implements GrammarCompilerEngine {
      */
     private final HashMap<GrammarView, GrammarBuilder> viewToBuilder = new HashMap<GrammarView, GrammarBuilder>();
     /**
-     * The root grammar
+     * The root grammar request
      */
-    private ResourceRequest rootGrammar;
+    private ResourceRequest rootGrammarRequest;
+    /**
+     * The root compiled grammar
+     */
+    private ResolvedObject<CompiledGrammar> rootGrammar;
     /**
      * The linker
      */
@@ -64,7 +70,7 @@ public class GrammarAssemblyBuilder implements GrammarCompilerEngine {
 
     @Override
     public void start(ResourceRequest reference) {
-        rootGrammar = reference;
+        rootGrammarRequest = reference;
         assembly.start(reference);
     }
 
@@ -73,70 +79,77 @@ public class GrammarAssemblyBuilder implements GrammarCompilerEngine {
         if (!assembly.unresolved().isEmpty()) {
             return ParserState.RESOURCE_NEEDED;
         }
+        if (rootGrammar != null) {
+            return ParserState.OUTPUT_AVAILABLE;
+        }
         if (assembly.hadErrors()) {
-            // TODO assembly.buildStubGrammars();
-            // return ParserState.OUTPUT_AVAILABLE;
-            throw new RuntimeException("Not implemented yet: " + assembly.getErrors());
+            return buildFailedGrammar();
         }
         // all grammars are resolved by this point, proceed with processing them
         assembly.flatten();
         if (assembly.hadErrors()) {
-            // TODO assembly.buildStubGrammars();
-            // return ParserState.OUTPUT_AVAILABLE;
-            throw new RuntimeException("Not implemented yet");
+            return buildFailedGrammar();
         }
         for (GrammarView grammarView : assembly.grammars()) {
             viewToBuilder.put(grammarView, new GrammarBuilder(this, grammarView));
         }
         if (assembly.hadErrors()) {
-            // TODO assembly.buildStubGrammars();
-            // return ParserState.OUTPUT_AVAILABLE;
-            throw new RuntimeException("Not implemented yet");
+            return buildFailedGrammar();
         }
         for (GrammarBuilder builder : viewToBuilder.values()) {
             builder.prepare();
         }
         if (assembly.hadErrors()) {
-            // TODO assembly.buildStubGrammars();
-            // return ParserState.OUTPUT_AVAILABLE;
-            throw new RuntimeException("Not implemented yet");
+            return buildFailedGrammar();
         }
         for (GrammarBuilder builder : viewToBuilder.values()) {
             builder.buildNodes();
         }
         if (assembly.hadErrors()) {
-            // TODO assembly.buildStubGrammars();
-            // return ParserState.OUTPUT_AVAILABLE;
-            throw new RuntimeException("Not implemented yet");
+            return buildFailedGrammar();
         }
         for (GrammarBuilder builder : viewToBuilder.values()) {
             builder.buildLookAhead();
         }
         if (assembly.hadErrors()) {
-            // TODO assembly.buildStubGrammars();
-            // return ParserState.OUTPUT_AVAILABLE;
-            throw new RuntimeException("Not implemented yet");
+            return buildFailedGrammar();
         }
         for (GrammarBuilder builder : viewToBuilder.values()) {
             builder.buildStateMachines();
         }
         if (assembly.hadErrors()) {
-            // TODO assembly.buildStubGrammars();
-            // return ParserState.OUTPUT_AVAILABLE;
-            throw new RuntimeException("Not implemented yet");
+            return buildFailedGrammar();
         }
         for (GrammarBuilder builder : viewToBuilder.values()) {
             builder.buildCompiledGrammars();
         }
         if (assembly.hadErrors()) {
-            // TODO assembly.buildStubGrammars();
-            // return ParserState.OUTPUT_AVAILABLE;
-            throw new RuntimeException("Not implemented yet");
+            return buildFailedGrammar();
         }
         for (GrammarBuilder builder : viewToBuilder.values()) {
             builder.linkGrammars();
         }
+        // actually get root grammar
+        final ResolvedObject<GrammarView> grammarView = assembly.resolveGrammar(rootGrammarRequest.getReference());
+        final GrammarBuilder grammarBuilder = viewToBuilder.get(grammarView.getObject());
+        rootGrammar = new ResolvedObject<CompiledGrammar>(rootGrammarRequest, grammarView.getResolutionHistory(),
+                grammarView.getDescriptor(), grammarBuilder.compiledGrammar());
         return ParserState.OUTPUT_AVAILABLE;
+    }
+
+    /**
+     * Build the grammar that failed the compilation
+     */
+    private ParserState buildFailedGrammar() {
+        final ResolvedObject<GrammarView> grammarView = assembly.resolveGrammar(rootGrammarRequest.getReference());
+        rootGrammar = new ResolvedObject<CompiledGrammar>(rootGrammarRequest, grammarView.getResolutionHistory(),
+                grammarView.getDescriptor(), new DelegateCompiledGrammar(
+                BootstrapGrammars.defaultGrammar(),
+                assembly.getErrors(),
+                grammarView.getDescriptor(),
+                Collections.<CompiledGrammar>emptyList()));
+        return ParserState.OUTPUT_AVAILABLE;
+
     }
 
     @Override
@@ -162,11 +175,10 @@ public class GrammarAssemblyBuilder implements GrammarCompilerEngine {
 
     @Override
     public ResolvedObject<CompiledGrammar> read() {
-        // TODO error recovery
-        final ResolvedObject<GrammarView> grammarView = assembly.resolveGrammar(rootGrammar.getReference());
-        final GrammarBuilder grammarBuilder = viewToBuilder.get(grammarView.getObject());
-        return new ResolvedObject<CompiledGrammar>(rootGrammar, grammarView.getResolutionHistory(),
-                grammarView.getDescriptor(), grammarBuilder.compiledGrammar());
+        if (rootGrammar == null) {
+            throw new IllegalStateException("The grammar is not available yet!");
+        }
+        return rootGrammar;
     }
 
     /**

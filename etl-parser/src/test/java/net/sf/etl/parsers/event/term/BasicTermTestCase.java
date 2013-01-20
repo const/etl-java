@@ -3,7 +3,7 @@
  * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
+ * obtaining a copy of this software and associated documentation 
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
  * publish, distribute, sublicense, and/or sell copies of the Software,
@@ -35,7 +35,6 @@ import net.sf.etl.parsers.streams.TermParserReader;
 import org.junit.After;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.URL;
 
@@ -126,7 +125,27 @@ public class BasicTermTestCase {
      * @param systemId the systemId name
      */
     protected void startSystemId(String systemId) throws IOException {
-        start(new TermParserReader(new PhraseParserReader(new LexerReader(new InputStreamReader(new URL(systemId).openStream(), "UTF-8"), "t", TextPos.START))));
+        startSystemId(new URL(systemId));
+    }
+
+    /**
+     * Start grammar at URL
+     *
+     * @param url start grammar at URL
+     */
+    protected void startSystemId(URL url) {
+        start(new TermParserReader(url));
+    }
+
+    /**
+     * Start parsing the resource
+     *
+     * @param resource the resource
+     */
+    protected void startResource(String resource) {
+        final URL url = getClass().getResource(resource);
+        assertNotNull(getClass().getName() + " => " + resource, url);
+        startSystemId(url);
     }
 
 

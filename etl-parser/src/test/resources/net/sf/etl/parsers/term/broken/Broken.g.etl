@@ -1,0 +1,14 @@
+doctype script public "-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN";
+
+grammar net.sf.etl.parsers.test.Broken "0.1" {
+    namespace default ns = "urn:x-test:net.sf.etl.parsers.test.Broken"
+    context default Test {
+        // error is here because of the choice conflict, the grammar should not compile
+        statement AA {
+            % a % a
+        }
+        statement AB {
+            % a % b
+        }
+    }
+}
