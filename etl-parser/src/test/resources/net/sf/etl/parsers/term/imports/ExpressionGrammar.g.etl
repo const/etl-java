@@ -1,4 +1,4 @@
-doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0";
+doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN";
 /// This is an expression grammar is imported from main grammars
 /// In its turn, this grammar imports main grammar.
 grammar net.sf.etl.tests.data.imports.ExpressionGrammar {

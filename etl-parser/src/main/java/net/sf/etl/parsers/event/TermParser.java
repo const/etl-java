@@ -48,6 +48,17 @@ public interface TermParser {
     void forceGrammar(CompiledGrammar grammar, boolean scriptMode);
 
     /**
+     * Set default grammar as it has been specified using doctype instruction, it is used when the first statement
+     * is encountered and no doctype is specified.
+     *
+     * @param publicId     the public id
+     * @param systemId     the system id
+     * @param context      the top level context
+     * @param isScriptMode if true, by default parser is starting in script mode
+     */
+    void setDefaultGrammar(String publicId, String systemId, String context, boolean isScriptMode);
+
+    /**
      * @return true after grammar was supplied to the term parser of the parser was constructed from compiled grammar
      */
     boolean isGrammarDetermined();

@@ -30,7 +30,7 @@ import net.sf.etl.parsers.event.Cell;
 import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.grammar.BootstrapGrammars;
 import net.sf.etl.parsers.event.grammar.CompiledGrammar;
-import net.sf.etl.parsers.event.grammar.GrammarCompiler;
+import net.sf.etl.parsers.event.grammar.GrammarCompilerEngine;
 import net.sf.etl.parsers.event.grammar.impl.GrammarAssemblyBuilder;
 import net.sf.etl.parsers.event.unstable.model.grammar.Grammar;
 import net.sf.etl.parsers.event.unstable.model.grammar.GrammarLiteTermParser;
@@ -109,7 +109,7 @@ public class CachingGrammarResolver implements GrammarResolver {
      * @return the compiled grammar
      */
     private CompiledGrammar getCompiledGrammar(ResourceRequest resourceRequest) {
-        GrammarCompiler compiler = new GrammarAssemblyBuilder();
+        GrammarCompilerEngine compiler = new GrammarAssemblyBuilder();
         compiler.start(resourceRequest);
         while (true) {
             final ParserState state = compiler.process();
@@ -165,7 +165,7 @@ public class CachingGrammarResolver implements GrammarResolver {
                                     compiler.provide(new ResolvedObject<Grammar>(request,
                                             Collections.<ResourceUsage>emptyList(),
                                             new ResourceDescriptor(systemId,
-                                                    CompiledGrammar.GRAMMAR_REQUEST_TYPE,
+                                                    CompiledGrammar.GRAMMAR_NATURE,
                                                     "" + System.currentTimeMillis(),
                                                     usedGrammar != null ? Collections.singletonList(usedGrammar) : null),
                                             grammar),

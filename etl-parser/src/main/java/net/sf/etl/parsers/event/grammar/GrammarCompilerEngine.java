@@ -38,7 +38,7 @@ import java.util.Collection;
  * The public grammar compiler engine interface. The grammar compiler allows making complied grammars
  * from loaded grammar objects. The grammar compiler accepts incomplete objects.
  */
-public interface GrammarCompiler {
+public interface GrammarCompilerEngine {
     /**
      * Start compiling the grammar
      *

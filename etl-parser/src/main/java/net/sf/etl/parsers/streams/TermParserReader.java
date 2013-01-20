@@ -38,6 +38,7 @@ import net.sf.etl.parsers.resource.ResourceRequest;
 import net.sf.etl.parsers.resource.ResourceUsage;
 import net.sf.etl.parsers.streams.util.CachingGrammarResolver;
 
+import java.io.Reader;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
@@ -93,6 +94,27 @@ public class TermParserReader extends AbstractReaderImpl<TermToken> {
      */
     public TermParserReader(URL url) {
         this(new PhraseParserReader(url));
+    }
+
+    /**
+     * Start from reader
+     *
+     * @param reader   the reader
+     * @param systemId the system id
+     * @param start    the start position
+     */
+    public TermParserReader(Reader reader, String systemId, TextPos start) {
+        this(new PhraseParserReader(new LexerReader(reader, systemId, start)));
+    }
+
+    /**
+     * Start from reader
+     *
+     * @param reader   the reader
+     * @param systemId the system id
+     */
+    public TermParserReader(Reader reader, String systemId) {
+        this(reader, systemId, TextPos.START);
     }
 
     @Override
@@ -156,5 +178,17 @@ public class TermParserReader extends AbstractReaderImpl<TermToken> {
      */
     public void setResolver(GrammarResolver resolver) {
         this.resolver = resolver;
+    }
+
+    /**
+     * Set default grammar
+     *
+     * @param grammarPublicId the public id of the grammar
+     * @param grammarSystemId the system id of th grammar
+     * @param defaultContext  the default context
+     * @param scriptMode      the script mode
+     */
+    public void setDefaultGrammar(String grammarPublicId, String grammarSystemId, String defaultContext, boolean scriptMode) {
+        this.termParser.setDefaultGrammar(grammarPublicId, grammarSystemId, defaultContext, scriptMode);
     }
 }

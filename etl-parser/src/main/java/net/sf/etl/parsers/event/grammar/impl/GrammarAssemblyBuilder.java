@@ -28,7 +28,7 @@ package net.sf.etl.parsers.event.grammar.impl;
 import net.sf.etl.parsers.ErrorInfo;
 import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.grammar.CompiledGrammar;
-import net.sf.etl.parsers.event.grammar.GrammarCompiler;
+import net.sf.etl.parsers.event.grammar.GrammarCompilerEngine;
 import net.sf.etl.parsers.event.grammar.impl.flattened.GrammarAssembly;
 import net.sf.etl.parsers.event.grammar.impl.flattened.GrammarView;
 import net.sf.etl.parsers.event.impl.term.action.buildtime.ActionLinker;
@@ -44,7 +44,7 @@ import java.util.HashSet;
 /**
  * The grammar compiler
  */
-public class GrammarAssemblyBuilder implements GrammarCompiler {
+public class GrammarAssemblyBuilder implements GrammarCompilerEngine {
     /**
      * The collection of grammar views
      */

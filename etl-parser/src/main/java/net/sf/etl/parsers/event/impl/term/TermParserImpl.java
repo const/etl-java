@@ -127,6 +127,22 @@ public class TermParserImpl implements TermParser {
      * The current position
      */
     private TextPos currentPos;
+    /**
+     * The default public id
+     */
+    private String defaultPublicId;
+    /**
+     * The default system id
+     */
+    private String defaultSystemId;
+    /**
+     * The default context
+     */
+    private String defaultContext;
+    /**
+     * The default script mode
+     */
+    private boolean defaultScriptMode;
 
     @Override
     public void forceGrammar(CompiledGrammar grammar, boolean scriptMode) {
@@ -135,6 +151,14 @@ public class TermParserImpl implements TermParser {
             throw new IllegalStateException("The grammar is already provided");
         }
         this.grammar = grammar;
+    }
+
+    @Override
+    public void setDefaultGrammar(String publicId, String systemId, String context, boolean isScriptMode) {
+        defaultPublicId = publicId;
+        defaultSystemId = systemId;
+        defaultContext = context;
+        defaultScriptMode = isScriptMode;
     }
 
     @Override
@@ -173,6 +197,8 @@ public class TermParserImpl implements TermParser {
                     " do not match original " + grammarRequest);
         }
         final DefinitionContext defaultContext = resolvedGrammar.getObject().getDefaultContext();
+        final TextPos contextStart = doctype == null || doctype.context == null ? currentPos : doctype.context.start();
+        final TextPos contextEnd = doctype == null || doctype.context == null ? currentPos : doctype.context.end();
         if (initialContextName != null) {
             for (DefinitionContext definitionContext : resolvedGrammar.getObject().getStatementContexts()) {
                 if (definitionContext.context().equals(initialContextName)) {
@@ -185,11 +211,11 @@ public class TermParserImpl implements TermParser {
                     initialContext = defaultContext;
                     grammarRequestErrors = new ErrorInfo("syntax.InitialContextMissingDefault", new Object[]{
                             initialContextName, defaultContext.context()
-                    }, doctype.context.start(), doctype.context.end(), systemId, grammarRequestErrors);
+                    }, contextStart, contextEnd, systemId, grammarRequestErrors);
                 } else {
                     grammarRequestErrors = new ErrorInfo("syntax.InitialContextMissing", new Object[]{
                             initialContextName
-                    }, doctype.context.start(), doctype.context.end(), systemId, grammarRequestErrors);
+                    }, contextStart, contextEnd, systemId, grammarRequestErrors);
                 }
             }
         } else {
@@ -197,7 +223,7 @@ public class TermParserImpl implements TermParser {
             if (initialContext == null) {
                 grammarRequestErrors = new ErrorInfo("syntax.NoDefaultContext", new Object[]{
                         initialContextName
-                }, doctype.context.start(), doctype.context.end(), systemId, grammarRequestErrors);
+                }, contextStart, contextEnd, systemId, grammarRequestErrors);
             }
         }
         if (initialContext == null) {
@@ -292,22 +318,36 @@ public class TermParserImpl implements TermParser {
         if (grammarRequest != null) {
             throw new IllegalStateException("The grammar request is already set");
         }
-        String refPublicId = parseDoctypeString(doctype.publicId, "syntax.MalformedDoctypePublicId");
-        String refSystemId = parseDoctypeString(doctype.systemId, "syntax.MalformedDoctypeSystemId");
+        String refPublicId;
+        String refSystemId;
+        if (doctype == null) {
+            refPublicId = defaultPublicId;
+            refSystemId = defaultSystemId;
+            initialContextName = defaultContext;
+            scriptMode = defaultScriptMode;
+        } else {
+            refPublicId = parseDoctypeString(doctype.publicId, "syntax.MalformedDoctypePublicId");
+            refSystemId = parseDoctypeString(doctype.systemId, "syntax.MalformedDoctypeSystemId");
+            initialContextName = doctype.context == null ? null : doctype.context.text();
+            if (doctype.type != null) {
+                scriptMode = "script".equals(doctype.type.text());
+            }
+        }
         // attempt to parse system id relatively
         if (refSystemId != null) {
             try {
                 refSystemId = URI.create(systemId).resolve(refSystemId).toString();
             } catch (final Throwable t) {
-                grammarRequestErrors = new ErrorInfo("syntax.MalformedDoctypeSystemIdURI", new Object[]{
-                        refSystemId, t.getMessage()
-                }, doctype.systemId.start(), doctype.systemId.end(), systemId, grammarRequestErrors);
+                grammarRequestErrors = new ErrorInfo("syntax.MalformedDoctypeSystemIdURI",
+                        new Object[]{
+                                refSystemId, t.getMessage()
+                        },
+                        doctype == null ? currentPos : doctype.systemId.start(),
+                        doctype == null ? currentPos : doctype.systemId.end(), systemId, grammarRequestErrors);
             }
         }
         grammarRequest = new ResourceRequest(new ResourceReference(refSystemId, refPublicId),
                 CompiledGrammar.GRAMMAR_REQUEST_TYPE);
-        // context is identifier, so it always matches
-        initialContextName = doctype.context == null ? null : doctype.context.text();
     }
 
     private String parseDoctypeString(Token stringToken, String errorId) {

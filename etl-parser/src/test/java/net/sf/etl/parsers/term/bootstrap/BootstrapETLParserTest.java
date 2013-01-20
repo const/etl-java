@@ -75,7 +75,7 @@ public class BootstrapETLParserTest {
      */
     @Test
     public void testDoctype() {
-        final Grammar g = parseResource("/net/sf/etl/grammars/doctype.g.etl");
+        final Grammar g = parseResource("/net/sf/etl/grammars/doctype-0_3_0.g.etl");
         assertNotNull(g);
     }
 
@@ -85,7 +85,7 @@ public class BootstrapETLParserTest {
      */
     @Test
     public void testDefault() {
-        final Grammar g = parseResource("/net/sf/etl/grammars/default.g.etl");
+        final Grammar g = parseResource("/net/sf/etl/grammars/default-0_3_0.g.etl");
         assertNotNull(g);
     }
 

@@ -1,10 +1,10 @@
-doctype "Fallbacks.g.etl" context "NonEmptyFallbacks";
+doctype "Fallbacks.g.etl" context = NonEmptyFallbacks;
 
 // The line below demonstrate correct statement
 /// a documentation
 @[ok] some test;
 
-// The line below demonstrate erroneous blank statement 
+// The line below demonstrate erroneous blank statement
 /// a documentation
 @[ok];
 

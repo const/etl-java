@@ -1,4 +1,4 @@
-doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0";
+doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN";
 /// This is an main grammar that imports expression grammar
 /// In its turn it imported from expression grammar. The cycle
 /// is here to make life interesting.

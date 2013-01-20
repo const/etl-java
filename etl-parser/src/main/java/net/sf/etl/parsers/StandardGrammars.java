@@ -48,7 +48,7 @@ public interface StandardGrammars {
     /**
      * Public ID that resolves to current ETL grammar
      */
-    public static final String ETL_GRAMMAR_PUBLIC_ID = "-//IDN etl.sf.net//ETL//Grammar " + VERSION;
+    public static final String ETL_GRAMMAR_PUBLIC_ID = "-//IDN etl.sf.net//ETL//Grammar " + VERSION + "//EN";
     /**
      * Namespace of objects in ETL grammar
      */
@@ -67,7 +67,7 @@ public interface StandardGrammars {
      * System ID of doctype grammar
      */
     public static final String DOCTYPE_GRAMMAR_SYSTEM_ID = StandardGrammars.class.getResource(
-            "/net/sf/etl/grammars/doctype.g.etl").toString();
+            "/net/sf/etl/grammars/doctype-" + _VERSION + ".g.etl").toString();
     /**
      * namespace of default object
      */
@@ -82,7 +82,7 @@ public interface StandardGrammars {
      * System ID of default grammar
      */
     public static final String DEFAULT_GRAMMAR_SYSTEM_ID = StandardGrammars.class.getResource(
-            "/net/sf/etl/grammars/default.g.etl").toString();
+            "/net/sf/etl/grammars/default-" + _VERSION + ".g.etl").toString();
     /**
      * Property name for system id property
      */

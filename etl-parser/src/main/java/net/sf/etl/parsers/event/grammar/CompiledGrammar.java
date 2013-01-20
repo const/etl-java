@@ -34,7 +34,7 @@ import java.util.List;
 
 /**
  * <p>The compiled grammar that could be used to create parsers. This grammar is a result of compilation
- * of grammar AST trees using {@link GrammarCompiler}.</p>
+ * of grammar AST trees using {@link GrammarCompilerEngine}.</p>
  * <p>The object is immutable and serializable. However serialized objects of this class will not be compatible
  * with future minor versions of the the library and even between different versions of JDK. So use serialization
  * only for caching purposes.</p>
@@ -48,6 +48,10 @@ public interface CompiledGrammar {
      * The used grammar request type
      */
     String USED_GRAMMAR_REQUEST_TYPE = "http://etl.sf.net/used_grammar";
+    /**
+     * RDDL grammar nature
+     */
+    String GRAMMAR_NATURE = "http://etl.sf.net/etl/grammar-definition";
 
     /**
      * Get other compiled grammars that were produced as result of compilation of this grammar

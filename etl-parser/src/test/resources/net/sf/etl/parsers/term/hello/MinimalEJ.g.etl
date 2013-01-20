@@ -1,24 +1,24 @@
-doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0";
+doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN";
 /// The statement below is a special blank statement to ensure that it is ignored.
 ;
 /// This is almost minimal grammar that supports HelloWorld.ej.etl
 /// But there are still some features to remove.
 grammar net.sf.etl.tests.data.MinimalEJ {
 	namespace default ej = "http://etl.sf.net/2006/samples/ej/0.1";
-	
+
 	/// A common context that defines documentation and attributes
 	context Common {
-		/// Simple documentation 
+		/// Simple documentation
 		documentation Documentation {
-			@ documentation += doclines wrapper ej:DocumentationLine.text;
+			@ Documentation += doclines wrapper ej:DocumentationLine.Text;
 		};
 
 		/// Simple attributes definition
 		attributes Attributes {
-			@ attributeSets += {
+			@ AttributeSets += {
 				^ ej:AttributeSet {
 					% @ {
-						@ attributes += list , {
+						@ Attributes += list , {
 							expression(Expression,precedence=100);
 						};
 					};
@@ -28,132 +28,132 @@ grammar net.sf.etl.tests.data.MinimalEJ {
 
 		def IdentifierDef {
 			^ ej:Identifier {
-				@ value = identifier;
+				@ Value = identifier;
 			};
 		};
 	};
-	
+
 	context abstract Classifiers {
 		include Common;
 
 		statement ClassStatement {
 			% class;
-			modifiers wrapper ej:Modifier.value {
-				@ visibilityModifier = modifier public;
+			modifiers wrapper ej:Modifier.Value {
+				@ VisibilityModifier = modifier public;
 			};
-			@ name = ref(IdentifierDef);
-			@ contents += block(ClassContents);
+			@ Name = ref(IdentifierDef);
+			@ Contents += block(ClassContents);
 		};
 	};
-	
+
 	/// Top level context that contains package and class definitions
 	context default TopLevel {
-		include Classifiers wrapper ej:TopLevelClassifier.classifier;
-		
+		include Classifiers wrapper ej:TopLevelClassifier.Classifier;
+
 		statement PackageStatement {
 			% package;
-			@ name = expression(PackageNameExpression);
+			@ Name = expression(PackageNameExpression);
 		};
-		
-		
+
+
 		statement BlankTopLevel {
 		};
 	};
 
-	
+
 	context PackageNameExpression {
 		include Common;
-				
+
 		op composite Identifier(f) {
 			ref(IdentifierDef);
 		};
-		
+
 		op AccessOp(yfx, 100, . ) {
-			@ accessed = left;
-			@ feature = right;
+			@ Accessed = left;
+			@ Feature = right;
 		};
 	};
 
-	
+
 	context TypeExpression {
 		include PackageNameExpression;
-		
+
 		op composite VoidType(f) {
 			^ ej:PrimitiveType {
-				@ name = token(void);
+				@ Name = token(void);
 			};
 		};
-		
+
 		op composite ArrayType(f) {
 			^ ej:PrimitiveType {
-				@ name = token(array);
+				@ Name = token(array);
 			};
 		};
-		
+
 		op composite ApplySquareOp(yf, 100) {
-			@ functor = left;
-			@ args += % [ {
+			@ Functor = left;
+			@ Args += % [ {
 				list , {
 					expression;
 				};
 			} % ];
 		};
-		
+
 	};
-	
+
 	context Expression {
 		include TypeExpression;
 
 		op composite StringLiteral(f) {
-			@ value = string(quote='\"');
+			@ Value = string(quote='\"');
 		};
 
 		op composite ApplyRoundOp(yf, 100) {
-			@ functor = left;
-			@ args += % ( {
+			@ Functor = left;
+			@ Args += % ( {
 				list , {
 					expression;
 				};
 			} %);
 		};
 	};
-	
+
 	context Code {
 		statement ExpressionStatement {
-			@ expression = expression(Expression);
+			@ Expression = expression(Expression);
 		};
 		statement BlankCode {
 		};
 	};
-	
+
 	context ClassContents {
 		include Common;
-		
+
 		statement MethodStatement {
 			% to;
-			modifiers wrapper ej:Modifier.value {
-				@ visibilityModifier = modifier public;
-				@ staticModifier = modifier static;
+			modifiers wrapper ej:Modifier.Value {
+				@ VisibilityModifier = modifier public;
+				@ StaticModifier = modifier static;
 			};
-			@ returnType = expression(TypeExpression);
-			@ name = ref(IdentifierDef);
-			@ parameters += % ( {
+			@ ReturnType = expression(TypeExpression);
+			@ Name = ref(IdentifierDef);
+			@ Parameters += % ( {
 				list , {
 					^ ej:Parameter {
-						@ classifier = expression(TypeExpression);
-						@ name = ref(IdentifierDef);
+						@ Classifier = expression(TypeExpression);
+						@ Name = ref(IdentifierDef);
 					};
 				}?;
 			} % );
-			@ body = ref(MethodBlock);
+			@ Body = ref(MethodBlock);
 		};
-		
+
 		def MethodBlock {
 			^ ej:MethodBlock {
-				@ content += block(Code);
+				@ Content += block(Code);
 			};
 		};
-		
+
 		statement BlankClassContent {
 		};
 	};

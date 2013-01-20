@@ -127,7 +127,7 @@ public class BootstrapGrammars {
      * @return the compiled grammar
      */
     private static CompiledGrammar getCompiledBootstrapGrammar(String grammarSystemId) {
-        GrammarCompiler compiler = new GrammarAssemblyBuilder();
+        GrammarCompilerEngine compiler = new GrammarAssemblyBuilder();
         ResourceRequest resourceRequest = new ResourceRequest(
                 new ResourceReference(grammarSystemId, null),
                 CompiledGrammar.GRAMMAR_REQUEST_TYPE);
@@ -152,7 +152,7 @@ public class BootstrapGrammars {
                                 final Grammar grammar = parser.parse();
                                 // note that exception is thrown if there was problem with parsing resource
                                 compiler.provide(new ResolvedObject<Grammar>(request, null,
-                                        new ResourceDescriptor(systemId, CompiledGrammar.GRAMMAR_REQUEST_TYPE, null),
+                                        new ResourceDescriptor(systemId, CompiledGrammar.GRAMMAR_NATURE, null),
                                         grammar), null);
                             } finally {
                                 input.close();

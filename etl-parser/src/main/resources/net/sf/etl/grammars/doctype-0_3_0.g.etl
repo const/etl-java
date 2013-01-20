@@ -1,4 +1,4 @@
-doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0";
+doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN";
 // Reference ETL Parser for Java
 // Copyright (c) 2000-2013 Constantine A Plotnikov
 //

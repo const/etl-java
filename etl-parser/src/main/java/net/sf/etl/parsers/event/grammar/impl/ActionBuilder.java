@@ -576,6 +576,23 @@ public class ActionBuilder {
     }
 
     /**
+     * Start disable soft ends
+     *
+     * @param e the element
+     */
+    public void startDisableSoftEnds(Element e) {
+        startNode(e, new DisableSoftEndsNode());
+    }
+
+    /**
+     * End fallback scope
+     */
+    public void endDisableSoftEnds() {
+        endNode(DisableSoftEndsNode.class);
+    }
+
+
+    /**
      * Start object at mark
      *
      * @param e    the element

@@ -123,8 +123,9 @@ public class SourceStateFactory implements TermParserStateFactory {
                         state = BEFORE_STATEMENT;
                         return;
                     } else {
-                        // TODO support default grammars
-                        throw new RuntimeException("Support default grammars");
+                        ((TermParserImpl) context.parser()).setDoctype(null);
+                        state = BEFORE_STATEMENT;
+                        return;
                     }
                 case BEFORE_STATEMENT:
                     CompiledGrammar grammar = context.parser().grammar();
@@ -147,7 +148,6 @@ public class SourceStateFactory implements TermParserStateFactory {
                         throw new IllegalStateException("Invalid token for end of source: " + current);
                     }
             }
-            // TODO check for doctype and default grammar and context
         }
     }
 }

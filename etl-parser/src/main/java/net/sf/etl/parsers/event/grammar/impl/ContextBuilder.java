@@ -211,6 +211,7 @@ public class ContextBuilder {
         // Start fallback scope. This scope causes creation of object at mark.
         // This is used to prevent the case of dangling properties.
         final FallbackObjectNode fallbackNode = b.startFallbackScope(contextElement);
+        b.startDisableSoftEnds(contextElement);
         // parse documentation comments in the context.
         if (contextView.documentation() != null) {
             // if documentation statement present in the context, comments
@@ -242,6 +243,7 @@ public class ContextBuilder {
             b.endRepeat();
             b.endDefinition();
         }
+        b.endDisableSoftEnds();
         b.endFallbackScope();
         // Finally compile statement choice.
         // NOTE POST 0.2: add alternative that reports error better.
