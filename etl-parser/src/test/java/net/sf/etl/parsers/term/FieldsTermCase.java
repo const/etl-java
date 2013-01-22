@@ -76,8 +76,7 @@ public abstract class FieldsTermCase<ObjectType> {
      */
     protected FieldTermParser<ObjectType> createFieldTermParser(
             TermParserReader termParser) {
-        return new FieldTermParser<ObjectType>(termParser, this.getClass()
-                .getClassLoader()) {
+        return new FieldTermParser<ObjectType>(termParser, this.getClass().getClassLoader()) {
             @Override
             protected void handleErrorFromParser(TermToken errorToken) {
                 fail("Errors from parser are not expected: " + errorToken);

@@ -100,5 +100,4 @@ public class ImportsTest extends BeansTermCase {
                 ExpressionStatement.class);
         return rc;
     }
-
 }

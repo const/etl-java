@@ -36,7 +36,6 @@ import java.nio.CharBuffer;
  * The lexer implementation
  */
 public class LexerImpl implements Lexer {
-    // TODO implement tabulation size
     // phases for parsing number
     private static final int NUMBER_DECIMAL = 0;
     private static final int NUMBER_DECIMAL_FRACTION = 1;
@@ -66,6 +65,10 @@ public class LexerImpl implements Lexer {
     private static final int NEWLINE_NORMAL = 50;
     private static final int NEWLINE_AFTER_CR = 51;
     public static final String UNKNOWN_FILE = "unknown:file";
+    /**
+     * The parser configuration
+     */
+    private final TermParserConfiguration configuration;
     /**
      * If true, parsing started
      */
@@ -138,19 +141,44 @@ public class LexerImpl implements Lexer {
      * The base of the number
      */
     private int numberBase;
+    /**
+     * The tab size
+     */
+    private int tabSize;
+
+    /**
+     * The constructor from configuration
+     *
+     * @param configuration the configuration
+     */
+    public LexerImpl(TermParserConfiguration configuration) {
+        this.configuration = configuration;
+    }
+
+    /**
+     * The default constructor
+     */
+    public LexerImpl() {
+        this(DefaultTermParserConfiguration.INSTANCE);
+    }
+
 
     @Override
     public void start(String systemId, TextPos start) {
+        tabSize = configuration.getTabSize(systemId);
         if (started) {
             throw new IllegalStateException("The parsing is already started with: " + systemId + " : " + start);
         }
+        started = true;
         this.start = start;
         this.systemId = systemId;
     }
 
     @Override
     public ParserState parse(CharBuffer buffer, boolean eof) {
-        started = true;
+        if (!started) {
+            throw new IllegalStateException("The parser is not yet started!");
+        }
         if (finished && next == null) {
             return ParserState.EOF;
         }
@@ -526,14 +554,15 @@ public class LexerImpl implements Lexer {
 
     private ParserState parseSpace(CharBuffer buffer, boolean eof) {
         kind = Tokens.WHITESPACE;
-        codepoint(buffer, eof);
-        if (moreDataNeeded(buffer, eof)) return ParserState.INPUT_NEEDED;
         return continueSpaces(buffer, eof);
     }
 
     private ParserState continueSpaces(CharBuffer buffer, boolean eof) {
         while (Whitespaces.isSpace(peek(buffer, eof))) {
-            codepoint(buffer, eof);
+            final int codepoint = codepoint(buffer, eof);
+            if (codepoint == '\t') {
+                column = tab(column - 1, tabSize);
+            }
             if (moreDataNeeded(buffer, eof)) return ParserState.INPUT_NEEDED;
         }
         return makeToken();
@@ -897,6 +926,17 @@ public class LexerImpl implements Lexer {
         }
         next = null;
         return rc;
+    }
+
+    /**
+     * Find column after tab
+     *
+     * @param current the current position
+     * @param tabSize the tabulation size
+     * @return the new position after tab
+     */
+    public static int tab(int current, int tabSize) {
+        return ((current - 1) / tabSize + 1) * tabSize + 1;
     }
 
     @Override

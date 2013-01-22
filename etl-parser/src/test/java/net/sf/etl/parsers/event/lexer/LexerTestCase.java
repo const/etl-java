@@ -25,6 +25,7 @@
 
 package net.sf.etl.parsers.event.lexer;
 
+import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.Token;
 import net.sf.etl.parsers.TokenKey;
 import net.sf.etl.parsers.Tokens;
@@ -69,6 +70,7 @@ public abstract class LexerTestCase {
      */
     protected void start(String text) {
         lexer = new LexerImpl();
+        lexer.start("unknown:text", TextPos.START);
         input = text;
         consumed = input.length();
         buffer = CharBuffer.wrap(text);
@@ -81,6 +83,7 @@ public abstract class LexerTestCase {
      */
     protected void startOneChar(String text) {
         lexer = new LexerImpl();
+        lexer.start("unknown:text", TextPos.START);
         input = text;
         consumed = 0;
         buffer = CharBuffer.allocate(4);

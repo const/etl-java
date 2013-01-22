@@ -25,22 +25,16 @@
 
 package net.sf.etl.parsers.streams;
 
-import net.sf.etl.parsers.ErrorInfo;
-import net.sf.etl.parsers.event.Cell;
-import net.sf.etl.parsers.event.grammar.CompiledGrammar;
-import net.sf.etl.parsers.resource.ResolvedObject;
-import net.sf.etl.parsers.resource.ResourceRequest;
+import net.sf.etl.parsers.event.TermParser;
 
 /**
- * The grammar resolver
+ * The grammar resolver for term parser
  */
 public interface GrammarResolver {
     /**
-     * The grammar resolver
+     * The resolve the grammar and finish when it is done
      *
-     * @param request the request
-     * @param errors  the holder for resolution errors
-     * @return the resolver
+     * @param termParser the request
      */
-    ResolvedObject<CompiledGrammar> resolve(ResourceRequest request, Cell<ErrorInfo> errors);
+    void resolve(TermParser termParser);
 }

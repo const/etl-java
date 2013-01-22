@@ -347,7 +347,7 @@ public class TermParserImpl implements TermParser {
             }
         }
         grammarRequest = new ResourceRequest(new ResourceReference(refSystemId, refPublicId),
-                CompiledGrammar.GRAMMAR_REQUEST_TYPE);
+                StandardGrammars.GRAMMAR_REQUEST_TYPE);
     }
 
     private String parseDoctypeString(Token stringToken, String errorId) {

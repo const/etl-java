@@ -1,4 +1,5 @@
-doctype "MainGrammar.g.etl" context = Statements;
+// The grammar is registered with suffix in the catalog
+// doctype "MainGrammar.g.etl" context = Statements;
 
 /// This doc comment should be ignored
 let a = 5;

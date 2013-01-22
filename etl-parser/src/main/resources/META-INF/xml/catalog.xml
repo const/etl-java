@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Reference ETL Parser for Java
   ~ Copyright (c) 2000-2013 Constantine A Plotnikov
@@ -24,25 +24,6 @@
   ~ SOFTWARE.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
-    <groupId>net.sf.etl</groupId>
-    <artifactId>etl</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    <name>ETL for Java</name>
-    <description>This is an umbrella project for ETL java implementations.</description>
-
-    <modules>
-        <module>etl-parser</module>
-    </modules>
-
-    <properties>
-        <junit.version>4.11</junit.version>
-        <xml-catalog.version>0.1.0-SNAPSHOT</xml-catalog.version>
-    </properties>
-
-</project>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+    <nextCatalog xml:base="../.." catalog="net/sf/etl/grammars/catalog.xml"/>
+</catalog>

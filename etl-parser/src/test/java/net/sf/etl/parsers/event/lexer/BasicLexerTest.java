@@ -44,6 +44,7 @@ public class BasicLexerTest {
     @Test
     public void testEof() {
         Lexer l = new LexerImpl();
+        l.start("test:test", TextPos.START);
         ParserState r = l.parse(CharBuffer.wrap(""), false);
         assertEquals(ParserState.INPUT_NEEDED, r);
         r = l.parse(CharBuffer.wrap(""), true);

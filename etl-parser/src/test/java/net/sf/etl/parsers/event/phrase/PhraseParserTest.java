@@ -27,6 +27,7 @@ package net.sf.etl.parsers.event.phrase;
 
 import net.sf.etl.parsers.PhraseToken;
 import net.sf.etl.parsers.PhraseTokens;
+import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.Token;
 import net.sf.etl.parsers.event.Cell;
 import net.sf.etl.parsers.event.Lexer;
@@ -121,6 +122,7 @@ public class PhraseParserTest {
         buffer = CharBuffer.wrap(text);
         cell = new Cell<Token>();
         lexer = new LexerImpl();
+        lexer.start("test:test", TextPos.START);
         phraseParser = new PhraseParserImpl();
         current = null;
     }

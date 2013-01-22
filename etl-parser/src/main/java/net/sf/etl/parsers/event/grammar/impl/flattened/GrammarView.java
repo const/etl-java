@@ -24,11 +24,7 @@
  */
 package net.sf.etl.parsers.event.grammar.impl.flattened;
 
-import net.sf.etl.parsers.ErrorInfo;
-import net.sf.etl.parsers.GrammarInfo;
-import net.sf.etl.parsers.SourceLocation;
-import net.sf.etl.parsers.Token;
-import net.sf.etl.parsers.event.grammar.CompiledGrammar;
+import net.sf.etl.parsers.*;
 import net.sf.etl.parsers.event.grammar.impl.flattened.DirectedAcyclicGraph.Node;
 import net.sf.etl.parsers.event.unstable.model.grammar.*;
 import net.sf.etl.parsers.literals.LiteralUtils;
@@ -191,7 +187,7 @@ public class GrammarView {
                 resourceUsages.addAll(used.getResolutionHistory());
                 resourceUsages.add(new ResourceUsage(used.getRequest().getReference(),
                         used.getObject().createDescriptor(visited),
-                        CompiledGrammar.USED_GRAMMAR_REQUEST_TYPE));
+                        StandardGrammars.USED_GRAMMAR_REQUEST_TYPE));
             }
             for (GrammarAssembly.FailedGrammar failedGrammar : failedGrammars) {
                 resourceUsages.addAll(failedGrammar.usedResources);
@@ -282,7 +278,7 @@ public class GrammarView {
                 final GrammarView importedGrammar = getReferencedGrammar(gi);
                 if (importedGrammar == null) {
                     failedGrammars.add(assembly.failure(
-                            new ResourceRequest(toReference(gi), CompiledGrammar.USED_GRAMMAR_REQUEST_TYPE)));
+                            new ResourceRequest(toReference(gi), StandardGrammars.USED_GRAMMAR_REQUEST_TYPE)));
                 } else if (importedGrammars.containsKey(gi.name.text())) {
                     error(gi, "grammar.Grammar.duplicateImport", gi.name);
                 } else {
@@ -294,7 +290,7 @@ public class GrammarView {
                 final GrammarView includedGrammar = getReferencedGrammar(gi);
                 if (includedGrammar == null) {
                     failedGrammars.add(assembly.failure(
-                            new ResourceRequest(toReference(gi), CompiledGrammar.USED_GRAMMAR_REQUEST_TYPE)));
+                            new ResourceRequest(toReference(gi), StandardGrammars.USED_GRAMMAR_REQUEST_TYPE)));
                 } else if (includeNode.hasImmediateParent(includedGrammar)) {
                     error(gi, "grammar.Grammar.duplicateInclude");
                 } else if (!includeNode.addParent(includedGrammar)) {

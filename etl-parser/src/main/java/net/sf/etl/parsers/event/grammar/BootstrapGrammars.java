@@ -130,7 +130,7 @@ public class BootstrapGrammars {
         GrammarCompilerEngine compiler = new GrammarAssemblyBuilder();
         ResourceRequest resourceRequest = new ResourceRequest(
                 new ResourceReference(grammarSystemId, null),
-                CompiledGrammar.GRAMMAR_REQUEST_TYPE);
+                StandardGrammars.GRAMMAR_REQUEST_TYPE);
         compiler.start(resourceRequest);
         while (true) {
             final ParserState state = compiler.process();
@@ -152,7 +152,7 @@ public class BootstrapGrammars {
                                 final Grammar grammar = parser.parse();
                                 // note that exception is thrown if there was problem with parsing resource
                                 compiler.provide(new ResolvedObject<Grammar>(request, null,
-                                        new ResourceDescriptor(systemId, CompiledGrammar.GRAMMAR_NATURE, null),
+                                        new ResourceDescriptor(systemId, StandardGrammars.GRAMMAR_NATURE, null),
                                         grammar), null);
                             } finally {
                                 input.close();

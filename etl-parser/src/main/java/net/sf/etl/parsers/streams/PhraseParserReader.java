@@ -27,6 +27,7 @@ package net.sf.etl.parsers.streams;
 
 import net.sf.etl.parsers.ParserException;
 import net.sf.etl.parsers.PhraseToken;
+import net.sf.etl.parsers.TermParserConfiguration;
 import net.sf.etl.parsers.Token;
 import net.sf.etl.parsers.event.Cell;
 import net.sf.etl.parsers.event.ParserState;
@@ -69,6 +70,16 @@ public class PhraseParserReader extends AbstractReaderImpl<PhraseToken> {
      */
     public PhraseParserReader(URL url) {
         this(new LexerReader(url));
+    }
+
+    /**
+     * The constructor from URL
+     *
+     * @param configuration the configuration
+     * @param url           the url to use
+     */
+    public PhraseParserReader(TermParserConfiguration configuration, URL url) {
+        this(new LexerReader(configuration, url));
     }
 
     @Override

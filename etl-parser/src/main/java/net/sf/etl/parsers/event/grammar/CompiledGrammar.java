@@ -40,18 +40,6 @@ import java.util.List;
  * only for caching purposes.</p>
  */
 public interface CompiledGrammar {
-    /**
-     * The request type for the grammar associated with the ETL source
-     */
-    String GRAMMAR_REQUEST_TYPE = "http://etl.sf.net/document_type";
-    /**
-     * The used grammar request type
-     */
-    String USED_GRAMMAR_REQUEST_TYPE = "http://etl.sf.net/used_grammar";
-    /**
-     * RDDL grammar nature
-     */
-    String GRAMMAR_NATURE = "http://etl.sf.net/etl/grammar-definition";
 
     /**
      * Get other compiled grammars that were produced as result of compilation of this grammar

@@ -25,16 +25,12 @@
 
 package net.sf.etl.parsers.streams;
 
-import net.sf.etl.parsers.ParserException;
-import net.sf.etl.parsers.ParserIOException;
-import net.sf.etl.parsers.TextPos;
-import net.sf.etl.parsers.Token;
+import net.sf.etl.parsers.*;
 import net.sf.etl.parsers.event.Lexer;
 import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.impl.LexerImpl;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.CharBuffer;
@@ -59,7 +55,7 @@ public class LexerReader extends AbstractReaderImpl<Token> {
     /**
      * The lexer
      */
-    final Lexer lexer = new LexerImpl();
+    final Lexer lexer;
     /**
      * The buffer to use for IO
      */
@@ -78,10 +74,33 @@ public class LexerReader extends AbstractReaderImpl<Token> {
      * @param start    the start position for the lexer
      */
     public LexerReader(Reader input, String systemId, TextPos start) {
+        this(DefaultTermParserConfiguration.INSTANCE, input, systemId, start);
+    }
+
+    /**
+     * The constructor
+     *
+     * @param configuration the configuration
+     * @param input         the input
+     * @param systemId      the system id
+     * @param start         the start position for the lexer
+     */
+    public LexerReader(TermParserConfiguration configuration, Reader input, String systemId, TextPos start) {
         this.input = input;
         this.systemId = systemId;
+        lexer = new LexerImpl(configuration);
         lexer.start(systemId, start);
         buffer.position(0).limit(0);
+    }
+
+    /**
+     * The constructor from url, it opens resource and starts reading its content. The assumed encoding is UTF-8.
+     *
+     * @param configuration the configuration
+     * @param url           the url of resource
+     */
+    public LexerReader(TermParserConfiguration configuration, URL url) {
+        this(createReader(configuration, url), url.toString(), TextPos.START);
     }
 
     /**
@@ -90,7 +109,7 @@ public class LexerReader extends AbstractReaderImpl<Token> {
      * @param url the url of resource
      */
     public LexerReader(URL url) {
-        this(createReader(url), url.toString(), TextPos.START);
+        this(DefaultTermParserConfiguration.INSTANCE, url);
     }
 
     /**
@@ -99,9 +118,9 @@ public class LexerReader extends AbstractReaderImpl<Token> {
      * @param url the URL to open
      * @return the corresponding reader
      */
-    private static Reader createReader(URL url) {
+    private static Reader createReader(TermParserConfiguration configuration, URL url) {
         try {
-            return new InputStreamReader(url.openStream(), UTF8);
+            return configuration.openReader(url.toString());
         } catch (IOException ex) {
             throw new ParserIOException("Unable to open resource: " + url, ex);
         }

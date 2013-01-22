@@ -26,7 +26,7 @@
 package net.sf.etl.parsers.event.grammar.impl.flattened;
 
 import net.sf.etl.parsers.ErrorInfo;
-import net.sf.etl.parsers.event.grammar.CompiledGrammar;
+import net.sf.etl.parsers.StandardGrammars;
 import net.sf.etl.parsers.event.unstable.model.grammar.Element;
 import net.sf.etl.parsers.event.unstable.model.grammar.Grammar;
 import net.sf.etl.parsers.resource.ResolvedObject;
@@ -109,7 +109,7 @@ public class GrammarAssembly {
             references.removeAll(allResourceReferences);
             allResourceReferences.addAll(references);
             for (ResourceReference reference : references) {
-                unresolvedResourceRequests.add(new ResourceRequest(reference, CompiledGrammar.USED_GRAMMAR_REQUEST_TYPE));
+                unresolvedResourceRequests.add(new ResourceRequest(reference, StandardGrammars.USED_GRAMMAR_REQUEST_TYPE));
             }
         }
         resolutions.put(grammar.getRequest().getReference(), grammar);
