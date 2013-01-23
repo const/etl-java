@@ -69,7 +69,7 @@ public class FirstChoiceNode extends GroupNode {
 
     @Override
     protected boolean calcMatchesEmpty() {
-        assert nodes().size() < 2 : "First choice node must have at least two alternative";
+        assert nodes().size() >= 2 : "First choice node must have at least two alternative";
         for (final Node node : nodes()) {
             if (node.matchesEmpty()) {
                 return true;
@@ -80,7 +80,7 @@ public class FirstChoiceNode extends GroupNode {
 
     @Override
     protected LookAheadSet createLookAhead(Set<ActionBuilder> visitedBuilders) {
-        assert nodes().size() < 2 : "First choice node must have at least two alternative";
+        assert nodes().size() >= 2 : "First choice node must have at least two alternative";
         final LookAheadSet rc = new LookAheadSet();
         for (final Node node : nodes()) {
             rc.addAll(node.buildLookAhead(visitedBuilders));
