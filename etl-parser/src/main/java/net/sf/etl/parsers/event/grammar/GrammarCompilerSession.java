@@ -76,6 +76,19 @@ public class GrammarCompilerSession {
      * @param configuration  the configuration
      */
     public GrammarCompilerSession(TermParserConfiguration configuration, TermParser parser, Runnable finishedAction) {
+        this(configuration, configuration.getCatalog(parser.getSystemId()), parser, finishedAction);
+    }
+
+    /**
+     * The constructor. It immediately start loading parsers for the grammar, and possibly exits, or not.
+     * If it exits, it means that the grammar loading is asynchronous.
+     *
+     * @param configuration  the configuration
+     * @param catalog        the catalog
+     * @param parser         the parser
+     * @param finishedAction the action to be executed to indicate that loading grammar has been finished
+     */
+    public GrammarCompilerSession(TermParserConfiguration configuration, Catalog catalog, TermParser parser, Runnable finishedAction) {
         this.catalog = configuration.getCatalog(parser.getSystemId());
         this.parser = parser;
         this.finishedAction = finishedAction;
@@ -271,6 +284,12 @@ public class GrammarCompilerSession {
         return rc;
     }
 
+    /**
+     * Load grammar basing on resolution result
+     *
+     * @param request the catalog request
+     * @param result  the resolution
+     */
     protected void loadGrammar(ResourceRequest request, CatalogResult result) {
         final String systemId = result.getResolution();
         final List<ResourceUsage> resolution = getResolutionHistory(result);
@@ -281,8 +300,7 @@ public class GrammarCompilerSession {
                                 Collections.<Object>unmodifiableList(Arrays.<Object>asList(
                                         request.getReference().getSystemId(),
                                         request.getReference().getPublicId(),
-                                        "This grammar resolver does not implement " +
-                                                "entity resolution: " + request
+                                        "The request was resolved: " + request
                                 )), SourceLocation.UNKNOWN, null));
                 return;
             }
@@ -327,7 +345,6 @@ public class GrammarCompilerSession {
                                     doctype.resolvedGrammar().getDescriptor(),
                                     StandardGrammars.USED_GRAMMAR_REQUEST_TYPE);
                     // TODO better version
-                    // TODO fix grammar type (globally)
                     grammarCompilerEngine.provide(new ResolvedObject<Grammar>(request,
                             resolution,
                             new ResourceDescriptor(systemId,

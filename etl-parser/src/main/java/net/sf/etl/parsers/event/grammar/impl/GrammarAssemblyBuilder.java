@@ -26,6 +26,7 @@
 package net.sf.etl.parsers.event.grammar.impl;
 
 import net.sf.etl.parsers.ErrorInfo;
+import net.sf.etl.parsers.StandardGrammars;
 import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.grammar.BootstrapGrammars;
 import net.sf.etl.parsers.event.grammar.CompiledGrammar;
@@ -35,6 +36,7 @@ import net.sf.etl.parsers.event.grammar.impl.flattened.GrammarView;
 import net.sf.etl.parsers.event.impl.term.action.buildtime.ActionLinker;
 import net.sf.etl.parsers.event.unstable.model.grammar.Grammar;
 import net.sf.etl.parsers.resource.ResolvedObject;
+import net.sf.etl.parsers.resource.ResourceDescriptor;
 import net.sf.etl.parsers.resource.ResourceRequest;
 import net.sf.etl.parsers.resource.ResourceUsage;
 
@@ -142,14 +144,29 @@ public class GrammarAssemblyBuilder implements GrammarCompilerEngine {
      */
     private ParserState buildFailedGrammar() {
         final ResolvedObject<GrammarView> grammarView = assembly.resolveGrammar(rootGrammarRequest.getReference());
-        rootGrammar = new ResolvedObject<CompiledGrammar>(rootGrammarRequest, grammarView.getResolutionHistory(),
-                grammarView.getDescriptor(), new DelegateCompiledGrammar(
-                BootstrapGrammars.defaultGrammar(),
-                assembly.getErrors(),
-                grammarView.getDescriptor(),
-                Collections.<CompiledGrammar>emptyList()));
-        return ParserState.OUTPUT_AVAILABLE;
-
+        System.out.println(rootGrammarRequest);
+        if (grammarView != null) {
+            rootGrammar = new ResolvedObject<CompiledGrammar>(rootGrammarRequest, grammarView.getResolutionHistory(),
+                    grammarView.getDescriptor(), new DelegateCompiledGrammar(
+                    BootstrapGrammars.defaultGrammar(),
+                    assembly.getErrors(),
+                    grammarView.getDescriptor(),
+                    Collections.<CompiledGrammar>emptyList()));
+            return ParserState.OUTPUT_AVAILABLE;
+        } else {
+            final GrammarAssembly.FailedGrammar failedGrammar = assembly.getFailedGrammar(rootGrammarRequest);
+            final ResourceDescriptor unresolved = new ResourceDescriptor("unresolved:grammar", StandardGrammars.GRAMMAR_NATURE, null);
+            rootGrammar = new ResolvedObject<CompiledGrammar>(
+                    rootGrammarRequest,
+                    failedGrammar.usedResources,
+                    unresolved,
+                    new DelegateCompiledGrammar(
+                            BootstrapGrammars.defaultGrammar(),
+                            assembly.getErrors(),
+                            unresolved,
+                            Collections.<CompiledGrammar>emptyList()));
+            return ParserState.OUTPUT_AVAILABLE;
+        }
     }
 
     @Override

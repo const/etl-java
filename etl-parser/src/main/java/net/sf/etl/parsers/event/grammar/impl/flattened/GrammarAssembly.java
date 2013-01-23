@@ -153,7 +153,9 @@ public class GrammarAssembly {
             return null;
         }
         final GrammarView view = grammarViews.get(grammarResolvedObject.getDescriptor().getSystemId());
-        return new ResolvedObject<GrammarView>(grammarResolvedObject.getRequest(), grammarResolvedObject.getResolutionHistory(), grammarResolvedObject.getDescriptor(), view);
+        return new ResolvedObject<GrammarView>(grammarResolvedObject.getRequest(),
+                grammarResolvedObject.getResolutionHistory(),
+                grammarResolvedObject.getDescriptor(), view);
     }
 
     /**
@@ -204,7 +206,7 @@ public class GrammarAssembly {
      */
     public void fail(ResourceRequest request, Collection<ResourceUsage> resources, ErrorInfo errors) {
         unresolvedResourceRequests.remove(request);
-        failed.put(request, new FailedGrammar(request, errors, resources));
+        failed.put(request, new FailedGrammar(request, errors, new ArrayList<ResourceUsage>(resources)));
         error(errors);
     }
 
@@ -235,8 +237,7 @@ public class GrammarAssembly {
         }
         // M1: All referenced grammars are loaded.
         grammarIncludeDAG.minimizeImmediate();
-        final List<GrammarView> grammars = grammarIncludeDAG
-                .topologicalSortObjects();
+        final List<GrammarView> grammars = grammarIncludeDAG.topologicalSortObjects();
         for (final GrammarView v : grammars) {
             v.gatherImports();
         }
@@ -253,8 +254,7 @@ public class GrammarAssembly {
         // M3: All contexts for grammars are created, include relationships are
         // created.
         contextGrammarIncludeDAG.minimizeImmediate();
-        final List<ContextView> contextsByGrammarInclude = contextGrammarIncludeDAG
-                .topologicalSortObjects();
+        final List<ContextView> contextsByGrammarInclude = contextGrammarIncludeDAG.topologicalSortObjects();
         for (final ContextView v : contextsByGrammarInclude) {
             v.implementGrammarInclude();
         }
@@ -278,6 +278,16 @@ public class GrammarAssembly {
     }
 
     /**
+     * Get failed grammar information
+     *
+     * @param reference the reference
+     * @return the failed grammar information
+     */
+    public FailedGrammar getFailedGrammar(ResourceRequest reference) {
+        return failed.get(reference);
+    }
+
+    /**
      * The failed grammar
      */
     public static class FailedGrammar {
@@ -292,7 +302,7 @@ public class GrammarAssembly {
         /**
          * The resources consulted to receive the failure
          */
-        public final Collection<ResourceUsage> usedResources;
+        public final List<ResourceUsage> usedResources;
 
         /**
          * The constructor
@@ -301,7 +311,7 @@ public class GrammarAssembly {
          * @param errors        the error information
          * @param usedResources the used resources
          */
-        public FailedGrammar(ResourceRequest request, ErrorInfo errors, Collection<ResourceUsage> usedResources) {
+        public FailedGrammar(ResourceRequest request, ErrorInfo errors, List<ResourceUsage> usedResources) {
             this.request = request;
             this.errors = errors;
             this.usedResources = usedResources;
