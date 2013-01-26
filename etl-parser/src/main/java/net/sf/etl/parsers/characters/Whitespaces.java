@@ -25,6 +25,9 @@
 
 package net.sf.etl.parsers.characters;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This class contains whitespace checks
  */
@@ -67,6 +70,32 @@ public class Whitespaces {
                 return true;
         }
         return false;
+    }
+
+    /**
+     * Split string by new lines, new lines itself are removed.
+     *
+     * @param string the string to split
+     * @return the split string
+     */
+    public static List<String> splitNewLines(String string) {
+        ArrayList<String> rc = new ArrayList<String>();
+        int p = 0;
+        int i = 0;
+        final int length = string.length();
+        while (i < length) {
+            final int c = string.codePointAt(i);
+            i += Character.charCount(c);
+            if (isNewline(c)) {
+                rc.add(string.substring(p, i - 1));
+                if (c == CR && i < length && string.charAt(i) == LF) {
+                    i++;
+                }
+                p = i;
+            }
+        }
+        rc.add(string.substring(p));
+        return rc;
     }
 
     public static boolean isSpace(int codepoint) {

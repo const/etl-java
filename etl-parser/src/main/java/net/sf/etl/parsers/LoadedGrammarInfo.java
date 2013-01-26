@@ -64,4 +64,18 @@ public class LoadedGrammarInfo {
     public ResolvedObject<CompiledGrammar> resolvedGrammar() {
         return loadedGrammar;
     }
+
+    /**
+     * @return get used grammar
+     */
+    public CompiledGrammar getUsedGrammar() {
+        return usedGrammar;
+    }
+
+    /**
+     * @return get used context
+     */
+    public DefinitionContext getUsedContext() {
+        return usedContext;
+    }
 }

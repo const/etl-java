@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Reference ETL Parser for Java
   ~ Copyright (c) 2000-2013 Constantine A Plotnikov
@@ -24,20 +23,22 @@
   ~ SOFTWARE.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                xmlns:p="http://etl.sf.net/2006/etl/presentation">
+    <xsl:import href="generic.xsl"/>
 
-    <groupId>net.sf.etl</groupId>
-    <artifactId>etl</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    <name>ETL for Java</name>
-    <description>This is an umbrella project for ETL java implementations.</description>
-
-    <modules>
-        <module>etl-parser</module>
-        <module>etl-xml</module>
-    </modules>
-</project>
+    <!-- This is a generic XSLT that syntax-highlights ETL code -->
+    <xsl:template match="p:source">
+        <html>
+            <pre>
+                <span class="etl_source">
+                    <span class="etl_linenum">1:</span>
+                    <xsl:apply-templates/>
+                </span>
+            </pre>
+            <ul>
+                <xsl:apply-templates mode="errors"/>
+            </ul>
+        </html>
+    </xsl:template>
+</xsl:stylesheet>

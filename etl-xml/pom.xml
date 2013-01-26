@@ -30,10 +30,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.sf.etl</groupId>
-    <artifactId>etl-parser</artifactId>
+    <artifactId>etl-xml</artifactId>
     <version>0.3.0-SNAPSHOT</version>
-    <name>ETL Parser</name>
-    <description>This module represent basic event-driven ETL parser for Java.</description>
+    <name>ETL XML Tools</name>
+
+    <description>
+        This module contains implementation for ETL to XML converters that take ETL as input and
+        produce XML or HTML as output. The module also contains default XSLT stylesheets for the
+        the tool.
+    </description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -41,15 +46,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache-extras.xml-catalog</groupId>
-            <artifactId>xml-catalog</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
+            <groupId>net.sf.etl</groupId>
+            <artifactId>etl-parser</artifactId>
+            <version>0.3.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

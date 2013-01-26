@@ -69,6 +69,13 @@ public final class DefinitionInfo {
         return location;
     }
 
+    /**
+     * @return the context for this definition
+     */
+    public DefinitionContext getContext() {
+        return context;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

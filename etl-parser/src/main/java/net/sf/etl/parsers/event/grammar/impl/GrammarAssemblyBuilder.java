@@ -144,7 +144,6 @@ public class GrammarAssemblyBuilder implements GrammarCompilerEngine {
      */
     private ParserState buildFailedGrammar() {
         final ResolvedObject<GrammarView> grammarView = assembly.resolveGrammar(rootGrammarRequest.getReference());
-        System.out.println(rootGrammarRequest);
         if (grammarView != null) {
             rootGrammar = new ResolvedObject<CompiledGrammar>(rootGrammarRequest, grammarView.getResolutionHistory(),
                     grammarView.getDescriptor(), new DelegateCompiledGrammar(

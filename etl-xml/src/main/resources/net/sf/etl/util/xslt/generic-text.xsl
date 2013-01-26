@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Reference ETL Parser for Java
   ~ Copyright (c) 2000-2013 Constantine A Plotnikov
@@ -24,20 +23,38 @@
   ~ SOFTWARE.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                xmlns:p="http://etl.sf.net/2006/etl/presentation">
 
-    <groupId>net.sf.etl</groupId>
-    <artifactId>etl</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    <name>ETL for Java</name>
-    <description>This is an umbrella project for ETL java implementations.</description>
+    <!-- This is a generic XSLT that copies text as is and appends list of errors at the end as comments -->
+    <xsl:output method="text" xmlns=""/>
 
-    <modules>
-        <module>etl-parser</module>
-        <module>etl-xml</module>
-    </modules>
-</project>
+    <xsl:template match="p:source">
+        <xsl:apply-templates/>
+        <xsl:apply-templates mode="errors"/>
+    </xsl:template>
+
+    <xsl:template match="*" priority="-1">
+        <xsl:apply-templates/>
+    </xsl:template>
+
+    <xsl:template match="*[@token]" priority="-1">
+        <xsl:value-of select="./text()"/>
+    </xsl:template>
+
+    <xsl:template match="*" mode="errors">
+        <xsl:apply-templates mode="errors"/>
+    </xsl:template>
+
+    <xsl:template match="p:error" mode="errors">
+        <xsl:text>// !! </xsl:text>
+        <xsl:value-of select="@kind"/>
+        <xsl:text>: </xsl:text>
+        <xsl:value-of select="@shortLocation"/>
+        <xsl:text>: </xsl:text>
+        <xsl:value-of select="@message"/>
+    </xsl:template>
+
+    <xsl:template match="text()" mode="errors"/>
+
+</xsl:stylesheet>

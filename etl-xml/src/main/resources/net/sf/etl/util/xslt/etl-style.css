@@ -1,0 +1,10 @@
+.etl_definition {font-style: italic;}
+.etl_docs {color: #003f7f;}
+.etl_comment {color: green; font-style: italic;}
+.etl_keyword {font-weight: bold; }
+.etl_modifier {font-weight: bold; color: purple;}
+.etl_literal {color: blue;}
+.etl_literal2 {color: #006f6f;}
+.etl_linenum {color: #8f8f8f;}
+.etl_error {color: red;}
+.etl_error_message {color: #7f0000;}

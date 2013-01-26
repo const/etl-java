@@ -28,7 +28,10 @@ package net.sf.etl.parsers.event.lexer;
 import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.Token;
 import net.sf.etl.parsers.Tokens;
+import net.sf.etl.parsers.characters.Whitespaces;
 import org.junit.Test;
+
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 
@@ -63,6 +66,12 @@ public class SpacesAndCommentsTest extends LexerTestCase {
         assertEquals(n1, t.end());
         sequence("\n\r\r\n\u000B\u000C\u0085\u2029\u2028", Tokens.NEWLINE, "\n", "\r", "\r\n", "\u000B",
                 "\u000C", "\u0085", "\u2029", "\u2028");
+    }
+
+    @Test
+    public void newLineSplitTest() {
+        assertEquals(Arrays.asList("", "", "test", ""), Whitespaces.splitNewLines("\r\n\rtest\n"));
+        assertEquals(Arrays.asList("test", "a"), Whitespaces.splitNewLines("test\r\na"));
     }
 
     /**

@@ -42,6 +42,11 @@ public enum SyntaxRole {
     PRIMARY,
 
     /**
+     * primary any toke, it is used when generic token operation is used
+     */
+    PRIMARY_ANY,
+
+    /**
      * a keyword
      */
     KEYWORD,

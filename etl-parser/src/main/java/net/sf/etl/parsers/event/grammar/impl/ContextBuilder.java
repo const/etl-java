@@ -437,7 +437,7 @@ public class ContextBuilder {
             if (s.value != null) {
                 b.tokenText(s, Terms.VALUE, SyntaxRole.KEYWORD, s.value);
             } else {
-                b.anyToken(s, Terms.VALUE, SyntaxRole.PRIMARY);
+                b.anyToken(s, Terms.VALUE, SyntaxRole.PRIMARY_ANY);
             }
             b.endWrapper(s.wrapper);
         } else if (body instanceof StringOp) {

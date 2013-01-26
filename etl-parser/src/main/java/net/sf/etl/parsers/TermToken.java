@@ -97,6 +97,28 @@ public final class TermToken extends AbstractToken {
         switch (kind()) {
             case BLOCK_START:
             case BLOCK_END:
+                return (DefinitionContext) structureId;
+            default:
+                throw new IllegalStateException(
+                        "Term context is not supported for kind: " + kind);
+        }
+    }
+
+    /**
+     * @return a context of the term
+     */
+    public LoadedGrammarInfo loadedGrammar() {
+        switch (kind()) {
+            case GRAMMAR_IS_LOADED:
+                return (LoadedGrammarInfo) structureId;
+            default:
+                throw new IllegalStateException(
+                        "Term context is not supported for kind: " + kind);
+        }
+    }
+
+    public DefinitionInfo definitionInfo() {
+        switch (kind()) {
             case STATEMENT_START:
             case STATEMENT_END:
             case ATTRIBUTES_START:
@@ -104,12 +126,13 @@ public final class TermToken extends AbstractToken {
             case DOC_COMMENT_START:
             case DOC_COMMENT_END:
             case GRAMMAR_IS_LOADED:
-                return (DefinitionContext) structureId;
+                return (DefinitionInfo) structureId;
             default:
                 throw new IllegalStateException(
                         "Term context is not supported for kind: " + kind);
         }
     }
+
 
     /**
      * @return a structure identifier for the term
@@ -219,4 +242,5 @@ public final class TermToken extends AbstractToken {
                 + ", structureId=" + structureId + " ,token = " + token
                 + ", error=" + errorInfo() + "]";
     }
+
 }
