@@ -22,13 +22,33 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.event.unstable.model.grammar;
+package net.sf.etl.parsers.event.grammar.impl.flattened;
+
+import net.sf.etl.parsers.event.unstable.model.grammar.ChoiceDef;
 
 /**
- * The Def node class. This class is a part of the lightweight grammar model.
+ * This view wraps def construct.
  *
  * @author const
  */
-public class Def extends SyntaxDefinition {
-    // TODO abstract?
+public class ChoiceDefView extends DefinitionView {
+    /**
+     * The constructor
+     *
+     * @param context    the original context
+     * @param definition the definition
+     */
+    public ChoiceDefView(ContextView context, ChoiceDef definition) {
+        super(context, definition);
+    }
+
+    /**
+     * The constructor
+     *
+     * @param context    the including context
+     * @param definition the included view
+     */
+    public ChoiceDefView(ContextView context, ChoiceDefView definition) {
+        super(context, definition);
+    }
 }

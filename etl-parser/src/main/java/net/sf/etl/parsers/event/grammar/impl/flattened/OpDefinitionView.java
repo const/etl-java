@@ -206,7 +206,11 @@ public class OpDefinitionView extends ObjectDefinitionView {
                     RefOp r = (RefOp) es.syntax;
                     DefView d = context.def(r.name.text());
                     if (d == null) {
-                        error(current, r, "grammar.Ref.danglingRef", r.name.text());
+                        if (context.choice(r.name.text()) != null) {
+                            processCompositeStatement(rc, es);
+                        } else {
+                            error(current, r, "grammar.Ref.danglingRef", r.name.text());
+                        }
                     } else {
                         if (!enterDefContext(visited, d)) {
                             return;

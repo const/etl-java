@@ -628,6 +628,23 @@ grammar net.sf.etl.grammars.Grammar "0.3.0" {
 			@ Syntax += block(CompositeSyntax);
 		};
 
+		/// The declaration of choice point that is implemented by case
+		/// statement.
+		statement ChoiceDef {
+			% choice;
+			@ Name = ref(Name);
+		};
+
+		/// The declaration of the case statement that contributes to the
+		/// declared choice statement.
+		statement ChoiceCaseDef {
+			% case;
+			@ Name = ref(Name);
+			% of;
+			@ ChoiceName = ref(Name);
+			@ Syntax += block(CompositeSyntax);
+		};
+
 		/// Include operation cause all definitions except redefined
 		/// to be included in this context. It is an error if two definitions
 		/// are available using different paths. If wrapper chain is specified

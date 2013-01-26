@@ -25,10 +25,10 @@
 package net.sf.etl.parsers.event.unstable.model.grammar;
 
 /**
- * The Def node class. This class is a part of the lightweight grammar model.
+ * The choice def class, it actually never has any body, but extends SyntaxDefinition
+ * because it shares common logic with hiding an redefinition.
  *
  * @author const
  */
-public class Def extends SyntaxDefinition {
-    // TODO abstract?
+public class ChoiceDef extends SyntaxDefinition {
 }

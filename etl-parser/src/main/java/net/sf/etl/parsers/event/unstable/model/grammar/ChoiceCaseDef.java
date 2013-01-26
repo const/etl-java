@@ -24,11 +24,16 @@
  */
 package net.sf.etl.parsers.event.unstable.model.grammar;
 
+import net.sf.etl.parsers.Token;
+
 /**
- * The Def node class. This class is a part of the lightweight grammar model.
+ * The choice case class, this represents a single contribution to some case
  *
  * @author const
  */
-public class Def extends SyntaxDefinition {
-    // TODO abstract?
+public class ChoiceCaseDef extends SyntaxDefinition {
+    /**
+     * Name of choice this case contributes to
+     */
+    public Token choiceName;
 }

@@ -1,0 +1,22 @@
+doctype script public "-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN";
+grammar test.Choice {
+    namespace default c = "urn:test.Choice"
+    context abstract Base {
+        choice Test
+        statement TestStatement {
+            ref(Test)
+        }
+    }
+    context TestContext {
+        include Base
+        case TestA of Test {
+            @ Value = token(a)
+        }
+    }
+    context default NewContext {
+        include TestContext
+        case TestB of Test {
+            @ Value = token(b)
+        }
+    }
+}

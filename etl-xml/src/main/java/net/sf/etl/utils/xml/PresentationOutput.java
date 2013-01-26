@@ -39,7 +39,6 @@ import java.util.List;
  * @author const
  */
 public class PresentationOutput extends XMLOutput {
-    // TODO split comments
     /**
      * namespace of stylesheet
      */
@@ -115,8 +114,7 @@ public class PresentationOutput extends XMLOutput {
                     case LIST_PROPERTY_START:
                     case PROPERTY_START:
                         startElement(tk.propertyName().name());
-                        attribute("type", kind == Terms.PROPERTY_START ? "property"
-                                : "list-property");
+                        attribute("type", kind == Terms.PROPERTY_START ? "property" : "list-property");
                         break;
                     case LIST_PROPERTY_END:
                     case PROPERTY_END:
@@ -124,22 +122,22 @@ public class PresentationOutput extends XMLOutput {
                         break;
                     case VALUE:
                         startElement(pns, "value");
-                        writeTokenData("value");
+                        writeTokenData();
                         endElement();
                         break;
                     case CONTROL:
                         startElement(pns, "control");
-                        writeTokenData("control");
+                        writeTokenData();
                         endElement();
                         break;
                     case IGNORABLE:
                         startElement(pns, "ignorable");
-                        writeTokenData("ignorable");
+                        writeTokenData();
                         endElement();
                         break;
                     case STRUCTURAL:
                         startElement(pns, "structural");
-                        writeTokenData("structural");
+                        writeTokenData();
                         endElement();
                         break;
                     case EXPRESSION_START:
@@ -232,7 +230,7 @@ public class PresentationOutput extends XMLOutput {
      *
      * @throws XMLStreamException if there is IO problem
      */
-    private void writeTokenData(String token) throws XMLStreamException {
+    private void writeTokenData() throws XMLStreamException {
         final TermToken current = parser.current();
         attribute("role", current.role().name());
         attribute("control", current.token().kind().name());
@@ -243,7 +241,7 @@ public class PresentationOutput extends XMLOutput {
                 String line = lines.get(i);
                 if (i > 0) {
                     startElement(pns, "newline");
-                    attribute("line", Integer.toString(current.start().line() + i + 1));
+                    attribute("newline", Integer.toString(current.start().line() + i + 1));
                     out.writeCharacters("\n");
                     endElement();
                 }

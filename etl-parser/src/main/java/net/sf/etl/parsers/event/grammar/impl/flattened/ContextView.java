@@ -84,6 +84,14 @@ public class ContextView {
      */
     private final HashMap<String, DefView> defs = new HashMap<String, DefView>();
     /**
+     * The map for choice definitions
+     */
+    private final HashMap<String, ChoiceDefView> choiceDefs = new HashMap<String, ChoiceDefView>();
+    /**
+     * The map for choice cases definitions
+     */
+    private final HashMap<String, List<ChoiceCaseDefView>> choiceCaseDefs = new HashMap<String, List<ChoiceCaseDefView>>();
+    /**
      * DAG node in context include hierarchy
      */
     private final Node<ContextView> contextIncludesNode;
@@ -441,8 +449,39 @@ public class ContextView {
             } else if (m instanceof DefView) {
                 final DefView view = (DefView) m;
                 defs.put(view.definition().name.text(), view);
+            } else if (m instanceof ChoiceDefView) {
+                final ChoiceDefView view = (ChoiceDefView) m;
+                choiceDefs.put(view.name(), view);
+            } else if (m instanceof ChoiceCaseDefView) {
+                final ChoiceCaseDefView view = (ChoiceCaseDefView) m;
+                final String name = view.choiceName();
+                if (name != null) {
+                    // the name == null only in the case of syntax error, so it was reported earlier
+                    List<ChoiceCaseDefView> choice = choiceCaseDefs.get(name);
+                    if (choice == null) {
+                        choice = new ArrayList<ChoiceCaseDefView>();
+                        choiceCaseDefs.put(name, choice);
+                    }
+                    choice.add(view);
+                }
             } else {
                 throw new RuntimeException("[BUG] Unsupported definition kind: " + m.getClass().getName());
+            }
+        }
+        // validate choices
+        if (!isAbstract()) {
+            for (String choiceName : choiceDefs.keySet()) {
+                if (!choiceCaseDefs.containsKey(choiceName)) {
+                    error(reportingContext, "grammar.Context.missingCaseForChoice", name(), choiceName,
+                            choiceDefs.get(choiceName).definition().location.toShortString());
+                }
+            }
+            for (Map.Entry<String, List<ChoiceCaseDefView>> entry : choiceCaseDefs.entrySet()) {
+                if (!choiceDefs.containsKey(entry.getKey())) {
+                    error(reportingContext, "grammar.Context.missingChoiceForCase", name(),
+                            entry.getKey(), entry.getValue().size(), entry.getValue().get(0).name(),
+                            entry.getValue().get(0).definition().location.toShortString());
+                }
             }
         }
         if (operatorLevels.get(0) != null) {
@@ -490,6 +529,16 @@ public class ContextView {
     }
 
     /**
+     * Get choice def view
+     *
+     * @param name the name of the choice
+     * @return the choice
+     */
+    public List<ChoiceCaseDefView> choice(String name) {
+        return choiceCaseDefs.get(name);
+    }
+
+    /**
      * @return a set of statements
      */
     public Set<StatementView> statements() {
@@ -516,7 +565,22 @@ public class ContextView {
      */
     public DefView def(DefinitionView d, RefOp s) {
         final DefView rc = defs.get(s.name.text());
-        if (rc == null) {
+        if (rc == null && !choiceCaseDefs.containsKey(s.name.text())) {
+            d.definingContext().error(s, "grammar.Ref.danglingRef", s.name);
+        }
+        return rc;
+    }
+
+    /**
+     * Resolve reference in the context.
+     *
+     * @param d an actual definition that holds this reference
+     * @param s a reference to resolve
+     * @return a DefView or null if reference cannot be resolved.
+     */
+    public List<ChoiceCaseDefView> choices(DefinitionView d, RefOp s) {
+        final List<ChoiceCaseDefView> rc = choiceCaseDefs.get(s.name.text());
+        if (rc == null && !defs.containsKey(s.name.text())) {
             d.definingContext().error(s, "grammar.Ref.danglingRef", s.name);
         }
         return rc;

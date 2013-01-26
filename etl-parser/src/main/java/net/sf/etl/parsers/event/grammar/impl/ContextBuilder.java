@@ -220,7 +220,7 @@ public class ContextBuilder {
             final SyntaxDefinition definition = contextView.documentation().definition();
             b.startChoice(definition);
             b.startDocComment(definition, contextView.documentation().definitionInfo());
-            compileSyntax(new HashSet<DefView>(), b, contextView.documentation().statements());
+            compileSyntax(new HashSet<DefinitionView>(), b, contextView.documentation().statements());
             b.endDocComment();
             b.startSequence(definition);
             b.endSequence();
@@ -238,7 +238,7 @@ public class ContextBuilder {
             final SyntaxDefinition definition = contextView.attributes().definition();
             b.startRepeat(definition);
             b.startAttributes(definition, contextView().attributes().definitionInfo());
-            compileSyntax(new HashSet<DefView>(), b, contextView.attributes().statements());
+            compileSyntax(new HashSet<DefinitionView>(), b, contextView.attributes().statements());
             b.endAttributes();
             b.endRepeat();
             b.endDefinition();
@@ -269,7 +269,7 @@ public class ContextBuilder {
                 b.startObjectAtMark(o, def.convertName(o.name), wrappers);
                 b.commitMark(definition); // this statement tries to commit mark
                 // now body of root object is compiled
-                compileSyntax(new HashSet<DefView>(), b, o.syntax);
+                compileSyntax(new HashSet<DefinitionView>(), b, o.syntax);
                 // object ends here
                 final Node object = b.endObject();
                 if (object.matchesEmpty()) {
@@ -314,7 +314,7 @@ public class ContextBuilder {
      * @param b       the builder used for compilation.
      * @param body    the syntax to compile
      */
-    void compileSyntax(HashSet<DefView> visited, ActionBuilder b,
+    void compileSyntax(HashSet<DefinitionView> visited, ActionBuilder b,
                        Syntax body) {
         if (body instanceof BlockRef) {
             final BlockRef s = (BlockRef) body;
@@ -492,6 +492,23 @@ public class ContextBuilder {
                     visited.remove(d);
                     b.endDefinition();
                 }
+            } else {
+                final List<ChoiceCaseDefView> choices = contextView.choices(b.topDefinition(), s);
+                b.startChoice(s);
+                for (ChoiceCaseDefView choiceCaseDefView : choices) {
+                    if (visited.contains(choiceCaseDefView)) {
+                        error(b, body, "grammar.Ref.cyclicRef", s.name, contextView.name(), contextView.grammar().getSystemId());
+                    } else {
+                        visited.add(choiceCaseDefView);
+                        b.startDefinition(d);
+                        b.startSequence(s);
+                        compileSyntax(visited, b, choiceCaseDefView.statements());
+                        b.endSequence();
+                        visited.remove(choiceCaseDefView);
+                        b.endDefinition();
+                    }
+                }
+                b.endChoice();
             }
         } else if (body instanceof DoclinesOp) {
             final DoclinesOp s = (DoclinesOp) body;
@@ -775,7 +792,7 @@ public class ContextBuilder {
      * @param b         the state machine builder used by compiler
      * @param statement the statement to compile
      */
-    private void compileSyntaxStatement(HashSet<DefView> visited,
+    private void compileSyntaxStatement(HashSet<DefinitionView> visited,
                                         ActionBuilder b, SyntaxStatement statement) {
         if (statement instanceof BlankSyntaxStatement) {
             // compile empty sequence. This sequence is to be optimized out.
@@ -820,7 +837,7 @@ public class ContextBuilder {
      * @param b       the builder to use
      * @param list    the list of statements to compile
      */
-    void compileSyntax(HashSet<DefView> visited, ActionBuilder b, List<?> list) {
+    void compileSyntax(HashSet<DefinitionView> visited, ActionBuilder b, List<?> list) {
         for (final Object o : list) {
             if (o instanceof Syntax) {
                 final Syntax s = (Syntax) o;

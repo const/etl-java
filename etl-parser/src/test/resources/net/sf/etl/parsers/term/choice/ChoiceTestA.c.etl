@@ -1,0 +1,3 @@
+doctype script "Choice.g.etl" context = TestContext;
+a
+b

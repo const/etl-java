@@ -340,7 +340,7 @@ public class TermParserImpl implements TermParser {
             } catch (final Throwable t) {
                 grammarRequestErrors = new ErrorInfo("syntax.MalformedDoctypeSystemIdURI",
                         new Object[]{
-                                refSystemId, t.getMessage()
+                                refSystemId, t.toString()
                         },
                         doctype == null ? currentPos : doctype.systemId.start(),
                         doctype == null ? currentPos : doctype.systemId.end(), systemId, grammarRequestErrors);

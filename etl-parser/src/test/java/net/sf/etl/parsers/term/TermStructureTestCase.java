@@ -24,7 +24,6 @@
  */
 package net.sf.etl.parsers.term;
 
-import junit.framework.TestCase;
 import net.sf.etl.parsers.StandardGrammars;
 import net.sf.etl.parsers.Terms;
 import net.sf.etl.parsers.streams.TermParserReader;
@@ -36,12 +35,14 @@ import java.io.StringReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static org.junit.Assert.*;
+
 /**
  * Base class for structural term test case
  *
  * @author const
  */
-public abstract class TermStructureTestCase extends TestCase {
+public abstract class TermStructureTestCase {
     /**
      * a logger
      */
@@ -96,7 +97,7 @@ public abstract class TermStructureTestCase extends TestCase {
     protected void startWithStringAndDefaultGrammar(String text,
                                                     String grammarSystemId, String grammarPublicId,
                                                     String defaultContext) {
-        parser = new TermParserReader(new StringReader(text), "none:");
+        parser = new TermParserReader(new StringReader(text), "none:test");
         parser.setDefaultGrammar(grammarPublicId, grammarSystemId, defaultContext, false);
         parser.advance();
     }
@@ -249,6 +250,7 @@ public abstract class TermStructureTestCase extends TestCase {
                 case BLOCK_START:
                 case BLOCK_END:
                 case GRAMMAR_IS_LOADED:
+                    assertFalse("" + parser.current(), parser.current().hasAnyErrors());
                     parser.advance();
                     break;
                 default:
@@ -297,6 +299,36 @@ public abstract class TermStructureTestCase extends TestCase {
         }
         this.objectEnd(StandardGrammars.DOCTYPE_NS, "DoctypeDeclaration");
     }
+
+    /**
+     * Read doctype
+     *
+     * @param type     the source type
+     * @param systemId the system id of the grammar
+     * @param context  the context name
+     */
+    protected void readDocType(String type, String systemId, String context) {
+        this.objectStart(StandardGrammars.DOCTYPE_NS, "DoctypeDeclaration");
+        {
+            if (systemId != null) {
+                propStart("Type");
+                value(type);
+                propEnd("Type");
+            }
+            if (systemId != null) {
+                propStart("SystemId");
+                value(systemId);
+                propEnd("SystemId");
+            }
+            if (context != null) {
+                propStart("Context");
+                value(context);
+                propEnd("Context");
+            }
+        }
+        this.objectEnd(StandardGrammars.DOCTYPE_NS, "DoctypeDeclaration");
+    }
+
 
     /**
      * Read entire source and fail if errors are detected

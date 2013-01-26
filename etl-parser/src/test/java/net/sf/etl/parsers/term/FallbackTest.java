@@ -25,6 +25,7 @@
 package net.sf.etl.parsers.term;
 
 import net.sf.etl.parsers.Terms;
+import org.junit.Test;
 
 /**
  * This test checks handling of errors using fallback test
@@ -40,6 +41,7 @@ public class FallbackTest extends TermStructureTestCase {
     /**
      * Test context with empty fallback statement
      */
+    @Test
     public void testEmptyFallback() {
         startWithResource("fallback/EmptyFallbacks.test.etl");
         boolean errorExit = true;
@@ -80,6 +82,7 @@ public class FallbackTest extends TermStructureTestCase {
     /**
      * Test context with empty fallback statement
      */
+    @Test
     public void testNonEmptyFallback() {
         startWithResource("fallback/NonEmptyFallbacks.test.etl");
         boolean errorExit = true;

@@ -24,6 +24,8 @@
  */
 package net.sf.etl.parsers.term;
 
+import org.junit.Test;
+
 /**
  * test HelloWorld.ej.etl structure reading
  *
@@ -291,6 +293,7 @@ public class HelloWorldTermTest extends TermStructureTestCase {
     /**
      * Test how default grammar works. Default context of grammar is used.
      */
+    @Test
     public void testDefaultGrammarDefaultContext() {
         final String text = "package test;";
         startWithStringAndDefaultGrammar(text, MinimalEJ_SYSTEM_ID, null, null);
@@ -306,6 +309,7 @@ public class HelloWorldTermTest extends TermStructureTestCase {
     /**
      * Test how default grammar works. Non default context of grammar is used.
      */
+    @Test
     public void testDefaultGrammarNewContext() {
         final String text = "test;";
         startWithStringAndDefaultGrammar(text, MinimalEJ_SYSTEM_ID, null, "Code");

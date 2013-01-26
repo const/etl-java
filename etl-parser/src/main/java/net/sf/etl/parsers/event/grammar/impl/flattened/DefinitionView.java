@@ -108,6 +108,10 @@ public abstract class DefinitionView extends ContextMemberView {
     public static DefinitionView get(ContextView context, SyntaxDefinition def) {
         if (def instanceof Def) {
             return new DefView(context, (Def) def);
+        } else if (def instanceof ChoiceDef) {
+            return new ChoiceDefView(context, (ChoiceDef) def);
+        } else if (def instanceof ChoiceCaseDef) {
+            return new ChoiceCaseDefView(context, (ChoiceCaseDef) def);
         } else if (def instanceof DocumentationSyntax) {
             return new DocumentationView(context, (DocumentationSyntax) def);
         } else if (def instanceof Statement) {
@@ -131,6 +135,10 @@ public abstract class DefinitionView extends ContextMemberView {
     public static DefinitionView get(ContextView context, DefinitionView def) {
         if (def instanceof DefView) {
             return new DefView(context, def);
+        } else if (def instanceof ChoiceDefView) {
+            return new ChoiceDefView(context, (ChoiceDefView) def);
+        } else if (def instanceof ChoiceCaseDefView) {
+            return new ChoiceCaseDefView(context, (ChoiceCaseDefView) def);
         } else if (def instanceof DocumentationView) {
             return new DocumentationView(context, def);
         } else if (def instanceof StatementView) {

@@ -1,0 +1,13 @@
+doctype script public "-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN";
+grammar test.ChoiceExt {
+    include "Choice.g.etl"
+    namespace default c = "urn:test.Choice"
+    context default NewContext {
+        case TestB of Test {
+            @ Value = token(B)
+        }
+        case TestC of Test {
+            @ Value = token(c)
+        }
+    }
+}

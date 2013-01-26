@@ -218,7 +218,12 @@ public abstract class ObjectDefinitionView extends DefinitionView {
                     final RefOp r = (RefOp) s;
                     final DefView d = context.def(r.name.text());
                     if (d == null) {
-                        error(view, r, "grammar.Ref.danglingRef", r.name.text());
+                        if (context.choice(r.name.text()) != null) {
+                            makeDefaultObject(context, view, s);
+                            break;
+                        } else {
+                            error(view, r, "grammar.Ref.danglingRef", r.name.text());
+                        }
                     } else {
                         extractTopObject(visited, d, context);
                     }

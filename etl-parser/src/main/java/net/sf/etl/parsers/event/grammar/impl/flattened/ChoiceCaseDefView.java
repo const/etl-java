@@ -22,13 +22,51 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.event.unstable.model.grammar;
+package net.sf.etl.parsers.event.grammar.impl.flattened;
+
+import net.sf.etl.parsers.Token;
+import net.sf.etl.parsers.event.unstable.model.grammar.ChoiceCaseDef;
 
 /**
- * The Def node class. This class is a part of the lightweight grammar model.
+ * This view wraps def construct.
  *
  * @author const
  */
-public class Def extends SyntaxDefinition {
-    // TODO abstract?
+public class ChoiceCaseDefView extends DefinitionView {
+    /**
+     * The constructor
+     *
+     * @param context    the original context
+     * @param definition the definition
+     */
+    public ChoiceCaseDefView(ContextView context, ChoiceCaseDef definition) {
+        super(context, definition);
+    }
+
+    /**
+     * The constructor
+     *
+     * @param context    the including context
+     * @param definition the included view
+     */
+    public ChoiceCaseDefView(ContextView context, ChoiceCaseDefView definition) {
+        super(context, definition);
+    }
+
+    @Override
+    public ChoiceCaseDef definition() {
+        return (ChoiceCaseDef) super.definition();
+    }
+
+    /**
+     * @return the name of choice this case contributes to
+     */
+    public String choiceName() {
+        final Token choiceName = definition().choiceName;
+        if (choiceName == null) {
+            return null;
+        } else {
+            return choiceName.text();
+        }
+    }
 }

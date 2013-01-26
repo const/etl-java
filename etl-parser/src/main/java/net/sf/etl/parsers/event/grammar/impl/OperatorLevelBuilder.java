@@ -27,7 +27,7 @@ package net.sf.etl.parsers.event.grammar.impl;
 import net.sf.etl.parsers.PropertyName;
 import net.sf.etl.parsers.SyntaxRole;
 import net.sf.etl.parsers.Terms;
-import net.sf.etl.parsers.event.grammar.impl.flattened.DefView;
+import net.sf.etl.parsers.event.grammar.impl.flattened.DefinitionView;
 import net.sf.etl.parsers.event.grammar.impl.flattened.OpDefinitionView;
 import net.sf.etl.parsers.event.grammar.impl.flattened.OpDefinitionView.PropertyInfo;
 import net.sf.etl.parsers.event.grammar.impl.flattened.OpLevel;
@@ -90,7 +90,7 @@ public class OperatorLevelBuilder {
      */
     private void compileNormalLevel() {
         final ActionBuilder previousLevel = getPreviousBuilder();
-        final HashSet<DefView> visited = new HashSet<DefView>();
+        final HashSet<DefinitionView> visited = new HashSet<DefinitionView>();
         final Element contextElement = contextBuilder.contextView().reportingContext();
         b.startChoice(contextElement);
         // Compile F operations
@@ -201,8 +201,7 @@ public class OperatorLevelBuilder {
      * @param previousLevel the previous level
      * @param visited       the visited builders
      */
-    private void compileYfAndYfx(ActionBuilder previousLevel,
-                                 HashSet<DefView> visited) {
+    private void compileYfAndYfx(ActionBuilder previousLevel, HashSet<DefinitionView> visited) {
         for (final OpDefinitionView d : level.yfx) {
             b.startDefinition(d);
             b.startSequence(d.definition());
@@ -276,7 +275,7 @@ public class OperatorLevelBuilder {
      * @param visited visited definitions
      * @param d       definition view for operator
      */
-    private void compileOpText(HashSet<DefView> visited, OpDefinitionView d) {
+    private void compileOpText(HashSet<DefinitionView> visited, OpDefinitionView d) {
         if (d.isComposite()) {
             contextBuilder.compileSyntax(visited, b, d.operatorStatements(contextBuilder.contextView()));
         } else {
@@ -322,7 +321,7 @@ public class OperatorLevelBuilder {
         for (final OpDefinitionView op : level.f) {
             b.startDefinition(op.topObjectDefinition(contextBuilder.contextView()));
             b.startSequence(op.definition());
-            contextBuilder.compileSyntax(new HashSet<DefView>(), b, op.topObject(contextBuilder.contextView()));
+            contextBuilder.compileSyntax(new HashSet<DefinitionView>(), b, op.topObject(contextBuilder.contextView()));
             b.endSequence();
             b.endDefinition();
         }

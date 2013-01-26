@@ -173,7 +173,7 @@ public class GrammarAssembly {
      * @param args    the error args
      */
     public void error(Element element, String errorId, Object[] args) {
-        error(new ErrorInfo(errorId, Arrays.asList(args), element.location, null));
+        error(new ErrorInfo(errorId, Arrays.asList(args), element == null ? null : element.location, null));
     }
 
     /**
