@@ -573,7 +573,7 @@ grammar net.sf.etl.grammars.Grammar "0.3.0" {
 				% , {
 					@ Precedence = ref(IntegerValue);
 				    % , {
-						@ Text = token;
+						@ Text += list | {token};
 					} % ) {
 						@ Syntax += block(SimpleOpSyntax);
 					} | % ) {

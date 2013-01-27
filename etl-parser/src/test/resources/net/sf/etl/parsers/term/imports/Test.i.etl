@@ -5,4 +5,4 @@
 let a = 5;
 let b = a;
 // There is no round brackets in the grammar yet. So blocks are used.
-a + b / 2 + {let c = 3; c * {a-b+1;}; };
+a + b / 2 + {let c = 3; c × {a-b+1;}; };

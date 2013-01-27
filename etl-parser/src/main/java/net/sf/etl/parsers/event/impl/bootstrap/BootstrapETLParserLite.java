@@ -300,7 +300,11 @@ public class BootstrapETLParserLite {
             value(field(OperatorDefinition.class, "precedence"));
         }
         if (tryToken(",")) {
-            value(field(OperatorDefinition.class, "text"));
+            final Field textField = field(OperatorDefinition.class, "text");
+            value(textField);
+            while (tryToken("|")) {
+                value(textField);
+            }
         }
         consume(")");
         parseDefSyntax();
@@ -902,14 +906,14 @@ public class BootstrapETLParserLite {
                 featureId.set(top, token());
             } else if (type == Integer.class || type == int.class) {
                 featureId.set(top, LiteralUtils.parseInt(text()));
-            } else if (type == ArrayList.class) {
+            } else if (type == ArrayList.class || type == LinkedList.class) {
                 Type gType = featureId.getGenericType();
                 if (gType instanceof ParameterizedType) {
                     ParameterizedType pt = (ParameterizedType) gType;
                     if (pt.getActualTypeArguments()[0] == Token.class) {
-                        ((ArrayList<Token>) featureId.get(top)).add(token());
+                        ((List<Token>) featureId.get(top)).add(token());
                     } else if (pt.getActualTypeArguments()[0] == String.class) {
-                        ((ArrayList<String>) featureId.get(top)).add(text());
+                        ((List<String>) featureId.get(top)).add(text());
                     } else {
                         throw new RuntimeException("Unsupported argument type:"
                                 + featureId);

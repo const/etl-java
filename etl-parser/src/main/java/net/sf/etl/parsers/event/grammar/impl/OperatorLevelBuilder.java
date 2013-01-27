@@ -27,12 +27,12 @@ package net.sf.etl.parsers.event.grammar.impl;
 import net.sf.etl.parsers.PropertyName;
 import net.sf.etl.parsers.SyntaxRole;
 import net.sf.etl.parsers.Terms;
+import net.sf.etl.parsers.Token;
 import net.sf.etl.parsers.event.grammar.impl.flattened.DefinitionView;
 import net.sf.etl.parsers.event.grammar.impl.flattened.OpDefinitionView;
 import net.sf.etl.parsers.event.grammar.impl.flattened.OpDefinitionView.PropertyInfo;
 import net.sf.etl.parsers.event.grammar.impl.flattened.OpLevel;
 import net.sf.etl.parsers.event.unstable.model.grammar.Element;
-import net.sf.etl.parsers.event.unstable.model.grammar.OperatorDefinition;
 
 import java.util.HashSet;
 
@@ -279,7 +279,11 @@ public class OperatorLevelBuilder {
         if (d.isComposite()) {
             contextBuilder.compileSyntax(visited, b, d.operatorStatements(contextBuilder.contextView()));
         } else {
-            b.tokenText(d.definition(), Terms.STRUCTURAL, SyntaxRole.OPERATOR, ((OperatorDefinition) d.definition()).text);
+            b.startChoice(d.definition());
+            for (Token token : d.definition().text) {
+                b.tokenText(d.definition(), Terms.STRUCTURAL, SyntaxRole.OPERATOR, token);
+            }
+            b.endChoice();
         }
     }
 

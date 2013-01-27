@@ -26,6 +26,8 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
 
 import net.sf.etl.parsers.Token;
 
+import java.util.LinkedList;
+
 /**
  * The OperatorDefinition node class. This class is a part of the lightweight
  * grammar model.
@@ -42,9 +44,9 @@ public class OperatorDefinition extends SyntaxDefinition {
      */
     public Token precedence;
     /**
-     * text
+     * text for operators
      */
-    public Token text;
+    public final LinkedList<Token> text = new LinkedList<Token>();
     /**
      * a composite modifier
      */

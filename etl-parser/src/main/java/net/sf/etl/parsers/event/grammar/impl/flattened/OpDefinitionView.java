@@ -64,23 +64,23 @@ public class OpDefinitionView extends ObjectDefinitionView {
      * @return the precedence of the operator
      */
     public Integer precedence() {
-        final Integer rc = operatorDefinition().precedence == null ? null :
-                LiteralUtils.parseInt(operatorDefinition().precedence.text());
+        final Integer rc = definition().precedence == null ? null : LiteralUtils.parseInt(definition().precedence.text());
         return rc == null ? 0 : rc;
     }
 
     /**
-     * @return the casted operator definition
+     * @return the definition from grammar.
      */
-    private OperatorDefinition operatorDefinition() {
-        return ((OperatorDefinition) definition());
+    @Override
+    public OperatorDefinition definition() {
+        return (OperatorDefinition) super.definition();
     }
 
     /**
      * @return the operator associativity
      */
     public Associativity associativity() {
-        final OperatorDefinition od = operatorDefinition();
+        final OperatorDefinition od = definition();
         return od.associativity == null ? null : Associativity.valueOf(od.associativity.text().toUpperCase());
     }
 
@@ -117,16 +117,16 @@ public class OpDefinitionView extends ObjectDefinitionView {
         opInfos.put(context, rc);
         // NOTE POST 0.2: make definition parsing more flexible. Remove
         // artificial restrictions on refs.
-        OperatorDefinition od = operatorDefinition();
+        OperatorDefinition od = definition();
         if (isComposite()) {
             // ensure that text is not defined, and precedence is defined unless
             // operator is of F kind
-            if (od.text != null) {
+            if (!od.text.isEmpty()) {
                 error(this, od, "grammar.OperatorDefinition.composite.operatorTextPresent");
             }
         } else {
             // ensure that text, and precedence are defined
-            if (od.text == null) {
+            if (od.text.isEmpty()) {
                 error(this, od, "grammar.OperatorDefinition.simple.operatorTextMissed");
             }
         }
@@ -246,7 +246,7 @@ public class OpDefinitionView extends ObjectDefinitionView {
      * @return true if current operation is composite
      */
     public boolean isComposite() {
-        return ((OperatorDefinition) definition()).isComposite != null;
+        return definition().isComposite != null;
     }
 
     /**

@@ -30,7 +30,7 @@ grammar net.sf.etl.tests.data.imports.ExpressionGrammar {
 			@ Value =right;
 		};
 
-		op MultiplyOp(yfx,400,*) {
+		op MultiplyOp(yfx,400, * | ×) {
 			@ Multipliers += left; @ Multipliers +=right;
 		};
 
