@@ -75,11 +75,11 @@ public enum Tokens {
     /**
      * open curly bracket
      */
-    LEFT_CURLY(false, false, PhraseTokens.START_BLOCK),
+    OPEN_CURLY(false, false, PhraseTokens.START_BLOCK),
     /**
      * close curly bracket
      */
-    RIGHT_CURLY(false, false, PhraseTokens.END_BLOCK),
+    CLOSE_CURLY(false, false, PhraseTokens.END_BLOCK),
     /**
      * a semicolon
      */

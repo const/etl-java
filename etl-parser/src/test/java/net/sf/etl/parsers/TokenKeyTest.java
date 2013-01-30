@@ -41,12 +41,9 @@ public class TokenKeyTest {
      */
     @Test
     public void testSimple() {
-        assertSame(TokenKey.modified(Tokens.INTEGER, null), TokenKey
-                .simple(Tokens.INTEGER));
+        assertSame(TokenKey.modified(Tokens.INTEGER, null), TokenKey.simple(Tokens.INTEGER));
         assertSame(Tokens.INTEGER, TokenKey.simple(Tokens.INTEGER).kind());
-        assertNotSame(TokenKey.modified(Tokens.INTEGER_WITH_SUFFIX, "UL"),
-                TokenKey.simple(Tokens.INTEGER));
-        assertNotSame(TokenKey.simple(Tokens.LEFT_CURLY), TokenKey
-                .simple(Tokens.INTEGER));
+        assertNotSame(TokenKey.modified(Tokens.INTEGER_WITH_SUFFIX, "UL"), TokenKey.simple(Tokens.INTEGER));
+        assertNotSame(TokenKey.simple(Tokens.OPEN_CURLY), TokenKey.simple(Tokens.INTEGER));
     }
 }

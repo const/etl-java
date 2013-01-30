@@ -196,10 +196,10 @@ public class LexerImpl implements Lexer {
             switch (c) {
                 case 0x007B: // Ps: LEFT CURLY BRACKET
                 case 0xFF5B: // Ps: FULLWIDTH LEFT CURLY BRACKET
-                    return single(buffer, eof, Tokens.LEFT_CURLY);
+                    return single(buffer, eof, Tokens.OPEN_CURLY);
                 case 0x007D: // Pe: RIGHT CURLY BRACKET
                 case 0xFF5D: // Pe: FULLWIDTH RIGHT CURLY BRACKET
-                    return single(buffer, eof, Tokens.RIGHT_CURLY);
+                    return single(buffer, eof, Tokens.CLOSE_CURLY);
             }
             if (Whitespaces.isSpace(c)) {
                 return parseSpace(buffer, eof);

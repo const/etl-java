@@ -1,5 +1,5 @@
 doctype script public "-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN";
-grammar test.ChoiceExt {
+grammar script test.ChoiceExt {
     include "Choice.g.etl"
     namespace default c = "urn:test.Choice"
     context default NewContext {

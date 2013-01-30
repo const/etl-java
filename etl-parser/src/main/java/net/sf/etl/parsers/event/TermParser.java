@@ -56,7 +56,7 @@ public interface TermParser {
      * @param context      the top level context
      * @param isScriptMode if true, by default parser is starting in script mode
      */
-    void setDefaultGrammar(String publicId, String systemId, String context, boolean isScriptMode);
+    void setDefaultGrammar(String publicId, String systemId, String context, Boolean isScriptMode);
 
     /**
      * @return true after grammar was supplied to the term parser of the parser was constructed from compiled grammar

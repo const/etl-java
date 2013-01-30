@@ -132,4 +132,9 @@ public class DelegateCompiledGrammar implements CompiledGrammar {
     public TermParserStateFactory expressionParser(ExpressionContext context) {
         return grammar.expressionParser(context);
     }
+
+    @Override
+    public boolean isScript() {
+        return grammar.isScript();
+    }
 }

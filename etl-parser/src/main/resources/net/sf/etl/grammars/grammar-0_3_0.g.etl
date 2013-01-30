@@ -767,18 +767,23 @@ grammar net.sf.etl.grammars.Grammar "0.3.0" {
 		statement BlankTopLevel {
 		};
 
-		/// Grammar statement. It defines grammar. Grammar name is purely
+		/// Grammar statement. It defines grammar. The grammar name is purely
 		/// informative and is used in reported events to identify grammar
 		/// by logical name rather by URI that happens to be current grammar
 		/// location.
 		///
-		/// Grammar can be abstract; in that case it cannot be instantiated
+		/// The grammar can be abstract; in that case it cannot be instantiated
 		/// and referenced from doctype. It can be only included into other
 		/// grammars.
+		///
+		/// The grammar can have a script modifier, it means that the default
+        /// source type for this grammar is "script", by default the source mode
+        /// is "strict".
 		statement Grammar {
 			% grammar;
 			modifiers wrapper g:Modifier.Value {
 				@ AbstractModifier = modifier abstract;
+				@ ScriptModifier = modifier script;
 			};
 			@ Name += list . {ref(Name);};
 			{

@@ -42,6 +42,10 @@ public class Grammar extends AbstractStatement {
      */
     public Modifier abstractModifier;
     /**
+     * Script modifier
+     */
+    public Modifier scriptModifier;
+    /**
      * The name
      */
     public final java.util.ArrayList<Token> name = new java.util.ArrayList<Token>();

@@ -86,6 +86,10 @@ public class BasicCompiledGrammar implements CompiledGrammar {
      * The expression contexts
      */
     private final List<ExpressionContext> expressionContexts;
+    /**
+     * If true, default mode for the grammar is script mode
+     */
+    private final boolean script;
 
     /**
      * The constructor from the state
@@ -99,6 +103,7 @@ public class BasicCompiledGrammar implements CompiledGrammar {
      * @param otherGrammars            the parsers for other grammars
      * @param definitionContexts       the definition contexts
      * @param expressionContexts       the expression contexts
+     * @param script                   the default script mode
      */
     public BasicCompiledGrammar(ResourceDescriptor resourceDescriptor,
                                 ErrorInfo errors,
@@ -109,7 +114,7 @@ public class BasicCompiledGrammar implements CompiledGrammar {
                                 HashMap<ExpressionContext, TermParserStateFactory> expressionParsers,
                                 ArrayList<CompiledGrammar> otherGrammars,
                                 ArrayList<DefinitionContext> definitionContexts,
-                                ArrayList<ExpressionContext> expressionContexts) {
+                                ArrayList<ExpressionContext> expressionContexts, boolean script) {
         this.resourceDescriptor = resourceDescriptor;
         this.errors = errors;
         this.defaultContext = defaultContext;
@@ -117,6 +122,7 @@ public class BasicCompiledGrammar implements CompiledGrammar {
         this.statementParsers = statementParsers;
         this.statementSequenceParsers = statementSequenceParsers;
         this.expressionParsers = expressionParsers;
+        this.script = script;
         this.otherGrammars = Collections.unmodifiableList(otherGrammars);
         this.definitionContexts = Collections.unmodifiableList(definitionContexts);
         this.expressionContexts = Collections.unmodifiableList(expressionContexts);
@@ -192,5 +198,10 @@ public class BasicCompiledGrammar implements CompiledGrammar {
             throw new IllegalArgumentException("The parser is not available for context: " + context);
         }
         return parser;
+    }
+
+    @Override
+    public boolean isScript() {
+        return script;
     }
 }

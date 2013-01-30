@@ -121,4 +121,9 @@ public interface CompiledGrammar {
      * @throws IllegalArgumentException if context is not defined within the grammar
      */
     TermParserStateFactory expressionParser(ExpressionContext context);
+
+    /**
+     * @return if true, the script mode should be used if mode for the source is not specified
+     */
+    boolean isScript();
 }

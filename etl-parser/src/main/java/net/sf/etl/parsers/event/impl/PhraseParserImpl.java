@@ -36,13 +36,37 @@ import java.util.ArrayList;
  * The phrase parser
  */
 public class PhraseParserImpl implements PhraseParser {
+    /**
+     * The system id for phrase parser
+     */
     String systemId = LexerImpl.UNKNOWN_FILE;
+    /**
+     * In statement sequence
+     */
     static final int STATEMENT_SEQUENCE = 0;
+    /**
+     * In the statement
+     */
     static final int STATEMENT = 1;
+    /**
+     * In the statement just after soft statement end
+     */
     static final int STATEMENT_AFTER_SOFT = 2;
+    /**
+     * In the statement just after block start
+     */
     static final int AFTER_BLOCK_START = 3;
+    /**
+     * In the statement before block end
+     */
     static final int BEFORE_BLOCK_END = 4;
+    /**
+     * Before EOF
+     */
     static final int BEFORE_EOF = 5;
+    /**
+     * After EOF was reported
+     */
     static final int AFTER_EOF = 6;
 
     final ArrayList<TextPos> blockStarts = new ArrayList<TextPos>();

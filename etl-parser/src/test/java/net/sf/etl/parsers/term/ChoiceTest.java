@@ -88,7 +88,7 @@ public class ChoiceTest extends TermStructureTestCase {
         startWithResource("choice/ChoiceTestC.c.etl");
         boolean errorExit = true;
         try {
-            readDocType("script", "\"ChoiceExt.g.etl\"", null);
+            readDocType(null, "\"ChoiceExt.g.etl\"", null);
             objectStart(ns, "TestStatement");
             propStart("Value");
             value("a");

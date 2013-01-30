@@ -36,8 +36,8 @@ public class SingleCharacterTokensTest extends LexerTestCase {
     public void asciiTokens() {
         single(",", Tokens.COMMA);
         single(";", Tokens.SEMICOLON);
-        single("{", Tokens.LEFT_CURLY);
-        single("}", Tokens.RIGHT_CURLY);
+        single("{", Tokens.OPEN_CURLY);
+        single("}", Tokens.CLOSE_CURLY);
         single("(", Tokens.BRACKET);
         single(")", Tokens.BRACKET);
         single("[", Tokens.BRACKET);

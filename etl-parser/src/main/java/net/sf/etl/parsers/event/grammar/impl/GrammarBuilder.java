@@ -209,6 +209,7 @@ public class GrammarBuilder {
                 keywords.put(definitionContext, contextBuilder.getKeywordContext());
             }
         }
+        boolean script = grammarView.getGrammar().scriptModifier != null;
         compiledGrammar = new BasicCompiledGrammar(grammarView.createDescriptor(),
                 allErrors(),
                 defaultContext,
@@ -218,7 +219,7 @@ public class GrammarBuilder {
                 expressionParsers,
                 linkedGrammars,
                 new ArrayList<DefinitionContext>(statementSequences.keySet()),
-                new ArrayList<ExpressionContext>(expressionParsers.keySet()));
+                new ArrayList<ExpressionContext>(expressionParsers.keySet()), script);
     }
 
     /**

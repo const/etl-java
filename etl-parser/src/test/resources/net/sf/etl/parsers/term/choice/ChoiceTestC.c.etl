@@ -1,4 +1,4 @@
-doctype script "ChoiceExt.g.etl";
+doctype "ChoiceExt.g.etl";
 a
 b
 B

@@ -73,7 +73,7 @@ public class TermParserImpl implements TermParser {
     /**
      * If true, the grammar is in script mode
      */
-    private boolean scriptMode;
+    private Boolean scriptMode;
     /**
      * The state stack
      */
@@ -142,7 +142,7 @@ public class TermParserImpl implements TermParser {
     /**
      * The default script mode
      */
-    private boolean defaultScriptMode;
+    private Boolean defaultScriptMode;
 
     @Override
     public void forceGrammar(CompiledGrammar grammar, boolean scriptMode) {
@@ -154,7 +154,7 @@ public class TermParserImpl implements TermParser {
     }
 
     @Override
-    public void setDefaultGrammar(String publicId, String systemId, String context, boolean isScriptMode) {
+    public void setDefaultGrammar(String publicId, String systemId, String context, Boolean isScriptMode) {
         defaultPublicId = publicId;
         defaultSystemId = systemId;
         defaultContext = context;
@@ -233,6 +233,9 @@ public class TermParserImpl implements TermParser {
             this.grammar = resolvedGrammar.getObject();
         }
         ErrorInfo merged = ErrorInfo.merge(grammarRequestErrors, resolvedGrammar.getObject().getErrors(), resolutionErrors);
+        if (scriptMode == null) {
+            scriptMode = grammar.isScript();
+        }
         queue.append(new TermToken(Terms.GRAMMAR_IS_LOADED, null,
                 new LoadedGrammarInfo(resolvedGrammar, grammar, initialContext),
                 null, currentPos, currentPos, merged));
@@ -374,7 +377,7 @@ public class TermParserImpl implements TermParser {
 
         @Override
         public boolean isScriptMode() {
-            return scriptMode;
+            return scriptMode != null && scriptMode;
         }
 
         @Override

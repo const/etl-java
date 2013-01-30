@@ -310,7 +310,7 @@ public abstract class TermStructureTestCase {
     protected void readDocType(String type, String systemId, String context) {
         this.objectStart(StandardGrammars.DOCTYPE_NS, "DoctypeDeclaration");
         {
-            if (systemId != null) {
+            if (type != null) {
                 propStart("Type");
                 value(type);
                 propEnd("Type");
