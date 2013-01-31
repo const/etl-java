@@ -22,72 +22,22 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.term.beans;
+package net.sf.etl.parsers.event.tree;
 
 import net.sf.etl.parsers.TermToken;
-import net.sf.etl.parsers.event.tree.TokenCollector;
 
 /**
- * Let statement
+ * If the bean implements this interface, it will be notified about each token
+ * that happens within its scope.
  *
  * @author const
  */
-public class LetStatement extends Statement implements TokenCollector {
+public interface TokenCollector {
     /**
-     * serial version id
+     * This method is called token has occurred within scope of the object that
+     * implements this interface.
+     *
+     * @param token the token within scope
      */
-    private static final long serialVersionUID = -8827443002800538040L;
-    /**
-     * name of value
-     */
-    String name;
-    /**
-     * value
-     */
-    Expression value;
-    /**
-     * the text of the statement
-     */
-    private StringBuilder text = new StringBuilder();
-
-    /**
-     * @return Returns the name.
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @param name The name to set.
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * @return Returns the value.
-     */
-    public Expression getValue() {
-        return value;
-    }
-
-    /**
-     * @param value The value to set.
-     */
-    public void setValue(Expression value) {
-        this.value = value;
-    }
-
-    /**
-     * @return the text of the statement
-     */
-    public String statementText() {
-        return text.toString();
-    }
-
-    public void collect(TermToken token) {
-        if (token.hasLexicalToken()) {
-            text.append(token.token().token().text());
-        }
-    }
+    void collect(TermToken token);
 }

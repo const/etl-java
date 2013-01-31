@@ -25,14 +25,13 @@
 
 package net.sf.etl.parsers.streams;
 
-import net.sf.etl.parsers.AbstractToken;
 import net.sf.etl.parsers.ParserException;
 import net.sf.etl.parsers.ParserIOException;
 
 /**
  * The base class for the parsers
  */
-public abstract class AbstractReaderImpl<T extends AbstractToken> implements AbstractReader<T> {
+public abstract class AbstractReaderImpl<T> implements AbstractReader<T> {
     /**
      * The exception
      */
@@ -101,12 +100,19 @@ public abstract class AbstractReaderImpl<T extends AbstractToken> implements Abs
     @Override
     public void close() {
         try {
-            doClose();
-            closed = true;
+            if (closed) {
+                closed = true;
+                doClose();
+            }
         } catch (Exception e) {
             throw new ParserIOException(e);
         }
     }
 
+    /**
+     * Perform close operation
+     *
+     * @throws Exception
+     */
     protected abstract void doClose() throws Exception;
 }

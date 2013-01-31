@@ -22,12 +22,12 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.streams.beans;
+package net.sf.etl.parsers.event.tree;
 
 import net.sf.etl.parsers.ObjectName;
+import net.sf.etl.parsers.PropertyName;
 import net.sf.etl.parsers.Token;
 import net.sf.etl.parsers.literals.LiteralUtils;
-import net.sf.etl.parsers.streams.TermParserReader;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -58,7 +58,7 @@ import java.util.logging.Logger;
  * <ul>
  * <li>{@link String} - text of token is assigned to it "as is".</li>
  * <li>int or {@link Integer} - text of token is converted to int with
- * {@link LiteralUtils#parseInt(String)}.</li>
+ * {@link net.sf.etl.parsers.literals.LiteralUtils#parseInt(String)}.</li>
  * <li>Enumerations - appropriate constant is found using
  * {@link String#equalsIgnoreCase(String)} comparison with {@link Enum#name()}
  * value of the literal.</li>
@@ -67,11 +67,11 @@ import java.util.logging.Logger;
  * @param <BaseObject> a type of the base object
  * @author const
  */
-public class FieldTermParser<BaseObject> extends AbstractReflectionParser<BaseObject, Field, Class<?>, List<Object>> {
+public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<BaseObject, Field, Class<?>, List<Object>> {
     /**
      * The logger
      */
-    private static final Logger log = Logger.getLogger(AbstractReflectionParser.class.getName());
+    private static final Logger log = Logger.getLogger(ReflectionObjectFactoryBase.class.getName());
 
     /**
      * The cache of fields.
@@ -81,15 +81,14 @@ public class FieldTermParser<BaseObject> extends AbstractReflectionParser<BaseOb
     /**
      * The constructor from super class
      *
-     * @param parser      the term parser
      * @param classLoader the class loader for the parser
      */
-    public FieldTermParser(TermParserReader parser, ClassLoader classLoader) {
-        super(parser, classLoader);
+    public FieldObjectFactory(ClassLoader classLoader) {
+        super(classLoader);
     }
 
     @Override
-    protected void addToFeature(BaseObject rc, Field f, List<Object> holder, Object v) {
+    public void addToFeature(BaseObject rc, Field f, List<Object> holder, Object v) {
         holder.add(v);
         valueEnlisted(rc, f, v);
     }
@@ -110,7 +109,7 @@ public class FieldTermParser<BaseObject> extends AbstractReflectionParser<BaseOb
     }
 
     @Override
-    protected void endListCollection(BaseObject rc, Class<?> metaObject, Field f, List<Object> holder) {
+    public void endListCollection(BaseObject rc, Class<?> metaObject, Field f, List<Object> holder) {
         // do nothing
     }
 
@@ -120,12 +119,12 @@ public class FieldTermParser<BaseObject> extends AbstractReflectionParser<BaseOb
     }
 
     @Override
-    protected Field getPropertyMetaObject(BaseObject rc, Class<?> metaObject, String name) {
+    public Field getPropertyMetaObject(BaseObject rc, Class<?> metaObject, String name) {
         return field(metaObject, name);
     }
 
     @Override
-    protected void setToFeature(BaseObject rc, Field f, Object v) {
+    public void setToFeature(BaseObject rc, Field f, Object v) {
         try {
             f.set(rc, v);
         } catch (IllegalAccessException e) {
@@ -138,7 +137,7 @@ public class FieldTermParser<BaseObject> extends AbstractReflectionParser<BaseOb
 
     @SuppressWarnings("unchecked")
     @Override
-    protected List<Object> startListCollection(BaseObject rc, Class<?> metaObject, Field f) {
+    public List<Object> startListCollection(BaseObject rc, Class<?> metaObject, Field f) {
         try {
             List<Object> list = (List<Object>) f.get(rc);
             if (list == null) {
@@ -162,7 +161,7 @@ public class FieldTermParser<BaseObject> extends AbstractReflectionParser<BaseOb
     }
 
     @Override
-    protected Object parseValue(BaseObject rc, Field f, Token value) {
+    public Object parseValue(BaseObject rc, Field f, Token value) {
         Class<?> elementType = f.getType();
         if (List.class.isAssignableFrom(elementType)) {
             Type rawType = f.getGenericType();
@@ -224,7 +223,7 @@ public class FieldTermParser<BaseObject> extends AbstractReflectionParser<BaseOb
      */
     private Field field(Class<?> c, String name) {
         try {
-            name = lowerCaseFeatureName(name);
+            name = PropertyName.lowerCaseFeatureName(name);
             HashMap<String, Field> classFields = fieldCache.get(c);
             if (classFields == null) {
                 classFields = new HashMap<String, Field>();

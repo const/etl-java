@@ -22,13 +22,13 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.streams.beans;
+package net.sf.etl.parsers.event.tree;
 
 import net.sf.etl.parsers.ObjectName;
 import net.sf.etl.parsers.ParserException;
+import net.sf.etl.parsers.PropertyName;
 import net.sf.etl.parsers.Token;
 import net.sf.etl.parsers.literals.LiteralUtils;
-import net.sf.etl.parsers.streams.TermParserReader;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -70,20 +70,19 @@ import java.util.logging.Logger;
  *
  * @author const
  */
-public class BeansTermParser extends AbstractReflectionParser<Object, PropertyDescriptor, BeanInfo, List<Object>> {
+public class BeansObjectFactory extends ReflectionObjectFactoryBase<Object, PropertyDescriptor, BeanInfo, List<Object>> {
     /**
      * a logger
      */
-    private static final Logger log = Logger.getLogger(BeansTermParser.class.getName());
+    private static final Logger log = Logger.getLogger(BeansObjectFactory.class.getName());
 
     /**
      * A constructor for term parser
      *
-     * @param parser      the parser
      * @param classLoader the class loader for the parser
      */
-    public BeansTermParser(TermParserReader parser, ClassLoader classLoader) {
-        super(parser, classLoader);
+    public BeansObjectFactory(ClassLoader classLoader) {
+        super(classLoader);
     }
 
     @Override
@@ -101,8 +100,7 @@ public class BeansTermParser extends AbstractReflectionParser<Object, PropertyDe
      */
     @Override
     protected Object createInstance(BeanInfo metaObject, ObjectName name) {
-        final Class<?> beanClass = metaObject
-                .getBeanDescriptor().getBeanClass();
+        final Class<?> beanClass = metaObject.getBeanDescriptor().getBeanClass();
         try {
             return beanClass.newInstance();
         } catch (final Exception e) {
@@ -132,7 +130,7 @@ public class BeansTermParser extends AbstractReflectionParser<Object, PropertyDe
     }
 
     @Override
-    protected void setToFeature(Object rc, PropertyDescriptor f, Object v) {
+    public void setToFeature(Object rc, PropertyDescriptor f, Object v) {
         final Method m = f.getWriteMethod();
         try {
             m.invoke(rc, v);
@@ -144,12 +142,12 @@ public class BeansTermParser extends AbstractReflectionParser<Object, PropertyDe
     }
 
     @Override
-    protected void addToFeature(Object rc, PropertyDescriptor f, List<Object> holder, Object v) {
+    public void addToFeature(Object rc, PropertyDescriptor f, List<Object> holder, Object v) {
         holder.add(v);
     }
 
     @Override
-    protected List<Object> startListCollection(Object rc, BeanInfo metaObject, PropertyDescriptor f) {
+    public List<Object> startListCollection(Object rc, BeanInfo metaObject, PropertyDescriptor f) {
         final Method m = f.getReadMethod();
         try {
             final Object array = m.invoke(rc);
@@ -167,8 +165,8 @@ public class BeansTermParser extends AbstractReflectionParser<Object, PropertyDe
     }
 
     @Override
-    protected void endListCollection(Object rc, BeanInfo metaObject,
-                                     PropertyDescriptor f, List<Object> holder) {
+    public void endListCollection(Object rc, BeanInfo metaObject,
+                                  PropertyDescriptor f, List<Object> holder) {
         try {
             final ArrayList<Object> list = (ArrayList<Object>) holder;
             final Method m = f.getWriteMethod();
@@ -184,8 +182,8 @@ public class BeansTermParser extends AbstractReflectionParser<Object, PropertyDe
     }
 
     @Override
-    protected PropertyDescriptor getPropertyMetaObject(Object rc, BeanInfo metaObject, String name) {
-        name = lowerCaseFeatureName(name);
+    public PropertyDescriptor getPropertyMetaObject(Object rc, BeanInfo metaObject, String name) {
+        name = PropertyName.lowerCaseFeatureName(name);
         final PropertyDescriptor[] propertyDescriptors = metaObject.getPropertyDescriptors();
         for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
             if (propertyDescriptor.getName().equals(name)) {
@@ -197,7 +195,7 @@ public class BeansTermParser extends AbstractReflectionParser<Object, PropertyDe
     }
 
     @Override
-    protected Object parseValue(Object rc, PropertyDescriptor f, Token value) {
+    public Object parseValue(Object rc, PropertyDescriptor f, Token value) {
         Class<?> fc = f.getPropertyType();
         if (fc.isArray()) {
             fc = fc.getComponentType();

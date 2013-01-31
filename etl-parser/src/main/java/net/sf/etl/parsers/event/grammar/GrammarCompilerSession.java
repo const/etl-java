@@ -314,6 +314,7 @@ public class GrammarCompilerSession {
             }
             URL url = new URL(systemId);
             ArrayList<ErrorInfo> errors = new ArrayList<ErrorInfo>();
+            // TODO use asynchronous parser
             final TermParserReader reader = new TermParserReader(configuration, url);
             try {
                 reader.setResolver(new GrammarResolver() {
@@ -327,10 +328,11 @@ public class GrammarCompilerSession {
                     }
                 });
                 reader.advance();
+                // TODO use event parser as well
                 GrammarLiteTermParser parser = new GrammarLiteTermParser(reader);
-                if (parser.hasNext()) {
-                    Grammar grammar = (Grammar) parser.next();
-                    if (parser.hasNext()) {
+                if (parser.advance()) {
+                    Grammar grammar = (Grammar) parser.current();
+                    if (parser.advance()) {
                         errors.add(new ErrorInfo("grammar.TooManyGrammars",
                                 Collections.<Object>unmodifiableList(Arrays.<Object>asList(
                                         request.getReference().getSystemId(),

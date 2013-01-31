@@ -26,6 +26,8 @@
 
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" xmlns:rddl="http://www.rddl.org/" prefer="public">
     <public publicId="-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN" uri="grammar-0_3_0.g.etl"/>
+    <public publicId="-//IDN etl.sf.net//ETL//Doctype Declaration 0.3.0//EN" uri="doctype-0_3_0.g.etl"/>
+    <public publicId="-//IDN etl.sf.net//ETL//Default Language 0.3.0//EN" uri="default-0_3_0.g.etl"/>
 
     <uri name="urn:x-etl:grammars:net.sf.etl.grammars.DefaultGrammar:0.3.0"
          rddl:nature="http://etl.sf.net/etl/grammar-definition"

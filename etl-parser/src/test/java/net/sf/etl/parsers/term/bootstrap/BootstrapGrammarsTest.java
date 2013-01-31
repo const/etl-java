@@ -190,8 +190,8 @@ public class BootstrapGrammarsTest extends BasicTermTestCase {
     public void grammarReadAllDoctypeTest() throws IOException {
         startSystemId(StandardGrammars.DOCTYPE_GRAMMAR_SYSTEM_ID);
         final GrammarLiteTermParser parser = new GrammarLiteTermParser(reader);
-        assertTrue(parser.hasNext());
-        final Element next = parser.next();
+        assertTrue(parser.advance());
+        final Element next = parser.current();
         assertTrue(next instanceof Grammar);
         assertEquals("Errors: " + parser.errors(), 0, parser.errors().size());
     }
@@ -200,8 +200,8 @@ public class BootstrapGrammarsTest extends BasicTermTestCase {
     public void grammarReadAllDefaultTest() throws IOException {
         startSystemId(StandardGrammars.DEFAULT_GRAMMAR_SYSTEM_ID);
         final GrammarLiteTermParser parser = new GrammarLiteTermParser(reader);
-        assertTrue(parser.hasNext());
-        final Element next = parser.next();
+        assertTrue(parser.advance());
+        final Element next = parser.current();
         assertTrue(next instanceof Grammar);
         assertEquals("Errors: " + parser.errors(), 0, parser.errors().size());
     }
@@ -210,8 +210,8 @@ public class BootstrapGrammarsTest extends BasicTermTestCase {
     public void grammarReadAllGrammarTest() throws IOException {
         startSystemId(StandardGrammars.ETL_GRAMMAR_SYSTEM_ID);
         final GrammarLiteTermParser parser = new GrammarLiteTermParser(reader);
-        assertTrue(parser.hasNext());
-        final Element next = parser.next();
+        assertTrue(parser.advance());
+        final Element next = parser.current();
         assertTrue(next instanceof Grammar);
         assertEquals("Errors: " + parser.errors(), 0, parser.errors().size());
     }

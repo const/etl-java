@@ -24,7 +24,7 @@
  */
 package net.sf.etl.utils;
 
-import net.sf.etl.parsers.streams.AbstractTreeParser;
+import net.sf.etl.parsers.event.tree.ObjectFactory;
 
 import java.util.ArrayList;
 
@@ -66,12 +66,12 @@ public abstract class ETL2AST extends AbstractFileConverter {
      *
      * @param p a parser to configure
      */
-    protected void configureStandardOptions(AbstractTreeParser<?, ?, ?, ?> p) {
+    protected void configureStandardOptions(ObjectFactory<?, ?, ?, ?> p) {
         // ignore namespace
         for (String ignoredNamespace : ignoredNamespaces) {
             p.ignoreNamespace(ignoredNamespace);
         }
         // specify text position flag
-        p.setPosPolicy(expandTextPos ? AbstractTreeParser.PositionPolicy.EXPANDED : AbstractTreeParser.PositionPolicy.POSITIONS);
+        p.setPosPolicy(expandTextPos ? ObjectFactory.PositionPolicy.EXPANDED : ObjectFactory.PositionPolicy.POSITIONS);
     }
 }

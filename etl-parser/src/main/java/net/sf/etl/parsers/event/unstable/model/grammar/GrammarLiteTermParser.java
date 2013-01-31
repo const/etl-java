@@ -24,10 +24,13 @@
  */
 package net.sf.etl.parsers.event.unstable.model.grammar;
 
-import net.sf.etl.parsers.*;
-import net.sf.etl.parsers.ObjectName;
+import net.sf.etl.parsers.ErrorInfo;
+import net.sf.etl.parsers.LoadedGrammarInfo;
+import net.sf.etl.parsers.StandardGrammars;
+import net.sf.etl.parsers.TermToken;
+import net.sf.etl.parsers.event.tree.FieldObjectFactory;
 import net.sf.etl.parsers.streams.TermParserReader;
-import net.sf.etl.parsers.streams.beans.FieldTermParser;
+import net.sf.etl.parsers.streams.TreeParserReader;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -38,15 +41,7 @@ import java.util.Collection;
  *
  * @author const
  */
-public class GrammarLiteTermParser extends FieldTermParser<Element> {
-    /**
-     * The errors
-     */
-    private final ArrayList<ErrorInfo> errors = new ArrayList<ErrorInfo>();
-    /**
-     * The loaded grammar
-     */
-    private LoadedGrammarInfo loadedGrammar;
+public class GrammarLiteTermParser extends TreeParserReader<Element> {
 
     /**
      * A constructor
@@ -54,64 +49,94 @@ public class GrammarLiteTermParser extends FieldTermParser<Element> {
      * @param parser an underlying parser
      */
     public GrammarLiteTermParser(TermParserReader parser) {
-        super(parser, Element.class.getClassLoader());
-        setPosPolicy(PositionPolicy.SOURCE_LOCATION);
-        mapNamespaceToPackage(StandardGrammars.ETL_GRAMMAR_NAMESPACE, "net.sf.etl.parsers.event.unstable.model.grammar");
-        ignoreNamespace(StandardGrammars.DOCTYPE_NS);
-        setAbortOnDefaultGrammar(true);
-        ignoreObjects(StandardGrammars.ETL_GRAMMAR_NAMESPACE, "BlankTopLevel");
+        super(parser, new GrammarLiteObjectFactory());
     }
+
 
     /**
      * @return all errors gathered during parsing
      */
     public Collection<ErrorInfo> errors() {
-        return errors;
+        return getObjectFactory().errors();
     }
 
     @Override
-    protected void handleErrorFromParser(TermToken errorToken) {
-        if (errorToken.hasErrors()) {
-            errors.add(errorToken.errorInfo());
-        }
-        if (errorToken.hasPhraseToken() && errorToken.token().hasErrors()) {
-            errors.add(errorToken.token().errorInfo());
-        }
-        if (errorToken.hasLexicalToken() && errorToken.token().token().hasErrors()) {
-            errors.add(errorToken.token().token().errorInfo());
-        }
-    }
-
-    /**
-     * Check if object with specified object name should be ignored
-     *
-     * @param name the name to check
-     * @return true if object should be ignored
-     */
-    @Override
-    protected boolean isIgnorable(ObjectName name) {
-        return super.isIgnorable(name);    //To change body of overridden methods use File | Settings | File Templates.
-    }
-
-    @Override
-    protected void valueEnlisted(Element rc, Field f, Object v) {
-        if (v instanceof Element) {
-            Element e = (Element) v;
-            e.ownerObject = rc;
-            e.ownerFeature = f;
-        }
-        super.valueEnlisted(rc, f, v);
-    }
-
-    @Override
-    protected void handleLoadedGrammar(LoadedGrammarInfo loadedGrammarInfo) {
-        loadedGrammar = loadedGrammarInfo;
+    public GrammarLiteObjectFactory getObjectFactory() {
+        return (GrammarLiteObjectFactory) super.getObjectFactory();
     }
 
     /**
      * @return the loaded grammar
      */
     public LoadedGrammarInfo getLoadedGrammar() {
-        return loadedGrammar;
+        return getObjectFactory().getLoadedGrammar();
+    }
+
+    /**
+     * The object factory that implement typical scenarios for loading grammar objects
+     */
+    public static class GrammarLiteObjectFactory extends FieldObjectFactory<Element> {
+        /**
+         * The errors
+         */
+        private final ArrayList<ErrorInfo> errors = new ArrayList<ErrorInfo>();
+        /**
+         * The loaded grammar
+         */
+        private LoadedGrammarInfo loadedGrammar;
+
+        public GrammarLiteObjectFactory() {
+            super(Element.class.getClassLoader());
+            setPosPolicy(PositionPolicy.SOURCE_LOCATION);
+            mapNamespaceToPackage(StandardGrammars.ETL_GRAMMAR_NAMESPACE,
+                    "net.sf.etl.parsers.event.unstable.model.grammar");
+            ignoreNamespace(StandardGrammars.DOCTYPE_NS);
+            setAbortOnDefaultGrammar(true);
+            ignoreObjects(StandardGrammars.ETL_GRAMMAR_NAMESPACE, "BlankTopLevel");
+        }
+
+        @Override
+        public void handleErrorFromParser(TermToken errorToken) {
+            if (errorToken.hasErrors()) {
+                errors.add(errorToken.errorInfo());
+            }
+            if (errorToken.hasPhraseToken() && errorToken.token().hasErrors()) {
+                errors.add(errorToken.token().errorInfo());
+            }
+            if (errorToken.hasLexicalToken() && errorToken.token().token().hasErrors()) {
+                errors.add(errorToken.token().token().errorInfo());
+            }
+        }
+
+
+        @Override
+        public void valueEnlisted(Element rc, Field f, Object v) {
+            if (v instanceof Element) {
+                Element e = (Element) v;
+                e.ownerObject = rc;
+                e.ownerFeature = f;
+            }
+            super.valueEnlisted(rc, f, v);
+        }
+
+        @Override
+        public void handleLoadedGrammar(TermToken token, LoadedGrammarInfo loadedGrammarInfo) {
+            loadedGrammar = loadedGrammarInfo;
+        }
+
+        /**
+         * @return all errors gathered during parsing
+         */
+        public Collection<ErrorInfo> errors() {
+            return errors;
+        }
+
+
+        /**
+         * @return the loaded grammar
+         */
+        public LoadedGrammarInfo getLoadedGrammar() {
+            return loadedGrammar;
+        }
     }
 }

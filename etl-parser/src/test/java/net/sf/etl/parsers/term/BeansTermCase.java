@@ -24,8 +24,9 @@
  */
 package net.sf.etl.parsers.term;
 
+import net.sf.etl.parsers.event.tree.BeansObjectFactory;
 import net.sf.etl.parsers.streams.TermParserReader;
-import net.sf.etl.parsers.streams.beans.BeansTermParser;
+import net.sf.etl.parsers.streams.TreeParserReader;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -39,7 +40,7 @@ public abstract class BeansTermCase {
     /**
      * A parser to use
      */
-    protected BeansTermParser parser;
+    protected TreeParserReader<Object> parser;
     /**
      * A term parser to use
      */
@@ -64,17 +65,16 @@ public abstract class BeansTermCase {
     protected void startWithURL(java.net.URL in) {
         termParser = new TermParserReader(in);
         termParser.advance();
-        parser = createBeansTermParser(termParser);
+        parser = new TreeParserReader<Object>(termParser, createBeansTermParser());
     }
 
     /**
      * Create and configure term parser
      *
-     * @param termParser a term parser
      * @return a new bean parser
      */
-    protected BeansTermParser createBeansTermParser(TermParserReader termParser) {
-        return new BeansTermParser(termParser, null);
+    protected BeansObjectFactory createBeansTermParser() {
+        return new BeansObjectFactory(null);
     }
 
     /**
@@ -84,7 +84,7 @@ public abstract class BeansTermCase {
      */
     protected void endParsing(boolean errorExit) {
         if (!errorExit) {
-            assertFalse(parser.hadErrors());
+            assertFalse(parser.getObjectFactory().hadErrors());
         }
         termParser.close();
     }

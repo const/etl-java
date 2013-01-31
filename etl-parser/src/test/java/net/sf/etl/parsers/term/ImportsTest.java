@@ -26,14 +26,12 @@ package net.sf.etl.parsers.term;
 
 import net.sf.etl.parsers.StandardGrammars;
 import net.sf.etl.parsers.TermToken;
-import net.sf.etl.parsers.streams.AbstractTreeParser;
-import net.sf.etl.parsers.streams.TermParserReader;
-import net.sf.etl.parsers.streams.beans.BeansTermParser;
+import net.sf.etl.parsers.event.tree.BeansObjectFactory;
+import net.sf.etl.parsers.event.tree.ObjectFactory;
 import net.sf.etl.parsers.term.beans.*;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Test on imports
@@ -56,20 +54,22 @@ public class ImportsTest extends BeansTermCase {
         boolean errorExit = true;
         try {
             // let a = 5;
-            final LetStatement let_a = (LetStatement) parser.next();
+            assertTrue(parser.advance());
+            final LetStatement let_a = (LetStatement) parser.current();
             assertEquals("a", let_a.getName());
             final IntegerLiteral let_a_value = (IntegerLiteral) let_a
                     .getValue();
             assertEquals(5, let_a_value.getValue());
             // let b = a;
-            final LetStatement let_b = (LetStatement) parser.next();
+            assertTrue(parser.advance());
+            final LetStatement let_b = (LetStatement) parser.current();
             assertEquals("let b = a", let_b.statementText());
             assertEquals("b", let_b.getName());
             final Identifier let_b_value = (Identifier) let_b.getValue();
             assertEquals("a", let_b_value.getName());
             // a + b / 2 + {let c = 3; c * (a-b+1); };
-            final ExpressionStatement expr = (ExpressionStatement) parser
-                    .next();
+            assertTrue(parser.advance());
+            final ExpressionStatement expr = (ExpressionStatement) parser.current();
             final PlusOp exprPlus = (PlusOp) expr.getValue();
             final BlockExpression bl = (BlockExpression) exprPlus.getSummands()[1];
             final LetStatement let_c = (LetStatement) bl.getContent()[0];
@@ -81,16 +81,14 @@ public class ImportsTest extends BeansTermCase {
     }
 
     @Override
-    protected BeansTermParser createBeansTermParser(TermParserReader termParser) {
-        final BeansTermParser rc = new BeansTermParser(termParser, getClass()
-                .getClassLoader()) {
+    protected BeansObjectFactory createBeansTermParser() {
+        final BeansObjectFactory rc = new BeansObjectFactory(getClass().getClassLoader()) {
             @Override
-            protected void handleErrorFromParser(TermToken errorToken) {
+            public void handleErrorFromParser(TermToken errorToken) {
                 fail("Errors from parser are not expected: " + errorToken);
             }
-
         };
-        rc.setPosPolicy(AbstractTreeParser.PositionPolicy.POSITIONS);
+        rc.setPosPolicy(ObjectFactory.PositionPolicy.POSITIONS);
         rc.ignoreNamespace(StandardGrammars.DOCTYPE_NS);
         rc.mapNamespaceToPackage(
                 "http://etl.sf.net/2006/samples/imports/Expression/0.1",

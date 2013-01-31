@@ -25,9 +25,8 @@
 package net.sf.etl.parsers.term.firstchoice;
 
 import net.sf.etl.parsers.StandardGrammars;
-import net.sf.etl.parsers.streams.AbstractTreeParser.PositionPolicy;
-import net.sf.etl.parsers.streams.TermParserReader;
-import net.sf.etl.parsers.streams.beans.FieldTermParser;
+import net.sf.etl.parsers.event.tree.FieldObjectFactory;
+import net.sf.etl.parsers.event.tree.ObjectFactory;
 import net.sf.etl.parsers.term.FieldsTermCase;
 import org.junit.Test;
 
@@ -109,7 +108,8 @@ public class FirstChoiceTest extends FieldsTermCase<BaseNode> {
      */
     private void checkStatement(Class<?> type, String text,
                                 boolean normalizeNewlines) {
-        Statement s = (Statement) parser.next();
+        assertTrue(parser.advance());
+        Statement s = (Statement) parser.current();
         if (type != null) {
             assertNotNull(s.value);
             assertSame("Token: " + s.value.text, type, s.value.getClass());
@@ -123,14 +123,13 @@ public class FirstChoiceTest extends FieldsTermCase<BaseNode> {
     }
 
     @Override
-    protected FieldTermParser<BaseNode> createFieldTermParser(
-            TermParserReader termParser) {
-        FieldTermParser<BaseNode> rc = super.createFieldTermParser(termParser);
+    protected FieldObjectFactory<BaseNode> createFieldTermParser() {
+        FieldObjectFactory<BaseNode> rc = super.createFieldTermParser();
         rc.ignoreNamespace(StandardGrammars.DOCTYPE_NS);
         rc.mapNamespaceToPackage(
                 "http://etl.sf.net/2006/samples/firstChoice/0.1",
                 "net.sf.etl.parsers.term.firstchoice");
-        rc.setPosPolicy(PositionPolicy.POSITIONS);
+        rc.setPosPolicy(ObjectFactory.PositionPolicy.POSITIONS);
         return rc;
     }
 }

@@ -22,13 +22,11 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.streams.beans;
+package net.sf.etl.parsers.event.tree;
 
 import net.sf.etl.parsers.ObjectName;
 import net.sf.etl.parsers.ParserException;
 import net.sf.etl.parsers.TermToken;
-import net.sf.etl.parsers.streams.AbstractTreeParser;
-import net.sf.etl.parsers.streams.TermParserReader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,12 +42,12 @@ import java.util.logging.Logger;
  * @param <HolderType>     the holder type for collection properties
  * @author const
  */
-public abstract class AbstractReflectionParser<BaseObjectType, FeatureType, MetaObjectType, HolderType>
-        extends AbstractTreeParser<BaseObjectType, FeatureType, MetaObjectType, HolderType> {
+public abstract class ReflectionObjectFactoryBase<BaseObjectType, FeatureType, MetaObjectType, HolderType>
+        extends ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> {
     /**
      * The logger
      */
-    private static final Logger log = Logger.getLogger(AbstractReflectionParser.class.getName());
+    private static final Logger log = Logger.getLogger(ReflectionObjectFactoryBase.class.getName());
     /**
      * The class loader that should be used to load classes
      */
@@ -70,11 +68,9 @@ public abstract class AbstractReflectionParser<BaseObjectType, FeatureType, Meta
     /**
      * The constructor
      *
-     * @param parser      the term parser to use
      * @param classLoader the class loader for the parser
      */
-    public AbstractReflectionParser(TermParserReader parser, ClassLoader classLoader) {
-        super(parser);
+    public ReflectionObjectFactoryBase(ClassLoader classLoader) {
         if (classLoader == null) {
             classLoader = getClassLoader();
         }
@@ -125,8 +121,7 @@ public abstract class AbstractReflectionParser<BaseObjectType, FeatureType, Meta
      * @param beanClass the class of java bean
      */
     public void mapNameToClass(String namespace, String name, Class<?> beanClass) {
-        HashMap<String, Class<?>> nameToClass = objectMapping
-                .get(namespace);
+        HashMap<String, Class<?>> nameToClass = objectMapping.get(namespace);
         if (nameToClass == null) {
             nameToClass = new HashMap<String, Class<?>>();
             objectMapping.put(namespace, nameToClass);
@@ -170,31 +165,35 @@ public abstract class AbstractReflectionParser<BaseObjectType, FeatureType, Meta
         throw new ParserException("Class not found for object name " + name);
     }
 
+    /**
+     * Handle any token
+     *
+     * @param token the token
+     */
     @Override
-    protected boolean advanceParser() {
+    public void handleToken(TermToken token) {
+        super.handleToken(token);
         if (!collectors.isEmpty()) {
-            TermToken t = parser.current();
             for (TokenCollector c : collectors) {
-                c.collect(t);
+                c.collect(token);
             }
         }
-        return super.advanceParser();
     }
 
     @Override
-    protected void objectEnded(BaseObjectType object) {
+    public void objectEnded(BaseObjectType object, TermToken token) {
         if (object instanceof TokenCollector) {
             TokenCollector r = collectors.remove(collectors.size() - 1);
             assert r == object;
         }
-        super.objectEnded(object);
+        super.objectEnded(object, token);
     }
 
     @Override
-    protected void objectStarted(BaseObjectType object) {
+    public void objectStarted(BaseObjectType object, TermToken token) {
         if (object instanceof TokenCollector) {
             collectors.add((TokenCollector) object);
         }
-        super.objectStarted(object);
+        super.objectStarted(object, token);
     }
 }

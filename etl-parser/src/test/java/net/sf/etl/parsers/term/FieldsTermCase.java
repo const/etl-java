@@ -25,8 +25,9 @@
 package net.sf.etl.parsers.term;
 
 import net.sf.etl.parsers.TermToken;
+import net.sf.etl.parsers.event.tree.FieldObjectFactory;
 import net.sf.etl.parsers.streams.TermParserReader;
-import net.sf.etl.parsers.streams.beans.FieldTermParser;
+import net.sf.etl.parsers.streams.TreeParserReader;
 
 import static org.junit.Assert.*;
 
@@ -40,7 +41,7 @@ public abstract class FieldsTermCase<ObjectType> {
     /**
      * A parser to use
      */
-    protected FieldTermParser<ObjectType> parser;
+    protected TreeParserReader<ObjectType> parser;
     /**
      * A term parser to use
      */
@@ -65,20 +66,18 @@ public abstract class FieldsTermCase<ObjectType> {
     protected void startWithURL(java.net.URL in) {
         termParser = new TermParserReader(in);
         termParser.advance();
-        parser = createFieldTermParser(termParser);
+        parser = new TreeParserReader<ObjectType>(termParser, createFieldTermParser());
     }
 
     /**
-     * Create and configure term parser
+     * Create and configure object factory
      *
-     * @param termParser a term parser
-     * @return a new parser
+     * @return a object factory
      */
-    protected FieldTermParser<ObjectType> createFieldTermParser(
-            TermParserReader termParser) {
-        return new FieldTermParser<ObjectType>(termParser, this.getClass().getClassLoader()) {
+    protected FieldObjectFactory<ObjectType> createFieldTermParser() {
+        return new FieldObjectFactory<ObjectType>(this.getClass().getClassLoader()) {
             @Override
-            protected void handleErrorFromParser(TermToken errorToken) {
+            public void handleErrorFromParser(TermToken errorToken) {
                 fail("Errors from parser are not expected: " + errorToken);
             }
         };
@@ -91,7 +90,7 @@ public abstract class FieldsTermCase<ObjectType> {
      */
     protected void endParsing(boolean errorExit) {
         if (!errorExit) {
-            assertFalse(parser.hadErrors());
+            assertFalse(parser.getObjectFactory().hadErrors());
         }
         termParser.close();
     }

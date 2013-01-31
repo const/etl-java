@@ -53,6 +53,26 @@ public final class PropertyName {
     }
 
     /**
+     * The field name from property name
+     *
+     * @param name the field name
+     * @return the adjusted field name
+     */
+    public static String lowerCaseFeatureName(String name) {
+        if (name == null || name.length() == 0) {
+            return name;
+        }
+        final int first = name.codePointAt(0);
+        if (Character.isUpperCase(first)) {
+            name = new StringBuilder().
+                    appendCodePoint(Character.toLowerCase(first)).
+                    append(name.substring(Character.charCount(first))).
+                    toString();
+        }
+        return name;
+    }
+
+    /**
      * @return name of property
      */
     public String name() {

@@ -25,12 +25,10 @@
 
 package net.sf.etl.parsers.streams;
 
-import net.sf.etl.parsers.AbstractToken;
-
 /**
  * The abstract parser
  */
-public interface AbstractReader<TokenType extends AbstractToken> {
+public interface AbstractReader<TokenType> {
 
     /**
      * @return system id associated with this lexer

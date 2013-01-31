@@ -25,8 +25,9 @@
 package net.sf.etl.utils.etl2beans;
 
 import net.sf.etl.parsers.TextPos;
+import net.sf.etl.parsers.event.tree.BeansObjectFactory;
 import net.sf.etl.parsers.streams.TermParserReader;
-import net.sf.etl.parsers.streams.beans.BeansTermParser;
+import net.sf.etl.parsers.streams.TreeParserReader;
 import net.sf.etl.utils.ETL2AST;
 
 import java.beans.DefaultPersistenceDelegate;
@@ -49,7 +50,7 @@ public class ETL2Beans extends ETL2AST {
     @Override
     protected void processContent(OutputStream outStream, TermParserReader p)
             throws Exception {
-        final BeansTermParser bp = new BeansTermParser(p, ETL2Beans.class.getClassLoader());
+        final BeansObjectFactory bp = new BeansObjectFactory(ETL2Beans.class.getClassLoader());
         configureStandardOptions(bp);
         for (final Entry<String, String> e : packageMap.entrySet()) {
             bp.mapNamespaceToPackage(e.getKey(), e.getValue());
@@ -57,8 +58,9 @@ public class ETL2Beans extends ETL2AST {
         final XMLEncoder en = new XMLEncoder(outStream);
         en.setPersistenceDelegate(TextPos.class,
                 new DefaultPersistenceDelegate(new String[]{"line", "column", "offset"}));
-        while (bp.hasNext()) {
-            en.writeObject(bp.next());
+        TreeParserReader<Object> parser = new TreeParserReader<Object>(p, bp);
+        while (parser.advance()) {
+            en.writeObject(parser.current());
         }
         en.close();
     }

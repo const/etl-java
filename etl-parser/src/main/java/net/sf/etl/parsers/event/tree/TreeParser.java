@@ -22,24 +22,33 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.streams.beans;
+
+package net.sf.etl.parsers.event.tree;
 
 import net.sf.etl.parsers.TermToken;
+import net.sf.etl.parsers.event.Cell;
+import net.sf.etl.parsers.event.ParserState;
 
 /**
- * If the bean implements this interface, it will be notified about each token
- * that happens within its scope. This interface is supported by
- * {@link AbstractReflectionParser} and thus supported the both its subclasses
- * {@link FieldTermParser} and {@link BeansTermParser}.
- *
- * @author const
+ * AST parser interface
  */
-public interface TokenCollector {
+public interface TreeParser<BaseClass> {
+
     /**
-     * This method is called token has occurred within scope of the object that
-     * implements this interface.
-     *
-     * @param token the token within scope
+     * @return read current object from parser
      */
-    void collect(TermToken token);
+    BaseClass read();
+
+    /**
+     * Parse token,
+     *
+     * @param token the cell with the token. The element is removed if it is consumed and more date is needed.
+     * @return the parsed state
+     */
+    ParserState parse(Cell<TermToken> token);
+
+    /**
+     * @return get system id
+     */
+    String getSystemId();
 }

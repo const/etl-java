@@ -70,6 +70,7 @@ public class DefaultGrammarResolver implements GrammarResolver {
     @Override
     public void resolve(TermParser termParser) {
         final Semaphore lock = new Semaphore(0);
+        // TODO use event queue for resolution
         new GrammarCompilerSession(configuration, termParser, new Runnable() {
             @Override
             public void run() {
