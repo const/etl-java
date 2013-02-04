@@ -2,7 +2,7 @@
  * Reference ETL Parser for Java
  * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
- * Permission is hereby granted, free of charge, to any person
+ * Permission is hereby granted, free of charge, to any person 
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
@@ -24,13 +24,11 @@
  */
 package net.sf.etl.parsers.term;
 
+import net.sf.etl.parsers.DefaultTermParserConfiguration;
 import net.sf.etl.parsers.StandardGrammars;
 import net.sf.etl.parsers.Terms;
 import net.sf.etl.parsers.streams.TermParserReader;
 
-import java.io.FilterInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -99,6 +97,8 @@ public abstract class TermStructureTestCase {
                                                     String defaultContext) {
         parser = new TermParserReader(new StringReader(text), "none:test");
         parser.setDefaultGrammar(grammarPublicId, grammarSystemId, defaultContext, false);
+        assertEquals(parser.getConfiguration().getTabSize(parser.getSystemId()),
+                Integer.getInteger(DefaultTermParserConfiguration.ETL_TAB_SIZE_PROPERTY, 8).intValue());
         parser.advance();
     }
 
@@ -369,80 +369,4 @@ public abstract class TermStructureTestCase {
             endParsing(errorExit);
         }
     }
-
-    /**
-     * An input stream that starts at specified position and does not allows
-     * reading beyond other specified positions.
-     *
-     * @author const
-     */
-    class LimitedInputStream extends FilterInputStream {
-        /**
-         * remaining bytes to read
-         */
-        private long remaining;
-
-        /**
-         * @param in    an input stream
-         * @param start start position
-         * @param end   end position
-         * @throws IOException if there is an error during skipping to start position
-         */
-        protected LimitedInputStream(InputStream in, long start, long end)
-                throws IOException {
-            super(in);
-            if (start < 0) {
-                throw new IllegalArgumentException(
-                        "Start position must be positive: " + start);
-            }
-            if (end < start) {
-                throw new IllegalArgumentException("End position " + end
-                        + " must be must be greater than start " + start);
-            }
-            //noinspection ResultOfMethodCallIgnored
-            in.skip(start);
-            remaining = end - start;
-        }
-
-        @Override
-        public int read() throws IOException {
-            if (remaining == 0) {
-                return -1;
-            }
-            final int rc = super.read();
-            if (rc != -1) {
-                remaining--;
-            }
-            return rc;
-        }
-
-        @Override
-        public int read(byte[] b, int off, int len) throws IOException {
-            if (remaining == 0) {
-                return -1;
-            }
-            final long actual = Math.min(remaining, len);
-            final int rc = super.read(b, off, (int) actual);
-            if (rc > 0) {
-                remaining -= rc;
-            }
-            return rc;
-        }
-
-        @Override
-        public long skip(long n) throws IOException {
-            assert n > 0;
-            final long actual = Math.min(n, remaining);
-            final long rc = super.skip(actual);
-            remaining -= rc;
-            return rc;
-        }
-
-        @Override
-        public int available() throws IOException {
-            final int rc = super.available();
-            return (int) Math.min(rc, remaining);
-        }
-    }
-
 }

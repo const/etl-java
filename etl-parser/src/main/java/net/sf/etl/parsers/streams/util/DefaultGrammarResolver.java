@@ -2,7 +2,7 @@
  * Reference ETL Parser for Java
  * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
- * Permission is hereby granted, free of charge, to any person
+ * Permission is hereby granted, free of charge, to any person 
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
@@ -26,12 +26,15 @@
 package net.sf.etl.parsers.streams.util;
 
 import net.sf.etl.parsers.DefaultTermParserConfiguration;
+import net.sf.etl.parsers.ParserException;
 import net.sf.etl.parsers.TermParserConfiguration;
 import net.sf.etl.parsers.event.TermParser;
 import net.sf.etl.parsers.event.grammar.GrammarCompilerSession;
 import net.sf.etl.parsers.streams.GrammarResolver;
 
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * The caching grammar resolver, it is based on system ids
@@ -69,14 +72,32 @@ public class DefaultGrammarResolver implements GrammarResolver {
      */
     @Override
     public void resolve(TermParser termParser) {
-        final Semaphore lock = new Semaphore(0);
-        // TODO use event queue for resolution
-        new GrammarCompilerSession(configuration, termParser, new Runnable() {
-            @Override
-            public void run() {
-                lock.release();
+        final AtomicBoolean finished = new AtomicBoolean(false);
+        final LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>();
+        new GrammarCompilerSession(
+                configuration,
+                configuration.getCatalog(termParser.getSystemId()),
+                termParser,
+                new Executor() {
+                    @Override
+                    public void execute(Runnable command) {
+                        queue.add(command);
+                    }
+                },
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        finished.set(true);
+                    }
+                }
+        );
+        while (!finished.get()) {
+            try {
+                queue.take().run();
+            } catch (Exception e) {
+                throw new ParserException("The grammar resolution process for " +
+                        termParser.getSystemId() + " is interrupted", e);
             }
-        });
-        lock.acquireUninterruptibly();
+        }
     }
 }

@@ -2,7 +2,7 @@
  * Reference ETL Parser for Java
  * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
- * Permission is hereby granted, free of charge, to any person
+ * Permission is hereby granted, free of charge, to any person 
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
@@ -37,12 +37,15 @@ public enum SyntaxRole {
     UNKNOWN,
 
     /**
-     * primary token. this is used for literal values and identifiers
+     * primary token. this is used for literal values and identifiers that match specific literal expression like
+     * "float", "integer", or "identifier".
      */
     PRIMARY,
 
     /**
-     * primary any toke, it is used when generic token operation is used
+     * primary any token, it is used when the token matches unqualified "token" expression in grammar. This case
+     * is different from the normal matching, as such expression could match the values that would otherwise
+     * considered keywords.
      */
     PRIMARY_ANY,
 

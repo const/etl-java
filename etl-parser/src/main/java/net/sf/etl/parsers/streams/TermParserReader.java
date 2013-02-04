@@ -2,7 +2,7 @@
  * Reference ETL Parser for Java
  * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
- * Permission is hereby granted, free of charge, to any person
+ * Permission is hereby granted, free of charge, to any person 
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
@@ -31,7 +31,6 @@ import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.TermParser;
 import net.sf.etl.parsers.event.grammar.CompiledGrammar;
 import net.sf.etl.parsers.event.impl.term.TermParserImpl;
-import net.sf.etl.parsers.streams.util.DefaultGrammarResolver;
 
 import java.io.Reader;
 import java.net.URL;
@@ -51,7 +50,7 @@ public class TermParserReader extends AbstractReaderImpl<TermToken> {
     /**
      * Term parser implementation
      */
-    private final TermParser termParser = new TermParserImpl();
+    private final TermParser termParser;
     /**
      * The phrase parser
      */
@@ -59,7 +58,22 @@ public class TermParserReader extends AbstractReaderImpl<TermToken> {
     /**
      * The grammar resolver
      */
-    private GrammarResolver resolver = DefaultGrammarResolver.INSTANCE;
+    private GrammarResolver resolver;
+
+    /**
+     * The constructor from fields
+     *
+     * @param configuration      the configuration
+     * @param phraseParserReader the phrase parser reader
+     * @param termParser         the term parser
+     * @param resolver           the resolver
+     */
+    public TermParserReader(TermParserConfiguration configuration, PhraseParserReader phraseParserReader, TermParser termParser, GrammarResolver resolver) {
+        this.configuration = configuration;
+        this.phraseParserReader = phraseParserReader;
+        this.termParser = termParser;
+        this.resolver = resolver;
+    }
 
     /**
      * The constructor that forces usage for the specific grammar
@@ -81,8 +95,8 @@ public class TermParserReader extends AbstractReaderImpl<TermToken> {
      */
     public TermParserReader(TermParserConfiguration configuration, PhraseParserReader phraseParserReader,
                             CompiledGrammar forcedGrammar, boolean scriptMode) {
-        this.configuration = configuration;
-        this.phraseParserReader = phraseParserReader;
+        this(configuration, phraseParserReader, new TermParserImpl(),
+                configuration.getGrammarResolver(phraseParserReader.getSystemId()));
         this.termParser.forceGrammar(forcedGrammar, scriptMode);
         this.termParser.start(phraseParserReader.getSystemId());
     }
@@ -102,8 +116,8 @@ public class TermParserReader extends AbstractReaderImpl<TermToken> {
      * @param phraseParserReader the phrase parser reader
      */
     public TermParserReader(TermParserConfiguration configuration, PhraseParserReader phraseParserReader) {
-        this.configuration = configuration;
-        this.phraseParserReader = phraseParserReader;
+        this(configuration, phraseParserReader, new TermParserImpl(),
+                configuration.getGrammarResolver(phraseParserReader.getSystemId()));
         this.termParser.start(phraseParserReader.getSystemId());
     }
 
@@ -178,6 +192,13 @@ public class TermParserReader extends AbstractReaderImpl<TermToken> {
     @Override
     public String getSystemId() {
         return termParser.getSystemId();
+    }
+
+    /**
+     * @return the current parser configuration
+     */
+    public TermParserConfiguration getConfiguration() {
+        return configuration;
     }
 
     /**

@@ -2,7 +2,7 @@
  * Reference ETL Parser for Java
  * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
- * Permission is hereby granted, free of charge, to any person
+ * Permission is hereby granted, free of charge, to any person 
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
@@ -26,6 +26,7 @@
 package net.sf.etl.parsers;
 
 import net.sf.etl.parsers.event.grammar.CompiledGrammar;
+import net.sf.etl.parsers.streams.GrammarResolver;
 import org.apache_extras.xml_catalog.event.Catalog;
 
 import java.io.IOException;
@@ -77,4 +78,11 @@ public interface TermParserConfiguration {
      */
     void cacheGrammar(CompiledGrammar grammar);
 
+    /**
+     * Identify default grammar resolver for the source
+     *
+     * @param systemId the system id of source being parsed
+     * @return get default synchronous grammar resolver for the term reader
+     */
+    GrammarResolver getGrammarResolver(String systemId);
 }
