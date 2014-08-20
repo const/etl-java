@@ -2,7 +2,7 @@
  * Reference ETL Parser for Java
  * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
- * Permission is hereby granted, free of charge, to any person 
+ * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
@@ -25,22 +25,39 @@
 
 package net.sf.etl.parsers.event.grammar;
 
-import net.sf.etl.parsers.*;
+import net.sf.etl.parsers.ErrorInfo;
+import net.sf.etl.parsers.LoadedGrammarInfo;
+import net.sf.etl.parsers.SourceLocation;
+import net.sf.etl.parsers.StandardGrammars;
+import net.sf.etl.parsers.TermParserConfiguration;
+import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.TermParser;
 import net.sf.etl.parsers.event.grammar.impl.GrammarAssemblyBuilder;
 import net.sf.etl.parsers.event.unstable.model.grammar.Grammar;
 import net.sf.etl.parsers.event.unstable.model.grammar.GrammarLiteTermParser;
-import net.sf.etl.parsers.resource.*;
+import net.sf.etl.parsers.resource.ResolvedObject;
+import net.sf.etl.parsers.resource.ResourceDescriptor;
+import net.sf.etl.parsers.resource.ResourceReference;
+import net.sf.etl.parsers.resource.ResourceRequest;
+import net.sf.etl.parsers.resource.ResourceUsage;
 import net.sf.etl.parsers.streams.GrammarResolver;
 import net.sf.etl.parsers.streams.TermParserReader;
-import org.apache_extras.xml_catalog.event.*;
+import net.sf.etl.parsers.streams.util.DefaultGrammarResolver;
+import org.apache_extras.xml_catalog.event.Catalog;
+import org.apache_extras.xml_catalog.event.CatalogFile;
+import org.apache_extras.xml_catalog.event.CatalogResourceUsage;
+import org.apache_extras.xml_catalog.event.CatalogResult;
+import org.apache_extras.xml_catalog.event.CatalogResultTrace;
+import org.apache_extras.xml_catalog.event.ResultReceiver;
 
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
@@ -71,6 +88,12 @@ public class GrammarCompilerSession {
      * The configuration for term parser
      */
     private final TermParserConfiguration configuration;
+    /**
+     * The set of grammars which loading is already started. This is done in order
+     * to prevent the case, when document type for the grammar is not the same
+     * standard grammar language, and it recursively refers to itself.
+     */
+    private final Set<String> loadedGrammars;
 
     /**
      * The constructor. It immediately start loading parsers for the grammar, and possibly exits, or not.
@@ -82,8 +105,27 @@ public class GrammarCompilerSession {
      * @param executor       the executor
      * @param finishedAction the action to be executed to indicate that loading grammar has been finished
      */
-    public GrammarCompilerSession(TermParserConfiguration configuration, Catalog catalog, TermParser parser, Executor executor, Runnable finishedAction) {
+    public GrammarCompilerSession(TermParserConfiguration configuration, Catalog catalog, TermParser parser,
+                                  Executor executor, Runnable finishedAction) {
+        this(configuration, catalog, parser, executor, finishedAction, Collections.<String>emptySet());
+    }
+
+    /**
+     * The constructor. It immediately start loading parsers for the grammar, and possibly exits, or not.
+     * If it exits, it means that the grammar loading is asynchronous.
+     *
+     * @param configuration  the configuration
+     * @param catalog        the catalog
+     * @param parser         the parser
+     * @param executor       the executor
+     * @param finishedAction the action to be executed to indicate that loading grammar has been finished
+     * @param loadedGrammars the grammars that has been already loaded (to prevent cyclic loading of grammars
+     *                       for grammars)
+     */
+    public GrammarCompilerSession(TermParserConfiguration configuration, Catalog catalog, TermParser parser,
+                                  Executor executor, Runnable finishedAction, Set<String> loadedGrammars) {
         this.executor = executor;
+        this.loadedGrammars = loadedGrammars;
         this.catalog = catalog != null ? catalog : configuration.getCatalog(parser.getSystemId());
         this.parser = parser;
         this.finishedAction = finishedAction;
@@ -106,15 +148,21 @@ public class GrammarCompilerSession {
      * @param resourceRequest the resource request
      */
     private void startParsing(final ResourceRequest resourceRequest) {
-        catalog.resolveEntity(executor, resourceRequest.getReference().getPublicId(), resourceRequest.getReference().getSystemId(),
+        catalog.resolveEntity(executor,
+                resourceRequest.getReference().getPublicId(),
+                resourceRequest.getReference().getSystemId(),
                 null,
                 new ResultReceiver<CatalogResult>() {
                     @Override
                     public void result(CatalogResult result) {
                         if (result.getResolution() == null) {
                             catalog.resolveResource(executor,
-                                    parser.getSystemId(), StandardGrammars.GRAMMAR_NATURE, StandardGrammars.GRAMMAR_EXTENSION_MAPPING,
-                                    resourceRequest.getReference().getPublicId(), resourceRequest.getReference().getSystemId(), parser.getSystemId(),
+                                    parser.getSystemId(),
+                                    StandardGrammars.GRAMMAR_NATURE,
+                                    StandardGrammars.GRAMMAR_EXTENSION_MAPPING,
+                                    resourceRequest.getReference().getPublicId(),
+                                    resourceRequest.getReference().getSystemId(),
+                                    parser.getSystemId(),
                                     new ResultReceiver<CatalogResult>() {
                                         @Override
                                         public void result(CatalogResult result) {
@@ -147,6 +195,15 @@ public class GrammarCompilerSession {
                     ));
                     return;
                 }
+            }
+            if (loadedGrammars.contains(result.getResolution())) {
+                grammarCompilerEngine.start(resourceRequest);
+                grammarCompilerEngine.fail(resourceRequest, resolutionHistory,
+                        new ErrorInfo("syntax.RecursiveGrammarDefinition",
+                                Collections.<Object>singletonList(result.getResolution()),
+                                new SourceLocation(TextPos.START, TextPos.START, result.getResolution()),
+                                null));
+                process();
             }
             grammarCompilerEngine.start(resourceRequest);
             loadGrammar(resourceRequest, result);
@@ -290,7 +347,7 @@ public class GrammarCompilerSession {
      * @param request the catalog request
      * @param result  the resolution
      */
-    protected void loadGrammar(ResourceRequest request, CatalogResult result) {
+    protected void loadGrammar(ResourceRequest request, final CatalogResult result) {
         final String systemId = result.getResolution();
         final List<ResourceUsage> resolution = getResolutionHistory(result);
         try {
@@ -307,28 +364,38 @@ public class GrammarCompilerSession {
             final ResolvedObject<Grammar> alreadyProvided = grammarCompilerEngine.getProvided(systemId);
             if (alreadyProvided != null) {
                 grammarCompilerEngine.provide(new ResolvedObject<Grammar>(request,
-                        resolution,
-                        alreadyProvided.getDescriptor(),
-                        alreadyProvided.getObject()),
+                                resolution,
+                                alreadyProvided.getDescriptor(),
+                                alreadyProvided.getObject()),
                         null);
             }
             URL url = new URL(systemId);
             ArrayList<ErrorInfo> errors = new ArrayList<ErrorInfo>();
-            // TODO use asynchronous parser !
             final TermParserReader reader = new TermParserReader(configuration, url);
             try {
                 reader.setResolver(new GrammarResolver() {
                     @Override
                     public void resolve(TermParser termParser) {
-                        // TODO check actual request, handle cycles
-                        termParser.provideGrammar(new ResolvedObject<CompiledGrammar>(termParser.grammarRequest(),
-                                Collections.<ResourceUsage>emptyList(),
-                                BootstrapGrammars.grammarGrammar().getDescriptor(),
-                                BootstrapGrammars.grammarGrammar()), null);
+                        final ResourceRequest resourceRequest = termParser.grammarRequest();
+                        if (StandardGrammars.ETL_GRAMMAR_PUBLIC_ID.equals(
+                                resourceRequest.getReference().getPublicId())
+                                || StandardGrammars.ETL_GRAMMAR_SYSTEM_ID.equals(
+                                resourceRequest.getReference().getPublicId())) {
+                            termParser.provideGrammar(new ResolvedObject<CompiledGrammar>(
+                                    resourceRequest,
+                                    Collections.<ResourceUsage>emptyList(),
+                                    BootstrapGrammars.grammarGrammar().getDescriptor(),
+                                    BootstrapGrammars.grammarGrammar()), null);
+                        } else {
+                            final HashSet<String> grammars = new HashSet<String>();
+                            grammars.addAll(loadedGrammars);
+                            grammars.add(result.getResolution());
+                            new DefaultGrammarResolver(configuration,
+                                    Collections.unmodifiableSet(grammars)).resolve(termParser);
+                        }
                     }
                 });
                 reader.advance();
-                // TODO use event parser as well
                 GrammarLiteTermParser parser = new GrammarLiteTermParser(reader);
                 if (parser.advance()) {
                     Grammar grammar = (Grammar) parser.current();

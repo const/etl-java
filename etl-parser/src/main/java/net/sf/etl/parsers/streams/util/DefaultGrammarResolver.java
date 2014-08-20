@@ -2,7 +2,7 @@
  * Reference ETL Parser for Java
  * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
- * Permission is hereby granted, free of charge, to any person 
+ * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
@@ -32,6 +32,8 @@ import net.sf.etl.parsers.event.TermParser;
 import net.sf.etl.parsers.event.grammar.GrammarCompilerSession;
 import net.sf.etl.parsers.streams.GrammarResolver;
 
+import java.util.Collections;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -48,21 +50,27 @@ public class DefaultGrammarResolver implements GrammarResolver {
      * The configuration
      */
     private final TermParserConfiguration configuration;
+    /**
+     * The grammars that are already loaded.
+     */
+    private final Set<String> loadedGrammars;
 
     /**
      * The constructor from default configuration
      */
     public DefaultGrammarResolver() {
-        this(DefaultTermParserConfiguration.INSTANCE);
+        this(DefaultTermParserConfiguration.INSTANCE, Collections.<String>emptySet());
     }
 
     /**
      * The caching resolver
      *
-     * @param configuration the configuration
+     * @param configuration  the configuration
+     * @param loadedGrammars the loaded grammars
      */
-    public DefaultGrammarResolver(TermParserConfiguration configuration) {
+    public DefaultGrammarResolver(TermParserConfiguration configuration, final Set<String> loadedGrammars) {
         this.configuration = configuration;
+        this.loadedGrammars = loadedGrammars;
     }
 
     /**
@@ -89,7 +97,8 @@ public class DefaultGrammarResolver implements GrammarResolver {
                     public void run() {
                         finished.set(true);
                     }
-                }
+                },
+                loadedGrammars
         );
         while (!finished.get()) {
             try {
