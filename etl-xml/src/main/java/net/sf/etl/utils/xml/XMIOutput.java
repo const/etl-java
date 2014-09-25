@@ -38,10 +38,6 @@ import java.util.logging.Logger;
  */
 public class XMIOutput extends StructuralOutput {
     /**
-     * a logger
-     */
-    private static final Logger log = Logger.getLogger(XMIOutput.class.getName());
-    /**
      * XMI namespace
      */
     final static String XMI_NS = "http://www.omg.org/XMI";
@@ -49,6 +45,10 @@ public class XMIOutput extends StructuralOutput {
      * schema instance namespace
      */
     final static String XSI_NS = "http://www.w3.org/2001/XMLSchema-instance";
+    /**
+     * a logger
+     */
+    private static final Logger LOG = Logger.getLogger(XMIOutput.class.getName());
     /**
      * Avoid attributes property
      */
@@ -128,7 +128,7 @@ public class XMIOutput extends StructuralOutput {
             checkErrors();
             switch (parser.current().kind()) {
                 case OBJECT_START:
-                    log.severe("Unexpected Object Start Event in "
+                    LOG.severe("Unexpected Object Start Event in "
                             + parser.getSystemId() + " (Grammar BUG): "
                             + parser.current());
                     extraStarts++;
@@ -186,7 +186,7 @@ public class XMIOutput extends StructuralOutput {
      * @param hadElements if true, there had been already elements output for the
      *                    current object
      * @return true if property had been output as element rather then xml
-     *         attribute.
+     * attribute.
      * @throws Exception in case of IO problem
      */
     boolean processProperty(boolean hadElements) throws Exception {
@@ -201,7 +201,7 @@ public class XMIOutput extends StructuralOutput {
             switch (parser.current().kind()) {
                 case PROPERTY_START:
                 case LIST_PROPERTY_START:
-                    log.severe("Unexpected Property Start Event in "
+                    LOG.severe("Unexpected Property Start Event in "
                             + parser.getSystemId() + " (Grammar BUG): "
                             + parser.current());
                     extraStarts++;

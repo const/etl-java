@@ -29,30 +29,30 @@ import net.sf.etl.parsers.event.grammar.TermParserContext;
 import net.sf.etl.parsers.event.grammar.TermParserState;
 
 /**
- * The action state
+ * The action state.
  */
 public final class ActionState extends TermParserState {
     /**
-     * The current action
+     * The current action.
      */
     private Action current;
     /**
-     * The recovery state for the action state
+     * The recovery state for the action state.
      */
     private Action recoveryTest;
     /**
-     * The recovery choice action
+     * The recovery choice action.
      */
     private RecoveryChoiceAction recoveryChoiceAction;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param context  the context
      * @param previous the previous state on the stack
      * @param start    the start state
      */
-    public ActionState(TermParserContext context, TermParserState previous, Action start) {
+    public ActionState(final TermParserContext context, final TermParserState previous, final Action start) {
         super(context, previous);
         current = start;
     }
@@ -62,6 +62,7 @@ public final class ActionState extends TermParserState {
         recoveryChoiceAction = null;
         Action suspended = current;
         current = recoveryTest;
+        final TermParserContext context = getContext();
         while (current != null) {
             current.parseMore(context, this);
         }
@@ -83,41 +84,44 @@ public final class ActionState extends TermParserState {
 
     @Override
     public void parseMore() {
-        current.parseMore(context, this);
+        current.parseMore(getContext(), this);
     }
 
     /**
-     * Set next action to execute
+     * Set next action to execute.
      *
      * @param next the next action
      */
-    public void nextAction(Action next) {
+    public void nextAction(final Action next) {
         current = next;
     }
 
     /**
+     * Check if the recovery choice point is set to the specified action.
+     *
+     * @param action the action
      * @return check if the current point is a recovery point
      */
-    boolean isRecoveryPoint(RecoveryChoiceAction recoveryChoiceAction) {
-        return this.recoveryChoiceAction == recoveryChoiceAction;
+    boolean isRecoveryPoint(final RecoveryChoiceAction action) {
+        return this.recoveryChoiceAction == action;
     }
 
     /**
-     * Set recovery point, it aborts recovery loop
+     * Set recovery point, it aborts recovery loop.
      *
-     * @param recoveryChoiceAction the recovery choice point
+     * @param action the recovery choice point
      */
-    void setRecoveryPoint(RecoveryChoiceAction recoveryChoiceAction) {
-        this.recoveryChoiceAction = recoveryChoiceAction;
+    void setRecoveryPoint(final RecoveryChoiceAction action) {
+        this.recoveryChoiceAction = action;
         current = null;
     }
 
     /**
-     * The action
+     * The action.
      *
      * @param action the recovery test action (might be null, if no recovery possible)
      */
-    void setRecoveryTest(Action action) {
+    void setRecoveryTest(final Action action) {
         recoveryTest = action;
     }
 }

@@ -32,24 +32,24 @@ import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 /**
- * Token action
+ * Token action.
  */
-public class StructuralTokenAction extends SimpleAction {
+public final class StructuralTokenAction extends SimpleAction {
     /**
-     * The term token type
+     * The term token type.
      */
-    public final Terms kind;
+    private final Terms kind;
     /**
-     * Object type
+     * Object type.
      */
-    public final Object type;
+    private final Object type;
     /**
-     * If true, object is created at the specified mark
+     * If true, object is created at the specified mark.
      */
-    public final boolean atMark;
+    private final boolean atMark;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param source the source location in the grammar that caused this node creation
      * @param next   the next action
@@ -57,7 +57,8 @@ public class StructuralTokenAction extends SimpleAction {
      * @param type   the structure type
      * @param atMark if true, the token is reported after mark
      */
-    public StructuralTokenAction(SourceLocation source, Action next, Terms kind, Object type, boolean atMark) {
+    public StructuralTokenAction(final SourceLocation source, final Action next, final Terms kind, final Object type,
+                                 final boolean atMark) {
         super(source, next);
         this.kind = kind;
         this.type = type;
@@ -65,15 +66,15 @@ public class StructuralTokenAction extends SimpleAction {
     }
 
     @Override
-    public void parseMore(TermParserContext context, ActionState state) {
+    public void parseMore(final TermParserContext context, final ActionState state) {
         if (atMark) {
             final TermToken termToken = context.peekObjectAtMark();
             TextPos start = termToken != null ? termToken.start() : context.current().start();
-            context.produceAfterMark(new TermToken(kind, null, type, null, start, start, source, null));
+            context.produceAfterMark(new TermToken(kind, null, type, null, start, start, getSource(), null));
         } else {
             TextPos start = context.current().start();
-            context.produce(new TermToken(kind, null, type, null, start, start, source, null));
+            context.produce(new TermToken(kind, null, type, null, start, start, getSource(), null));
         }
-        state.nextAction(next);
+        state.nextAction(getNext());
     }
 }

@@ -31,26 +31,26 @@ package net.sf.etl.parsers;
  */
 public abstract class AbstractToken {
     /**
-     * a end position of token
+     * a end position of token.
      */
     private final TextPos end;
     /**
-     * a lexical error info
+     * a lexical error info.
      */
     private final ErrorInfo errorInfo;
     /**
-     * a start position of token
+     * a start position of token.
      */
     private final TextPos start;
 
     /**
-     * The generic constructor for token
+     * The generic constructor for token.
      *
      * @param start     start position
      * @param end       end position
      * @param errorInfo error information associated with token
      */
-    protected AbstractToken(TextPos start, TextPos end, ErrorInfo errorInfo) {
+    protected AbstractToken(final TextPos start, final TextPos end, final ErrorInfo errorInfo) {
         if (start == null) {
             throw new NullPointerException("Start must not be null");
         }
@@ -65,28 +65,28 @@ public abstract class AbstractToken {
     /**
      * @return a position of next character right after token
      */
-    public TextPos end() {
+    public final TextPos end() {
         return end;
     }
 
     /**
      * @return ErrorInfo associated with token if token is error token
      */
-    public ErrorInfo errorInfo() {
+    public final ErrorInfo errorInfo() {
         return errorInfo;
     }
 
     /**
      * @return start position of token
      */
-    public TextPos start() {
+    public final TextPos start() {
         return start;
     }
 
     /**
      * @return true if the token has associated errors
      */
-    public boolean hasErrors() {
+    public final boolean hasErrors() {
         return errorInfo() != null;
     }
 }

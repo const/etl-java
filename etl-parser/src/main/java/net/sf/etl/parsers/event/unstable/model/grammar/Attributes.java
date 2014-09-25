@@ -30,5 +30,5 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
  *
  * @author const
  */
-public class Attributes extends SyntaxDefinition {
+public final class Attributes extends SyntaxDefinition {
 }

@@ -30,33 +30,34 @@ package net.sf.etl.parsers;
  * Grammars for expression context and statement context could be different. For example in
  * the case when sql-like language is hosted within java like language.
  */
-public class ExpressionContext {
+public final class ExpressionContext {
     /**
-     * Context that includes this statement context
+     * Context that includes this statement context.
      */
     private final DefinitionContext hostContext;
     /**
-     * The expression grammar
+     * The expression grammar.
      */
     private final GrammarInfo expressionGrammar;
     /**
-     * The expression context name
+     * The expression context name.
      */
     private final String context;
     /**
-     * The initial precedence level
+     * The initial precedence level.
      */
     private final int precedenceLevel;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param hostContext       the host statement context
      * @param expressionGrammar the expression grammar
      * @param context           the expression context name
      * @param precedenceLevel   the precedence level
      */
-    public ExpressionContext(DefinitionContext hostContext, GrammarInfo expressionGrammar, String context, Integer precedenceLevel) {
+    public ExpressionContext(final DefinitionContext hostContext, final GrammarInfo expressionGrammar,
+                             final String context, final Integer precedenceLevel) {
         this.hostContext = hostContext;
         this.expressionGrammar = expressionGrammar;
         this.context = context;
@@ -65,13 +66,14 @@ public class ExpressionContext {
 
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param hostContext       the host statement context
      * @param referencedContext the expression context name
      * @param precedenceLevel   the precedence level
      */
-    public ExpressionContext(DefinitionContext hostContext, DefinitionContext referencedContext, Integer precedenceLevel) {
+    public ExpressionContext(final DefinitionContext hostContext, final DefinitionContext referencedContext,
+                             final Integer precedenceLevel) {
         this.hostContext = hostContext;
         this.expressionGrammar = referencedContext.grammar();
         this.context = referencedContext.context();
@@ -107,7 +109,8 @@ public class ExpressionContext {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
+        //CHECKSTYLE:OFF
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -115,21 +118,25 @@ public class ExpressionContext {
 
         if (precedenceLevel != that.precedenceLevel) return false;
         if (context != null ? !context.equals(that.context) : that.context != null) return false;
-        if (expressionGrammar != null ? !expressionGrammar.equals(that.expressionGrammar) : that.expressionGrammar != null)
+        if (expressionGrammar != null ? !expressionGrammar.equals(that.expressionGrammar)
+                : that.expressionGrammar != null)
             return false;
         //noinspection RedundantIfStatement
         if (hostContext != null ? !hostContext.equals(that.hostContext) : that.hostContext != null) return false;
 
         return true;
+        //CHECKSTYLE:ON
     }
 
     @Override
     public int hashCode() {
+        //CHECKSTYLE:OFF
         int result = hostContext != null ? hostContext.hashCode() : 0;
         result = 31 * result + (expressionGrammar != null ? expressionGrammar.hashCode() : 0);
         result = 31 * result + (context != null ? context.hashCode() : 0);
         result = 31 * result + precedenceLevel;
         return result;
+        //CHECKSTYLE:ON
     }
 
     @Override

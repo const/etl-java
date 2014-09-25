@@ -27,8 +27,6 @@ package net.sf.etl.parsers.event.tree;
 import net.sf.etl.parsers.ObjectName;
 import net.sf.etl.parsers.ParserException;
 import net.sf.etl.parsers.PropertyName;
-import net.sf.etl.parsers.Token;
-import net.sf.etl.parsers.literals.LiteralUtils;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -55,57 +53,49 @@ import java.util.logging.Logger;
  * linear search. It also has unknown impact.
  * </p>
  * <p>
- * The parser recognizes the following types in properties of beans:
+ * The parser recognizes the following types in bean properties:
  * </p>
  * <dl>
  * <dt>String
- * <dt>
- * <dd>In that case text is supplied as is</dd>
- * <dt>int</dt>
- * <dd>This value is mapped using LiteralUtils</dd>
+ * <dd>In that case text is supplied as is
+ * <dt>int
+ * <dd>This value is mapped using LiteralUtils
  * <dt>boolean
- * <dt>
- * <dd>In that case value is mapped using new Boolean(text).booleanValue()</dd>
+ * <dd>In that case value is mapped using new Boolean(text).booleanValue()
  * </dl>
  *
  * @author const
  */
-public class BeansObjectFactory extends ReflectionObjectFactoryBase<Object, PropertyDescriptor, BeanInfo, List<Object>> {
+public class BeansObjectFactory extends ReflectionObjectFactoryBase<Object, PropertyDescriptor,
+        BeanInfo, List<Object>> {
     /**
-     * a logger
+     * a logger.
      */
-    private static final Logger log = Logger.getLogger(BeansObjectFactory.class.getName());
+    private static final Logger LOG = Logger.getLogger(BeansObjectFactory.class.getName());
 
     /**
-     * A constructor for term parser
+     * A constructor for term parser.
      *
      * @param classLoader the class loader for the parser
      */
-    public BeansObjectFactory(ClassLoader classLoader) {
+    public BeansObjectFactory(final ClassLoader classLoader) {
         super(classLoader);
     }
 
     @Override
-    protected BeanInfo getMetaObject(final ObjectName name) {
+    protected final BeanInfo getMetaObject(final ObjectName name) {
         final Class<?> beanClass = getObjectClass(name);
         return getBeanInfo(beanClass);
     }
 
-    /**
-     * Create object instance
-     *
-     * @param metaObject the bean info for the object
-     * @param name       the name of the object
-     * @return a new instance or null if it cannot be created
-     */
     @Override
-    protected Object createInstance(BeanInfo metaObject, ObjectName name) {
+    protected final Object createInstance(final BeanInfo metaObject, final ObjectName name) {
         final Class<?> beanClass = metaObject.getBeanDescriptor().getBeanClass();
         try {
             return beanClass.newInstance();
         } catch (final Exception e) {
-            if (log.isLoggable(Level.FINE)) {
-                log.log(Level.FINE, "Object cannot be created: " + beanClass.getName());
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "Object cannot be created: " + beanClass.getName());
             }
             throw new ParserException("Object cannot be created: " + beanClass.getName(), e);
         }
@@ -118,19 +108,19 @@ public class BeansObjectFactory extends ReflectionObjectFactoryBase<Object, Prop
      * @param beanClass a bean class
      * @return the corresponding bean info or null if there is a problem
      */
-    protected BeanInfo getBeanInfo(Class<?> beanClass) {
+    protected final BeanInfo getBeanInfo(final Class<?> beanClass) {
         try {
             return Introspector.getBeanInfo(beanClass);
         } catch (final IntrospectionException e) {
-            if (log.isLoggable(Level.FINE)) {
-                log.log(Level.FINE, "BeanInfo has not been found for class: " + beanClass.getName());
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "BeanInfo has not been found for class: " + beanClass.getName());
             }
             throw new ParserException("BeanInfo not found for object name " + beanClass.getName(), e);
         }
     }
 
     @Override
-    public void setToFeature(Object rc, PropertyDescriptor f, Object v) {
+    public final void setToFeature(final Object rc, final PropertyDescriptor f, final Object v) {
         final Method m = f.getWriteMethod();
         try {
             m.invoke(rc, v);
@@ -142,12 +132,14 @@ public class BeansObjectFactory extends ReflectionObjectFactoryBase<Object, Prop
     }
 
     @Override
-    public void addToFeature(Object rc, PropertyDescriptor f, List<Object> holder, Object v) {
+    public final void addToFeature(final Object rc, final PropertyDescriptor f, final List<Object> holder,
+                                   final Object v) {
         holder.add(v);
     }
 
     @Override
-    public List<Object> startListCollection(Object rc, BeanInfo metaObject, PropertyDescriptor f) {
+    public final List<Object> startListCollection(final Object rc, final BeanInfo metaObject,
+                                                  final PropertyDescriptor f) {
         final Method m = f.getReadMethod();
         try {
             final Object array = m.invoke(rc);
@@ -165,8 +157,8 @@ public class BeansObjectFactory extends ReflectionObjectFactoryBase<Object, Prop
     }
 
     @Override
-    public void endListCollection(Object rc, BeanInfo metaObject,
-                                  PropertyDescriptor f, List<Object> holder) {
+    public final void endListCollection(final Object rc, final BeanInfo metaObject,
+                                        final PropertyDescriptor f, final List<Object> holder) {
         try {
             final ArrayList<Object> list = (ArrayList<Object>) holder;
             final Method m = f.getWriteMethod();
@@ -182,28 +174,25 @@ public class BeansObjectFactory extends ReflectionObjectFactoryBase<Object, Prop
     }
 
     @Override
-    public PropertyDescriptor getPropertyMetaObject(Object rc, BeanInfo metaObject, String name) {
-        name = PropertyName.lowerCaseFeatureName(name);
+    public final PropertyDescriptor getPropertyMetaObject(final Object rc, final BeanInfo metaObject,
+                                                          final String name) {
+        final String featureName = PropertyName.lowerCaseFeatureName(name);
         final PropertyDescriptor[] propertyDescriptors = metaObject.getPropertyDescriptors();
         for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
-            if (propertyDescriptor.getName().equals(name)) {
+            if (propertyDescriptor.getName().equals(featureName)) {
                 return propertyDescriptor;
             }
         }
-        throw new ParserException("Cannot find feature " + name + " in class "
+        throw new ParserException("Cannot find feature " + featureName + " in class "
                 + metaObject.getBeanDescriptor().getBeanClass().getName());
     }
 
     @Override
-    public Object parseValue(Object rc, PropertyDescriptor f, Token value) {
-        Class<?> fc = f.getPropertyType();
+    protected final Class<?> getFeatureType(final PropertyDescriptor feature) {
+        Class<?> fc = feature.getPropertyType();
         if (fc.isArray()) {
             fc = fc.getComponentType();
         }
-        if (fc == int.class || fc == Integer.class) {
-            return LiteralUtils.parseInt(value.text());
-        }
-        return value.text();
+        return fc;
     }
-
 }

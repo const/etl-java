@@ -30,13 +30,45 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
  *
  * @author const
  */
-public class FirstChoiceOp extends Syntax {
+public final class FirstChoiceOp extends Syntax {
     /**
-     * alternative that is tried first
+     * the alternative that is tried first.
      */
-    public Syntax first;
+    private Syntax first;
     /**
-     * alternative that is tried second
+     * the alternative that is tried second.
      */
-    public Syntax second;
+    private Syntax second;
+
+    /**
+     * @return the alternative that is tried first.
+     */
+    public Syntax getFirst() {
+        return first;
+    }
+
+    /**
+     * Set first alternative.
+     *
+     * @param first the first
+     */
+    public void setFirst(final Syntax first) {
+        this.first = first;
+    }
+
+    /**
+     * @return the alternative that is tried second.
+     */
+    public Syntax getSecond() {
+        return second;
+    }
+
+    /**
+     * Set second alternative.
+     *
+     * @param second the second
+     */
+    public void setSecond(final Syntax second) {
+        this.second = second;
+    }
 }

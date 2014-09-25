@@ -26,10 +26,13 @@ package net.sf.etl.parsers.term;
 
 import net.sf.etl.parsers.TermToken;
 import net.sf.etl.parsers.event.tree.FieldObjectFactory;
+import net.sf.etl.parsers.event.tree.TokenCollector;
 import net.sf.etl.parsers.streams.TermParserReader;
 import net.sf.etl.parsers.streams.TreeParserReader;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 /**
  * An base for tests based on beans term parser
@@ -67,6 +70,13 @@ public abstract class FieldsTermCase<ObjectType> {
         termParser = new TermParserReader(in);
         termParser.advance();
         parser = new TreeParserReader<ObjectType>(termParser, createFieldTermParser());
+        parser.setErrorTokenHandler(new TokenCollector() {
+            @Override
+            public void collect(final TermToken token) {
+                fail("Errors from parser are not expected: " + token);
+            }
+        });
+
     }
 
     /**
@@ -75,12 +85,7 @@ public abstract class FieldsTermCase<ObjectType> {
      * @return a object factory
      */
     protected FieldObjectFactory<ObjectType> createFieldTermParser() {
-        return new FieldObjectFactory<ObjectType>(this.getClass().getClassLoader()) {
-            @Override
-            public void handleErrorFromParser(TermToken errorToken) {
-                fail("Errors from parser are not expected: " + errorToken);
-            }
-        };
+        return new FieldObjectFactory<ObjectType>(this.getClass().getClassLoader());
     }
 
     /**
@@ -90,7 +95,7 @@ public abstract class FieldsTermCase<ObjectType> {
      */
     protected void endParsing(boolean errorExit) {
         if (!errorExit) {
-            assertFalse(parser.getObjectFactory().hadErrors());
+            assertFalse(parser.hadErrors());
         }
         termParser.close();
     }

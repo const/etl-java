@@ -36,29 +36,116 @@ import java.util.List;
  * Document type object. Note that this object is just a place holder for the information,
  * and some fields could be missing from it.
  */
-public class Doctype {
+public final class Doctype {
     /**
-     * The list of errors
+     * The list of errors.
      */
-    public final List<ErrorInfo> errors = new ArrayList<ErrorInfo>();
+    private final List<ErrorInfo> errors = new ArrayList<ErrorInfo>();
     /**
-     * The location where document type is defined
+     * The location where document type is defined.
      */
-    public SourceLocation location;
+    private SourceLocation location;
     /**
-     * The type token
+     * The type token.
      */
-    public Token type;
+    private Token type;
     /**
-     * The system id string token
+     * The system id string token.
      */
-    public Token systemId;
+    private Token systemId;
     /**
-     * The public id token
+     * The public id token.
      */
-    public Token publicId;
+    private Token publicId;
     /**
-     * The context token
+     * The context token.
      */
-    public Token context;
+    private Token context;
+
+    /**
+     * @return the list of errors
+     */
+    public List<ErrorInfo> getErrors() {
+        return errors;
+    }
+
+    /**
+     * @return the location where document type is defined
+     */
+    public SourceLocation getLocation() {
+        return location;
+    }
+
+    /**
+     * Set location.
+     *
+     * @param location the location
+     */
+    public void setLocation(final SourceLocation location) {
+        this.location = location;
+    }
+
+    /**
+     * @return the type token.
+     */
+    public Token getType() {
+        return type;
+    }
+
+    /**
+     * Set source type.
+     *
+     * @param type the type
+     */
+    public void setType(final Token type) {
+        this.type = type;
+    }
+
+    /**
+     * @return the system id string token.
+     */
+    public Token getSystemId() {
+        return systemId;
+    }
+
+    /**
+     * Set the system id string token.
+     *
+     * @param systemId the system id
+     */
+    public void setSystemId(final Token systemId) {
+        this.systemId = systemId;
+    }
+
+    /**
+     * @return the public id token
+     */
+    public Token getPublicId() {
+        return publicId;
+    }
+
+    /**
+     * Set the public id token.
+     *
+     * @param publicId the token
+     */
+    public void setPublicId(final Token publicId) {
+        this.publicId = publicId;
+    }
+
+    /**
+     * @return the context token.
+     */
+    public Token getContext() {
+        return context;
+    }
+
+    /**
+     * Set the context token.
+     *
+     * @param context the token
+     */
+    public void setContext(final Token context) {
+        this.context = context;
+    }
 }

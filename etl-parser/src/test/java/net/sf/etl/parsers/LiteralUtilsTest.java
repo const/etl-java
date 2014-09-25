@@ -43,17 +43,17 @@ public class LiteralUtilsTest {
     @Test
     public void testParseIntegerNumber() {
         NumberInfo n = LiteralUtils.parseNumber("" + Integer.MAX_VALUE + "qwe");
-        assertEquals(Tokens.INTEGER_WITH_SUFFIX, n.kind);
-        assertEquals(10, n.base);
-        assertEquals(0, n.sign);
-        assertEquals(0, n.exponent);
-        assertEquals(Integer.MAX_VALUE, Integer.parseInt(n.text));
-        assertEquals("qwe", n.suffix);
+        assertEquals(Tokens.INTEGER_WITH_SUFFIX, n.getKind());
+        assertEquals(10, n.getBase());
+        assertEquals(0, n.getSign());
+        assertEquals(0, n.getExponent());
+        assertEquals(Integer.MAX_VALUE, Integer.parseInt(n.getText()));
+        assertEquals("qwe", n.getSuffix());
         n = LiteralUtils.parseNumber("" + Integer.MIN_VALUE);
-        assertEquals(10, n.base);
-        assertEquals(-1, n.sign);
-        assertEquals(0, n.exponent);
-        assertEquals(Integer.MIN_VALUE, Integer.parseInt("-" + n.text));
+        assertEquals(10, n.getBase());
+        assertEquals(-1, n.getSign());
+        assertEquals(0, n.getExponent());
+        assertEquals(Integer.MIN_VALUE, Integer.parseInt("-" + n.getText()));
     }
 
     /**
@@ -63,17 +63,17 @@ public class LiteralUtilsTest {
     public void testParseFloatNumber() {
         String text = "+" + Integer.MAX_VALUE + ".0e3qwe";
         NumberInfo n = LiteralUtils.parseNumber(text);
-        assertEquals(Tokens.FLOAT_WITH_SUFFIX, n.kind);
-        assertEquals(10, n.base);
-        assertEquals(1, n.sign);
-        assertEquals(2, n.exponent);
+        assertEquals(Tokens.FLOAT_WITH_SUFFIX, n.getKind());
+        assertEquals(10, n.getBase());
+        assertEquals(1, n.getSign());
+        assertEquals(2, n.getExponent());
         assertEquals(Integer.MAX_VALUE * 1000.0, LiteralUtils.parseDouble(text), 0.1);
-        assertEquals("qwe", n.suffix);
+        assertEquals("qwe", n.getSuffix());
         text = "-16#da.da#e+2";
         n = LiteralUtils.parseNumber(text);
-        assertEquals(16, n.base);
-        assertEquals(-1, n.sign);
-        assertEquals(0, n.exponent);
+        assertEquals(16, n.getBase());
+        assertEquals(-1, n.getSign());
+        assertEquals(0, n.getExponent());
         assertEquals((double) -0xdada, LiteralUtils.parseDouble(text), 0.1);
     }
 

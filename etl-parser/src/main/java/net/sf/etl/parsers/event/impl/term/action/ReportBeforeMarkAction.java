@@ -32,37 +32,37 @@ import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 /**
- * Token action
+ * Token action.
  */
-public class ReportBeforeMarkAction extends SimpleAction {
+public final class ReportBeforeMarkAction extends SimpleAction {
     /**
-     * The term token type
+     * The term token type.
      */
-    public final Terms kind;
+    private final Terms kind;
     /**
-     * Object type
+     * Object type.
      */
-    public final Object type;
+    private final Object type;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param next   the next action
      * @param kind   the term kind
      * @param type   the structure id
      * @param source the source location in the grammar that caused this node creation
      */
-    public ReportBeforeMarkAction(Action next, Terms kind, Object type, SourceLocation source) {
+    public ReportBeforeMarkAction(final Action next, final Terms kind, final Object type, final SourceLocation source) {
         super(source, next);
         this.kind = kind;
         this.type = type;
     }
 
     @Override
-    public void parseMore(TermParserContext context, ActionState state) {
+    public void parseMore(final TermParserContext context, final ActionState state) {
         final TermToken termToken = context.peekObjectAtMark();
         TextPos start = termToken != null ? termToken.start() : context.current().start();
-        context.produceBeforeMark(new TermToken(kind, null, type, null, start, start, source, null));
-        state.nextAction(next);
+        context.produceBeforeMark(new TermToken(kind, null, type, null, start, start, getSource(), null));
+        state.nextAction(getNext());
     }
 }

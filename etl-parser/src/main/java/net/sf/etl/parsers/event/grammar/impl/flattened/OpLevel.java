@@ -25,59 +25,171 @@
 package net.sf.etl.parsers.event.grammar.impl.flattened;
 
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Level in operator set. All operators are already split in categories.
  *
  * @author const
  */
-public class OpLevel {
+public final class OpLevel {
     /**
      * "xf" operators.
      */
-    public final HashSet<OpDefinitionView> xf = new HashSet<OpDefinitionView>();
+    private final HashSet<OpDefinitionView> xf = new HashSet<OpDefinitionView>();
     /**
      * "yf" operators.
      */
-    public final HashSet<OpDefinitionView> yf = new HashSet<OpDefinitionView>();
+    private final HashSet<OpDefinitionView> yf = new HashSet<OpDefinitionView>();
     /**
      * "yfy" operators.
      */
-    public final HashSet<OpDefinitionView> yfy = new HashSet<OpDefinitionView>();
+    private final HashSet<OpDefinitionView> yfy = new HashSet<OpDefinitionView>();
     /**
      * "xfx" operators.
      */
-    public final HashSet<OpDefinitionView> xfx = new HashSet<OpDefinitionView>();
+    private final HashSet<OpDefinitionView> xfx = new HashSet<OpDefinitionView>();
     /**
      * "xfy" operators.
      */
-    public final HashSet<OpDefinitionView> xfy = new HashSet<OpDefinitionView>();
+    private final HashSet<OpDefinitionView> xfy = new HashSet<OpDefinitionView>();
     /**
      * "yfx" operators.
      */
-    public final HashSet<OpDefinitionView> yfx = new HashSet<OpDefinitionView>();
+    private final HashSet<OpDefinitionView> yfx = new HashSet<OpDefinitionView>();
     /**
      * "fx" operators.
      */
-    public final HashSet<OpDefinitionView> fx = new HashSet<OpDefinitionView>();
+    private final HashSet<OpDefinitionView> fx = new HashSet<OpDefinitionView>();
     /**
      * "fy" operators.
      */
-    public final HashSet<OpDefinitionView> fy = new HashSet<OpDefinitionView>();
+    private final HashSet<OpDefinitionView> fy = new HashSet<OpDefinitionView>();
     /**
      * "f" operators.
      */
-    public final HashSet<OpDefinitionView> f = new HashSet<OpDefinitionView>();
+    private final HashSet<OpDefinitionView> f = new HashSet<OpDefinitionView>();
     /**
-     * priority of this level
+     * priority of this level.
      */
-    public int precedence = -1;
+    private int precedence = -1;
     /**
-     * next level with higher priority
+     * next level with higher priority.
      */
-    public OpLevel nextLevel;
+    private OpLevel nextLevel;
     /**
-     * Previous level with lower priority
+     * Previous level with lower priority.
      */
-    public OpLevel previousLevel;
+    private OpLevel previousLevel;
+
+    /**
+     * @return xf operators
+     */
+    public Set<OpDefinitionView> getXF() {
+        return xf;
+    }
+
+    /**
+     * @return yf operators
+     */
+    public Set<OpDefinitionView> getYF() {
+        return yf;
+    }
+
+    /**
+     * @return yfy operators
+     */
+    public Set<OpDefinitionView> getYFY() {
+        return yfy;
+    }
+
+    /**
+     * @return xfx operators
+     */
+    public Set<OpDefinitionView> getXFX() {
+        return xfx;
+    }
+
+    /**
+     * @return xfy operators
+     */
+    public Set<OpDefinitionView> getXFY() {
+        return xfy;
+    }
+
+    /**
+     * @return yfx operators
+     */
+    public Set<OpDefinitionView> getYFX() {
+        return yfx;
+    }
+
+    /**
+     * @return fx operators
+     */
+    public Set<OpDefinitionView> getFX() {
+        return fx;
+    }
+
+    /**
+     * @return fy operators
+     */
+    public Set<OpDefinitionView> getFY() {
+        return fy;
+    }
+
+    /**
+     * @return f operators
+     */
+    public Set<OpDefinitionView> getF() {
+        return f;
+    }
+
+    /**
+     * @return the level precedence
+     */
+    public int getPrecedence() {
+        return precedence;
+    }
+
+    /**
+     * Set precedence.
+     *
+     * @param precedence the value
+     */
+    public void setPrecedence(final int precedence) {
+        this.precedence = precedence;
+    }
+
+    /**
+     * @return the next level
+     */
+    public OpLevel getNextLevel() {
+        return nextLevel;
+    }
+
+    /**
+     * Set the next level.
+     *
+     * @param nextLevel the value
+     */
+    public void setNextLevel(final OpLevel nextLevel) {
+        this.nextLevel = nextLevel;
+    }
+
+    /**
+     * @return the previous level
+     */
+    public OpLevel getPreviousLevel() {
+        return previousLevel;
+    }
+
+    /**
+     * Set previous level.
+     *
+     * @param previousLevel the previous level.
+     */
+    public void setPreviousLevel(final OpLevel previousLevel) {
+        this.previousLevel = previousLevel;
+    }
 }

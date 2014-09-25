@@ -32,16 +32,16 @@ package net.sf.etl.parsers;
  */
 public final class Token extends AbstractToken {
     /**
-     * kind of token or would-be-kind in case of error
+     * kind of token or would-be-kind in case of error.
      */
     private final TokenKey key;
     /**
-     * full text of token
+     * full text of token.
      */
     private final String text;
 
     /**
-     * A constructor for token with or without special value
+     * A constructor for token with or without special value.
      *
      * @param kind   the kind of token
      * @param text   the token text
@@ -50,7 +50,8 @@ public final class Token extends AbstractToken {
      * @param errors the errors
      * @throws IllegalArgumentException when special value cannot be associated with token.
      */
-    public Token(TokenKey kind, String text, TextPos start, TextPos end, ErrorInfo errors) {
+    public Token(final TokenKey kind, final String text, final TextPos start, final TextPos end,
+                 final ErrorInfo errors) {
         super(start, end, errors);
         this.key = kind;
         this.text = text;

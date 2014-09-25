@@ -48,40 +48,40 @@ import java.util.HashMap;
  *
  * @author const
  */
-public class GrammarBuilder {
+public final class GrammarBuilder {
     /**
-     * The assembly builder that is used to build an assembly of grammars
+     * The assembly builder that is used to build an assembly of grammars.
      */
     private final GrammarAssemblyBuilder assemblyBuilder;
     /**
-     * The grammar view
+     * The grammar view.
      */
     private final GrammarView grammarView;
     /**
-     * The context builders
+     * The context builders.
      */
     private final HashMap<ContextView, ContextBuilder> contextBuilders = new HashMap<ContextView, ContextBuilder>();
     /**
-     * The default context
+     * The grammars linked from this grammar.
+     */
+    private final ArrayList<CompiledGrammar> linkedGrammars = new ArrayList<CompiledGrammar>();
+    /**
+     * The default context.
      */
     private DefinitionContext defaultContext;
     /**
-     * The compiled grammar
+     * The compiled grammar.
      */
     private CompiledGrammar compiledGrammar;
-    /**
-     * The grammars linked from this grammar
-     */
-    private ArrayList<CompiledGrammar> linkedGrammars = new ArrayList<CompiledGrammar>();
 
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param g       the grammar view to wrap
      * @param builder the assembly builder
      */
-    public GrammarBuilder(GrammarAssemblyBuilder builder, GrammarView g) {
+    public GrammarBuilder(final GrammarAssemblyBuilder builder, final GrammarView g) {
         super();
         this.assemblyBuilder = builder;
         this.grammarView = g;
@@ -117,7 +117,7 @@ public class GrammarBuilder {
     }
 
     /**
-     * Build nodes for all contexts
+     * Build nodes for all contexts.
      */
     public void buildNodes() {
         for (final ContextBuilder builder : contextBuilders.values()) {
@@ -126,7 +126,7 @@ public class GrammarBuilder {
     }
 
     /**
-     * Build nodes for all contexts
+     * Build nodes for all contexts.
      */
     public void buildLookAhead() {
         for (final ContextBuilder builder : contextBuilders.values()) {
@@ -135,7 +135,7 @@ public class GrammarBuilder {
     }
 
     /**
-     * Build nodes for all contexts
+     * Build nodes for all contexts.
      */
     public void buildStateMachines() {
         for (final ContextBuilder builder : contextBuilders.values()) {
@@ -150,7 +150,7 @@ public class GrammarBuilder {
      * @param contextView a context view for which context builder is searched.
      * @return a context builder for corresponding context view
      */
-    public ContextBuilder contextBuilder(ContextView contextView) {
+    public ContextBuilder contextBuilder(final ContextView contextView) {
         GrammarBuilder b;
         if (contextView.grammar() == grammarView) {
             b = this;
@@ -167,32 +167,56 @@ public class GrammarBuilder {
         return grammarView.grammarName();
     }
 
+    /**
+     * @return the linker
+     */
     public ActionLinker getLinker() {
-        return assemblyBuilder().geLinker();  //To change body of created methods use File | Settings | File Templates.
+        return assemblyBuilder().geLinker();
     }
 
-    public void setDefaultContext(DefinitionContext defaultContext) {
-        this.defaultContext = defaultContext;
-    }
-
+    /**
+     * @return the default context
+     */
     public DefinitionContext getDefaultContext() {
         return defaultContext;
     }
 
+    /**
+     * Set default context.
+     *
+     * @param defaultContext the context.
+     */
+    public void setDefaultContext(final DefinitionContext defaultContext) {
+        this.defaultContext = defaultContext;
+    }
+
+    /**
+     * @return the grammar information
+     */
     public GrammarInfo getGrammarInfo() {
         return grammarView.grammarInfo();
     }
 
+    /**
+     * @return all errors.
+     */
     public ErrorInfo allErrors() {
         // TODO make errors more local
         return assemblyBuilder.getErrors();
     }
 
+
+    /**
+     * Create compiled grammars.
+     */
     public void buildCompiledGrammars() {
-        final HashMap<DefinitionContext, TermParserStateFactory> statements = new HashMap<DefinitionContext, TermParserStateFactory>();
-        final HashMap<DefinitionContext, TermParserStateFactory> statementSequences = new HashMap<DefinitionContext, TermParserStateFactory>();
+        final HashMap<DefinitionContext, TermParserStateFactory> statements =
+                new HashMap<DefinitionContext, TermParserStateFactory>();
+        final HashMap<DefinitionContext, TermParserStateFactory> statementSequences =
+                new HashMap<DefinitionContext, TermParserStateFactory>();
         final HashMap<DefinitionContext, KeywordContext> keywords = new HashMap<DefinitionContext, KeywordContext>();
-        final HashMap<ExpressionContext, TermParserStateFactory> expressionParsers = new HashMap<ExpressionContext, TermParserStateFactory>();
+        final HashMap<ExpressionContext, TermParserStateFactory> expressionParsers =
+                new HashMap<ExpressionContext, TermParserStateFactory>();
         // TODO expression
         final ActionLinker linker = getLinker();
         for (ContextBuilder contextBuilder : contextBuilders.values()) {
@@ -209,7 +233,7 @@ public class GrammarBuilder {
                 keywords.put(definitionContext, contextBuilder.getKeywordContext());
             }
         }
-        boolean script = grammarView.getGrammar().scriptModifier != null;
+        boolean script = grammarView.getGrammar().getScriptModifier() != null;
         compiledGrammar = new BasicCompiledGrammar(grammarView.createDescriptor(),
                 allErrors(),
                 defaultContext,
@@ -230,7 +254,7 @@ public class GrammarBuilder {
     }
 
     /**
-     * Link compiled grammars
+     * Link compiled grammars.
      */
     public void linkGrammars() {
         for (GrammarView view : grammarView.getGrammarDependencies()) {

@@ -31,60 +31,62 @@ import net.sf.etl.parsers.event.impl.term.action.ReportBeforeMarkAction;
 import net.sf.etl.parsers.event.impl.term.action.StructuralTokenAction;
 
 /**
- * An simple term context scope node
+ * An simple term context scope node.
  *
  * @author const
  */
-public class TermContextScope extends CleanupScopeNode {
+public final class TermContextScope extends CleanupScopeNode {
     /**
-     * The start event for context
+     * The start event for context.
      */
     private final Terms startEvent;
     /**
-     * The end event for context
+     * The end event for context.
      */
     private final Terms endEvent;
     /**
-     * the context
+     * the context.
      */
     private final Object definition;
     /**
-     * If mark mode
+     * If mark mode.
      */
     private final MarkMode atMark;
 
     /**
-     * A constructor
+     * A constructor.
      *
      * @param startEvent the start event for context
      * @param endEvent   the end event
      * @param definition the definition
      */
-    public TermContextScope(Terms startEvent, Terms endEvent, Object definition) {
+    public TermContextScope(final Terms startEvent, final Terms endEvent, final Object definition) {
         this(startEvent, endEvent, definition, false);
     }
 
     /**
-     * A constructor
+     * A constructor.
      *
      * @param startEvent the start event for context
      * @param endEvent   the end event
      * @param definition the definition
      * @param atMark     if true, scope is started at the mark
      */
-    public TermContextScope(Terms startEvent, Terms endEvent, Object definition, boolean atMark) {
+    public TermContextScope(final Terms startEvent, final Terms endEvent, final Object definition,
+                            final boolean atMark) {
         this(startEvent, endEvent, definition, atMark ? MarkMode.AFTER_MARK : MarkMode.NORMAL);
     }
 
     /**
-     * A constructor
+     * A constructor.
      *
      * @param startEvent the start event for context
      * @param endEvent   the end event
      * @param definition the definition
      * @param markMode   if true, scope is started with the specified mark mode
      */
-    public TermContextScope(Terms startEvent, Terms endEvent, Object definition, MarkMode markMode) {
+    public TermContextScope(final Terms startEvent, final Terms endEvent, final Object definition,
+                            final MarkMode markMode) {
         this.startEvent = startEvent;
         this.endEvent = endEvent;
         this.definition = definition;
@@ -92,33 +94,35 @@ public class TermContextScope extends CleanupScopeNode {
     }
 
     @Override
-    protected Action buildStartState(ActionBuilder b, Action bodyStates, Action errorExit, Action errorCloseState) {
+    protected Action buildStartState(final ActionBuilder b, final Action bodyStates, final Action errorExit,
+                                     final Action errorCloseState) {
         if (atMark == MarkMode.BEFORE_MARK) {
-            return new ReportBeforeMarkAction(bodyStates, startEvent, definition, source);
+            return new ReportBeforeMarkAction(bodyStates, startEvent, definition, getSource());
         } else {
-            return new StructuralTokenAction(source, bodyStates, startEvent, definition, atMark == MarkMode.AFTER_MARK);
+            return new StructuralTokenAction(getSource(), bodyStates, startEvent, definition,
+                    atMark == MarkMode.AFTER_MARK);
         }
     }
 
     @Override
-    protected Action buildEndState(ActionBuilder b, Action normalExit, Action errorExit) {
-        return new StructuralTokenAction(source, normalExit, endEvent, definition, false);
+    protected Action buildEndState(final ActionBuilder b, final Action normalExit, final Action errorExit) {
+        return new StructuralTokenAction(getSource(), normalExit, endEvent, definition, false);
     }
 
     /**
-     * The mark mode
+     * The mark mode.
      */
     public enum MarkMode {
         /**
-         * Produce token at current location
+         * Produce token at current location.
          */
         NORMAL,
         /**
-         * Start after mark
+         * Start after mark.
          */
         AFTER_MARK,
         /**
-         * Start before mark
+         * Start before mark.
          */
         BEFORE_MARK
     }

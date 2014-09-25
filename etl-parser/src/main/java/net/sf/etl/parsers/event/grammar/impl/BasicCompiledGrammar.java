@@ -45,59 +45,62 @@ import java.util.List;
  * {@link Collections#unmodifiableList(java.util.List)}. So grammar
  * is generally safe to use.
  */
-public class BasicCompiledGrammar implements CompiledGrammar {
+public final class BasicCompiledGrammar implements CompiledGrammar {
     /**
-     * The descriptor for the grammar
+     * The descriptor for the grammar.
      */
     private final ResourceDescriptor resourceDescriptor;
     /**
-     * The compilation errors for the grammar
+     * The compilation errors for the grammar.
      */
     private final ErrorInfo errors;
     /**
-     * The default context for the grammar
+     * The default context for the grammar.
      */
     private final DefinitionContext defaultContext;
     /**
-     * The keywords for the grammar
+     * The keywords for the grammar.
      */
     private final HashMap<DefinitionContext, KeywordContext> keywords;
     /**
-     * The statement parsers
+     * The statement parsers.
      */
     private final HashMap<DefinitionContext, TermParserStateFactory> statementParsers;
     /**
-     * The statement sequence parsers for the grammar
+     * The statement sequence parsers for the grammar.
      */
     private final HashMap<DefinitionContext, TermParserStateFactory> statementSequenceParsers;
     /**
-     * The expression parsers for the grammar
+     * The expression parsers for the grammar.
      */
     private final HashMap<ExpressionContext, TermParserStateFactory> expressionParsers;
     /**
-     * Other grammars that are referenced from this grammar
+     * Other grammars that are referenced from this grammar.
      */
     private final List<CompiledGrammar> otherGrammars;
     /**
-     * The definition contexts
+     * The definition contexts.
      */
     private final List<DefinitionContext> definitionContexts;
     /**
-     * The expression contexts
+     * The expression contexts.
      */
     private final List<ExpressionContext> expressionContexts;
     /**
-     * If true, default mode for the grammar is script mode
+     * If true, default mode for the grammar is script mode.
      */
     private final boolean script;
 
+    //CHECKSTYLE:OFF
+
     /**
-     * The constructor from the state
+     * The constructor from the state.
      *
      * @param resourceDescriptor       the resource descriptor
      * @param errors                   the errors
      * @param defaultContext           the default context
      * @param keywords                 the keywords for the context
+     * @param statementParsers         statement parsers
      * @param statementSequenceParsers the parsers for statement sequences
      * @param expressionParsers        the parsers for the expressions
      * @param otherGrammars            the parsers for other grammars
@@ -105,16 +108,16 @@ public class BasicCompiledGrammar implements CompiledGrammar {
      * @param expressionContexts       the expression contexts
      * @param script                   the default script mode
      */
-    public BasicCompiledGrammar(ResourceDescriptor resourceDescriptor,
-                                ErrorInfo errors,
-                                DefinitionContext defaultContext,
-                                HashMap<DefinitionContext, KeywordContext> keywords,
-                                HashMap<DefinitionContext, TermParserStateFactory> statementParsers,
-                                HashMap<DefinitionContext, TermParserStateFactory> statementSequenceParsers,
-                                HashMap<ExpressionContext, TermParserStateFactory> expressionParsers,
-                                ArrayList<CompiledGrammar> otherGrammars,
-                                ArrayList<DefinitionContext> definitionContexts,
-                                ArrayList<ExpressionContext> expressionContexts, boolean script) {
+    public BasicCompiledGrammar(final ResourceDescriptor resourceDescriptor,
+                                final ErrorInfo errors,
+                                final DefinitionContext defaultContext,
+                                final HashMap<DefinitionContext, KeywordContext> keywords,
+                                final HashMap<DefinitionContext, TermParserStateFactory> statementParsers,
+                                final HashMap<DefinitionContext, TermParserStateFactory> statementSequenceParsers,
+                                final HashMap<ExpressionContext, TermParserStateFactory> expressionParsers,
+                                final ArrayList<CompiledGrammar> otherGrammars,
+                                final ArrayList<DefinitionContext> definitionContexts,
+                                final ArrayList<ExpressionContext> expressionContexts, final boolean script) {
         this.resourceDescriptor = resourceDescriptor;
         this.errors = errors;
         this.defaultContext = defaultContext;
@@ -127,7 +130,7 @@ public class BasicCompiledGrammar implements CompiledGrammar {
         this.definitionContexts = Collections.unmodifiableList(definitionContexts);
         this.expressionContexts = Collections.unmodifiableList(expressionContexts);
     }
-
+    //CHECKSTYLE:ON
 
     @Override
     public List<CompiledGrammar> getOtherGrammars() {
@@ -160,7 +163,7 @@ public class BasicCompiledGrammar implements CompiledGrammar {
     }
 
     @Override
-    public KeywordContext getKeywordContext(DefinitionContext context) {
+    public KeywordContext getKeywordContext(final DefinitionContext context) {
         final KeywordContext keywordContext = keywords.get(context);
         if (keywordContext == null) {
             throw new IllegalArgumentException("Keywords are not defined for the context: " + context);
@@ -174,7 +177,7 @@ public class BasicCompiledGrammar implements CompiledGrammar {
     }
 
     @Override
-    public TermParserStateFactory statementSequenceParser(DefinitionContext context) {
+    public TermParserStateFactory statementSequenceParser(final DefinitionContext context) {
         final TermParserStateFactory parser = statementSequenceParsers.get(context);
         if (parser == null) {
             throw new IllegalArgumentException("The parser is not available for context: " + context);
@@ -183,7 +186,7 @@ public class BasicCompiledGrammar implements CompiledGrammar {
     }
 
     @Override
-    public TermParserStateFactory statementParser(DefinitionContext context) {
+    public TermParserStateFactory statementParser(final DefinitionContext context) {
         final TermParserStateFactory parser = statementParsers.get(context);
         if (parser == null) {
             throw new IllegalArgumentException("The parser is not available for context: " + context);
@@ -192,7 +195,7 @@ public class BasicCompiledGrammar implements CompiledGrammar {
     }
 
     @Override
-    public TermParserStateFactory expressionParser(ExpressionContext context) {
+    public TermParserStateFactory expressionParser(final ExpressionContext context) {
         final TermParserStateFactory parser = expressionParsers.get(context);
         if (parser == null) {
             throw new IllegalArgumentException("The parser is not available for context: " + context);

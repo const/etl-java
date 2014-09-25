@@ -27,6 +27,7 @@ package net.sf.etl.parsers.event.grammar.impl.nodes;
 
 import net.sf.etl.parsers.DefinitionContext;
 import net.sf.etl.parsers.PhraseTokens;
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.Keyword;
 import net.sf.etl.parsers.event.grammar.LookAheadSet;
 import net.sf.etl.parsers.event.grammar.impl.ActionBuilder;
@@ -40,25 +41,25 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
- * The block node
+ * The block node.
  */
-public class BlockNode extends Node {
+public final class BlockNode extends Node {
     /**
-     * The definition success
+     * The definition success.
      */
     private final DefinitionContext context;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param context the context
      */
-    public BlockNode(DefinitionContext context) {
+    public BlockNode(final DefinitionContext context) {
         this.context = context;
     }
 
     @Override
-    public void collectKeywords(Set<Keyword> keywords, Set<ActionBuilder> visited) {
+    public void collectKeywords(final Set<Keyword> keywords, final Set<ActionBuilder> visited) {
         // do nothing
     }
 
@@ -68,25 +69,29 @@ public class BlockNode extends Node {
     }
 
     @Override
-    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit, Action recoveryTest) {
+    public Action buildActions(final ActionBuilder b, final Action normalExit, final Action errorExit,
+                               final Action recoveryTest) {
+        Action exit = normalExit;
         // TODO use statement sequence production, and report location for block
         // skip ignorable tokens after this token. Note that when token is
         // not a doc comment, doc comments are treated as ignorable tokens.
-        normalExit = new AdvanceAction(source, normalExit);
-        normalExit = new RecoverySetupAction(source, normalExit, recoveryTest);
+        final SourceLocation source = getSource();
+        exit = new AdvanceAction(source, exit);
+        exit = new RecoverySetupAction(source, exit, recoveryTest);
         // report token
         final CallAction callAction = new CallAction(source);
         b.getLinker().linkBlock(callAction, context);
-        callAction.success = normalExit;
-        callAction.failure = new UnreachableAction(source, "The errors are unreachable after block!");
+        callAction.setSuccess(exit);
+        callAction.setFailure(new UnreachableAction(source, "The errors are unreachable after block!"));
         return new ChoiceBuilder(source).
-                setFallback(ActionUtil.createReportErrorAction(source, errorExit, "syntax.UnexpectedToken.expectingBlock", context)).
+                setFallback(ActionUtil.createReportErrorAction(source, errorExit,
+                        "syntax.UnexpectedToken.expectingBlock", context)).
                 add(buildLookAhead(Collections.<ActionBuilder>emptySet()), callAction).
-                build(b);
+                build();
     }
 
     @Override
-    protected LookAheadSet createLookAhead(Set<ActionBuilder> visitedBuilders) {
-        return LookAheadSet.get(source, PhraseTokens.START_BLOCK);
+    protected LookAheadSet createLookAhead(final Set<ActionBuilder> visitedBuilders) {
+        return LookAheadSet.get(getSource(), PhraseTokens.START_BLOCK);
     }
 }

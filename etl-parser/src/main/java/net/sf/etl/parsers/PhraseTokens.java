@@ -26,7 +26,7 @@
 package net.sf.etl.parsers;
 
 /**
- * This class describes kinds for phrase tokens
+ * This class describes kinds for phrase tokens.
  *
  * @author const
  */
@@ -45,15 +45,15 @@ public enum PhraseTokens {
      */
     END_BLOCK,
     /**
-     * the hard segment separator
+     * the hard segment separator.
      */
     STATEMENT_END,
     /**
-     * end of the segment
+     * the soft end of the segment.
      */
     SOFT_STATEMENT_END,
     /**
-     * ignorable token for example whitespace, new line or comment
+     * ignorable token for example whitespace, new line or comment.
      */
     IGNORABLE,
     /**
@@ -63,7 +63,7 @@ public enum PhraseTokens {
      */
     CONTROL,
     /**
-     * significant token like identifier
+     * significant token like identifier.
      */
     SIGNIFICANT
 }

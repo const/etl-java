@@ -28,11 +28,11 @@ package net.sf.etl.parsers.streams;
 import net.sf.etl.parsers.event.TermParser;
 
 /**
- * The grammar resolver for term parser
+ * The grammar resolver for term parser.
  */
 public interface GrammarResolver {
     /**
-     * The resolve the grammar and finish when it is done
+     * The resolve the grammar and finish when it is done.
      *
      * @param termParser the request
      */

@@ -22,37 +22,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.event.grammar.impl;
 
 /**
- * This exception is used to interrupt compilation process in case of errors
- *
- * @author const
+ * The base implementation classes for the grammar parser.
  */
-public class CompilationException extends RuntimeException {
-    /**
-     * make compiler happy
-     */
-    private static final long serialVersionUID = 3618985563861168436L;
-    /**
-     * The id of the exception
-     */
-    public final String errorId;
-    /**
-     * The arguments of the exception
-     */
-    public final String errorArgs[];
-
-    /**
-     * The constructor
-     *
-     * @param errorId   the id of the exception
-     * @param errorArgs the args of the exception
-     */
-    public CompilationException(String errorId, String[] errorArgs) {
-        super();
-        this.errorId = errorId;
-        this.errorArgs = errorArgs;
-    }
-
-}
+package net.sf.etl.parsers.event.grammar;

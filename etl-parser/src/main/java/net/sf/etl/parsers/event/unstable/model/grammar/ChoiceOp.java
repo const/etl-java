@@ -24,15 +24,24 @@
  */
 package net.sf.etl.parsers.event.unstable.model.grammar;
 
+import java.util.List;
+
 /**
  * The ChoiceOp node class. This class is a part of the lightweight grammar
  * model.
  *
  * @author const
  */
-public class ChoiceOp extends Syntax {
+public final class ChoiceOp extends Syntax {
     /**
-     * options
+     * options.
      */
-    public final java.util.ArrayList<Syntax> options = new java.util.ArrayList<Syntax>(2);
+    private final List<Syntax> options = new java.util.ArrayList<Syntax>(2);
+
+    /**
+     * @return options.
+     */
+    public List<Syntax> getOptions() {
+        return options;
+    }
 }

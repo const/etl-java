@@ -34,43 +34,50 @@ import net.sf.etl.parsers.resource.ResourceReference;
 import net.sf.etl.parsers.resource.ResourceRequest;
 import net.sf.etl.parsers.resource.ResourceUsage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * The assembly of grammars, this class used to gather to manage process
  * of loading the grammars and building their views.
  */
-public class GrammarAssembly {
+public final class GrammarAssembly {
     /**
-     * The grammar inclusion DAG
+     * The grammar inclusion DAG.
      */
     private final DirectedAcyclicGraph<GrammarView> grammarIncludeDAG = new DirectedAcyclicGraph<GrammarView>();
     /**
-     * The context inclusions along with grammars
+     * The context inclusions along with grammars.
      */
     private final DirectedAcyclicGraph<ContextView> contextGrammarIncludeDAG = new DirectedAcyclicGraph<ContextView>();
     /**
-     * The collection of errors
+     * The collection of errors.
      */
     private final ArrayList<ErrorInfo> errors = new ArrayList<ErrorInfo>();
     /**
-     * All resource requests
+     * All resource requests.
      */
     private final HashSet<ResourceReference> allResourceReferences = new HashSet<ResourceReference>();
     /**
-     * All resource requests
+     * All unresolved resource requests.
      */
     private final HashSet<ResourceRequest> unresolvedResourceRequests = new HashSet<ResourceRequest>();
     /**
-     * All loaded grammar views
+     * All loaded grammar views.
      */
     private final HashMap<String, GrammarView> grammarViews = new HashMap<String, GrammarView>();
     /**
-     * The resolutions
+     * The resolutions.
      */
-    private final HashMap<ResourceReference, ResolvedObject<Grammar>> resolutions = new HashMap<ResourceReference, ResolvedObject<Grammar>>();
+    private final HashMap<ResourceReference, ResolvedObject<Grammar>> resolutions =
+            new HashMap<ResourceReference, ResolvedObject<Grammar>>();
     /**
-     * The failed grammars
+     * The failed grammars.
      */
     private HashMap<ResourceRequest, FailedGrammar> failed = new HashMap<ResourceRequest, FailedGrammar>();
 
@@ -83,23 +90,23 @@ public class GrammarAssembly {
     }
 
     /**
-     * Get resolved grammar
+     * Get resolved grammar.
      *
      * @param systemId the system id
      * @return the grammar
      */
-    public ResolvedObject<Grammar> resolvedGrammar(String systemId) {
+    public ResolvedObject<Grammar> resolvedGrammar(final String systemId) {
         final GrammarView grammarView = grammarViews.get(systemId);
         return grammarView == null ? null : grammarView.getFirstResolved();
     }
 
     /**
-     * The provided grammar
+     * The provided grammar.
      *
-     * @param grammar the provided grammar
-     * @param errors  the errors collected while loading the grammar
+     * @param grammar       the provided grammar
+     * @param grammarErrors the errors collected while loading the grammar
      */
-    public void provide(ResolvedObject<Grammar> grammar, ErrorInfo errors) {
+    public void provide(final ResolvedObject<Grammar> grammar, final ErrorInfo grammarErrors) {
         final String systemId = grammar.getDescriptor().getSystemId();
         GrammarView grammarView = grammarViews.get(systemId);
         if (grammarView == null) {
@@ -109,21 +116,22 @@ public class GrammarAssembly {
             references.removeAll(allResourceReferences);
             allResourceReferences.addAll(references);
             for (ResourceReference reference : references) {
-                unresolvedResourceRequests.add(new ResourceRequest(reference, StandardGrammars.USED_GRAMMAR_REQUEST_TYPE));
+                unresolvedResourceRequests.add(new ResourceRequest(reference,
+                        StandardGrammars.USED_GRAMMAR_REQUEST_TYPE));
             }
         }
         resolutions.put(grammar.getRequest().getReference(), grammar);
         unresolvedResourceRequests.remove(grammar.getRequest());
-        error(errors);
+        error(grammarErrors);
     }
 
     /**
-     * Get or create code for the grammar view
+     * Get or create code for the grammar view.
      *
      * @param grammarView the grammar view
      * @return the included node
      */
-    public DirectedAcyclicGraph.Node<GrammarView> getIncludeNode(GrammarView grammarView) {
+    public DirectedAcyclicGraph.Node<GrammarView> getIncludeNode(final GrammarView grammarView) {
         return grammarIncludeDAG.getNode(grammarView);
     }
 
@@ -142,12 +150,12 @@ public class GrammarAssembly {
     }
 
     /**
-     * Resolve grammar
+     * Resolve grammar.
      *
      * @param reference the resource reference
      * @return the grammar view to use
      */
-    public ResolvedObject<GrammarView> resolveGrammar(ResourceReference reference) {
+    public ResolvedObject<GrammarView> resolveGrammar(final ResourceReference reference) {
         final ResolvedObject<Grammar> grammarResolvedObject = resolutions.get(reference);
         if (grammarResolvedObject == null) {
             return null;
@@ -166,22 +174,22 @@ public class GrammarAssembly {
     }
 
     /**
-     * Add error
+     * Add error.
      *
      * @param element the element in error
      * @param errorId the error id
      * @param args    the error args
      */
-    public void error(Element element, String errorId, Object[] args) {
-        error(new ErrorInfo(errorId, Arrays.asList(args), element == null ? null : element.location, null));
+    public void error(final Element element, final String errorId, final Object[] args) {
+        error(new ErrorInfo(errorId, Arrays.asList(args), element == null ? null : element.getLocation(), null));
     }
 
     /**
-     * Add error to the list of errors
+     * Add error to the list of errors.
      *
      * @param error the error to add
      */
-    public void error(ErrorInfo error) {
+    public void error(final ErrorInfo error) {
         // TODO errors are specific to grammar view rather than a single big pile
         if (error != null) {
             errors.add(error);
@@ -189,38 +197,43 @@ public class GrammarAssembly {
     }
 
     /**
-     * Start loading grammars
+     * Start loading grammars.
      *
      * @param reference the resource reference
      */
-    public void start(ResourceRequest reference) {
+    public void start(final ResourceRequest reference) {
         unresolvedResourceRequests.add(reference);
         allResourceReferences.add(reference.getReference());
     }
 
     /**
-     * Fail loading resource request
+     * Fail loading resource request.
      *
-     * @param request the resource request
-     * @param errors  the list of errors associated with the resource request
+     * @param request       the resource request
+     * @param resources     the used resources
+     * @param grammarErrors the list of errors associated with the resource request
      */
-    public void fail(ResourceRequest request, Collection<ResourceUsage> resources, ErrorInfo errors) {
+    public void fail(final ResourceRequest request, final Collection<ResourceUsage> resources,
+                     final ErrorInfo grammarErrors) {
         unresolvedResourceRequests.remove(request);
-        failed.put(request, new FailedGrammar(request, errors, new ArrayList<ResourceUsage>(resources)));
-        error(errors);
+        failed.put(request, new FailedGrammar(request, grammarErrors, new ArrayList<ResourceUsage>(resources)));
+        error(grammarErrors);
     }
 
     /**
-     * The failed grammar
+     * The failed grammar.
      *
      * @param request the request
      * @return the failed grammar
      */
-    public FailedGrammar failure(ResourceRequest request) {
+    public FailedGrammar failure(final ResourceRequest request) {
         return failed.get(request);
     }
 
 
+    /**
+     * Flatten the grammars.
+     */
     public void flatten() {
         /**
          TODO make sense of check below
@@ -273,45 +286,49 @@ public class GrammarAssembly {
         // NOTE POST 0.2: Should be there validation phase?
     }
 
+    /**
+     * @return all errors
+     */
     public ErrorInfo getErrors() {
         return ErrorInfo.merge(errors);
     }
 
     /**
-     * Get failed grammar information
+     * Get failed grammar information.
      *
      * @param reference the reference
      * @return the failed grammar information
      */
-    public FailedGrammar getFailedGrammar(ResourceRequest reference) {
+    public FailedGrammar getFailedGrammar(final ResourceRequest reference) {
         return failed.get(reference);
     }
 
     /**
-     * The failed grammar
+     * The failed grammar.
      */
-    public static class FailedGrammar {
+    public static final class FailedGrammar {
         /**
-         * The request
+         * The request.
          */
-        public final ResourceRequest request;
+        private final ResourceRequest request;
         /**
-         * the error information
+         * the error information.
          */
-        public final ErrorInfo errors;
+        private final ErrorInfo errors;
         /**
-         * The resources consulted to receive the failure
+         * The resources consulted to receive the failure.
          */
-        public final List<ResourceUsage> usedResources;
+        private final List<ResourceUsage> usedResources;
 
         /**
-         * The constructor
+         * The constructor.
          *
          * @param request       the request
          * @param errors        the error information
          * @param usedResources the used resources
          */
-        public FailedGrammar(ResourceRequest request, ErrorInfo errors, List<ResourceUsage> usedResources) {
+        public FailedGrammar(final ResourceRequest request, final ErrorInfo errors,
+                             final List<ResourceUsage> usedResources) {
             this.request = request;
             this.errors = errors;
             this.usedResources = usedResources;
@@ -319,13 +336,28 @@ public class GrammarAssembly {
 
         @Override
         public String toString() {
-            final StringBuilder sb = new StringBuilder();
-            sb.append("FailedGrammar");
-            sb.append("{request=").append(request);
-            sb.append(", errors=").append(errors);
-            sb.append(", usedResources=").append(usedResources);
-            sb.append('}');
-            return sb.toString();
+            return "FailedGrammar{request=" + request + ", errors=" + errors + ", usedResources=" + usedResources + '}';
+        }
+
+        /**
+         * @return the request
+         */
+        public ResourceRequest getRequest() {
+            return request;
+        }
+
+        /**
+         * @return the errors
+         */
+        public ErrorInfo getErrors() {
+            return errors;
+        }
+
+        /**
+         * @return the used resources
+         */
+        public List<ResourceUsage> getUsedResources() {
+            return usedResources;
         }
     }
 }

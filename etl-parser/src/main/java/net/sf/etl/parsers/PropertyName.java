@@ -34,12 +34,12 @@ package net.sf.etl.parsers;
 // benefit so far from point of view of internal implementation.
 public final class PropertyName {
     /**
-     * Name of property
+     * Name of property.
      */
     private final String name;
 
     /**
-     * A constructor
+     * A constructor.
      *
      * @param name name of property
      */
@@ -53,18 +53,18 @@ public final class PropertyName {
     }
 
     /**
-     * The field name from property name
+     * The field name from property name.
      *
      * @param name the field name
      * @return the adjusted field name
      */
-    public static String lowerCaseFeatureName(String name) {
+    public static String lowerCaseFeatureName(final String name) {
         if (name == null || name.length() == 0) {
             return name;
         }
         final int first = name.codePointAt(0);
-        if (Character.isUpperCase(first)) {
-            name = new StringBuilder().
+        if (!Character.isLowerCase(first)) {
+            return new StringBuilder().
                     appendCodePoint(Character.toLowerCase(first)).
                     append(name.substring(Character.charCount(first))).
                     toString();
@@ -79,22 +79,21 @@ public final class PropertyName {
         return name;
     }
 
-    @SuppressWarnings("RedundantIfStatement")
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
+        //CHECKSTYLE:OFF
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         PropertyName that = (PropertyName) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-
-        return true;
+        return name.equals(that.name);
+        //CHECKSTYLE:ON
     }
 
     @Override
     public int hashCode() {
-        return name != null ? name.hashCode() : 0;
+        return name.hashCode();
     }
 
     @Override

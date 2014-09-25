@@ -24,74 +24,116 @@
  */
 package net.sf.etl.parsers.event.grammar.impl;
 
-import net.sf.etl.parsers.*;
+import net.sf.etl.parsers.DefinitionContext;
+import net.sf.etl.parsers.ErrorInfo;
+import net.sf.etl.parsers.ExpressionContext;
+import net.sf.etl.parsers.PropertyName;
+import net.sf.etl.parsers.SourceLocation;
+import net.sf.etl.parsers.SyntaxRole;
+import net.sf.etl.parsers.Terms;
+import net.sf.etl.parsers.Token;
+import net.sf.etl.parsers.TokenKey;
+import net.sf.etl.parsers.Tokens;
+import net.sf.etl.parsers.characters.QuoteClass;
 import net.sf.etl.parsers.event.grammar.KeywordContext;
 import net.sf.etl.parsers.event.grammar.TermParserStateFactory;
-import net.sf.etl.parsers.event.grammar.impl.flattened.*;
+import net.sf.etl.parsers.event.grammar.impl.flattened.ChoiceCaseDefView;
+import net.sf.etl.parsers.event.grammar.impl.flattened.ContextImportView;
+import net.sf.etl.parsers.event.grammar.impl.flattened.ContextView;
+import net.sf.etl.parsers.event.grammar.impl.flattened.DefView;
+import net.sf.etl.parsers.event.grammar.impl.flattened.DefinitionView;
+import net.sf.etl.parsers.event.grammar.impl.flattened.OpLevel;
+import net.sf.etl.parsers.event.grammar.impl.flattened.StatementView;
+import net.sf.etl.parsers.event.grammar.impl.flattened.WrapperLink;
 import net.sf.etl.parsers.event.grammar.impl.nodes.FallbackObjectNode;
 import net.sf.etl.parsers.event.grammar.impl.nodes.FirstChoiceNode;
 import net.sf.etl.parsers.event.grammar.impl.nodes.Node;
-import net.sf.etl.parsers.event.impl.term.action.ActionStateFactory;
 import net.sf.etl.parsers.event.impl.term.action.buildtime.ActionLinker;
-import net.sf.etl.parsers.event.unstable.model.grammar.*;
+import net.sf.etl.parsers.event.unstable.model.grammar.BlankSyntaxStatement;
+import net.sf.etl.parsers.event.unstable.model.grammar.BlockRef;
+import net.sf.etl.parsers.event.unstable.model.grammar.ChoiceOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.DoclinesOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.Element;
+import net.sf.etl.parsers.event.unstable.model.grammar.ExpressionRef;
+import net.sf.etl.parsers.event.unstable.model.grammar.ExpressionStatement;
+import net.sf.etl.parsers.event.unstable.model.grammar.FirstChoiceOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.FloatOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.GraphicsOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.IdentifierOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.IntegerOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.KeywordStatement;
+import net.sf.etl.parsers.event.unstable.model.grammar.Let;
+import net.sf.etl.parsers.event.unstable.model.grammar.ListOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.ModifierOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.ModifiersOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.NumberOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.ObjectOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.OneOrMoreOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.OperandOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.OperatorDefinition;
+import net.sf.etl.parsers.event.unstable.model.grammar.OptionalOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.RefOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.Sequence;
+import net.sf.etl.parsers.event.unstable.model.grammar.StringOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.Syntax;
+import net.sf.etl.parsers.event.unstable.model.grammar.SyntaxDefinition;
+import net.sf.etl.parsers.event.unstable.model.grammar.SyntaxStatement;
+import net.sf.etl.parsers.event.unstable.model.grammar.TokenOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.Wrapper;
+import net.sf.etl.parsers.event.unstable.model.grammar.ZeroOrMoreOp;
 import net.sf.etl.parsers.literals.LiteralUtils;
 import net.sf.etl.parsers.literals.NumberInfo;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
+import java.util.TreeMap;
 
 /**
  * <p>
  * A builder for context. This class is used to build all
- * {@link ActionStateFactory} objects from flattened {@link ContextView}. The
+ * {@link net.sf.etl.parsers.event.impl.term.action.ActionStateFactory} objects from flattened {@link ContextView}. The
  * class works in the context of {@link GrammarBuilder}.
  * </p>
  *
  * @author const
  */
-// NOTE POST 0.2: section/block/bracket based error recovery. It is simple on SM
-// level, just skip until anything matching other section start is found (except
-// insides of blocks). But what to do on LL1 level? Recovery scope, recovery
-// points, ...? Any block is recovery scope and any section or block is recovery
-// point inside block. In brackets "close" is recovery point.
-// NOTE POST 0.2: add error reporting in some places that actually says what is
-// alternative beyond enumerating tokens: expression of specified level from
-// some
-// grammar or statement in some context. ErrorChoice node and state? This would
-// allow see and understand errors better. Tools will be able to report as is or
-// translate it to tool specific way.
-public class ContextBuilder {
+public final class ContextBuilder {
     /**
-     * The grammar builder for this context builder
+     * The grammar builder for this context builder.
      */
     private final GrammarBuilder grammarBuilder;
     /**
-     * The view that is being built
+     * The view that is being built.
      */
     private final ContextView contextView;
     /**
-     * The builders for operator levels
+     * The builders for operator levels.
      */
     private final TreeMap<Integer, OperatorLevelBuilder> operatorLevels = new TreeMap<Integer, OperatorLevelBuilder>();
     /**
-     * The  context name
+     * The  context name.
      */
     private final DefinitionContext contextName;
     /**
-     * The builder for statement sequence in this block
+     * The builder for statement sequence in this block.
      */
     private ActionBuilder actionBuilder;
     /**
-     * The keyword context for the context, it is yielded by statement production
+     * The keyword context for the context, it is yielded by statement production.
      */
     private KeywordContext keywordContext;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param view    the view to compile
      * @param builder the parent builder to use
      */
-    public ContextBuilder(GrammarBuilder builder, ContextView view) {
+    public ContextBuilder(final GrammarBuilder builder, final ContextView view) {
         this.grammarBuilder = builder;
         this.contextView = view;
         this.contextName = new DefinitionContext(grammarBuilder().getGrammarInfo(), contextView.name());
@@ -100,9 +142,29 @@ public class ContextBuilder {
         }
     }
 
+    /**
+     * Check of if token matches the specified text.
+     *
+     * @param text  the text to check
+     * @param token the token
+     * @return true if matches
+     */
+    private static boolean match(final String text, final Token token) {
+        return text != null ? text.equals(text(token)) : token == null;
+    }
 
     /**
-     * The parser for the expression
+     * Extract token from the text.
+     *
+     * @param token the token to check (might be null)
+     * @return the token text or null if token is null
+     */
+    private static String text(final Token token) {
+        return token == null ? null : token.text();
+    }
+
+    /**
+     * The parser for the expression.
      *
      * @return the parser
      */
@@ -118,18 +180,19 @@ public class ContextBuilder {
     }
 
     /**
-     * The expression parser
+     * The expression parser.
      *
      * @param level the level for the parser
      * @return the expression parser
      */
-    public TermParserStateFactory expressionParser(Integer level) {
+    public TermParserStateFactory expressionParser(final Integer level) {
+        final int actualLevel;
         if (level == null) {
-            level = operatorLevels.lastKey();
+            actualLevel = operatorLevels.lastKey();
         } else {
-            level = operatorLevels.floorKey(level);
+            actualLevel = operatorLevels.floorKey(level);
         }
-        return operatorLevels.get(level).builder().targetFactory();
+        return operatorLevels.get(actualLevel).builder().targetFactory();
     }
 
     /**
@@ -139,9 +202,9 @@ public class ContextBuilder {
         if (contextView.statements().size() > 0) {
             actionBuilder = new ActionBuilder(this);
         }
-        for (OpLevel l = contextView.allExpressionsLevel(); l != null; l = l.previousLevel) {
+        for (OpLevel l = contextView.allExpressionsLevel(); l != null; l = l.getPreviousLevel()) {
             final OperatorLevelBuilder builder = new OperatorLevelBuilder(this, l);
-            operatorLevels.put(l.precedence, builder);
+            operatorLevels.put(l.getPrecedence(), builder);
             builder.prepare();
         }
     }
@@ -161,7 +224,7 @@ public class ContextBuilder {
     }
 
     /**
-     * Compile syntax to nodes
+     * Compile syntax to nodes.
      */
     public void buildNodes() {
         for (final OperatorLevelBuilder builder : operatorLevels.values()) {
@@ -173,7 +236,7 @@ public class ContextBuilder {
     }
 
     /**
-     * Build look ahead for the statements and expressions
+     * Build look ahead for the statements and expressions.
      */
     public void buildLookAhead() {
         final HashSet<ActionBuilder> visitedBuilders = new HashSet<ActionBuilder>();
@@ -266,10 +329,10 @@ public class ContextBuilder {
                 if (def != s) {
                     b.startDefinition(def);
                 }
-                b.startObjectAtMark(o, def.convertName(o.name), wrappers);
+                b.startObjectAtMark(o, def.convertName(o.getName()), wrappers);
                 b.commitMark(definition); // this statement tries to commit mark
                 // now body of root object is compiled
-                compileSyntax(new HashSet<DefinitionView>(), b, o.syntax);
+                compileSyntax(new HashSet<DefinitionView>(), b, o.getSyntax());
                 // object ends here
                 final Node object = b.endObject();
                 if (object.matchesEmpty()) {
@@ -307,32 +370,35 @@ public class ContextBuilder {
         b.endMarked();
     }
 
+    // CHECKSTYLE:OFF
+
     /**
-     * Compile syntax expression
+     * Compile syntax expression.
      *
      * @param visited the set of visited definition nodes. It is used to detect definition cycles.
      * @param b       the builder used for compilation.
      * @param body    the syntax to compile
      */
-    void compileSyntax(HashSet<DefinitionView> visited, ActionBuilder b,
-                       Syntax body) {
+    public void compileSyntax(final HashSet<DefinitionView> visited, final ActionBuilder b,
+                              final Syntax body) {
         if (body instanceof BlockRef) {
             final BlockRef s = (BlockRef) body;
             final DefinitionView v = b.topDefinition().originalDefinition();
-            final ActionBuilder f = getStatementSequenceBuilder(v, s, text(s.context));
+            final ActionBuilder f = getStatementSequenceBuilder(v, s, text(s.getContext()));
             if (f != null) {
                 b.block(s, f.context());
             } else {
-                error(b, s, "grammar.Block.referringContextWithoutStatements", s.context);
+                error(b, s, "grammar.Block.referringContextWithoutStatements", s.getContext());
             }
         } else if (body instanceof ExpressionRef) {
             final ExpressionRef s = (ExpressionRef) body;
             final DefinitionView v = b.topDefinition().originalDefinition();
-            final Integer precedence = parseInteger(s.precedence, s.location.systemId());
-            final ActionBuilder f = getExpressionBuilder(v, s, text(s.context), precedence);
+            final Integer precedence = parseInteger(s.getPrecedence(), s.getLocation().systemId());
+            final ActionBuilder f = getExpressionBuilder(v, s, text(s.getContext()), precedence);
             if (f != null) {
                 // TODO register context with the statement, so compiled grammar will contain needed activations.
-                final ExpressionContext c = new ExpressionContext(contextView.getDefinitionContext(), f.context(), precedence);
+                final ExpressionContext c = new ExpressionContext(contextView.getDefinitionContext(),
+                        f.context(), precedence);
                 b.startExpression(s, c);
                 b.startMarked(s);
                 b.call(s, f);
@@ -341,27 +407,25 @@ public class ContextBuilder {
             }
         } else if (body instanceof ModifiersOp) {
             final ModifiersOp s = (ModifiersOp) body;
-            final Wrapper defaultWrapper = s.wrapper;
+            final Wrapper defaultWrapper = s.getWrapper();
             b.startModifiers(s);
             b.startRepeat(s);
             b.startChoice(s);
             // modifiers block contains only let instructions
-            for (final Object sso : s.modifiers) {
+            for (final Object sso : s.getModifiers()) {
                 final SyntaxStatement ss = (SyntaxStatement) sso;
                 if (ss instanceof Let) {
                     final Let let = (Let) ss;
-                    final ModifierOp m = (ModifierOp) let.expression;
-                    Wrapper w = m.wrapper;
+                    final ModifierOp m = (ModifierOp) let.getExpression();
+                    Wrapper w = m.getWrapper();
                     w = w == null ? defaultWrapper : w;
-                    final boolean isList = match("+=", let.operator);
-                    b.startProperty(let, new PropertyName(text(let.name)), isList);
+                    final boolean isList = match("+=", let.getOperator());
+                    b.startProperty(let, new PropertyName(text(let.getName())), isList);
                     b.startWrapper(w);
-                    b.tokenText(m, Terms.VALUE, SyntaxRole.MODIFIER, m.value);
+                    b.tokenText(m, Terms.VALUE, SyntaxRole.MODIFIER, m.getValue());
                     b.endWrapper(w);
                     b.endProperty();
-                } else if (ss instanceof BlankSyntaxStatement) {
-                    // do nothing, blank statements are just ignored
-                } else {
+                } else if (!(ss instanceof BlankSyntaxStatement)) {
                     error(b, ss, "grammar.Modifiers.invalidStatement");
                 }
             }
@@ -371,97 +435,97 @@ public class ContextBuilder {
         } else if (body instanceof ListOp) {
             final ListOp s = (ListOp) body;
             b.startSequence(s);
-            compileSyntax(visited, b, s.syntax);
+            compileSyntax(visited, b, s.getSyntax());
             b.startRepeat(s);
-            final Token sep = s.separator == null ?
-                    new Token(TokenKey.simple(Tokens.COMMA), ",", s.location.start(), s.location.end(), null) :
-                    s.separator;
+            final SourceLocation location = s.getLocation();
+            final Token sep = s.getSeparator() == null
+                    ? new Token(TokenKey.simple(Tokens.COMMA), ",", location.start(), location.end(), null)
+                    : s.getSeparator();
             b.tokenText(s, Terms.STRUCTURAL, SyntaxRole.SEPARATOR, sep);
-            compileSyntax(visited, b, s.syntax);
+            compileSyntax(visited, b, s.getSyntax());
             b.endRepeat();
             b.endSequence();
         } else if (body instanceof OptionalOp) {
             final OptionalOp s = (OptionalOp) body;
             b.startChoice(s);
-            compileSyntax(visited, b, s.syntax);
+            compileSyntax(visited, b, s.getSyntax());
             b.startSequence(s);
             b.endSequence();
             b.endChoice();
         } else if (body instanceof ZeroOrMoreOp) {
             final ZeroOrMoreOp s = (ZeroOrMoreOp) body;
             b.startRepeat(s);
-            compileSyntax(visited, b, s.syntax);
+            compileSyntax(visited, b, s.getSyntax());
             b.endRepeat();
         } else if (body instanceof OneOrMoreOp) {
             final OneOrMoreOp s = (OneOrMoreOp) body;
             b.startSequence(s);
-            compileSyntax(visited, b, s.syntax);
+            compileSyntax(visited, b, s.getSyntax());
             b.startRepeat(s);
-            compileSyntax(visited, b, s.syntax);
+            compileSyntax(visited, b, s.getSyntax());
             b.endRepeat();
             b.endSequence();
         } else if (body instanceof FirstChoiceOp) {
             final FirstChoiceOp s = (FirstChoiceOp) body;
             b.startFirstChoice(s);
-            compileSyntax(visited, b, s.first);
-            compileSyntax(visited, b, s.second);
+            compileSyntax(visited, b, s.getFirst());
+            compileSyntax(visited, b, s.getSecond());
             FirstChoiceNode n = b.endFirstChoice();
             ListIterator<Node> i = n.nodes().listIterator(n.nodes().size() - 1);
             while (i.hasPrevious()) {
                 Node a = i.previous();
                 if (a.matchesEmpty()) {
-                    error(b, s.first, "grammar.Modifiers.firstChoiceEmptyFirst");
+                    error(b, s.getFirst(), "grammar.Modifiers.firstChoiceEmptyFirst");
                 }
             }
         } else if (body instanceof ChoiceOp) {
             final ChoiceOp s = (ChoiceOp) body;
             b.startChoice(s);
-            for (final Object option_o : s.options) {
-                final Syntax option = (Syntax) option_o;
+            for (final Syntax option : s.getOptions()) {
                 compileSyntax(visited, b, option);
             }
             b.endChoice();
         } else if (body instanceof IdentifierOp) {
             final IdentifierOp s = (IdentifierOp) body;
-            b.startWrapper(s.wrapper);
+            b.startWrapper(s.getWrapper());
             b.tokenText(s, Terms.VALUE, SyntaxRole.PRIMARY, TokenKey.simple(Tokens.IDENTIFIER));
-            b.endWrapper(s.wrapper);
+            b.endWrapper(s.getWrapper());
         } else if (body instanceof GraphicsOp) {
             final GraphicsOp s = (GraphicsOp) body;
-            b.startWrapper(s.wrapper);
+            b.startWrapper(s.getWrapper());
             b.tokenText(s, Terms.VALUE, SyntaxRole.PRIMARY, TokenKey.simple(Tokens.GRAPHICS));
-            b.endWrapper(s.wrapper);
+            b.endWrapper(s.getWrapper());
         } else if (body instanceof TokenOp) {
             final TokenOp s = (TokenOp) body;
-            b.startWrapper(s.wrapper);
-            if (s.value != null) {
-                b.tokenText(s, Terms.VALUE, SyntaxRole.KEYWORD, s.value);
+            b.startWrapper(s.getWrapper());
+            if (s.getValue() != null) {
+                b.tokenText(s, Terms.VALUE, SyntaxRole.KEYWORD, s.getValue());
             } else {
                 b.anyToken(s, Terms.VALUE, SyntaxRole.PRIMARY_ANY);
             }
-            b.endWrapper(s.wrapper);
+            b.endWrapper(s.getWrapper());
         } else if (body instanceof StringOp) {
             final StringOp s = (StringOp) body;
-            String quote = null;
+            String quote;
             try {
-                quote = LiteralUtils.parseString(text(s.quote));
+                quote = LiteralUtils.parseString(text(s.getQuote()));
             } catch (final Exception ex) {
                 // do nothing, quote will stay as null
+                quote = null;
             }
-            if (!"\"".equals(quote) && !"'".equals(quote)) {
-                error(b, s, "grammar.String.invalidQuote", s.quote);
-            }
-            if (quote != null) {
-                switch (s.prefix.size()) {
+            if (quote == null || quote.isEmpty() || QuoteClass.classify(quote.codePointAt(0)) == null) {
+                error(b, s, "grammar.String.invalidQuote", s.getQuote());
+            } else {
+                switch (s.getPrefix().size()) {
                     case 0:
                         compileString(b, s, quote, null);
                         break;
                     case 1:
-                        compileString(b, s, quote, text(s.prefix.getFirst()));
+                        compileString(b, s, quote, text(s.getPrefix().get(0)));
                         break;
                     default:
                         b.startChoice(s);
-                        for (Token prefix : s.prefix) {
+                        for (Token prefix : s.getPrefix()) {
                             compileString(b, s, quote, text(prefix));
                         }
                         b.endChoice();
@@ -474,15 +538,16 @@ public class ContextBuilder {
             compileNumber(b, (FloatOp) body, Tokens.FLOAT, Tokens.FLOAT_WITH_SUFFIX);
         } else if (body instanceof ObjectOp) {
             final ObjectOp s = (ObjectOp) body;
-            b.startObject(s, b.topDefinition().convertName(s.name));
-            compileSyntax(visited, b, s.syntax);
+            b.startObject(s, b.topDefinition().convertName(s.getName()));
+            compileSyntax(visited, b, s.getSyntax());
             b.endObject();
         } else if (body instanceof RefOp) {
             final RefOp s = (RefOp) body;
             final DefView d = contextView.def(b.topDefinition(), s);
             if (d != null) {
                 if (visited.contains(d)) {
-                    error(b, body, "grammar.Ref.cyclicRef", s.name, contextView.name(), contextView.grammar().getSystemId());
+                    error(b, body, "grammar.Ref.cyclicRef", s.getName(), contextView.name(),
+                            contextView.grammar().getSystemId());
                 } else {
                     visited.add(d);
                     b.startDefinition(d);
@@ -493,14 +558,16 @@ public class ContextBuilder {
                     b.endDefinition();
                 }
             } else {
+                // TODO beter error if not choice
                 final List<ChoiceCaseDefView> choices = contextView.choices(b.topDefinition(), s);
                 b.startChoice(s);
                 for (ChoiceCaseDefView choiceCaseDefView : choices) {
                     if (visited.contains(choiceCaseDefView)) {
-                        error(b, body, "grammar.Ref.cyclicRef", s.name, contextView.name(), contextView.grammar().getSystemId());
+                        error(b, body, "grammar.Ref.cyclicRef", s.getName(), contextView.name(),
+                                contextView.grammar().getSystemId());
                     } else {
                         visited.add(choiceCaseDefView);
-                        b.startDefinition(d);
+                        b.startDefinition(choiceCaseDefView);
                         b.startSequence(s);
                         compileSyntax(visited, b, choiceCaseDefView.statements());
                         b.endSequence();
@@ -512,41 +579,43 @@ public class ContextBuilder {
             }
         } else if (body instanceof DoclinesOp) {
             final DoclinesOp s = (DoclinesOp) body;
-            b.startWrapper(s.wrapper);
+            b.startWrapper(s.getWrapper());
             b.tokenText(s, Terms.VALUE, SyntaxRole.DOCUMENTATION, TokenKey.simple(Tokens.DOC_COMMENT));
-            b.endWrapper(s.wrapper);
+            b.endWrapper(s.getWrapper());
             b.startRepeat(s);
-            b.startWrapper(s.wrapper);
+            b.startWrapper(s.getWrapper());
             b.tokenText(s, Terms.VALUE, SyntaxRole.DOCUMENTATION, TokenKey.simple(Tokens.DOC_COMMENT));
-            b.endWrapper(s.wrapper);
+            b.endWrapper(s.getWrapper());
             b.endRepeat();
         } else if (body instanceof OperandOp) {
             error(b, body, "grammar.Operand.misplacedOperand");
         } else if (body instanceof Sequence) {
             final Sequence s = (Sequence) body;
             b.startSequence(s);
-            compileSyntax(visited, b, s.syntax);
+            compileSyntax(visited, b, s.getSyntax());
             b.endSequence();
         } else {
             throw new RuntimeException("[BUG]Unknown syntax element: " + body);
         }
     }
+    // CHECKSTYLE:ON
 
     /**
-     * Parse token as parseInteger and report errors
+     * Parse token as parseInteger and report errors.
      *
-     * @param token the token to parse
+     * @param token    the token to parse
+     * @param systemId the system id
      * @return the parsed value
      */
-    private Integer parseInteger(Token token, String systemId) {
+    private Integer parseInteger(final Token token, final String systemId) {
         String t = text(token);
         if (t == null) {
             return null;
         }
         final NumberInfo numberInfo = LiteralUtils.parseNumber(t, token.start(), systemId);
-        if (numberInfo.kind == Tokens.INTEGER || numberInfo.kind == Tokens.INTEGER_WITH_SUFFIX) {
-            if (numberInfo.errors != null) {
-                error(numberInfo.errors);
+        if (numberInfo.getKind() == Tokens.INTEGER || numberInfo.getKind() == Tokens.INTEGER_WITH_SUFFIX) {
+            if (numberInfo.getErrors() != null) {
+                error(numberInfo.getErrors());
                 return null;
             } else {
                 try {
@@ -564,19 +633,19 @@ public class ContextBuilder {
     }
 
     /**
-     * Compile string for the specified prefix
+     * Compile string for the specified prefix.
      *
      * @param b      the builder to use
      * @param s      the operator to compile
      * @param quote  the quote for string
      * @param prefix the prefix instance
      */
-    private void compileString(ActionBuilder b, final StringOp s, String quote, String prefix) {
-        compileString(b, s, quote, prefix, s.multiline != null);
+    private void compileString(final ActionBuilder b, final StringOp s, final String quote, final String prefix) {
+        compileString(b, s, quote, prefix, s.getMultiline() != null);
     }
 
     /**
-     * Compile string token
+     * Compile string token.
      *
      * @param b         the builder
      * @param s         the operator to compile
@@ -584,8 +653,9 @@ public class ContextBuilder {
      * @param prefix    the prefix to use
      * @param multiline the flag indicating if the string is multiline
      */
-    private void compileString(ActionBuilder b, final StringOp s, String quote, String prefix, boolean multiline) {
-        b.startWrapper(s.wrapper);
+    private void compileString(final ActionBuilder b, final StringOp s, final String quote, final String prefix,
+                               final boolean multiline) {
+        b.startWrapper(s.getWrapper());
         Tokens kind;
         Terms termKind;
         if (multiline) {
@@ -596,27 +666,28 @@ public class ContextBuilder {
         termKind = Terms.VALUE;
         final TokenKey key = TokenKey.quoted(kind, prefix, quote.codePointAt(0), quote.codePointAt(0));
         b.tokenText(s, termKind, SyntaxRole.PRIMARY, key);
-        b.endWrapper(s.wrapper);
+        b.endWrapper(s.getWrapper());
     }
 
     /**
-     * Compile number operation
+     * Compile number operation.
      *
      * @param b          a builder for state machine
      * @param s          an operator to compile
      * @param simpleKind a kind for simple token
      * @param suffixKind a kind for suffixed token
      */
-    private void compileNumber(ActionBuilder b, final NumberOp s, Tokens simpleKind, Tokens suffixKind) {
-        if (s.suffix.size() == 0) {
-            b.startWrapper(s.wrapper);
+    private void compileNumber(final ActionBuilder b, final NumberOp s,
+                               final Tokens simpleKind, final Tokens suffixKind) {
+        if (s.getSuffix().size() == 0) {
+            b.startWrapper(s.getWrapper());
             b.tokenText(s, Terms.VALUE, SyntaxRole.PRIMARY, TokenKey.simple(simpleKind));
-            b.endWrapper(s.wrapper);
-        } else if (s.suffix.size() == 1) {
-            compileNumberWithSuffix(b, s, suffixKind, text(s.suffix.getFirst()));
+            b.endWrapper(s.getWrapper());
+        } else if (s.getSuffix().size() == 1) {
+            compileNumberWithSuffix(b, s, suffixKind, text(s.getSuffix().get(0)));
         } else {
             b.startChoice(s);
-            for (Token suffix : s.suffix) {
+            for (Token suffix : s.getSuffix()) {
                 compileNumberWithSuffix(b, s, suffixKind, text(suffix));
             }
             b.endChoice();
@@ -624,72 +695,72 @@ public class ContextBuilder {
     }
 
     /**
-     * Compile number with suffix
+     * Compile number with suffix.
      *
      * @param b          the builder
      * @param s          the syntax element
      * @param suffixKind the suffix kind
      * @param suffix     the suffix
      */
-    private void compileNumberWithSuffix(ActionBuilder b, final NumberOp s, Tokens suffixKind, String suffix) {
+    private void compileNumberWithSuffix(final ActionBuilder b, final NumberOp s,
+                                         final Tokens suffixKind, final String suffix) {
         char ch = suffix.charAt(0);
         if (ch == 'E' || ch == 'e' || ch == '_') {
-            error(b, s, "grammar.NumberOp.invalidSuffix", s.suffix);
+            error(b, s, "grammar.NumberOp.invalidSuffix", s.getSuffix());
         }
-        b.startWrapper(s.wrapper);
+        b.startWrapper(s.getWrapper());
         b.tokenText(s, Terms.VALUE, SyntaxRole.PRIMARY, TokenKey.modified(suffixKind, suffix));
-        b.endWrapper(s.wrapper);
+        b.endWrapper(s.getWrapper());
     }
 
     /**
-     * Report error
+     * Report error.
      *
      * @param b       the builder
      * @param e       the element that contains position of the statement
      * @param errorId identifier of the error
      */
-    public void error(ActionBuilder b, Element e, String errorId) {
+    public void error(final ActionBuilder b, final Element e, final String errorId) {
         error(b.topDefinition(), e, errorId);
     }
 
     /**
-     * Report error
+     * Report error.
      *
      * @param error the error to report
      */
-    public void error(ErrorInfo error) {
+    public void error(final ErrorInfo error) {
         contextView().grammar().error(error);
     }
 
-
     /**
-     * Report error
+     * Report error.
      *
      * @param b         a builder
      * @param e         a element that contains position of the statement
      * @param errorId   identifier of the error
      * @param errorArgs error argument
      */
-    public void error(ActionBuilder b, Element e, String errorId, Object... errorArgs) {
+    public void error(final ActionBuilder b, final Element e, final String errorId, final Object... errorArgs) {
         final DefinitionView d = b.topDefinition();
         error(d, e, errorId, errorArgs);
     }
 
     /**
-     * Report error
+     * Report error.
      *
      * @param d        a context definition
      * @param e        a element that contains position of the statement
      * @param errorId  identifier of the error
      * @param errorArg error argument
      */
-    public void error(DefinitionView d, Element e, String errorId, Object... errorArg) {
+    public void error(final DefinitionView d, final Element e, final String errorId, final Object... errorArg) {
         final ContextView ctx = d.originalDefinition().definingContext();
         ctx.error(e, errorId, errorArg);
     }
 
     /**
-     * Get expression builder for the specified context import
+     * Get expression builder for the specified context import.
      *
      * @param contextDefinition the definition that contains expression elements
      * @param e                 the element that makes a reference. It is used for error reporting.
@@ -697,7 +768,8 @@ public class ContextBuilder {
      * @param precedence        the precedence of expression
      * @return an factory that correspond to expression.
      */
-    private ActionBuilder getExpressionBuilder(DefinitionView contextDefinition, Element e, String context, Integer precedence) {
+    private ActionBuilder getExpressionBuilder(final DefinitionView contextDefinition, final Element e,
+                                               final String context, final Integer precedence) {
         final ContextBuilder referencedContext = getReferencedContext(
                 contextDefinition, e, context);
         if (referencedContext == null) {
@@ -734,14 +806,15 @@ public class ContextBuilder {
     }
 
     /**
-     * Get builder for statement
+     * Get builder for statement.
      *
      * @param contextDefinition the definition that contains block elements
      * @param e                 the block element
      * @param context           the context import name for context
      * @return an builder from this grammar
      */
-    private ActionBuilder getStatementSequenceBuilder(DefinitionView contextDefinition, Element e, String context) {
+    private ActionBuilder getStatementSequenceBuilder(final DefinitionView contextDefinition, final Element e,
+                                                      final String context) {
         final ContextBuilder referencedContext = getReferencedContext(
                 contextDefinition, e, context);
         if (referencedContext == null) {
@@ -753,14 +826,15 @@ public class ContextBuilder {
     }
 
     /**
-     * Get referenced context
+     * Get referenced context.
      *
      * @param contextDefinition the definition that contains element
      * @param e                 the an element that references other context
      * @param context           the context import name
      * @return a context builder for specified parameters
      */
-    private ContextBuilder getReferencedContext(DefinitionView contextDefinition, Element e, String context) {
+    private ContextBuilder getReferencedContext(final DefinitionView contextDefinition, final Element e,
+                                                final String context) {
         // if context is not specified, it is this context
         if (context == null) {
             return this;
@@ -792,28 +866,28 @@ public class ContextBuilder {
      * @param b         the state machine builder used by compiler
      * @param statement the statement to compile
      */
-    private void compileSyntaxStatement(HashSet<DefinitionView> visited,
-                                        ActionBuilder b, SyntaxStatement statement) {
+    private void compileSyntaxStatement(final HashSet<DefinitionView> visited,
+                                        final ActionBuilder b, final SyntaxStatement statement) {
         if (statement instanceof BlankSyntaxStatement) {
             // compile empty sequence. This sequence is to be optimized out.
             b.startSequence(statement);
             b.endSequence();
         } else if (statement instanceof Let) {
             final Let s = (Let) statement;
-            if (s.expression instanceof OperandOp) {
-                if (!(s.ownerObject instanceof ObjectOp) || !(s.ownerObject.ownerObject instanceof OperatorDefinition)) {
-                    error(b, s.expression, "grammar.Operand.misplacedOperand");
-                } else {
-                    // operand statement is placed correctly, ignore the
+            if (s.getExpression() instanceof OperandOp) {
+                if (!(s.getOwnerObject() instanceof ObjectOp)
+                        || !(s.getOwnerObject().getOwnerObject() instanceof OperatorDefinition)) {
+                    error(b, s.getExpression(), "grammar.Operand.misplacedOperand");
+                    // Otherwise operand statement is placed correctly, ignore the
                     // statement
                 }
             } else {
-                final String op = text(s.operator);
+                final String op = text(s.getOperator());
                 final boolean isList = "+=".equals(op);
                 if (isList || "=".equals(op)) {
                     // simple property
-                    b.startProperty(s, new PropertyName(text(s.name)), isList);
-                    compileSyntax(visited, b, s.expression);
+                    b.startProperty(s, new PropertyName(text(s.getName())), isList);
+                    compileSyntax(visited, b, s.getExpression());
                     b.endProperty();
                 } else {
                     throw new RuntimeException("[BUG]Unknown operator: " + op);
@@ -821,11 +895,11 @@ public class ContextBuilder {
             }
         } else if (statement instanceof KeywordStatement) {
             final KeywordStatement s = (KeywordStatement) statement;
-            b.tokenText(s, Terms.STRUCTURAL, SyntaxRole.KEYWORD, s.text);
+            b.tokenText(s, Terms.STRUCTURAL, SyntaxRole.KEYWORD, s.getText());
         } else if (statement instanceof ExpressionStatement) {
             final ExpressionStatement s = (ExpressionStatement) statement;
             b.startSequence(s);
-            compileSyntax(visited, b, s.syntax);
+            compileSyntax(visited, b, s.getSyntax());
             b.endSequence();
         }
     }
@@ -837,7 +911,7 @@ public class ContextBuilder {
      * @param b       the builder to use
      * @param list    the list of statements to compile
      */
-    void compileSyntax(HashSet<DefinitionView> visited, ActionBuilder b, List<?> list) {
+    public void compileSyntax(final HashSet<DefinitionView> visited, final ActionBuilder b, final List<?> list) {
         for (final Object o : list) {
             if (o instanceof Syntax) {
                 final Syntax s = (Syntax) o;
@@ -850,27 +924,6 @@ public class ContextBuilder {
     }
 
     /**
-     * Check of if token matches the specified text
-     *
-     * @param text  the text to check
-     * @param token the token
-     * @return true if matches
-     */
-    private static boolean match(String text, Token token) {
-        return text != null ? text.equals(text(token)) : token == null;
-    }
-
-    /**
-     * Extract token from the text
-     *
-     * @param token the token to check (might be null)
-     * @return the token text or null if token is null
-     */
-    private static String text(Token token) {
-        return token == null ? null : token.text();
-    }
-
-    /**
      * @return the definition context for this context builder
      */
     public DefinitionContext termContext() {
@@ -878,12 +931,12 @@ public class ContextBuilder {
     }
 
     /**
-     * Get level builder by precedence
+     * Get level builder by precedence.
      *
      * @param precedence the precedence
      * @return the level builder
      */
-    public OperatorLevelBuilder levelBuilder(int precedence) {
+    public OperatorLevelBuilder levelBuilder(final int precedence) {
         return operatorLevels.get(precedence);
     }
 
@@ -909,11 +962,11 @@ public class ContextBuilder {
     }
 
     /**
-     * Set keyword context for the production
+     * Set keyword context for the production.
      *
      * @param keywordContext the keyword context
      */
-    public void setKeywordContext(KeywordContext keywordContext) {
+    public void setKeywordContext(final KeywordContext keywordContext) {
         if (this.keywordContext != null) {
             // this is an assumption that keyword context is set only once for the context builder.
             // If it is not, something needs to be changed.

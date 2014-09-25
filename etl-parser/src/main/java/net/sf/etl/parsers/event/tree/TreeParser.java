@@ -30,17 +30,18 @@ import net.sf.etl.parsers.event.Cell;
 import net.sf.etl.parsers.event.ParserState;
 
 /**
- * AST parser interface
+ * AST parser interface.
+ *
+ * @param <BaseClass> the base class
  */
 public interface TreeParser<BaseClass> {
-
     /**
      * @return read current object from parser
      */
     BaseClass read();
 
     /**
-     * Parse token,
+     * Parse token.
      *
      * @param token the cell with the token. The element is removed if it is consumed and more date is needed.
      * @return the parsed state
@@ -51,4 +52,37 @@ public interface TreeParser<BaseClass> {
      * @return get system id
      */
     String getSystemId();
+
+    /**
+     * Set handler for error tokens.
+     *
+     * @param errorTokenHandler the handler
+     */
+    void setErrorTokenHandler(final TokenCollector errorTokenHandler);
+
+    /**
+     * Set handlers for unexpected tokens.
+     *
+     * @param unexpectedTokenHandler the handler
+     */
+    void setUnexpectedTokenHandler(final TokenCollector unexpectedTokenHandler);
+
+    /**
+     * Add token listener.
+     *
+     * @param listener the listener
+     */
+    void addTokenListener(final TokenCollector listener);
+
+    /**
+     * Remove token listener.
+     *
+     * @param listener the listener
+     */
+    void removeTokenListener(final TokenCollector listener);
+
+    /**
+     * @return true if there were errors
+     */
+    boolean hadErrors();
 }

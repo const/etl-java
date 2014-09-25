@@ -25,30 +25,42 @@
 
 package net.sf.etl.parsers.event.impl.term;
 
-import net.sf.etl.parsers.*;
+import net.sf.etl.parsers.PhraseToken;
+import net.sf.etl.parsers.SourceLocation;
+import net.sf.etl.parsers.SyntaxRole;
+import net.sf.etl.parsers.TermToken;
+import net.sf.etl.parsers.Terms;
+import net.sf.etl.parsers.Tokens;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 /**
- * The utilities related to term parser context
+ * The utilities related to term parser context.
  */
-public class TermParserContextUtil {
+public final class TermParserContextUtil {
     /**
-     * Report control token
+     * Private constructor for utility class.
+     */
+    private TermParserContextUtil() {
+    }
+
+    /**
+     * Report control token.
      *
      * @param context the parser context
      * @param token   the reported token
      */
-    public static void reportControl(TermParserContext context, PhraseToken token) {
-        context.produce(new TermToken(Terms.CONTROL, SyntaxRole.CONTROL, null, token, token.start(), token.end(), null));
+    public static void reportControl(final TermParserContext context, final PhraseToken token) {
+        context.produce(new TermToken(Terms.CONTROL, SyntaxRole.CONTROL,
+                null, token, token.start(), token.end(), null));
     }
 
     /**
-     * Report ignorable token and auto-detect role
+     * Report ignorable token and auto-detect role.
      *
      * @param context the context
      * @param token   the reported token
      */
-    public static void reportIgnorable(TermParserContext context, PhraseToken token) {
+    public static void reportIgnorable(final TermParserContext context, final PhraseToken token) {
         SyntaxRole role;
         switch (token.token().kind()) {
             case DOC_COMMENT:
@@ -63,32 +75,35 @@ public class TermParserContextUtil {
     }
 
     /**
-     * Report ignorable token with specified role
+     * Report ignorable token with specified role.
      *
      * @param context the context
      * @param role    the role
      * @param token   the token to report
      */
-    public static void reportIgnorable(TermParserContext context, SyntaxRole role, PhraseToken token) {
+    public static void reportIgnorable(final TermParserContext context, final SyntaxRole role,
+                                       final PhraseToken token) {
         context.produce(new TermToken(Terms.IGNORABLE, role, null, token, token.start(), token.end(), null));
     }
 
     /**
-     * Skip ignorable token
+     * Skip ignorable token.
      *
      * @param source            the source location
      * @param context           the context
      * @param skipDocumentation if true, the documentation tokens are skipped as well
      * @return true if current token was skipped and this method should be called again when
-     *         next phrase token become available
+     * next phrase token become available
      */
-    public static boolean skipIgnorable(SourceLocation source, TermParserContext context, boolean skipDocumentation) {
+    public static boolean skipIgnorable(final SourceLocation source, final TermParserContext context,
+                                        final boolean skipDocumentation) {
         if (context.isAdvanceNeeded()) {
             PhraseToken t = context.current();
             switch (t.kind()) {
                 case SOFT_STATEMENT_END:
                     if (!context.isScriptMode() || !context.canSoftEndStatement()) {
-                        context.produce(new TermToken(Terms.IGNORABLE, SyntaxRole.IGNORABLE, null, t, t.start(), t.end(), source, null));
+                        context.produce(new TermToken(Terms.IGNORABLE, SyntaxRole.IGNORABLE, null, t,
+                                t.start(), t.end(), source, null));
                         context.consumePhraseToken();
                         return true;
                     }
@@ -104,11 +119,14 @@ public class TermParserContextUtil {
                 case SIGNIFICANT:
                     if (skipDocumentation) {
                         if (t.hasToken() && t.token().kind() == Tokens.DOC_COMMENT) {
-                            context.produce(new TermToken(Terms.IGNORABLE, SyntaxRole.DOCUMENTATION, null, t, t.start(), t.end(), source, null));
+                            context.produce(new TermToken(Terms.IGNORABLE, SyntaxRole.DOCUMENTATION, null, t,
+                                    t.start(), t.end(), source, null));
                             context.consumePhraseToken();
                             return true;
                         }
                     }
+                    break;
+                default:
                     break;
             }
             context.advanced();

@@ -33,10 +33,26 @@ import net.sf.etl.parsers.Token;
  *
  * @author const
  */
-public class KeywordStatement extends SyntaxStatement {
+public final class KeywordStatement extends SyntaxStatement {
     /**
-     * value
+     * the value.
      */
-    public Token text;
+    private Token text;
 
+    /**
+     * @return the value.
+     */
+    public Token getText() {
+        return text;
+    }
+
+    /**
+     * Set the text.
+     *
+     * @param text the text
+     */
+    public void setText(final Token text) {
+        this.text = text;
+    }
 }
+

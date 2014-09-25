@@ -33,43 +33,46 @@ import java.math.BigInteger;
 /**
  * Information about number that is being parsed.
  */
-public class NumberInfo {
+public final class NumberInfo {
     /**
-     * The kind of number
+     * The kind of number.
      */
-    public final Tokens kind;
+    private final Tokens kind;
     /**
      * The text of number with underscores removed.
      */
-    public final String text;
+    private final String text;
     /**
-     * The suffix attached to number
+     * The suffix attached to number.
      */
-    public final String suffix;
+    private final String suffix;
     /**
-     * The exponent (adjusted according the dot position)
+     * The exponent (adjusted according the dot position).
      */
-    public final int exponent;
+    private final int exponent;
     /**
-     * The input string
+     * The input string.
      */
-    public final String input;
+    private final String input;
     /**
-     * The base of number
+     * The base of number.
      */
-    public final int base;
+    private final int base;
     /**
-     * The sign of the number (1 for positive numbers and -1 for negative)
+     * The sign of the number (1 for positive numbers and -1 for negative).
      */
-    public final int sign;
+    private final int sign;
     /**
-     * The errors
+     * The errors.
      */
-    public final ErrorInfo errors;
+    private final ErrorInfo errors;
+
+    // CHECKSTYLE:OFF
 
     /**
-     * The constructor
+     * The constructor.
      *
+     * @param input    the input string
      * @param kind     the kind of token
      * @param sign     the sign of the number (1 for positive numbers and -1 for
      *                 negative, 0 for unspecified)
@@ -79,8 +82,8 @@ public class NumberInfo {
      * @param suffix   the suffix attached to number
      * @param errors   the errors collected during parsing
      */
-    public NumberInfo(String input, Tokens kind, int sign, int base, String text,
-                      int exponent, String suffix, ErrorInfo errors) {
+    public NumberInfo(final String input, final Tokens kind, final int sign, final int base, final String text,
+                      final int exponent, final String suffix, final ErrorInfo errors) {
         super();
         this.input = input;
         this.base = base;
@@ -91,9 +94,10 @@ public class NumberInfo {
         this.text = text;
         this.errors = errors;
     }
+    // CHECKSTYLE:ON
 
     /**
-     * Check for errors and throw an exception if there are ones
+     * Check for errors and throw an exception if there are ones.
      */
     public void checkErrors() {
         if (errors != null) {
@@ -102,7 +106,7 @@ public class NumberInfo {
     }
 
     /**
-     * Parse as integer value
+     * Parse as integer value.
      *
      * @return the parsed value
      */
@@ -119,7 +123,7 @@ public class NumberInfo {
 
 
     /**
-     * Parse as double value
+     * Parse as double value.
      *
      * @return the parsed value
      */
@@ -132,5 +136,61 @@ public class NumberInfo {
         }
         double rc = digits.doubleValue();
         return exponent < 0 ? rc / exp : rc * exp;
+    }
+
+    /**
+     * @return the token kind
+     */
+    public Tokens getKind() {
+        return kind;
+    }
+
+    /**
+     * @return the token text
+     */
+    public String getText() {
+        return text;
+    }
+
+    /**
+     * @return the suffix
+     */
+    public String getSuffix() {
+        return suffix;
+    }
+
+    /**
+     * @return the exponent
+     */
+    public int getExponent() {
+        return exponent;
+    }
+
+    /**
+     * @return the input string
+     */
+    public String getInput() {
+        return input;
+    }
+
+    /**
+     * @return the base
+     */
+    public int getBase() {
+        return base;
+    }
+
+    /**
+     * @return the sign
+     */
+    public int getSign() {
+        return sign;
+    }
+
+    /**
+     * @return the errors
+     */
+    public ErrorInfo getErrors() {
+        return errors;
     }
 }

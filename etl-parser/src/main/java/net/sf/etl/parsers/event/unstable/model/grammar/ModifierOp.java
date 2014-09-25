@@ -32,10 +32,25 @@ import net.sf.etl.parsers.Token;
  *
  * @author const
  */
-public class ModifierOp extends TokenRefOp {
+public final class ModifierOp extends TokenRefOp {
     /**
-     * value
+     * the value.
      */
-    public Token value;
+    private Token value;
 
+    /**
+     * @return the value
+     */
+    public Token getValue() {
+        return value;
+    }
+
+    /**
+     * Set the value.
+     *
+     * @param value the value
+     */
+    public void setValue(final Token value) {
+        this.value = value;
+    }
 }

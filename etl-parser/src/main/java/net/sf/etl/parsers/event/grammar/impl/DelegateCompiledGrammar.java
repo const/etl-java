@@ -36,42 +36,43 @@ import net.sf.etl.parsers.resource.ResourceDescriptor;
 import java.util.List;
 
 /**
- * The delegate compiled grammar that wraps other grammar, but allows to redefine returned values for
+ * The delegate compiled grammar that wraps other grammar. It allows to redefine returned values for
  * the following methods:
  * <ul>
  * <li>{@link #getErrors()}</li>
  * <li>{@link #getDescriptor()} </li>
  * <li>{@link #getOtherGrammars()}</li>
  * </ul>
- * This implementation is used to create grammars that have compilation errors
+ * This implementation is used to create grammars that have compilation errors.
  */
-public class DelegateCompiledGrammar implements CompiledGrammar {
+public final class DelegateCompiledGrammar implements CompiledGrammar {
     /**
-     * The grammar to delegate to
+     * The grammar to delegate to.
      */
     private final CompiledGrammar grammar;
     /**
-     * The list of errors
+     * The list of errors.
      */
     private final ErrorInfo errors;
     /**
-     * The descriptor
+     * The descriptor.
      */
     private final ResourceDescriptor descriptor;
     /**
-     * Other grammars referenced from this grammar
+     * Other grammars referenced from this grammar.
      */
     private final List<CompiledGrammar> otherGrammars;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param grammar       the grammar this grammar delegates to
      * @param errors        the grammar errors for this grammar
      * @param descriptor    the descriptor of this grammars
      * @param otherGrammars the other grammars (not that the list of other grammars is build only in case of success)
      */
-    public DelegateCompiledGrammar(CompiledGrammar grammar, ErrorInfo errors, ResourceDescriptor descriptor, List<CompiledGrammar> otherGrammars) {
+    public DelegateCompiledGrammar(final CompiledGrammar grammar, final ErrorInfo errors,
+                                   final ResourceDescriptor descriptor, final List<CompiledGrammar> otherGrammars) {
         this.grammar = grammar;
         this.errors = errors;
         this.descriptor = descriptor;
@@ -109,7 +110,7 @@ public class DelegateCompiledGrammar implements CompiledGrammar {
     }
 
     @Override
-    public KeywordContext getKeywordContext(DefinitionContext context) {
+    public KeywordContext getKeywordContext(final DefinitionContext context) {
         return grammar.getKeywordContext(context);
     }
 
@@ -119,17 +120,17 @@ public class DelegateCompiledGrammar implements CompiledGrammar {
     }
 
     @Override
-    public TermParserStateFactory statementSequenceParser(DefinitionContext context) {
+    public TermParserStateFactory statementSequenceParser(final DefinitionContext context) {
         return grammar.statementSequenceParser(context);
     }
 
     @Override
-    public TermParserStateFactory statementParser(DefinitionContext context) {
+    public TermParserStateFactory statementParser(final DefinitionContext context) {
         return grammar.statementParser(context);
     }
 
     @Override
-    public TermParserStateFactory expressionParser(ExpressionContext context) {
+    public TermParserStateFactory expressionParser(final ExpressionContext context) {
         return grammar.expressionParser(context);
     }
 

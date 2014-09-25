@@ -24,30 +24,41 @@
  */
 package net.sf.etl.parsers.event.grammar.impl.nodes;
 
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.LookAheadSet;
 import net.sf.etl.parsers.event.grammar.impl.ActionBuilder;
-import net.sf.etl.parsers.event.impl.term.action.*;
+import net.sf.etl.parsers.event.impl.term.action.Action;
+import net.sf.etl.parsers.event.impl.term.action.DisableSoftEndAction;
+import net.sf.etl.parsers.event.impl.term.action.EnableSoftEndAction;
+import net.sf.etl.parsers.event.impl.term.action.RecoveryChoiceAction;
+import net.sf.etl.parsers.event.impl.term.action.RecoverySetupAction;
+import net.sf.etl.parsers.event.impl.term.action.RecoveryVoteAction;
 
 import java.util.ListIterator;
 import java.util.Set;
 
 /**
- * The node sequence node
+ * The node sequence node.
  *
  * @author const
  */
-public class SequenceNode extends GroupNode {
+public final class SequenceNode extends GroupNode {
 
     @Override
-    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit, Action recoveryTest) {
+    public Action buildActions(final ActionBuilder b, final Action normalExit, final Action errorExitAction,
+                               final Action recoveryTestAction) {
         // A sequence node is built by creating a sequence of states that
         // correspond to the nodes. Empty sequence results in normalExit node.
+        final SourceLocation source = getSource();
         Action head = normalExit;
+        Action errorExit = errorExitAction;
+        Action recoveryTest = recoveryTestAction;
         head = new RecoverySetupAction(source, head, recoveryTest);
         errorExit = new RecoverySetupAction(source, errorExit, recoveryTest);
         boolean wasNonEmpty = false;
         LookAheadSet previousLa = new LookAheadSet();
-        for (final ListIterator<Node> i = nodes().listIterator(nodes().size()); i.hasPrevious(); ) {
+        final ListIterator<Node> i = nodes().listIterator(nodes().size());
+        while (i.hasPrevious()) {
             final Node node = i.previous();
             final LookAheadSet actualLa = node.buildLookAhead();
             final LookAheadSet currentLa = new LookAheadSet(actualLa);
@@ -59,15 +70,15 @@ public class SequenceNode extends GroupNode {
             if (currentLa.isEmpty()) {
                 head = node.buildActions(b, head, errorExit, recoveryTest);
             } else {
-                RecoveryChoiceAction recoveryChoiceAction = new RecoveryChoiceAction(node.source, errorExit);
+                RecoveryChoiceAction recoveryChoiceAction = new RecoveryChoiceAction(node.getSource(), errorExit);
                 errorExit = recoveryChoiceAction;
                 head = node.buildActions(b, head, errorExit, recoveryTest);
-                recoveryChoiceAction.recoveryPath = head;
-                recoveryTest = new ChoiceBuilder(node.source).
+                recoveryChoiceAction.setRecoveryPath(head);
+                recoveryTest = new ChoiceBuilder(node.getSource()).
                         setFallback(recoveryTest).
-                        add(currentLa, new RecoveryVoteAction(node.source, recoveryChoiceAction)).
-                        build(b);
-                head = new RecoverySetupAction(node.source, head, recoveryTest);
+                        add(currentLa, new RecoveryVoteAction(node.getSource(), recoveryChoiceAction)).
+                        build();
+                head = new RecoverySetupAction(node.getSource(), head, recoveryTest);
             }
             if (!wasNonEmpty && !node.matchesEmpty() && i.hasPrevious()) {
                 wasNonEmpty = true;
@@ -91,9 +102,9 @@ public class SequenceNode extends GroupNode {
     }
 
     @Override
-    protected LookAheadSet createLookAhead(Set<ActionBuilder> visitedBuilders) {
+    protected LookAheadSet createLookAhead(final Set<ActionBuilder> visitedBuilders) {
         if (nodes().isEmpty()) {
-            return LookAheadSet.getWithEmpty(source);
+            return LookAheadSet.getWithEmpty(getSource());
         }
         if (nodes().size() == 1) {
             return (nodes().get(0)).buildLookAhead(visitedBuilders);

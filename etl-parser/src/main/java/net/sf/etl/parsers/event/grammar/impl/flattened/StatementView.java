@@ -32,35 +32,35 @@ import net.sf.etl.parsers.event.unstable.model.grammar.Statement;
  *
  * @author const
  */
-public class StatementView extends ObjectDefinitionView {
+public final class StatementView extends ObjectDefinitionView {
 
     /**
-     * A constructor from fields
+     * A constructor from fields.
      *
      * @param context    the defining context
      * @param definition the definition
      */
-    public StatementView(ContextView context, Statement definition) {
+    public StatementView(final ContextView context, final Statement definition) {
         super(context, definition);
     }
 
     /**
-     * A constructor for using in implementing grammar include
+     * A constructor for using in implementing grammar include.
      *
      * @param context    the including context
      * @param definition the definition to copy
      */
-    public StatementView(ContextView context, DefinitionView definition) {
+    public StatementView(final ContextView context, final DefinitionView definition) {
         super(context, definition);
     }
 
     /**
-     * Get wrappers for this statement that are required in this context
+     * Get wrappers for this statement that are required in this context.
      *
      * @param contextView the context view in context of which the statement is examined
      * @return wrapper objects or null if there are none
      */
-    public WrapperLink wrappers(ContextView contextView) {
+    public WrapperLink wrappers(final ContextView contextView) {
         final ContextView ci = includingContext();
         return contextView.includeWrappers(ci);
     }

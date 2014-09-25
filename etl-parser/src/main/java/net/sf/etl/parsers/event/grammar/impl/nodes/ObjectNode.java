@@ -30,28 +30,28 @@ import net.sf.etl.parsers.event.grammar.impl.flattened.WrapperLink;
 import net.sf.etl.parsers.event.impl.term.action.Action;
 
 /**
- * This is an object scope node
+ * This is an object scope node.
  *
  * @author const
  */
-public class ObjectNode extends TermScopeNode {
+public final class ObjectNode extends TermScopeNode {
     /**
-     * The name of the object
+     * The name of the object.
      */
     private final ObjectName name;
     /**
-     * The wrappers for the node
+     * The wrappers for the node.
      */
     private final WrapperLink wrappers;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param name     the name of object
      * @param atMark   if true, the node is started at mark
      * @param wrappers wrappers for this node
      */
-    public ObjectNode(ObjectName name, boolean atMark, WrapperLink wrappers) {
+    public ObjectNode(final ObjectName name, final boolean atMark, final WrapperLink wrappers) {
         super(atMark);
         this.name = name;
         this.wrappers = wrappers;
@@ -66,14 +66,15 @@ public class ObjectNode extends TermScopeNode {
 
 
     @Override
-    protected Action buildStartState(ActionBuilder b, Action bodyStates, Action errorExit, Action errorCloseState) {
-        return ActionUtil.startObject(source, bodyStates, name, wrappers, isAtMark());
+    protected Action buildStartState(final ActionBuilder b, final Action bodyStates, final Action errorExit,
+                                     final Action errorCloseState) {
+        return ActionUtil.startObject(getSource(), bodyStates, name, wrappers, isAtMark());
     }
 
 
     @Override
-    protected Action buildEndState(ActionBuilder b, Action normalExit, Action errorExit) {
-        return ActionUtil.endObject(source, normalExit, name, wrappers);
+    protected Action buildEndState(final ActionBuilder b, final Action normalExit, final Action errorExit) {
+        return ActionUtil.endObject(getSource(), normalExit, name, wrappers);
     }
 
 }

@@ -2,7 +2,7 @@
  * Reference ETL Parser for Java
  * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
- * Permission is hereby granted, free of charge, to any person 
+ * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
@@ -25,7 +25,11 @@
 
 package net.sf.etl.parsers.streams;
 
-import net.sf.etl.parsers.*;
+import net.sf.etl.parsers.DefaultTermParserConfiguration;
+import net.sf.etl.parsers.PhraseToken;
+import net.sf.etl.parsers.TermParserConfiguration;
+import net.sf.etl.parsers.TermToken;
+import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.event.Cell;
 import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.TermParser;
@@ -36,39 +40,40 @@ import java.io.Reader;
 import java.net.URL;
 
 /**
- * The reader for term parser
+ * The reader for term parser.
  */
-public class TermParserReader extends AbstractReaderImpl<TermToken> {
+public final class TermParserReader extends AbstractReaderImpl<TermToken> {
     /**
-     * The parser configuration
+     * The parser configuration.
      */
     private final TermParserConfiguration configuration;
     /**
-     * The reader
+     * The reader.
      */
     private final PhraseParserReader phraseParserReader;
     /**
-     * Term parser implementation
+     * Term parser implementation.
      */
     private final TermParser termParser;
     /**
-     * The phrase parser
+     * The phrase parser.
      */
     private final Cell<PhraseToken> cell = new Cell<PhraseToken>();
     /**
-     * The grammar resolver
+     * The grammar resolver.
      */
     private GrammarResolver resolver;
 
     /**
-     * The constructor from fields
+     * The constructor from fields.
      *
      * @param configuration      the configuration
      * @param phraseParserReader the phrase parser reader
      * @param termParser         the term parser
      * @param resolver           the resolver
      */
-    public TermParserReader(TermParserConfiguration configuration, PhraseParserReader phraseParserReader, TermParser termParser, GrammarResolver resolver) {
+    public TermParserReader(final TermParserConfiguration configuration, final PhraseParserReader phraseParserReader,
+                            final TermParser termParser, final GrammarResolver resolver) {
         this.configuration = configuration;
         this.phraseParserReader = phraseParserReader;
         this.termParser = termParser;
@@ -76,25 +81,27 @@ public class TermParserReader extends AbstractReaderImpl<TermToken> {
     }
 
     /**
-     * The constructor that forces usage for the specific grammar
+     * The constructor that forces usage for the specific grammar.
      *
      * @param phraseParserReader the phrase parser
      * @param forcedGrammar      the grammar that is forced for the parser
      * @param scriptMode         if true, the grammar is used in script mode
      */
-    public TermParserReader(PhraseParserReader phraseParserReader, CompiledGrammar forcedGrammar, boolean scriptMode) {
+    public TermParserReader(final PhraseParserReader phraseParserReader, final CompiledGrammar forcedGrammar,
+                            final boolean scriptMode) {
         this(DefaultTermParserConfiguration.INSTANCE, phraseParserReader, forcedGrammar, scriptMode);
     }
 
     /**
-     * The constructor that forces usage for the specific grammar
+     * The constructor that forces usage for the specific grammar.
      *
+     * @param configuration      the configuration
      * @param phraseParserReader the phrase parser
      * @param forcedGrammar      the grammar that is forced for the parser
      * @param scriptMode         if true, the grammar is used in script mode
      */
-    public TermParserReader(TermParserConfiguration configuration, PhraseParserReader phraseParserReader,
-                            CompiledGrammar forcedGrammar, boolean scriptMode) {
+    public TermParserReader(final TermParserConfiguration configuration, final PhraseParserReader phraseParserReader,
+                            final CompiledGrammar forcedGrammar, final boolean scriptMode) {
         this(configuration, phraseParserReader, new TermParserImpl(),
                 configuration.getGrammarResolver(phraseParserReader.getSystemId()));
         this.termParser.forceGrammar(forcedGrammar, scriptMode);
@@ -102,61 +109,63 @@ public class TermParserReader extends AbstractReaderImpl<TermToken> {
     }
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param phraseParserReader the phrase parser reader
      */
-    public TermParserReader(PhraseParserReader phraseParserReader) {
+    public TermParserReader(final PhraseParserReader phraseParserReader) {
         this(DefaultTermParserConfiguration.INSTANCE, phraseParserReader);
     }
 
     /**
-     * The constructor
+     * The constructor.
      *
+     * @param configuration      the configuration
      * @param phraseParserReader the phrase parser reader
      */
-    public TermParserReader(TermParserConfiguration configuration, PhraseParserReader phraseParserReader) {
+    public TermParserReader(final TermParserConfiguration configuration, final PhraseParserReader phraseParserReader) {
         this(configuration, phraseParserReader, new TermParserImpl(),
                 configuration.getGrammarResolver(phraseParserReader.getSystemId()));
         this.termParser.start(phraseParserReader.getSystemId());
     }
 
     /**
-     * Create parser basing on url
+     * Create parser basing on url.
      *
      * @param url the url to use
      */
-    public TermParserReader(URL url) {
+    public TermParserReader(final URL url) {
         this(DefaultTermParserConfiguration.INSTANCE, url);
     }
 
     /**
-     * Create parser basing on url
+     * Create parser basing on url.
      *
-     * @param url the url to use
+     * @param configuration the configuration
+     * @param url           the url to use
      */
-    public TermParserReader(TermParserConfiguration configuration, URL url) {
+    public TermParserReader(final TermParserConfiguration configuration, final URL url) {
         this(configuration, new PhraseParserReader(configuration, url));
     }
 
     /**
-     * Start from reader
+     * Start from reader.
      *
      * @param reader   the reader
      * @param systemId the system id
      * @param start    the start position
      */
-    public TermParserReader(Reader reader, String systemId, TextPos start) {
+    public TermParserReader(final Reader reader, final String systemId, final TextPos start) {
         this(new PhraseParserReader(new LexerReader(reader, systemId, start)));
     }
 
     /**
-     * Start from reader
+     * Start from reader.
      *
      * @param reader   the reader
      * @param systemId the system id
      */
-    public TermParserReader(Reader reader, String systemId) {
+    public TermParserReader(final Reader reader, final String systemId) {
         this(reader, systemId, TextPos.START);
     }
 
@@ -171,7 +180,7 @@ public class TermParserReader extends AbstractReaderImpl<TermToken> {
                 case EOF:
                     return false;
                 case OUTPUT_AVAILABLE:
-                    current = termParser.read();
+                    setCurrent(termParser.read());
                     return true;
                 case INPUT_NEEDED:
                     if (phraseParserReader.advance()) {
@@ -180,6 +189,8 @@ public class TermParserReader extends AbstractReaderImpl<TermToken> {
                         throw new IllegalStateException("No input from phrase parser before EOF");
                     }
                     break;
+                default:
+                    throw new IllegalStateException("Unknown parser state: " + state);
             }
         }
     }
@@ -202,23 +213,24 @@ public class TermParserReader extends AbstractReaderImpl<TermToken> {
     }
 
     /**
-     * Change resolver for th parser
+     * Change resolver for the parser.
      *
      * @param resolver the resolver
      */
-    public void setResolver(GrammarResolver resolver) {
+    public void setResolver(final GrammarResolver resolver) {
         this.resolver = resolver;
     }
 
     /**
-     * Set default grammar
+     * Set default grammar.
      *
      * @param grammarPublicId the public id of the grammar
      * @param grammarSystemId the system id of th grammar
      * @param defaultContext  the default context
      * @param scriptMode      the script mode
      */
-    public void setDefaultGrammar(String grammarPublicId, String grammarSystemId, String defaultContext, boolean scriptMode) {
+    public void setDefaultGrammar(final String grammarPublicId, final String grammarSystemId,
+                                  final String defaultContext, final boolean scriptMode) {
         this.termParser.setDefaultGrammar(grammarPublicId, grammarSystemId, defaultContext, scriptMode);
     }
 }

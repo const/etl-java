@@ -24,20 +24,44 @@
  */
 package net.sf.etl.parsers.event.unstable.model.grammar;
 
+import java.util.List;
+
 /**
  * The Modifiers node class. This class is a part of the lightweight grammar
  * model.
  *
  * @author const
  */
-public class ModifiersOp extends Syntax {
+public final class ModifiersOp extends Syntax {
     /**
-     * modifiers
+     * the modifiers.
      */
-    public final java.util.ArrayList<SyntaxStatement> modifiers = new java.util.ArrayList<SyntaxStatement>();
+    private final List<SyntaxStatement> modifiers = new java.util.ArrayList<SyntaxStatement>();
     /**
-     * wrapper
+     * the wrapper.
      */
-    public Wrapper wrapper;
+    private Wrapper wrapper;
 
+    /**
+     * @return the modifiers.
+     */
+    public List<SyntaxStatement> getModifiers() {
+        return modifiers;
+    }
+
+    /**
+     * @return the wrapper.
+     */
+    public Wrapper getWrapper() {
+        return wrapper;
+    }
+
+    /**
+     * Set the wrapper.
+     *
+     * @param wrapper the wrapper
+     */
+    public void setWrapper(final Wrapper wrapper) {
+        this.wrapper = wrapper;
+    }
 }

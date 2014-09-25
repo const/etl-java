@@ -31,102 +31,103 @@ package net.sf.etl.parsers;
  *
  * @author const
  */
-public interface StandardGrammars {
+public final class StandardGrammars {
     /**
-     * Current grammar version
+     * Current grammar version.
      */
-    String VERSION = "0.3.0";
+    public static final String VERSION = "0.3.0";
     /**
-     * Current grammar version
+     * Public ID that resolves to current ETL grammar.
      */
-    String _VERSION = "0_3_0";
+    public static final String ETL_GRAMMAR_PUBLIC_ID = "-//IDN etl.sf.net//ETL//Grammar " + VERSION + "//EN";
     /**
-     * System ID of ETL grammar in ETL
+     * Namespace of objects in ETL grammar.
      */
-    String ETL_GRAMMAR_SYSTEM_ID = StandardGrammars.class.getResource(
-            "/net/sf/etl/grammars/grammar-" + _VERSION + ".g.etl").toString();
+    public static final String ETL_GRAMMAR_NAMESPACE = "http://etl.sf.net/etl/grammar/" + VERSION;
     /**
-     * Public ID that resolves to current ETL grammar
+     * namespace of Doctype object.
      */
-    String ETL_GRAMMAR_PUBLIC_ID = "-//IDN etl.sf.net//ETL//Grammar " + VERSION + "//EN";
+    public static final String DOCTYPE_NS = "http://etl.sf.net/etl/doctype/" + VERSION;
     /**
-     * Namespace of objects in ETL grammar
+     * namespace of default object.
      */
-    String ETL_GRAMMAR_NAMESPACE = "http://etl.sf.net/etl/grammar/" + VERSION;
+    public static final String DEFAULT_NS = "http://etl.sf.net/etl/default/" + VERSION;
     /**
-     * namespace of Doctype object
+     * Current grammar version.
      */
-    String DOCTYPE_NS = "http://etl.sf.net/etl/doctype/" + VERSION;
+    public static final String VERSION_NAME = "0_3_0";
+    /**
+     * System ID of ETL grammar in ETL.
+     */
+    public static final String ETL_GRAMMAR_SYSTEM_ID = StandardGrammars.class.getResource(
+            "/net/sf/etl/grammars/grammar-" + VERSION_NAME + ".g.etl").toString();
+    /**
+     * Name of doctype grammar.
+     */
+    public static final String DOCTYPE_GRAMMAR_NAME = "net.sf.etl.grammars.DoctypeDeclaration";
+    /**
+     * System ID of doctype grammar.
+     */
+    public static final String DOCTYPE_GRAMMAR_SYSTEM_ID = StandardGrammars.class.getResource(
+            "/net/sf/etl/grammars/doctype-" + VERSION_NAME + ".g.etl").toString();
+    /**
+     * Name of default grammar.
+     */
+    public static final String DEFAULT_GRAMMAR_NAME = "net.sf.etl.grammars.DefaultGrammar";
+    /**
+     * System ID of default grammar.
+     */
+    public static final String DEFAULT_GRAMMAR_SYSTEM_ID = StandardGrammars.class.getResource(
+            "/net/sf/etl/grammars/default-" + VERSION_NAME + ".g.etl").toString();
+    /**
+     * Property name for system id property.
+     */
+    public static final PropertyName DOCTYPE_GRAMMAR_DOCTYPE_TYPE = new PropertyName("Type");
+    /**
+     * Property name for system id property.
+     */
+    public static final PropertyName DOCTYPE_GRAMMAR_DOCTYPE_SYSTEM_ID = new PropertyName("SystemId");
+    /**
+     * Property name for public id property.
+     */
+    public static final PropertyName DOCTYPE_GRAMMAR_DOCTYPE_PUBLIC_ID = new PropertyName("PublicId");
+    /**
+     * Property name for context property.
+     */
+    public static final PropertyName DOCTYPE_GRAMMAR_DOCTYPE_CONTEXT = new PropertyName("Context");
+    /**
+     * The catalog file role.
+     */
+    public static final String CATALOG_ROLE = "http://etl.sf.net/resolution/catalog";
+    /**
+     * The catalog file type.
+     */
+    public static final String CATALOG_TYPE = "http://etl.sf.net/resolution/catalog";
+    /**
+     * The catalog resource type.
+     */
+    public static final String CATALOG_RESOURCE_TYPE = "http://etl.sf.net/resolution/catalog-resource";
+    /**
+     * The request type for the grammar associated with the ETL source.
+     */
+    public static final String GRAMMAR_REQUEST_TYPE = "http://etl.sf.net/document_type";
+    /**
+     * The used grammar request type.
+     */
+    public static final String USED_GRAMMAR_REQUEST_TYPE = "http://etl.sf.net/used_grammar";
+    /**
+     * RDDL grammar nature.
+     */
+    public static final String GRAMMAR_NATURE = "http://etl.sf.net/etl/grammar-definition";
+    /**
+     * RDDL grammar extension mapping purpose.
+     */
+    public static final String GRAMMAR_EXTENSION_MAPPING = "http://etl.sf.net/etl/grammar-extension-mapping";
 
     /**
-     * Name of doctype grammar
+     * Private constructor for utility class.
      */
-    String DOCTYPE_GRAMMAR_NAME = "net.sf.etl.grammars.DoctypeDeclaration";
-
-    /**
-     * System ID of doctype grammar
-     */
-    String DOCTYPE_GRAMMAR_SYSTEM_ID = StandardGrammars.class.getResource(
-            "/net/sf/etl/grammars/doctype-" + _VERSION + ".g.etl").toString();
-    /**
-     * namespace of default object
-     */
-    String DEFAULT_NS = "http://etl.sf.net/etl/default/" + VERSION;
-
-    /**
-     * Name of default grammar
-     */
-    String DEFAULT_GRAMMAR_NAME = "net.sf.etl.grammars.DefaultGrammar";
-
-    /**
-     * System ID of default grammar
-     */
-    String DEFAULT_GRAMMAR_SYSTEM_ID = StandardGrammars.class.getResource(
-            "/net/sf/etl/grammars/default-" + _VERSION + ".g.etl").toString();
-    /**
-     * Property name for system id property
-     */
-    PropertyName DOCTYPE_GRAMMAR_DOCTYPE_TYPE = new PropertyName("Type");
-    /**
-     * Property name for system id property
-     */
-    PropertyName DOCTYPE_GRAMMAR_DOCTYPE_SYSTEM_ID = new PropertyName("SystemId");
-
-    /**
-     * Property name for public id property
-     */
-    PropertyName DOCTYPE_GRAMMAR_DOCTYPE_PUBLIC_ID = new PropertyName("PublicId");
-
-    /**
-     * Property name for context property
-     */
-    PropertyName DOCTYPE_GRAMMAR_DOCTYPE_CONTEXT = new PropertyName("Context");
-    /**
-     * The catalog file role
-     */
-    String CATALOG_ROLE = "http://etl.sf.net/resolution/catalog";
-    /**
-     * The catalog file type
-     */
-    String CATALOG_TYPE = "http://etl.sf.net/resolution/catalog";
-    /**
-     * The catalog resource type
-     */
-    String CATALOG_RESOURCE_TYPE = "http://etl.sf.net/resolution/catalog-resource";
-    /**
-     * The request type for the grammar associated with the ETL source
-     */
-    String GRAMMAR_REQUEST_TYPE = "http://etl.sf.net/document_type";
-    /**
-     * The used grammar request type
-     */
-    String USED_GRAMMAR_REQUEST_TYPE = "http://etl.sf.net/used_grammar";
-    /**
-     * RDDL grammar nature
-     */
-    String GRAMMAR_NATURE = "http://etl.sf.net/etl/grammar-definition";
-    /**
-     * RDDL grammar extension mapping purpose
-     */
-    String GRAMMAR_EXTENSION_MAPPING = "http://etl.sf.net/etl/grammar-extension-mapping";
+    private StandardGrammars() {
+        // do nothing
+    }
 }

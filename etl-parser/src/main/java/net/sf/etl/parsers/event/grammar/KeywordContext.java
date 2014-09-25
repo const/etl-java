@@ -26,11 +26,11 @@
 package net.sf.etl.parsers.event.grammar;
 
 /**
- * Keyword context implementation
+ * Keyword context implementation.
  */
 public interface KeywordContext {
     /**
-     * The keyword context
+     * The keyword context.
      *
      * @param text the text to classify as keyword
      * @return the keyword identifier or null (if the text is not keyword)

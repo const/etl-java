@@ -41,33 +41,33 @@ import java.util.Set;
  */
 public abstract class Node {
     /**
-     * The definition view that has caused creation of this node
+     * The source for the node.
+     */
+    private SourceLocation source;
+    /**
+     * The definition view that has caused creation of this node.
      */
     private DefinitionView definition;
     /**
-     * The builder that owns this node
+     * The builder that owns this node.
      */
     private ActionBuilder builder;
     /**
-     * If true, node matches an empty node
+     * If true, node matches an empty node.
      */
     private Boolean matchesEmpty;
     /**
-     * The look ahead information
+     * The look ahead information.
      */
     private LookAheadSet cachedLookAhead;
-    /**
-     * The source for the node
-     */
-    public SourceLocation source;
 
     /**
-     * Collect keywords in the nodes
+     * Collect keywords in the nodes.
      *
      * @param keywords the keywords
      * @param visited  the visited builders
      */
-    public abstract void collectKeywords(Set<Keyword> keywords, Set<ActionBuilder> visited);
+    public abstract void collectKeywords(final Set<Keyword> keywords, final Set<ActionBuilder> visited);
 
     /**
      * Check if this node matches an empty sequence of tokens. Note that this
@@ -97,15 +97,16 @@ public abstract class Node {
      * @param recoveryTest the current recovery test action
      * @return the first state of state machine described by this node
      */
-    public abstract Action buildActions(ActionBuilder b, Action normalExit, Action errorExit, Action recoveryTest);
+    public abstract Action buildActions(final ActionBuilder b, final Action normalExit, final Action errorExit,
+                                        final Action recoveryTest);
 
     /**
-     * Build lookahead if does not exists
+     * Build lookahead if does not exists.
      *
      * @param visitedBuilders visited builders set, it is used to avoid infinite recursion
      * @return created or cached lookahead
      */
-    public final LookAheadSet buildLookAhead(Set<ActionBuilder> visitedBuilders) {
+    public final LookAheadSet buildLookAhead(final Set<ActionBuilder> visitedBuilders) {
         if (cachedLookAhead == null) {
             cachedLookAhead = createLookAhead(visitedBuilders);
         }
@@ -115,50 +116,69 @@ public abstract class Node {
     /**
      * @return build look ahead starting from the current node
      */
-    public LookAheadSet buildLookAhead() {
+    public final LookAheadSet buildLookAhead() {
         return buildLookAhead(new HashSet<ActionBuilder>());
     }
 
     /**
-     * Create lookahead object
+     * Create lookahead object.
      *
      * @param visitedBuilders visited builders
      * @return the look ahead object
      */
-    protected abstract LookAheadSet createLookAhead(Set<ActionBuilder> visitedBuilders);
+    protected abstract LookAheadSet createLookAhead(final Set<ActionBuilder> visitedBuilders);
 
     /**
      * @return the definition.
      */
-    public DefinitionView getDefinition() {
+    public final DefinitionView getDefinition() {
         return definition;
     }
 
     /**
      * @param definition The definition to set.
      */
-    public void setDefinition(DefinitionView definition) {
+    public final void setDefinition(final DefinitionView definition) {
         this.definition = definition;
     }
 
     /**
      * @return the builder that have created this node.
      */
-    public ActionBuilder getBuilder() {
+    public final ActionBuilder getBuilder() {
         return builder;
     }
 
     /**
      * @param builder the builder that have created this node.
      */
-    public void setBuilder(ActionBuilder builder) {
+    public final void setBuilder(final ActionBuilder builder) {
         this.builder = builder;
     }
+
+    // CHECKSTYLE:OFF
 
     /**
      * @return flattened node with the sub nodes of the same kind merged
      */
     public Node flatten() {
         return this;
+    }
+    // CHECKSTYLE:ON
+
+    /**
+     * @return the source location
+     */
+    public final SourceLocation getSource() {
+        return source;
+    }
+
+    /**
+     * Set source location.
+     *
+     * @param source the location
+     */
+    public final void setSource(final SourceLocation source) {
+        this.source = source;
     }
 }

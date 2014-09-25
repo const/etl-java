@@ -32,14 +32,45 @@ import net.sf.etl.parsers.Token;
  *
  * @author const
  */
-public class Wrapper extends Element {
+public final class Wrapper extends Element {
     /**
-     * property
+     * the property.
      */
-    public Token property;
+    private Token property;
     /**
-     * object
+     * the object name.
      */
-    public ObjectName object;
+    private ObjectName object;
 
+    /**
+     * @return the property.
+     */
+    public Token getProperty() {
+        return property;
+    }
+
+    /**
+     * The property.
+     *
+     * @param property the property.
+     */
+    public void setProperty(final Token property) {
+        this.property = property;
+    }
+
+    /**
+     * @return the object.
+     */
+    public ObjectName getObject() {
+        return object;
+    }
+
+    /**
+     * Set the object name.
+     *
+     * @param object the object name.
+     */
+    public void setObject(final ObjectName object) {
+        this.object = object;
+    }
 }

@@ -30,10 +30,25 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
  *
  * @author const
  */
-public class OperandOp extends Syntax {
+public final class OperandOp extends Syntax {
     /**
-     * position
+     * the position.
      */
-    public java.lang.String position;
+    private String position;
 
+    /**
+     * @return the position.
+     */
+    public String getPosition() {
+        return position;
+    }
+
+    /**
+     * Set the position.
+     *
+     * @param position the position.
+     */
+    public void setPosition(final String position) {
+        this.position = position;
+    }
 }

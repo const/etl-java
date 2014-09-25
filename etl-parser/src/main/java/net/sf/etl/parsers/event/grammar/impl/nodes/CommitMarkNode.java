@@ -37,9 +37,9 @@ import java.util.Set;
  *
  * @author const
  */
-public class CommitMarkNode extends Node {
+public final class CommitMarkNode extends Node {
     @Override
-    public void collectKeywords(Set<Keyword> keywords, Set<ActionBuilder> visited) {
+    public void collectKeywords(final Set<Keyword> keywords, final Set<ActionBuilder> visited) {
         // do nothing
     }
 
@@ -49,12 +49,13 @@ public class CommitMarkNode extends Node {
     }
 
     @Override
-    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit, Action recoveryTest) {
-        return new CommitMarkAction(source, normalExit);
+    public Action buildActions(final ActionBuilder b, final Action normalExit, final Action errorExit,
+                               final Action recoveryTest) {
+        return new CommitMarkAction(getSource(), normalExit);
     }
 
     @Override
-    protected LookAheadSet createLookAhead(Set<ActionBuilder> visitedBuilders) {
-        return LookAheadSet.getWithEmpty(source);
+    protected LookAheadSet createLookAhead(final Set<ActionBuilder> visitedBuilders) {
+        return LookAheadSet.getWithEmpty(getSource());
     }
 }

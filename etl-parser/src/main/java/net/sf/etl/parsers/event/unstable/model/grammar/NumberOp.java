@@ -27,6 +27,7 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
 import net.sf.etl.parsers.Token;
 
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * The NumberOp node class. This class is a part of the lightweight grammar
@@ -36,8 +37,14 @@ import java.util.LinkedList;
  */
 public abstract class NumberOp extends TokenRefOp {
     /**
-     * suffixes
+     * the suffixes.
      */
-    public final LinkedList<Token> suffix = new LinkedList<Token>();
+    private final List<Token> suffix = new LinkedList<Token>();
 
+    /**
+     * @return the suffixes.
+     */
+    public final List<Token> getSuffix() {
+        return suffix;
+    }
 }

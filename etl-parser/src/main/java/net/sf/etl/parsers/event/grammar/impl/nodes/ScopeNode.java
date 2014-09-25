@@ -37,35 +37,39 @@ import java.util.Set;
  */
 public abstract class ScopeNode extends Node {
     /**
-     * The node that belongs to the scope
+     * The node that belongs to the scope.
      */
     private Node innerNode = new SequenceNode();
 
     /**
      * @return Returns the node.
      */
-    public Node innerNode() {
+    public final Node innerNode() {
         return innerNode;
     }
 
+    // CHECKSTYLE:OFF
     @Override
     protected boolean calcMatchesEmpty() {
         return innerNode.matchesEmpty();
     }
+    // CHECKSTYLE:ON
 
+    // CHECKSTYLE:OFF
     @Override
-    protected LookAheadSet createLookAhead(Set<ActionBuilder> visitedBuilders) {
+    protected LookAheadSet createLookAhead(final Set<ActionBuilder> visitedBuilders) {
         return innerNode.buildLookAhead(visitedBuilders);
     }
+    // CHECKSTYLE:ON
 
 
     @Override
-    public void collectKeywords(Set<Keyword> keywords, Set<ActionBuilder> visited) {
+    public final void collectKeywords(final Set<Keyword> keywords, final Set<ActionBuilder> visited) {
         innerNode.collectKeywords(keywords, visited);
     }
 
     @Override
-    public Node flatten() {
+    public final Node flatten() {
         innerNode = innerNode.flatten();
         return this;
     }

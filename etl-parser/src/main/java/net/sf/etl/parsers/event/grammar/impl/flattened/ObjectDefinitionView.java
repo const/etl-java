@@ -26,9 +26,17 @@ package net.sf.etl.parsers.event.grammar.impl.flattened;
 
 import net.sf.etl.parsers.ObjectName;
 import net.sf.etl.parsers.Token;
-import net.sf.etl.parsers.event.unstable.model.grammar.*;
+import net.sf.etl.parsers.event.unstable.model.grammar.BlankSyntaxStatement;
+import net.sf.etl.parsers.event.unstable.model.grammar.Element;
+import net.sf.etl.parsers.event.unstable.model.grammar.ExpressionStatement;
+import net.sf.etl.parsers.event.unstable.model.grammar.Let;
+import net.sf.etl.parsers.event.unstable.model.grammar.ObjectOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.RefOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.Sequence;
+import net.sf.etl.parsers.event.unstable.model.grammar.Syntax;
+import net.sf.etl.parsers.event.unstable.model.grammar.SyntaxDefinition;
+import net.sf.etl.parsers.event.unstable.model.grammar.SyntaxStatement;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -42,6 +50,21 @@ import java.util.Set;
  */
 public abstract class ObjectDefinitionView extends DefinitionView {
     /**
+     * The syntax field in syntax definition.
+     */
+    private static final String DEFINITION_SYNTAX_FIELD = "syntax";
+
+    /**
+     * The syntax field in sequence.
+     */
+    private static final String SEQUENCE_SYNTAX_FIELD = "syntax";
+
+    /**
+     * The name field in syntax definition.
+     */
+    private static final String NAME_FIELD = "name";
+
+    /**
      * Top object of the definition, key is context and value is object. This
      * structure is used because due to possible def redefinition actual top
      * object might change from context to context.
@@ -51,63 +74,26 @@ public abstract class ObjectDefinitionView extends DefinitionView {
      * a definition that actually holds a top object. See comment to
      * {@link #topObject} for explanation why it is a hash map.
      */
-    private final HashMap<ContextView, DefinitionView> topObjectDefinitions = new HashMap<ContextView, DefinitionView>();
-    /**
-     * The syntax field in syntax definition.
-     */
-    private static final Field DEFINITION_SYNTAX_FIELD;
-
-    static {
-        try {
-            DEFINITION_SYNTAX_FIELD = SyntaxDefinition.class.getField("syntax");
-        } catch (Exception e) {
-            throw new Error("Unexpected failure for getting field syntax", e);
-        }
-    }
+    private final HashMap<ContextView, DefinitionView> topObjectDefinitions =
+            new HashMap<ContextView, DefinitionView>();
 
     /**
-     * The syntax field in sequence.
-     */
-    private static final Field SEQUENCE_SYNTAX_FIELD;
-
-    static {
-        try {
-            SEQUENCE_SYNTAX_FIELD = Sequence.class.getField("syntax");
-        } catch (Exception e) {
-            throw new Error("Unexpected failure for getting field syntax", e);
-        }
-    }
-
-    /**
-     * The name field in syntax definition.
-     */
-    private static final Field NAME_FIELD;
-
-    static {
-        try {
-            NAME_FIELD = SyntaxDefinition.class.getField("syntax");
-        } catch (Exception e) {
-            throw new Error("Unexpected failure for getting field syntax", e);
-        }
-    }
-
-    /**
-     * The constructor
+     * The constructor.
      *
      * @param context    the defining context
      * @param definition the definition
      */
-    public ObjectDefinitionView(ContextView context, SyntaxDefinition definition) {
+    public ObjectDefinitionView(final ContextView context, final SyntaxDefinition definition) {
         super(context, definition);
     }
 
     /**
-     * A constructor used to implement grammar includes
+     * A constructor used to implement grammar includes.
      *
      * @param context    a including context
      * @param definition a definition view
      */
-    public ObjectDefinitionView(ContextView context, DefinitionView definition) {
+    public ObjectDefinitionView(final ContextView context, final DefinitionView definition) {
         super(context, definition);
     }
 
@@ -120,7 +106,7 @@ public abstract class ObjectDefinitionView extends DefinitionView {
      * @param context a context use to resolve definitions
      * @return a top object of the statement.
      */
-    public ObjectOp topObject(ContextView context) {
+    public final ObjectOp topObject(final ContextView context) {
         ObjectOp rc = (ObjectOp) topObjects.get(context);
         if (rc == null) {
             extractTopObject(context);
@@ -130,29 +116,29 @@ public abstract class ObjectDefinitionView extends DefinitionView {
     }
 
     /**
-     * Get name of top object
+     * Get name of top object.
      *
      * @param context the context to get name
      * @return the top object
      */
-    public ObjectName topObjectName(ContextView context) {
+    public final ObjectName topObjectName(final ContextView context) {
         ObjectOp topObject = topObject(context);
         if (topObject == null) {
             return null;
         }
-        net.sf.etl.parsers.event.unstable.model.grammar.ObjectName name = topObject.name;
+        net.sf.etl.parsers.event.unstable.model.grammar.ObjectName name = topObject.getName();
         return topObjectDefinition(context).convertName(name);
 
     }
 
     /**
-     * Get the definition that actually defines top object
+     * Get the definition that actually defines top object.
      *
      * @param context the context use to resolve definitions
      * @return the definition that contains the top object of the statement. It
-     *         might be either statement or def referenced in the statement.
+     * might be either statement or def referenced in the statement.
      */
-    public DefinitionView topObjectDefinition(ContextView context) {
+    public final DefinitionView topObjectDefinition(final ContextView context) {
         DefinitionView rc = topObjectDefinitions.get(context);
         if (rc == null) {
             extractTopObject(context);
@@ -170,7 +156,7 @@ public abstract class ObjectDefinitionView extends DefinitionView {
      *
      * @param context a context use to resolve definitions
      */
-    private void extractTopObject(ContextView context) {
+    private void extractTopObject(final ContextView context) {
         extractTopObject(new HashSet<DefinitionView>(), this, context);
     }
 
@@ -182,25 +168,28 @@ public abstract class ObjectDefinitionView extends DefinitionView {
      * @param view    the view to extract.
      * @param context the context use to resolve definitions
      */
-    private void extractTopObject(Set<DefinitionView> visited, DefinitionView view, ContextView context) {
+    private void extractTopObject(final Set<DefinitionView> visited, final DefinitionView view,
+                                  final ContextView context) {
         if (!enterDefContext(visited, view)) {
             return;
         }
-        for (final SyntaxStatement stmt : view.definition().syntax) {
+        for (final SyntaxStatement stmt : view.definition().getSyntax()) {
             if (stmt instanceof BlankSyntaxStatement) {
                 // Ignore the thing. Blank statements do not contain
                 // anything significant.
-            } else if (stmt instanceof Let) {
+                continue;
+            }
+            if (stmt instanceof Let) {
                 ObjectOp op = makeDefaultObject(context, view, stmt);
                 if (op == null) {
                     error(view, stmt, "grammar.ObjectDefinition.misplacedLet",
-                            definition().name, view.includingContext().name(),
+                            definition().getName(), view.includingContext().name(),
                             view.includingContext().grammar().getSystemId());
                 }
                 break;
             } else if (stmt instanceof ExpressionStatement) {
                 final ExpressionStatement exprStmt = (ExpressionStatement) stmt;
-                final Syntax s = exprStmt.syntax;
+                final Syntax s = exprStmt.getSyntax();
                 if (s instanceof ObjectOp) {
                     if (topObjects.containsKey(context)) {
                         // Additional top object has been found.
@@ -208,7 +197,7 @@ public abstract class ObjectDefinitionView extends DefinitionView {
                         // is allowed for object definitions.
                         error(view, stmt,
                                 "grammar.ObjectDefinition.duplicateTopObject",
-                                definition().name, view.includingContext().name(),
+                                definition().getName(), view.includingContext().name(),
                                 view.includingContext().grammar().getSystemId());
                     } else {
                         topObjects.put(context, s); // object expression
@@ -216,13 +205,13 @@ public abstract class ObjectDefinitionView extends DefinitionView {
                     }
                 } else if (s instanceof RefOp) {
                     final RefOp r = (RefOp) s;
-                    final DefView d = context.def(r.name.text());
+                    final DefView d = context.def(r.getName().text());
                     if (d == null) {
-                        if (context.choice(r.name.text()) != null) {
+                        if (context.choice(r.getName().text()) != null) {
                             makeDefaultObject(context, view, s);
                             break;
                         } else {
-                            error(view, r, "grammar.Ref.danglingRef", r.name.text());
+                            error(view, r, "grammar.Ref.danglingRef", r.getName().text());
                         }
                     } else {
                         extractTopObject(visited, d, context);
@@ -240,24 +229,24 @@ public abstract class ObjectDefinitionView extends DefinitionView {
     }
 
     /**
-     * Leave definition context
+     * Leave definition context.
      *
      * @param visited the set of visited definitions
      * @param view    the definition view that was visited
      */
-    protected void leaveDefContext(Set<DefinitionView> visited, DefinitionView view) {
+    protected final void leaveDefContext(final Set<DefinitionView> visited, final DefinitionView view) {
         visited.remove(view);
     }
 
     /**
-     * Enter definition context
+     * Enter definition context.
      *
      * @param visited the set of visited definitions
      * @param view    the definition view that is about to be visited
      * @return true if visiting unvisited definition.
      */
-    protected boolean enterDefContext(Set<DefinitionView> visited,
-                                      DefinitionView view) {
+    protected final boolean enterDefContext(final Set<DefinitionView> visited,
+                                            final DefinitionView view) {
         if (visited.contains(view)) {
             error(view, view.definition(), "grammar.Def.cyclicDefinition",
                     view.includingContext().name(),
@@ -276,35 +265,36 @@ public abstract class ObjectDefinitionView extends DefinitionView {
      * @param view    the definition that contains element
      * @param element the element that forces object creation
      * @return the object create expression or null if the grammar does not have
-     *         a default namespace
+     * a default namespace
      */
-    private ObjectOp makeDefaultObject(ContextView context, DefinitionView view, Element element) {
+    private ObjectOp makeDefaultObject(final ContextView context, final DefinitionView view, final Element element) {
         GrammarView grammar = definingContext().grammar();
         Token defaultNamespacePrefix = grammar.defaultNamespacePrefix();
         SyntaxDefinition definition = definition();
         if (defaultNamespacePrefix == null) {
             error(view, element, "grammar.ObjectDefinition.noDefaultGrammar",
-                    definition.name, view.definingContext().name(),
+                    definition.getName(), view.definingContext().name(),
                     view.definingContext().grammar().getSystemId());
             return null;
         }
         ObjectOp o = new ObjectOp();
-        o.ownerObject = definition;
-        o.ownerFeature = DEFINITION_SYNTAX_FIELD;
-        o.location = definition.location;
-        net.sf.etl.parsers.event.unstable.model.grammar.ObjectName name = new net.sf.etl.parsers.event.unstable.model.grammar.ObjectName();
-        name.ownerObject = o;
-        name.ownerFeature = NAME_FIELD;
-        name.location = o.location;
-        name.prefix = defaultNamespacePrefix;
-        name.name = definition.name;
-        o.name = name;
+        o.setOwnerObject(definition);
+        o.setOwnerFeature(DEFINITION_SYNTAX_FIELD);
+        o.setLocation(definition.getLocation());
+        net.sf.etl.parsers.event.unstable.model.grammar.ObjectName name =
+                new net.sf.etl.parsers.event.unstable.model.grammar.ObjectName();
+        name.setOwnerObject(o);
+        name.setOwnerFeature(NAME_FIELD);
+        name.setLocation(o.getLocation());
+        name.setPrefix(defaultNamespacePrefix);
+        name.setName(definition.getName());
+        o.setName(name);
         Sequence s = new Sequence();
-        s.syntax.addAll(definition.syntax);
-        s.location = o.location;
-        s.ownerObject = o;
-        s.ownerFeature = SEQUENCE_SYNTAX_FIELD;
-        o.syntax = s;
+        s.getSyntax().addAll(definition.getSyntax());
+        s.setLocation(o.getLocation());
+        s.setOwnerObject(o);
+        s.setOwnerFeature(SEQUENCE_SYNTAX_FIELD);
+        o.setSyntax(s);
         topObjects.put(context, o); // object expression
         topObjectDefinitions.put(context, view); // actual
         // definition

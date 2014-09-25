@@ -39,47 +39,47 @@ import java.util.IdentityHashMap;
 /**
  * The generic choice action that does an universal choice over current phrase token.
  */
-public class ChoiceAction extends Action {
+public final class ChoiceAction extends Action {
     // TODO play with different Map implementations to see which is actually faster
     /**
      * This is used to select an option based on phrase token kind except for the case of
-     * {@link PhraseTokens#SIGNIFICANT}
+     * {@link PhraseTokens#SIGNIFICANT}.
      */
-    public final EnumMap<PhraseTokens, Action> phrase = new EnumMap<PhraseTokens, Action>(PhraseTokens.class);
-    /**
-     * If token phrase is not matched, of phrase token is not matched, this alternative is chosen
-     */
-    public Action unmatchedPhrase;
+    private final EnumMap<PhraseTokens, Action> phrase = new EnumMap<PhraseTokens, Action>(PhraseTokens.class);
     /**
      * The choice over keywords, these are tried next in the case of {@link PhraseTokens#SIGNIFICANT}.
      */
-    public final IdentityHashMap<Keyword, Action> keywords = new IdentityHashMap<Keyword, Action>();
+    private final IdentityHashMap<Keyword, Action> keywords = new IdentityHashMap<Keyword, Action>();
     /**
-     * For non-keyword tokens, a token key based match is tried
+     * For non-keyword tokens, a token key based match is tried.
      */
-    public final HashMap<TokenKey, Action> tokens = new HashMap<TokenKey, Action>();
+    private final HashMap<TokenKey, Action> tokens = new HashMap<TokenKey, Action>();
+    /**
+     * If token phrase is not matched, of phrase token is not matched, this alternative is chosen.
+     */
+    private Action unmatchedPhrase;
     /**
      * This alternative is chosen if the token does not match.
      */
-    public Action unmatchedToken;
+    private Action unmatchedToken;
 
     /**
-     * The action
+     * The action.
      *
      * @param source the source location in the grammar that caused this node creation
      */
-    public ChoiceAction(SourceLocation source) {
+    public ChoiceAction(final SourceLocation source) {
         super(source);
     }
 
     /**
-     * Parse more elements
+     * Parse more elements.
      *
      * @param context the context of the parser
      * @param state   the context state
      */
     @Override
-    public void parseMore(TermParserContext context, ActionState state) {
+    public void parseMore(final TermParserContext context, final ActionState state) {
         final PhraseToken current = context.current();
         if (current.kind() == PhraseTokens.SIGNIFICANT) {
             Keyword keyword = context.classify();
@@ -89,5 +89,44 @@ public class ChoiceAction extends Action {
             final Action action = phrase.get(current.kind());
             state.nextAction(action != null ? action : unmatchedPhrase);
         }
+    }
+
+    /**
+     * @return the map for phrase tokens.
+     */
+    public EnumMap<PhraseTokens, Action> getPhrase() {
+        return phrase;
+    }
+
+    /**
+     * @return the map for keywords.
+     */
+    public IdentityHashMap<Keyword, Action> getKeywords() {
+        return keywords;
+    }
+
+    /**
+     * @return the map for token keys.
+     */
+    public HashMap<TokenKey, Action> getTokens() {
+        return tokens;
+    }
+
+    /**
+     * Set action on unmatched phrase token.
+     *
+     * @param unmatchedPhrase the action.
+     */
+    public void setUnmatchedPhrase(final Action unmatchedPhrase) {
+        this.unmatchedPhrase = unmatchedPhrase;
+    }
+
+    /**
+     * Set action on unmatched token.
+     *
+     * @param unmatchedToken the action
+     */
+    public void setUnmatchedToken(final Action unmatchedToken) {
+        this.unmatchedToken = unmatchedToken;
     }
 }

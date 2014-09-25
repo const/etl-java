@@ -30,5 +30,5 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
  *
  * @author const
  */
-public class BlankTopLevel extends AbstractStatement {
+public final class BlankTopLevel extends AbstractStatement {
 }

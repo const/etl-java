@@ -34,32 +34,32 @@ import net.sf.etl.parsers.SourceLocation;
  */
 public final class WrapperLink {
     /**
-     * The source location for the wrapper link
+     * The source location for the wrapper link.
      */
     private final SourceLocation objectLocation;
     /**
-     * The property location for the wrapper link
+     * The property location for the wrapper link.
      */
     private final SourceLocation propertyLocation;
     /**
-     * The object name
+     * The object name.
      */
     private final String name;
     /**
-     * The namespace for object name
+     * The namespace for object name.
      */
     private final String namespace;
     /**
-     * The property used for wrapping
+     * The property used for wrapping.
      */
     private final String property;
     /**
-     * More inner wrapper in the chain
+     * More inner wrapper in the chain.
      */
     private final WrapperLink innerWrapper;
 
     /**
-     * The constructor from fields
+     * The constructor from fields.
      *
      * @param innerWrapper     the inner wrapper in the chain
      * @param namespace        the object namespace
@@ -68,7 +68,8 @@ public final class WrapperLink {
      * @param objectLocation   the object location
      * @param propertyLocation the property location
      */
-    public WrapperLink(WrapperLink innerWrapper, String namespace, String name, String property, SourceLocation objectLocation, SourceLocation propertyLocation) {
+    public WrapperLink(final WrapperLink innerWrapper, final String namespace, final String name, final String property,
+                       final SourceLocation objectLocation, final SourceLocation propertyLocation) {
         this.innerWrapper = innerWrapper;
         this.objectLocation = objectLocation;
         this.propertyLocation = propertyLocation;
@@ -78,13 +79,31 @@ public final class WrapperLink {
     }
 
     /**
-     * Check if argument is null
+     * Concatenate two wrapper lists.
+     *
+     * @param first  the first list
+     * @param second the second list
+     * @return concatenated list
+     */
+    public static WrapperLink concatenate(final WrapperLink first, final WrapperLink second) {
+        if (second == null) {
+            return first;
+        } else if (first == null) {
+            return second;
+        } else {
+            return new WrapperLink(concatenate(first.innerWrapper, second),
+                    first.namespace, first.name, first.property, first.objectLocation, first.propertyLocation);
+        }
+    }
+
+    /**
+     * Check if argument is null.
      *
      * @param argValue the value to check
      * @param argName  the message for exception
      * @return the value if it is not null
      */
-    private String checkNull(String argValue, String argName) {
+    private String checkNull(final String argValue, final String argName) {
         if (argValue == null) {
             throw new NullPointerException("The argument " + argName + " cannot be null.");
         }
@@ -134,7 +153,8 @@ public final class WrapperLink {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
+        //CHECKSTYLE:OFF
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -147,15 +167,18 @@ public final class WrapperLink {
         if (property != null ? !property.equals(that.property) : that.property != null) return false;
 
         return true;
+        //CHECKSTYLE:ON
     }
 
     @Override
     public int hashCode() {
+        //CHECKSTYLE:OFF
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (namespace != null ? namespace.hashCode() : 0);
         result = 31 * result + (property != null ? property.hashCode() : 0);
         result = 31 * result + (innerWrapper != null ? innerWrapper.hashCode() : 0);
         return result;
+        //CHECKSTYLE:ON
     }
 
     @Override
@@ -166,11 +189,11 @@ public final class WrapperLink {
     }
 
     /**
-     * Append string representation to string buffer
+     * Append string representation to string buffer.
      *
      * @param rc the string buffer to use
      */
-    private void toString(StringBuilder rc) {
+    private void toString(final StringBuilder rc) {
         rc.append("{");
         rc.append(namespace);
         rc.append("}");
@@ -180,24 +203,6 @@ public final class WrapperLink {
         if (innerWrapper != null) {
             rc.append("/");
             innerWrapper.toString(rc);
-        }
-    }
-
-    /**
-     * Concatenate two wrapper lists.
-     *
-     * @param first  the first list
-     * @param second the second list
-     * @return concatenated list
-     */
-    public static WrapperLink concatenate(WrapperLink first, WrapperLink second) {
-        if (second == null) {
-            return first;
-        } else if (first == null) {
-            return second;
-        } else {
-            return new WrapperLink(concatenate(first.innerWrapper, second),
-                    first.namespace, first.name, first.property, first.objectLocation, first.propertyLocation);
         }
     }
 }

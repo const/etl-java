@@ -25,68 +25,64 @@
 
 package net.sf.etl.parsers.streams;
 
+import net.sf.etl.parsers.LoadedGrammarInfo;
 import net.sf.etl.parsers.ParserException;
 import net.sf.etl.parsers.TermToken;
+import net.sf.etl.parsers.Terms;
 import net.sf.etl.parsers.event.Cell;
 import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.tree.ObjectFactory;
 import net.sf.etl.parsers.event.tree.ObjectFactoryTreeParser;
+import net.sf.etl.parsers.event.tree.TokenCollector;
 import net.sf.etl.parsers.event.tree.TreeParser;
 
 /**
- * The tree reader
+ * The tree reader.
+ *
+ * @param <Element> the base class for parsed objects.
  */
 public class TreeParserReader<Element> extends AbstractReaderImpl<Element> {
     /**
-     * The reader
+     * The reader.
      */
     private final TermParserReader termParserReader;
     /**
-     * The tree parser
+     * The tree parser.
      */
     private final TreeParser<Element> treeParser;
     /**
-     * The object factory
+     * The underlying lexer.
      */
-    private final ObjectFactory<Element, ?, ?, ?> objectFactory;
+    private final Cell<TermToken> tokenCell = new Cell<TermToken>();
     /**
-     * The underlying lexer
+     * The loaded grammar.
      */
-    final Cell<TermToken> tokenCell = new Cell<TermToken>();
+    private LoadedGrammarInfo loadedGrammar;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param termParserReader the term parser reader
      * @param objectFactory    the object factory
      */
-    public TreeParserReader(TermParserReader termParserReader, ObjectFactory<Element, ?, ?, ?> objectFactory) {
+    public TreeParserReader(final TermParserReader termParserReader,
+                            final ObjectFactory<Element, ?, ?, ?> objectFactory) {
         this.termParserReader = termParserReader;
-        this.objectFactory = objectFactory;
-        this.treeParser = ObjectFactoryTreeParser.make(objectFactory);
-        objectFactory.setSystemId(termParserReader.getSystemId());
+        this.treeParser = ObjectFactoryTreeParser.make(objectFactory, termParserReader.getSystemId());
     }
 
-    /**
-     * @return the object factory
-     */
-    public ObjectFactory<Element, ?, ?, ?> getObjectFactory() {
-        return objectFactory;
-    }
-
-    /**
-     * Do advancing using underlying resources
-     *
-     * @return if moved to next token
-     */
     @Override
-    protected boolean doAdvance() {
+    protected final boolean doAdvance() {
         while (true) {
             ParserState state = treeParser.parse(tokenCell);
             switch (state) {
                 case INPUT_NEEDED:
                     if (termParserReader.advance()) {
-                        tokenCell.put(termParserReader.current());
+                        final TermToken current = termParserReader.current();
+                        if (current.kind() == Terms.GRAMMAR_IS_LOADED) {
+                            loadedGrammar = current.loadedGrammar();
+                        }
+                        tokenCell.put(current);
                     } else {
                         throw new ParserException("Advancing should be possible before EOF: " + termParserReader);
                     }
@@ -94,7 +90,7 @@ public class TreeParserReader<Element> extends AbstractReaderImpl<Element> {
                 case EOF:
                     return false;
                 case OUTPUT_AVAILABLE:
-                    current = treeParser.read();
+                    setCurrent(treeParser.read());
                     return true;
                 default:
                     throw new ParserException("Invalid state from the phrase parser: " + state);
@@ -102,14 +98,63 @@ public class TreeParserReader<Element> extends AbstractReaderImpl<Element> {
         }
     }
 
+    /**
+     * @return the loaded grammar, if grammar loading already happened.
+     */
+    public final LoadedGrammarInfo getLoadedGrammar() {
+        return loadedGrammar;
+    }
 
     @Override
-    protected void doClose() throws Exception {
+    protected final void doClose() throws Exception {
         termParserReader.close();
     }
 
     @Override
-    public String getSystemId() {
+    public final String getSystemId() {
         return termParserReader.getSystemId();
+    }
+
+    /**
+     * Set handler for error tokens.
+     *
+     * @param errorTokenHandler the handler
+     */
+    public final void setErrorTokenHandler(final TokenCollector errorTokenHandler) {
+        treeParser.setErrorTokenHandler(errorTokenHandler);
+    }
+
+    /**
+     * Set handlers for unexpected tokens.
+     *
+     * @param unexpectedTokenHandler the handler
+     */
+    public final void setUnexpectedTokenHandler(final TokenCollector unexpectedTokenHandler) {
+        treeParser.setUnexpectedTokenHandler(unexpectedTokenHandler);
+    }
+
+    /**
+     * Add token listener.
+     *
+     * @param listener the listener
+     */
+    public final void addTokenListener(final TokenCollector listener) {
+        treeParser.addTokenListener(listener);
+    }
+
+    /**
+     * Remove token listener.
+     *
+     * @param listener the listener
+     */
+    public final void removeTokenListener(final TokenCollector listener) {
+        treeParser.removeTokenListener(listener);
+    }
+
+    /**
+     * @return true if there were errors
+     */
+    public final boolean hadErrors() {
+        return treeParser.hadErrors();
     }
 }

@@ -37,48 +37,49 @@ import net.sf.etl.parsers.event.unstable.model.grammar.Element;
 import java.util.HashSet;
 
 /**
- * The builder for single operator level
+ * The builder for single operator level.
  *
  * @author const
  */
-public class OperatorLevelBuilder {
+public final class OperatorLevelBuilder {
     /**
-     * The level to compile
+     * The level to compile.
      */
     private final OpLevel level;
     /**
-     * The parent context builder
+     * The parent context builder.
      */
     private final ContextBuilder contextBuilder;
     /**
-     * The state machine builder associated
+     * The state machine builder associated.
      */
     private ActionBuilder b;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param l       the level to build
      * @param builder the parent builder
      */
-    public OperatorLevelBuilder(ContextBuilder builder, OpLevel l) {
+    public OperatorLevelBuilder(final ContextBuilder builder, final OpLevel l) {
         super();
         this.level = l;
         this.contextBuilder = builder;
     }
 
     /**
-     * Prepare builder
+     * Prepare builder.
      */
     public void prepare() {
+        // TODO  why not constructor?
         b = new ActionBuilder(contextBuilder);
     }
 
     /**
-     * Compile operator level locally
+     * Compile operator level locally.
      */
     public void buildNodes() {
-        if (level.precedence == 0) {
+        if (level.getPrecedence() == 0) {
             compilePrimary();
         } else {
             compileNormalLevel();
@@ -86,7 +87,7 @@ public class OperatorLevelBuilder {
     }
 
     /**
-     * Compile normal level
+     * Compile normal level.
      */
     private void compileNormalLevel() {
         final ActionBuilder previousLevel = getPreviousBuilder();
@@ -94,7 +95,7 @@ public class OperatorLevelBuilder {
         final Element contextElement = contextBuilder.contextView().reportingContext();
         b.startChoice(contextElement);
         // Compile F operations
-        for (final OpDefinitionView d : level.f) {
+        for (final OpDefinitionView d : level.getF()) {
             b.startDefinition(d);
             startOpObject(d);
             compileOpText(visited, d);
@@ -102,7 +103,7 @@ public class OperatorLevelBuilder {
             b.endDefinition();
         }
         // Compile FX operations
-        for (final OpDefinitionView d : level.fx) {
+        for (final OpDefinitionView d : level.getFX()) {
             b.startDefinition(d);
             startOpObject(d);
             compileOpText(visited, d);
@@ -111,7 +112,7 @@ public class OperatorLevelBuilder {
             b.endDefinition();
         }
         // Compile FY
-        for (final OpDefinitionView d : level.fy) {
+        for (final OpDefinitionView d : level.getFY()) {
             b.startDefinition(d);
             startOpObject(d);
             compileOpText(visited, d);
@@ -121,90 +122,88 @@ public class OperatorLevelBuilder {
         }
         // Compile XF? and YF? operators
         b.startSequence(contextElement);
-        {
-            b.call(contextElement, previousLevel);
-            if (level.xf.size() + level.xfx.size() + level.xfy.size() > 0) {
-                b.startChoice(contextElement);
-                // no op case
-                b.startSequence(contextElement);
+        b.call(contextElement, previousLevel);
+        if (level.getXF().size() + level.getXFX().size() + level.getXFY().size() > 0) {
+            b.startChoice(contextElement);
+            // no op case
+            b.startSequence(contextElement);
+            b.endSequence();
+            // Compile XF
+            for (final OpDefinitionView d : level.getXF()) {
+                b.startDefinition(d);
+                b.startSequence(d.operator());
+                compileLeftArg(d);
+                startOpObjectAtMark(d);
+                compileOpText(visited, d);
+                b.endObject();
                 b.endSequence();
-                // Compile XF
-                for (final OpDefinitionView d : level.xf) {
-                    b.startDefinition(d);
-                    b.startSequence(d.definition());
-                    compileLeftArg(d);
-                    startOpObjectAtMark(d);
-                    compileOpText(visited, d);
-                    b.endObject();
-                    b.endSequence();
-                    b.endDefinition();
-                }
-                // Compile XFX
-                for (final OpDefinitionView d : level.xfx) {
-                    b.startDefinition(d);
-                    b.startSequence(d.definition());
-                    compileLeftArg(d);
-                    startOpObjectAtMark(d);
-                    compileOpText(visited, d);
-                    compileRightArg(d, previousLevel);
-                    b.endObject();
-                    b.endSequence();
-                    b.endDefinition();
-                }
-                // Compile XFY
-                for (final OpDefinitionView d : level.xfy) {
-                    b.startDefinition(d);
-                    b.startSequence(d.definition());
-                    compileLeftArg(d);
-                    startOpObjectAtMark(d);
-                    compileOpText(visited, d);
-                    compileRightArg(d, b);
-                    b.endObject();
-                    b.endSequence();
-                    b.endDefinition();
-                }
-                b.endChoice();
+                b.endDefinition();
             }
-            // Compile YF, YFY, and YFX. These are tricky ones as they are right
-            // recursive. Recursion is converted to Iteration here.
-            if (level.yf.size() + level.yfx.size() > 0) {
-                b.startRepeat(contextElement);
-                b.startChoice(contextElement);
-                compileYfAndYfx(previousLevel, visited);
-                b.endChoice();
-                b.endRepeat(); // YF and YFX
+            // Compile XFX
+            for (final OpDefinitionView d : level.getXFX()) {
+                b.startDefinition(d);
+                b.startSequence(d.operator());
+                compileLeftArg(d);
+                startOpObjectAtMark(d);
+                compileOpText(visited, d);
+                compileRightArg(d, previousLevel);
+                b.endObject();
+                b.endSequence();
+                b.endDefinition();
             }
-            // yfy are at they end
-            if (level.yfy.size() > 0) {
-                b.startChoice(contextElement);
-                for (final OpDefinitionView d : level.yfy) {
-                    b.startDefinition(d);
-                    b.startSequence(d.definition());
-                    compileLeftArg(d);
-                    startOpObjectAtMark(d);
-                    compileOpText(visited, d);
-                    compileRightArg(d, b);
-                    b.endObject();
-                    b.endSequence();
-                    b.endDefinition();
-                }
-                b.endChoice();
+            // Compile XFY
+            for (final OpDefinitionView d : level.getXFY()) {
+                b.startDefinition(d);
+                b.startSequence(d.operator());
+                compileLeftArg(d);
+                startOpObjectAtMark(d);
+                compileOpText(visited, d);
+                compileRightArg(d, b);
+                b.endObject();
+                b.endSequence();
+                b.endDefinition();
             }
+            b.endChoice();
+        }
+        // Compile YF, YFY, and YFX. These are tricky ones as they are right
+        // recursive. Recursion is converted to Iteration here.
+        if (level.getYF().size() + level.getYFX().size() > 0) {
+            b.startRepeat(contextElement);
+            b.startChoice(contextElement);
+            compileYfAndYfx(previousLevel, visited);
+            b.endChoice();
+            b.endRepeat(); // YF and YFX
+        }
+        // yfy are at they end
+        if (level.getYFY().size() > 0) {
+            b.startChoice(contextElement);
+            for (final OpDefinitionView d : level.getYFY()) {
+                b.startDefinition(d);
+                b.startSequence(d.operator());
+                compileLeftArg(d);
+                startOpObjectAtMark(d);
+                compileOpText(visited, d);
+                compileRightArg(d, b);
+                b.endObject();
+                b.endSequence();
+                b.endDefinition();
+            }
+            b.endChoice();
         }
         b.endSequence(); // ?F?
         b.endChoice(); // all ops
     }
 
     /**
-     * Compile Yf and Yfx operators int heo the context
+     * Compile Yf and Yfx operators int heo the context.
      *
      * @param previousLevel the previous level
      * @param visited       the visited builders
      */
-    private void compileYfAndYfx(ActionBuilder previousLevel, HashSet<DefinitionView> visited) {
-        for (final OpDefinitionView d : level.yfx) {
+    private void compileYfAndYfx(final ActionBuilder previousLevel, final HashSet<DefinitionView> visited) {
+        for (final OpDefinitionView d : level.getYFX()) {
             b.startDefinition(d);
-            b.startSequence(d.definition());
+            b.startSequence(d.operator());
             compileLeftArg(d);
             startOpObjectAtMark(d);
             compileOpText(visited, d);
@@ -213,9 +212,9 @@ public class OperatorLevelBuilder {
             b.endSequence();
             b.endDefinition();
         }
-        for (final OpDefinitionView d : level.yf) {
+        for (final OpDefinitionView d : level.getYF()) {
             b.startDefinition(d);
-            b.startSequence(d.definition());
+            b.startSequence(d.operator());
             compileLeftArg(d);
             startOpObjectAtMark(d);
             compileOpText(visited, d);
@@ -228,103 +227,103 @@ public class OperatorLevelBuilder {
     /**
      * @param d an operator definition
      */
-    private void compileLeftArg(OpDefinitionView d) {
+    private void compileLeftArg(final OpDefinitionView d) {
         PropertyInfo leftArgProperty = d.getLeftArgProperty(contextBuilder.contextView());
         if (leftArgProperty == null) {
-            contextBuilder.error(d, d.definition(), "grammar.ObjectDefinition.missingRightProperty");
-            leftArgProperty = new PropertyInfo(d.definition(), "fake", false);
+            contextBuilder.error(d, d.operator(), "grammar.ObjectDefinition.missingRightProperty");
+            leftArgProperty = new PropertyInfo(d.operator(), "fake", false);
         }
         b.startPropertyAtMark(leftArgProperty.element(), getPropertyName(leftArgProperty), leftArgProperty.isList());
         b.endProperty();
     }
 
     /**
-     * Compile marked expression call for the specified level
+     * Compile marked expression call for the specified level.
      *
-     * @param d     a context definition
-     * @param level an operator level to be used for right argument
+     * @param d        a context definition
+     * @param argLevel an operator level to be used for right argument
      */
-    private void compileRightArg(OpDefinitionView d, ActionBuilder level) {
+    private void compileRightArg(final OpDefinitionView d, final ActionBuilder argLevel) {
         PropertyInfo rightArgProperty = d.getRightArgProperty(contextBuilder.contextView());
         if (rightArgProperty == null) {
-            contextBuilder.error(d, d.definition(), "grammar.ObjectDefinition.missingRightProperty");
-            rightArgProperty = new PropertyInfo(d.definition(), "fake", false);
+            contextBuilder.error(d, d.operator(), "grammar.ObjectDefinition.missingRightProperty");
+            rightArgProperty = new PropertyInfo(d.operator(), "fake", false);
         }
         b.startProperty(rightArgProperty.element(), getPropertyName(rightArgProperty), rightArgProperty.isList());
         b.startMarked(rightArgProperty.element());
-        b.call(rightArgProperty.element(), level);
+        b.call(rightArgProperty.element(), argLevel);
         b.endMarked();
         b.endProperty();
     }
 
     /**
-     * Get name of property from property info
+     * Get name of property from property info.
      *
      * @param propertyInfo a property info
      * @return a property name
      */
-    private PropertyName getPropertyName(PropertyInfo propertyInfo) {
+    private PropertyName getPropertyName(final PropertyInfo propertyInfo) {
         // NOTE POST 0.2: optimize it later to use some cache, but make
         // performance check to ensure that it actually helps.
         return new PropertyName(propertyInfo.getName());
     }
 
     /**
-     * Compile operator text
+     * Compile operator text.
      *
      * @param visited visited definitions
      * @param d       definition view for operator
      */
-    private void compileOpText(HashSet<DefinitionView> visited, OpDefinitionView d) {
+    private void compileOpText(final HashSet<DefinitionView> visited, final OpDefinitionView d) {
         if (d.isComposite()) {
             contextBuilder.compileSyntax(visited, b, d.operatorStatements(contextBuilder.contextView()));
         } else {
-            b.startChoice(d.definition());
-            for (Token token : d.definition().text) {
-                b.tokenText(d.definition(), Terms.STRUCTURAL, SyntaxRole.OPERATOR, token);
+            b.startChoice(d.operator());
+            for (Token token : d.operator().getText()) {
+                b.tokenText(d.operator(), Terms.STRUCTURAL, SyntaxRole.OPERATOR, token);
             }
             b.endChoice();
         }
     }
 
     /**
-     * Start object associated with the operator
+     * Start object associated with the operator.
      *
      * @param d an operator to start
      */
-    private void startOpObjectAtMark(OpDefinitionView d) {
-        b.startObjectAtMark(d.definition(), d.convertName(d.rootObject(contextBuilder.contextView()).name));
+    private void startOpObjectAtMark(final OpDefinitionView d) {
+        b.startObjectAtMark(d.operator(), d.convertName(d.rootObject(contextBuilder.contextView()).getName()));
     }
 
     /**
-     * Start object associated with the operator
+     * Start object associated with the operator.
      *
      * @param d an operator to start
      */
-    private void startOpObject(OpDefinitionView d) {
-        b.startObject(d.definition(), d.convertName(d.rootObject(contextBuilder.contextView()).name));
+    private void startOpObject(final OpDefinitionView d) {
+        b.startObject(d.operator(), d.convertName(d.rootObject(contextBuilder.contextView()).getName()));
     }
 
     /**
      * @return get builder for the previous level
      */
     private ActionBuilder getPreviousBuilder() {
-        final int previousPrecedence = level.previousLevel.precedence;
+        final int previousPrecedence = level.getPreviousLevel().getPrecedence();
         final OperatorLevelBuilder lb = contextBuilder.levelBuilder(previousPrecedence);
         return lb.b;
     }
 
     /**
-     * Compile primary level
+     * Compile primary level.
      */
     private void compilePrimary() {
         // There are only composite f-class operators at this level.
         // So we do not have to consider anything else, erroneous
         // entries have been filtered out at previous processing levels.
         b.startChoice(contextBuilder.contextView().reportingContext());
-        for (final OpDefinitionView op : level.f) {
+        for (final OpDefinitionView op : level.getF()) {
             b.startDefinition(op.topObjectDefinition(contextBuilder.contextView()));
-            b.startSequence(op.definition());
+            b.startSequence(op.operator());
             contextBuilder.compileSyntax(new HashSet<DefinitionView>(), b, op.topObject(contextBuilder.contextView()));
             b.endSequence();
             b.endDefinition();

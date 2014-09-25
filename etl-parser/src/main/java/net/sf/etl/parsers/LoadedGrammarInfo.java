@@ -29,30 +29,31 @@ import net.sf.etl.parsers.event.grammar.CompiledGrammar;
 import net.sf.etl.parsers.resource.ResolvedObject;
 
 /**
- * The information about loaded grammar
+ * The information about loaded grammar.
  */
-public class LoadedGrammarInfo {
+public final class LoadedGrammarInfo {
     /**
-     * The grammar that has been provided from user
+     * The grammar that has been provided from user.
      */
     private final ResolvedObject<CompiledGrammar> loadedGrammar;
     /**
-     * The actually used grammar (in case of problems with loaded grammar)
+     * The actually used grammar (in case of problems with loaded grammar).
      */
     private final CompiledGrammar usedGrammar;
     /**
-     * The context from used grammar that actually used
+     * The context from used grammar that actually used.
      */
     private final DefinitionContext usedContext;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param loadedGrammar the grammar from the compiler
      * @param usedGrammar   the actually used grammar
      * @param usedContext   the used context from the grammar
      */
-    public LoadedGrammarInfo(ResolvedObject<CompiledGrammar> loadedGrammar, CompiledGrammar usedGrammar, DefinitionContext usedContext) {
+    public LoadedGrammarInfo(final ResolvedObject<CompiledGrammar> loadedGrammar, final CompiledGrammar usedGrammar,
+                             final DefinitionContext usedContext) {
         this.loadedGrammar = loadedGrammar;
         this.usedGrammar = usedGrammar;
         this.usedContext = usedContext;

@@ -29,6 +29,6 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
  *
  * @author const
  */
-public class Def extends SyntaxDefinition {
+public final class Def extends SyntaxDefinition {
     // TODO abstract?
 }

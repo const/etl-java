@@ -25,76 +25,85 @@
 
 package net.sf.etl.parsers.event.impl.term;
 
-import net.sf.etl.parsers.*;
+import net.sf.etl.parsers.DefinitionContext;
+import net.sf.etl.parsers.PhraseToken;
+import net.sf.etl.parsers.PhraseTokens;
+import net.sf.etl.parsers.TermToken;
+import net.sf.etl.parsers.Terms;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 import net.sf.etl.parsers.event.grammar.TermParserState;
 import net.sf.etl.parsers.event.grammar.TermParserStateFactory;
 
 /**
- * Block state factory
+ * Block state factory.
  */
-public class BlockStateFactory implements TermParserStateFactory {
+public final class BlockStateFactory implements TermParserStateFactory {
     /**
-     * The context for the block
+     * The context for the block.
      */
     private final DefinitionContext statementContext;
     /**
-     * The statement sequence state factory
+     * The statement sequence state factory.
      */
     private final TermParserStateFactory statementSequenceFactory;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param statementContext         the statement context information for the block
      * @param statementSequenceFactory the statement sequence factory for the block
      */
-    public BlockStateFactory(DefinitionContext statementContext, TermParserStateFactory statementSequenceFactory) {
+    public BlockStateFactory(final DefinitionContext statementContext,
+                             final TermParserStateFactory statementSequenceFactory) {
         this.statementContext = statementContext;
         this.statementSequenceFactory = statementSequenceFactory;
     }
 
     @Override
-    public TermParserState start(TermParserContext context, TermParserState previous) {
+    public TermParserState start(final TermParserContext context, final TermParserState previous) {
         return new BlockState(context, previous, statementContext, statementSequenceFactory);
     }
 
     /**
-     * The block state
+     * The block state.
      */
     private static class BlockState extends TermParserState {
         /**
-         * Before block start is reported
+         * Before block start is reported.
          */
         private static final int BEFORE_BLOCK = 0;
         /**
-         * Inside the block
-         */
-        private static final int IN_BLOCK = 1;
-        /**
-         * Inside the block
-         */
-        private static final int AFTER_BLOCK = 2;
-        /**
-         * The current mode of the state
+         * The current mode of the state.
          */
         private int mode = BEFORE_BLOCK;
         /**
-         * The context for the block
+         * Inside the block.
+         */
+        private static final int IN_BLOCK = 1;
+        /**
+         * After the block.
+         */
+        private static final int AFTER_BLOCK = 2;
+        /**
+         * The context for the block.
          */
         private final DefinitionContext statementContext;
         /**
-         * The factory for statement sequence
+         * The factory for statement sequence.
          */
         private final TermParserStateFactory statementSequenceFactory;
 
         /**
-         * The constructor
+         * The constructor.
          *
-         * @param context  context
-         * @param previous previous state on the stack
+         * @param context                  context
+         * @param previous                 previous state on the stack
+         * @param statementContext         the statement context information for the block
+         * @param statementSequenceFactory the statement sequence factory for the block
          */
-        protected BlockState(TermParserContext context, TermParserState previous, DefinitionContext statementContext, TermParserStateFactory statementSequenceFactory) {
+        protected BlockState(final TermParserContext context, final TermParserState previous,
+                             final DefinitionContext statementContext,
+                             final TermParserStateFactory statementSequenceFactory) {
             super(context, previous);
             this.statementContext = statementContext;
             this.statementSequenceFactory = statementSequenceFactory;
@@ -107,7 +116,8 @@ public class BlockStateFactory implements TermParserStateFactory {
 
         @Override
         public void forceFinish() {
-            throw new IllegalStateException("Finishing block should be never forced, because statement sequence forces everything: " + mode);
+            throw new IllegalStateException("Finishing block should be never forced, "
+                    + "because statement sequence forces everything: " + mode);
         }
 
         @Override
@@ -117,13 +127,15 @@ public class BlockStateFactory implements TermParserStateFactory {
 
         @Override
         public void parseMore() {
+            final TermParserContext context = getContext();
             PhraseToken current = context.current();
             switch (mode) {
                 case BEFORE_BLOCK:
                     if (current.kind() != PhraseTokens.START_BLOCK) {
                         throw new IllegalStateException("Invalid state for the call" + mode + " : " + current);
                     }
-                    context.produce(new TermToken(Terms.BLOCK_START, null, statementContext, current, current.start(), current.end(), null));
+                    context.produce(new TermToken(Terms.BLOCK_START, null, statementContext, current,
+                            current.start(), current.end(), null));
                     context.startSoftEndContext();
                     context.consumePhraseToken();
                     context.call(statementSequenceFactory);
@@ -138,7 +150,8 @@ public class BlockStateFactory implements TermParserStateFactory {
                         throw new IllegalStateException("Unexpected call status: " + callStatus);
                     }
                     context.endSoftEndContext();
-                    context.produce(new TermToken(Terms.BLOCK_END, null, statementContext, current, current.start(), current.end(), null));
+                    context.produce(new TermToken(Terms.BLOCK_END, null, statementContext, current,
+                            current.start(), current.end(), null));
                     context.consumePhraseToken();
                     mode = AFTER_BLOCK;
                     break;

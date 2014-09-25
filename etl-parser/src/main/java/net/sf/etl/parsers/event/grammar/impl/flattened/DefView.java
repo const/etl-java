@@ -31,24 +31,24 @@ import net.sf.etl.parsers.event.unstable.model.grammar.Def;
  *
  * @author const
  */
-public class DefView extends DefinitionView {
+public final class DefView extends DefinitionView {
     /**
-     * The constructor
+     * The constructor.
      *
      * @param context    the original context
      * @param definition the definition
      */
-    public DefView(ContextView context, Def definition) {
+    public DefView(final ContextView context, final Def definition) {
         super(context, definition);
     }
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param context    the including context
      * @param definition the included view
      */
-    public DefView(ContextView context, DefinitionView definition) {
+    public DefView(final ContextView context, final DefinitionView definition) {
         super(context, definition);
     }
 }

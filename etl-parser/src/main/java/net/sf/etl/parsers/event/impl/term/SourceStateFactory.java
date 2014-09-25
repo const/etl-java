@@ -25,24 +25,33 @@
 
 package net.sf.etl.parsers.event.impl.term;
 
-import net.sf.etl.parsers.*;
-import net.sf.etl.parsers.event.grammar.*;
+import net.sf.etl.parsers.DefinitionContext;
+import net.sf.etl.parsers.PhraseToken;
+import net.sf.etl.parsers.PhraseTokens;
+import net.sf.etl.parsers.SyntaxRole;
+import net.sf.etl.parsers.TermToken;
+import net.sf.etl.parsers.Terms;
+import net.sf.etl.parsers.event.grammar.BootstrapGrammars;
+import net.sf.etl.parsers.event.grammar.CompiledGrammar;
+import net.sf.etl.parsers.event.grammar.TermParserContext;
+import net.sf.etl.parsers.event.grammar.TermParserState;
+import net.sf.etl.parsers.event.grammar.TermParserStateFactory;
 
 /**
- * The source state factory
+ * The source state factory.
  */
-public class SourceStateFactory implements TermParserStateFactory {
+public final class SourceStateFactory implements TermParserStateFactory {
     /**
-     * The factory instance
+     * The factory instance.
      */
-    public final static SourceStateFactory INSTANCE = new SourceStateFactory();
+    public static final SourceStateFactory INSTANCE = new SourceStateFactory();
     /**
-     * The factory for doctype statements
+     * The factory for doctype statements.
      */
     private static final TermParserStateFactory DOCTYPE_STATE_FACTORY = makeDoctypeFactory();
 
     /**
-     * Make single statement parser state factory for a document type instruction
+     * Make single statement parser state factory for a document type instruction.
      *
      * @return the state factory
      */
@@ -52,38 +61,38 @@ public class SourceStateFactory implements TermParserStateFactory {
     }
 
     @Override
-    public TermParserState start(TermParserContext context, TermParserState previous) {
+    public TermParserState start(final TermParserContext context, final TermParserState previous) {
         return new SourceState(context, previous);
     }
 
     /**
-     * The state that parses source code including doctype and content
+     * The state that parses source code including doctype and content.
      */
-    public static class SourceState extends TermParserState {
+    public static final class SourceState extends TermParserState {
         /**
-         * The state when document type is not yet known
+         * The state when document type is not yet known.
          */
-        private final static int BEFORE_DOCTYPE = 0;
+        private static final int BEFORE_DOCTYPE = 0;
         /**
-         * The state after doctype, but before first statement
+         * The state after doctype, but before first statement.
          */
-        private final static int BEFORE_STATEMENT = 1;
+        private static final int BEFORE_STATEMENT = 1;
         /**
-         * The state while parsing statements using statement sequence parser
+         * The state while parsing statements using statement sequence parser.
          */
-        private final static int PARSING_STATEMENTS = 2;
+        private static final int PARSING_STATEMENTS = 2;
         /**
-         * The the current state
+         * The the current state.
          */
         private int state;
 
         /**
-         * The constructor
+         * The constructor.
          *
          * @param context  context
          * @param previous previous state on the stack
          */
-        protected SourceState(TermParserContext context, TermParserState previous) {
+        protected SourceState(final TermParserContext context, final TermParserState previous) {
             super(context, previous);
             if (context.parser().grammar() != null) {
                 state = BEFORE_STATEMENT;
@@ -99,18 +108,19 @@ public class SourceStateFactory implements TermParserStateFactory {
 
         @Override
         public void forceFinish() {
-            throw new IllegalStateException("The forcing finish should not happen for source level, " +
-                    "statement sequence should take care of this.");
+            throw new IllegalStateException("The forcing finish should not happen for source level, "
+                    + "statement sequence should take care of this.");
         }
 
         @Override
         public void startRecover() {
-            throw new IllegalStateException("The recovering should not happen for source level, " +
-                    "statement sequence should take care of this.");
+            throw new IllegalStateException("The recovering should not happen for source level, "
+                    + "statement sequence should take care of this.");
         }
 
         @Override
         public void parseMore() {
+            final TermParserContext context = getContext();
             if (TermParserContextUtil.skipIgnorable(null, context, false)) {
                 return;
             }
@@ -141,12 +151,16 @@ public class SourceStateFactory implements TermParserStateFactory {
                     break;
                 case PARSING_STATEMENTS:
                     if (current.kind() == PhraseTokens.EOF) {
-                        context.produce(new TermToken(Terms.EOF, SyntaxRole.CONTROL, null, current, current.start(), current.end(), null));
+                        context.produce(new TermToken(Terms.EOF, SyntaxRole.CONTROL, null, current,
+                                current.start(), current.end(), null));
                         context.consumePhraseToken();
                         context.exit(this, true);
+                        break;
                     } else {
                         throw new IllegalStateException("Invalid token for end of source: " + current);
                     }
+                default:
+                    throw new IllegalStateException("Invalid state: " + state);
             }
         }
     }

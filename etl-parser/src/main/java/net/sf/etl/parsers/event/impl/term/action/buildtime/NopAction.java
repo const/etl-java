@@ -31,22 +31,22 @@ import net.sf.etl.parsers.event.impl.term.action.ActionState;
 import net.sf.etl.parsers.event.impl.term.action.SimpleAction;
 
 /**
- * The action that does nothing. The action is used during build process to make
+ * The action that does nothing. The action is used during build process to make placeholder for next action
+ * (for example to construct loops).
  */
-public class NopAction extends SimpleAction {
-
+public final class NopAction extends SimpleAction {
     /**
-     * The constructor
+     * The constructor.
      *
      * @param source the source location in the grammar that caused this node creation
      */
-    public NopAction(SourceLocation source) {
+    public NopAction(final SourceLocation source) {
         // do nothing
         super(source);
     }
 
     @Override
-    public void parseMore(TermParserContext context, ActionState state) {
-        state.nextAction(next);
+    public void parseMore(final TermParserContext context, final ActionState state) {
+        state.nextAction(getNext());
     }
 }

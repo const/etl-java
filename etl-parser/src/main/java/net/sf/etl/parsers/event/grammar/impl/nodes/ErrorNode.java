@@ -36,23 +36,23 @@ import java.util.Set;
  *
  * @author const
  */
-public class ErrorNode extends Node {
+public final class ErrorNode extends Node {
     /**
-     * The id of the error
+     * The id of the error.
      */
-    final String errorId;
+    private final String errorId;
     /**
-     * The arguments of the error
+     * The arguments of the error.
      */
-    final Object[] errorArgs;
+    private final Object[] errorArgs;
 
     /**
-     * A constructor from fields
+     * A constructor from fields.
      *
      * @param errorId   the error id
      * @param errorArgs the error args
      */
-    public ErrorNode(String errorId, Object... errorArgs) {
+    public ErrorNode(final String errorId, final Object... errorArgs) {
         this.errorId = errorId;
         this.errorArgs = errorArgs;
     }
@@ -64,18 +64,19 @@ public class ErrorNode extends Node {
 
 
     @Override
-    public void collectKeywords(Set<Keyword> keywords, Set<ActionBuilder> visited) {
+    public void collectKeywords(final Set<Keyword> keywords, final Set<ActionBuilder> visited) {
         // do nothing
     }
 
     @Override
-    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit, Action recoveryTest) {
-        return ActionUtil.createReportErrorAction(source, errorExit, errorId, errorArgs);
+    public Action buildActions(final ActionBuilder b, final Action normalExit, final Action errorExit,
+                               final Action recoveryTest) {
+        return ActionUtil.createReportErrorAction(getSource(), errorExit, errorId, errorArgs);
     }
 
     @Override
-    protected LookAheadSet createLookAhead(Set<ActionBuilder> visitedBuilders) {
-        return LookAheadSet.getWithEmpty(source);
+    protected LookAheadSet createLookAhead(final Set<ActionBuilder> visitedBuilders) {
+        return LookAheadSet.getWithEmpty(getSource());
     }
 
 }

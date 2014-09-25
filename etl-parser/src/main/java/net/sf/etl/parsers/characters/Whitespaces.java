@@ -29,17 +29,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class contains whitespace checks
+ * This class contains whitespace checks.
  */
-public class Whitespaces {
+public final class Whitespaces {
     /**
-     * Unicode code point for carriage return
+     * Unicode code point for carriage return.
      */
     public static final int CR = 0x000D;
     /**
-     * Unicode code point for carriage return
+     * Unicode code point for carriage return.
      */
     public static final int LF = 0x000A;
+    /**
+     * The default TAB size.
+     */
+    public static final int DEFAULT_TAB_SIZE = 8;
+
+    /**
+     * Private constructor for utility class.
+     */
+    private Whitespaces() {
+        // do nothing
+    }
 
     /**
      * Check if codepoint is a new line. The Unicode standard specifies the following new lines.
@@ -58,7 +69,8 @@ public class Whitespaces {
      * @param codepoint the codepoint to check
      * @return the new lines
      */
-    public static boolean isNewline(int codepoint) {
+    public static boolean isNewline(final int codepoint) {
+        //CHECKSTYLE:OFF
         switch (codepoint) {
             case 0x000A: // Cc: LINE FEED (LF)
             case 0x000B: // Cc: LINE TABULATION
@@ -69,6 +81,7 @@ public class Whitespaces {
             case 0x2028: // Zl: LINE SEPARATOR
                 return true;
         }
+        //CHECKSTYLE:ON
         return false;
     }
 
@@ -78,8 +91,8 @@ public class Whitespaces {
      * @param string the string to split
      * @return the split string
      */
-    public static List<String> splitNewLines(String string) {
-        ArrayList<String> rc = new ArrayList<String>();
+    public static List<String> splitNewLines(final String string) {
+        final ArrayList<String> rc = new ArrayList<String>();
         int p = 0;
         int i = 0;
         final int length = string.length();
@@ -98,7 +111,14 @@ public class Whitespaces {
         return rc;
     }
 
-    public static boolean isSpace(int codepoint) {
+    /**
+     * Check if character is a space of some kind.
+     *
+     * @param codepoint the codepoint to check
+     * @return true if space
+     */
+    public static boolean isSpace(final int codepoint) {
+        //CHECKSTYLE:OFF
         switch (codepoint) {
             case 0x0009: // Cc: CHARACTER TABULATION
             case 0x0020: // Zs: SPACE
@@ -121,6 +141,7 @@ public class Whitespaces {
             case 0x3000: // Zs: IDEOGRAPHIC SPACE
                 return true;
         }
+        //CHECKSTYLE:ON
         return false;
     }
 }

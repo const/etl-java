@@ -29,35 +29,29 @@ import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 /**
- * The action that sets up recovery test
+ * The action that sets up recovery test.
  */
-public class RecoverySetupAction extends SimpleAction {
+public final class RecoverySetupAction extends SimpleAction {
     /**
-     * New recovery test
+     * New recovery test.
      */
     private final Action recoveryTest;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param source       the source location in the grammar that caused this node creation
      * @param next         the next action
      * @param recoveryTest the recovery test
      */
-    public RecoverySetupAction(SourceLocation source, Action next, Action recoveryTest) {
+    public RecoverySetupAction(final SourceLocation source, final Action next, final Action recoveryTest) {
         super(source, next);
         this.recoveryTest = recoveryTest;
     }
 
-    /**
-     * Parse more elements
-     *
-     * @param context the context of the parser
-     * @param state   the context state
-     */
     @Override
-    public void parseMore(TermParserContext context, ActionState state) {
+    public void parseMore(final TermParserContext context, final ActionState state) {
         state.setRecoveryTest(recoveryTest);
-        state.nextAction(next);
+        state.nextAction(getNext());
     }
 }

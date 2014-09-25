@@ -30,44 +30,46 @@ import net.sf.etl.parsers.Tokens;
 import net.sf.etl.parsers.characters.QuoteClass;
 
 /**
- * Parsed string information
+ * Parsed string information.
  */
-public class StringInfo {
+public final class StringInfo {
     /**
-     * The input text
+     * The input text.
      */
-    public final String input;
+    private final String input;
     /**
-     * The token kind
+     * The token kind.
      */
-    public final Tokens kind;
+    private final Tokens kind;
     /**
-     * The parsed text for the literal
+     * The parsed text for the literal.
      */
-    public final String text;
+    private final String text;
     /**
-     * The prefix for the string literal
+     * The prefix for the string literal.
      */
-    public final String prefix;
+    private final String prefix;
     /**
-     * The quote class
+     * The quote class.
      */
-    public final QuoteClass quoteClass;
+    private final QuoteClass quoteClass;
     /**
-     * The start quote codepoint
+     * The start quote codepoint.
      */
-    public final int startQuote;
+    private final int startQuote;
     /**
-     * The end quote codepoint
+     * The end quote codepoint.
      */
-    public final int endQuote;
+    private final int endQuote;
     /**
-     * The errors detected during literal parsing
+     * The errors detected during literal parsing.
      */
-    public final ErrorInfo errors;
+    private final ErrorInfo errors;
+
+    // CHECKSTYLE:OFF
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param input      the input text
      * @param kind       the token kind for this string
@@ -78,8 +80,8 @@ public class StringInfo {
      * @param endQuote   the end quote codepoint
      * @param errors     the list of errors (if present)
      */
-    public StringInfo(String input, Tokens kind, String text, String prefix, QuoteClass quoteClass,
-                      int startQuote, int endQuote, ErrorInfo errors) {
+    public StringInfo(final String input, final Tokens kind, final String text, final String prefix,
+                      final QuoteClass quoteClass, final int startQuote, final int endQuote, final ErrorInfo errors) {
         this.input = input;
         this.kind = kind;
         this.text = text;
@@ -89,13 +91,70 @@ public class StringInfo {
         this.endQuote = endQuote;
         this.errors = errors;
     }
+    // CHECKSTYLE:ON
 
     /**
-     * Check for errors and throw an exception if there are ones
+     * Check for errors and throw an exception if there are ones.
      */
     public void checkErrors() {
         if (errors != null) {
             throw new LiteralParseException("string", input, errors);
         }
+    }
+
+    /**
+     * @return the input
+     */
+    public String getInput() {
+        return input;
+    }
+
+    /**
+     * @return the kind
+     */
+    public Tokens getKind() {
+        return kind;
+    }
+
+    /**
+     * @return the text
+     */
+    public String getText() {
+        return text;
+    }
+
+    /**
+     * @return the prefix
+     */
+    public String getPrefix() {
+        return prefix;
+    }
+
+    /**
+     * @return the quote class
+     */
+    public QuoteClass getQuoteClass() {
+        return quoteClass;
+    }
+
+    /**
+     * @return the start quote
+     */
+    public int getStartQuote() {
+        return startQuote;
+    }
+
+    /**
+     * @return the end quote
+     */
+    public int getEndQuote() {
+        return endQuote;
+    }
+
+    /**
+     * @return the errors
+     */
+    public ErrorInfo getErrors() {
+        return errors;
     }
 }

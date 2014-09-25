@@ -29,11 +29,11 @@ import java.util.Collection;
 import java.util.HashMap;
 
 /**
- * Map keyword context
+ * Map keyword context.
  */
-public class MapKeywordContext implements KeywordContext {
+public final class MapKeywordContext implements KeywordContext {
     /**
-     * The backing map
+     * The backing map.
      */
     private final HashMap<String, Keyword> map;
 
@@ -43,7 +43,7 @@ public class MapKeywordContext implements KeywordContext {
      *
      * @param keywords the keywords
      */
-    public MapKeywordContext(Keyword... keywords) {
+    public MapKeywordContext(final Keyword... keywords) {
         this.map = new HashMap<String, Keyword>(keywords.length);
         for (Keyword value : keywords) {
             map.put(value.text(), value);
@@ -56,7 +56,7 @@ public class MapKeywordContext implements KeywordContext {
      *
      * @param keywords the keywords
      */
-    public MapKeywordContext(Collection<Keyword> keywords) {
+    public MapKeywordContext(final Collection<Keyword> keywords) {
         this.map = new HashMap<String, Keyword>(keywords.size());
         for (Keyword value : keywords) {
             map.put(value.text(), value);
@@ -64,7 +64,7 @@ public class MapKeywordContext implements KeywordContext {
     }
 
     @Override
-    public Keyword get(String text) {
+    public Keyword get(final String text) {
         return map.get(text);
     }
 }

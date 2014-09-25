@@ -31,27 +31,27 @@ import net.sf.etl.parsers.event.impl.term.action.Action;
 import net.sf.etl.parsers.event.impl.term.action.ActionState;
 
 /**
- * The unreachable action, if this action is reached, then it means that there is some serious bug
+ * The unreachable action, if this action is reached, then it means that there is some serious bug.
  */
-public class UnreachableAction extends Action {
+public final class UnreachableAction extends Action {
     /**
-     * The message
+     * The message.
      */
     private final String message;
 
     /**
-     * The constructor from message
+     * The constructor from message.
      *
      * @param source  the source location in the grammar that caused this node creation
      * @param message the message
      */
-    public UnreachableAction(SourceLocation source, String message) {
+    public UnreachableAction(final SourceLocation source, final String message) {
         super(source);
         this.message = message;
     }
 
     @Override
-    public void parseMore(TermParserContext context, ActionState state) {
+    public void parseMore(final TermParserContext context, final ActionState state) {
         throw new IllegalStateException(message == null ? "The unreachable action is reached" : message);
     }
 }

@@ -32,11 +32,11 @@ package net.sf.etl.parsers;
  */
 public final class TermToken extends AbstractToken {
     /**
-     * Kind of token
+     * Kind of token.
      */
     private final Terms kind;
     /**
-     * Role of token
+     * Role of token.
      */
     private final SyntaxRole role;
     /**
@@ -44,11 +44,11 @@ public final class TermToken extends AbstractToken {
      */
     private final PhraseToken token;
     /**
-     * property name or object name
+     * property name or object name.
      */
     private final Object structureId;
     /**
-     * The location of definition for the term token
+     * The location of definition for the term token.
      */
     private final SourceLocation definedAt;
 
@@ -63,9 +63,12 @@ public final class TermToken extends AbstractToken {
      * @param end         the end of the token
      * @param errorInfo   the error information error info covered by error
      */
-    public TermToken(Terms kind, SyntaxRole role, Object structureId, PhraseToken token, TextPos start, TextPos end, ErrorInfo errorInfo) {
+    public TermToken(final Terms kind, final SyntaxRole role, final Object structureId, final PhraseToken token,
+                     final TextPos start, final TextPos end, final ErrorInfo errorInfo) {
         this(kind, role, structureId, token, start, end, null, errorInfo);
     }
+
+    // CHECKSTYLE:OFF
 
     /**
      * An error token. It is used to report syntax and grammar errors.
@@ -79,15 +82,17 @@ public final class TermToken extends AbstractToken {
      * @param definedAt   the grammar location there the token is defined
      * @param errorInfo   the error information error info covered by error
      */
-    public TermToken(Terms kind, SyntaxRole role, Object structureId, PhraseToken token, TextPos start, TextPos end, SourceLocation definedAt, ErrorInfo errorInfo) {
+    public TermToken(final Terms kind, final SyntaxRole role, final Object structureId, final PhraseToken token,
+                     final TextPos start, final TextPos end, final SourceLocation definedAt,
+                     final ErrorInfo errorInfo) {
         super(start, end, errorInfo);
         this.kind = kind;
         this.role = role;
         this.token = token;
         this.structureId = structureId;
         this.definedAt = definedAt;
-        // TODO validation and helper methods
     }
+    // CHECKSTYLE:ON
 
 
     /**
@@ -117,6 +122,9 @@ public final class TermToken extends AbstractToken {
         }
     }
 
+    /**
+     * @return the definition that caused this token
+     */
     public DefinitionInfo definitionInfo() {
         switch (kind()) {
             case STATEMENT_START:
@@ -233,7 +241,9 @@ public final class TermToken extends AbstractToken {
      * @return true if there are errors associated on any level of the token
      */
     public boolean hasAnyErrors() {
-        return hasErrors() || hasPhraseToken() && token().hasErrors() || hasLexicalToken() && token().token().hasErrors();
+        return hasErrors()
+                || hasPhraseToken() && token().hasErrors()
+                || hasLexicalToken() && token().token().hasErrors();
     }
 
     @Override

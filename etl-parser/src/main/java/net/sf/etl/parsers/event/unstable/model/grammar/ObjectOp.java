@@ -30,10 +30,25 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
  *
  * @author const
  */
-public class ObjectOp extends CompositeSyntax {
+public final class ObjectOp extends CompositeSyntax {
     /**
-     * name
+     * the name.
      */
-    public ObjectName name;
+    private ObjectName name;
 
+    /**
+     * @return the name.
+     */
+    public ObjectName getName() {
+        return name;
+    }
+
+    /**
+     * Set the name.
+     *
+     * @param name the name
+     */
+    public void setName(final ObjectName name) {
+        this.name = name;
+    }
 }

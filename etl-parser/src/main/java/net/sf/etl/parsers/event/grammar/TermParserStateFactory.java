@@ -26,11 +26,11 @@
 package net.sf.etl.parsers.event.grammar;
 
 /**
- * Term parser state factory
+ * Term parser state factory.
  */
 public interface TermParserStateFactory {
     /**
-     * Start parsing
+     * Start parsing.
      *
      * @param context  the context
      * @param previous the previous state

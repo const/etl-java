@@ -30,29 +30,29 @@ import net.sf.etl.parsers.event.grammar.KeywordContext;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 /**
- * Pop keywords from the stack of keyword context
+ * Pop keywords from the stack of keyword context.
  */
-public class PopKeywordsAction extends SimpleAction {
+public final class PopKeywordsAction extends SimpleAction {
     /**
-     * The keyword context to push
+     * The keyword context to push.
      */
-    public KeywordContext keywordContext;
+    private final KeywordContext keywordContext;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param source  the source location in the grammar that caused this node creation
      * @param context the context to pop
      * @param next    the next action
      */
-    public PopKeywordsAction(SourceLocation source, KeywordContext context, Action next) {
+    public PopKeywordsAction(final SourceLocation source, final KeywordContext context, final Action next) {
         super(source, next);
         keywordContext = context;
     }
 
     @Override
-    public void parseMore(TermParserContext context, ActionState state) {
+    public void parseMore(final TermParserContext context, final ActionState state) {
         context.popKeywordContext(keywordContext);
-        state.nextAction(next);
+        state.nextAction(getNext());
     }
 }

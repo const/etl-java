@@ -25,7 +25,13 @@
 
 package net.sf.etl.parsers.event.impl.term.action;
 
-import net.sf.etl.parsers.*;
+import net.sf.etl.parsers.ErrorInfo;
+import net.sf.etl.parsers.PhraseToken;
+import net.sf.etl.parsers.SourceLocation;
+import net.sf.etl.parsers.SyntaxRole;
+import net.sf.etl.parsers.TermToken;
+import net.sf.etl.parsers.Terms;
+import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 import java.util.Arrays;
@@ -33,43 +39,44 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * The action that reports error and goes to the next token
+ * The action that reports error and goes to the next token.
  */
-public class ReportErrorAction extends SimpleAction {
+public final class ReportErrorAction extends SimpleAction {
     /**
-     * The error id
+     * The error id.
      */
     private final String errorId;
     /**
-     * The objects
+     * The objects.
      */
     private final List<Object> objects;
 
     /**
-     * The report tokens action
+     * The report tokens action.
      *
      * @param source  the source location in the grammar that caused this node creation
      * @param next    the next action
      * @param errorId the error id
      * @param objects the error arguments
      */
-    public ReportErrorAction(SourceLocation source, Action next, String errorId, Object... objects) {
+    public ReportErrorAction(final SourceLocation source, final Action next, final String errorId,
+                             final Object... objects) {
         super(source, next);
         this.errorId = errorId;
-        this.objects = objects == null || objects.length == 0 ?
-                Collections.emptyList() :
-                Collections.unmodifiableList(Arrays.asList(objects));
+        this.objects = objects == null || objects.length == 0
+                ? Collections.emptyList()
+                : Collections.unmodifiableList(Arrays.asList(objects));
     }
 
     @Override
-    public void parseMore(TermParserContext context, ActionState state) {
+    public void parseMore(final TermParserContext context, final ActionState state) {
         final PhraseToken current = context.current();
         final TextPos pos = current.start();
         context.produce(new TermToken(Terms.SYNTAX_ERROR, SyntaxRole.UNKNOWN, null, null,
                 pos, pos,
-                source,
+                getSource(),
                 new ErrorInfo(errorId, objects,
                         new SourceLocation(pos, pos, context.parser().getSystemId()), null)));
-        state.nextAction(next);
+        state.nextAction(getNext());
     }
 }

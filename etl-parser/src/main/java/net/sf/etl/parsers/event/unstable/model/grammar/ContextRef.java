@@ -32,8 +32,23 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
  */
 public abstract class ContextRef extends ContextMember {
     /**
-     * contextName
+     * The context name.
      */
-    public java.lang.String contextName;
+    private String contextName;
 
+    /**
+     * @return the context name
+     */
+    public final String getContextName() {
+        return contextName;
+    }
+
+    /**
+     * Set context name.
+     *
+     * @param contextName the name
+     */
+    public final void setContextName(final String contextName) {
+        this.contextName = contextName;
+    }
 }

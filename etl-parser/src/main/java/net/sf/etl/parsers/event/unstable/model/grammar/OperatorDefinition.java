@@ -27,6 +27,7 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
 import net.sf.etl.parsers.Token;
 
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * The OperatorDefinition node class. This class is a part of the lightweight
@@ -34,22 +35,76 @@ import java.util.LinkedList;
  *
  * @author const
  */
-public class OperatorDefinition extends SyntaxDefinition {
+public final class OperatorDefinition extends SyntaxDefinition {
     /**
-     * associativity
+     * the text for operators.
      */
-    public Token associativity;
+    private final List<Token> text = new LinkedList<Token>();
     /**
-     * precedence
+     * the associativity.
      */
-    public Token precedence;
+    private Token associativity;
     /**
-     * text for operators
+     * the precedence.
      */
-    public final LinkedList<Token> text = new LinkedList<Token>();
+    private Token precedence;
     /**
-     * a composite modifier
+     * the composite modifier.
      */
-    public Modifier isComposite;
+    private Modifier compositeModifier;
 
+    /**
+     * @return the text for operators.
+     */
+    public List<Token> getText() {
+        return text;
+    }
+
+    /**
+     * @return the associativity.
+     */
+    public Token getAssociativity() {
+        return associativity;
+    }
+
+    /**
+     * Set the associativity.
+     *
+     * @param associativity the associativity
+     */
+    public void setAssociativity(final Token associativity) {
+        this.associativity = associativity;
+    }
+
+    /**
+     * @return the precedence.
+     */
+    public Token getPrecedence() {
+        return precedence;
+    }
+
+    /**
+     * Set the precedence.
+     *
+     * @param precedence the precedence
+     */
+    public void setPrecedence(final Token precedence) {
+        this.precedence = precedence;
+    }
+
+    /**
+     * @return the composite modifier.
+     */
+    public Modifier getCompositeModifier() {
+        return compositeModifier;
+    }
+
+    /**
+     * Set composite modifier.
+     *
+     * @param compositeModifier the modifier
+     */
+    public void setCompositeModifier(final Modifier compositeModifier) {
+        this.compositeModifier = compositeModifier;
+    }
 }

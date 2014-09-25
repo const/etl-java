@@ -30,14 +30,45 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
  *
  * @author const
  */
-public class ContextImport extends ContextRef {
+public final class ContextImport extends ContextRef {
     /**
-     * localName
+     * local name.
      */
-    public java.lang.String localName;
+    private String localName;
     /**
-     * grammarName
+     * grammar name.
      */
-    public java.lang.String grammarName;
+    private String grammarName;
 
+    /**
+     * @return local name
+     */
+    public String getLocalName() {
+        return localName;
+    }
+
+    /**
+     * Set local name.
+     *
+     * @param localName the name
+     */
+    public void setLocalName(final String localName) {
+        this.localName = localName;
+    }
+
+    /**
+     * @return grammar name
+     */
+    public String getGrammarName() {
+        return grammarName;
+    }
+
+    /**
+     * Set grammar name.
+     *
+     * @param grammarName the name
+     */
+    public void setGrammarName(final String grammarName) {
+        this.grammarName = grammarName;
+    }
 }

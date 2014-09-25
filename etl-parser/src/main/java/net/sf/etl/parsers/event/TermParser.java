@@ -34,7 +34,7 @@ import net.sf.etl.parsers.resource.ResolvedObject;
 import net.sf.etl.parsers.resource.ResourceRequest;
 
 /**
- * The term parser interface that parses the stream. The initial
+ * The term parser interface that parses the stream.
  */
 public interface TermParser {
     /**
@@ -76,7 +76,7 @@ public interface TermParser {
     DefinitionContext initialContext();
 
     /**
-     * Start parsing
+     * Start parsing.
      *
      * @param systemId the system id
      */
@@ -86,13 +86,13 @@ public interface TermParser {
      * Get resource request for the grammar. The grammar should be loaded and compiled externally.
      *
      * @return the grammar request, note if there is no doctype statement is the source that is being parsed,
-     *         the resource request will contain nulls for both public id and system id
+     * the resource request will contain nulls for both public id and system id
      * @throws IllegalStateException if the grammar already determined
      */
     ResourceRequest grammarRequest();
 
     /**
-     * Supply grammar to the term parser according to the grammar request
+     * Supply grammar to the term parser according to the grammar request.
      *
      * @param grammar          the provided grammar
      * @param resolutionErrors the errors related to resolution process (they are reported to the parser)
@@ -106,7 +106,7 @@ public interface TermParser {
     TermToken read();
 
     /**
-     * Parse token,
+     * Parse token.
      *
      * @param token the cell with the token. The element is removed if it is consumed and more date is needed.
      * @return the parsed state

@@ -26,49 +26,59 @@
 package net.sf.etl.parsers;
 
 /**
- * The information about grammar
+ * The information about grammar.
  */
-public class GrammarInfo {
+public final class GrammarInfo {
     /**
-     * The URI where grammar was loaded
+     * The URI where grammar was loaded.
      */
     private final String uri;
     /**
-     * The qualified name of the grammar
+     * The qualified name of the grammar.
      */
     private final String name;
     /**
-     * The version of the grammar
+     * The version of the grammar.
      */
     private final String version;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param uri     the URI where grammar were located
      * @param name    the name of the grammar
      * @param version the version of the grammar
      */
-    public GrammarInfo(String uri, String name, String version) {
+    public GrammarInfo(final String uri, final String name, final String version) {
         this.uri = uri;
         this.name = name;
         this.version = version;
     }
 
+    /**
+     * @return the grammar URI
+     */
     public String uri() {
         return uri;
     }
 
+    /**
+     * @return the grammar name
+     */
     public String name() {
         return name;
     }
 
+    /**
+     * @return the grammar version
+     */
     public String version() {
         return version;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
+        //CHECKSTYLE:OFF
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -80,24 +90,21 @@ public class GrammarInfo {
         if (version != null ? !version.equals(that.version) : that.version != null) return false;
 
         return true;
+        //CHECKSTYLE:ON
     }
 
     @Override
     public int hashCode() {
+        //CHECKSTYLE:OFF
         int result = uri != null ? uri.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (version != null ? version.hashCode() : 0);
         return result;
+        //CHECKSTYLE:ON
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("GrammarInfo");
-        sb.append("{uri='").append(uri).append('\'');
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", version='").append(version).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "GrammarInfo{uri=" + uri + ", name=" + name + ", version=" + version + '}';
     }
 }

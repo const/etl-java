@@ -28,27 +28,28 @@ package net.sf.etl.parsers;
 /**
  * Statement context. It allows identifying the statement context within the grammar.
  */
-public class DefinitionContext {
+public final class DefinitionContext {
     /**
-     * The context value used when actual context is not known
+     * The context value used when actual context is not known.
      */
-    public static final DefinitionContext UNKNOWN = new DefinitionContext(new GrammarInfo("unknown.Unknown", "unknown:grammar", null), "unknown");
+    public static final DefinitionContext UNKNOWN = new DefinitionContext(
+            new GrammarInfo("unknown.Unknown", "unknown:grammar", null), "unknown");
     /**
-     * Grammar
+     * Grammar.
      */
     private final GrammarInfo grammar;
     /**
-     * Context
+     * Context.
      */
     private final String context;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param grammar the grammar system id
      * @param context the context name
      */
-    public DefinitionContext(GrammarInfo grammar, String context) {
+    public DefinitionContext(final GrammarInfo grammar, final String context) {
         this.grammar = grammar;
         this.context = context;
     }
@@ -68,7 +69,8 @@ public class DefinitionContext {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
+        // CHECKSTYLE:OFF
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -79,22 +81,20 @@ public class DefinitionContext {
         if (grammar != null ? !grammar.equals(that.grammar) : that.grammar != null) return false;
 
         return true;
+        // CHECKSTYLE:ON
     }
 
     @Override
     public int hashCode() {
+        // CHECKSTYLE:OFF
         int result = grammar != null ? grammar.hashCode() : 0;
         result = 31 * result + (context != null ? context.hashCode() : 0);
         return result;
+        // CHECKSTYLE:ON
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("DefinitionContext");
-        sb.append("{grammar='").append(grammar).append('\'');
-        sb.append(", context='").append(context).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "DefinitionContext{grammar='" + grammar + "\', context='" + context + "\'}";
     }
 }

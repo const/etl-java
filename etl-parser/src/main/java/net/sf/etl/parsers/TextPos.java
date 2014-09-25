@@ -42,48 +42,48 @@ import java.io.Serializable;
  */
 public final class TextPos implements Serializable {
     /**
-     * generated serial version id
-     */
-    private static final long serialVersionUID = 7303432848120694096L;
-    // NOTE consider using the type 'long' for lines and columns.
-    /**
-     * line
-     */
-    private final int line;
-    /**
-     * column
-     */
-    private final int column;
-    /**
-     * offset in characters
-     */
-    private final long offset;
-    /**
-     * start offset
+     * start offset.
      */
     public static final long START_OFFSET = 0;
+    // NOTE consider using the type 'long' for lines and columns.
     /**
-     * start column
+     * start column.
      */
     public static final int START_COLUMN = 1;
     /**
-     * start line
+     * start line.
      */
     public static final int START_LINE = 1;
     /**
-     * Start text position of in text
+     * Start text position of in text.
      */
     public static final TextPos START = new TextPos(START_LINE, START_COLUMN,
             START_OFFSET);
+    /**
+     * generated serial version id.
+     */
+    private static final long serialVersionUID = 7303432848120694096L;
+    /**
+     * line.
+     */
+    private final int line;
+    /**
+     * column.
+     */
+    private final int column;
+    /**
+     * offset in characters.
+     */
+    private final long offset;
 
     /**
-     * A constructor
+     * A constructor.
      *
      * @param line   a line
      * @param column a column
      * @param offset an offset in the file
      */
-    public TextPos(int line, int column, long offset) {
+    public TextPos(final int line, final int column, final long offset) {
         this.column = column;
         this.line = line;
         this.offset = offset;
@@ -118,9 +118,9 @@ public final class TextPos implements Serializable {
         return "(" + line + "," + column + "," + offset + ")";
     }
 
-    @SuppressWarnings("RedundantIfStatement")
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
+        // CHECKSTYLE:OFF
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -128,16 +128,20 @@ public final class TextPos implements Serializable {
 
         if (column != textPos.column) return false;
         if (line != textPos.line) return false;
+        //noinspection RedundantIfStatement
         if (offset != textPos.offset) return false;
 
         return true;
+        // CHECKSTYLE:ON
     }
 
     @Override
     public int hashCode() {
+        // CHECKSTYLE:OFF
         int result = line;
         result = 31 * result + column;
         result = 31 * result + (int) (offset ^ (offset >>> 32));
         return result;
+        // CHECKSTYLE:ON
     }
 }

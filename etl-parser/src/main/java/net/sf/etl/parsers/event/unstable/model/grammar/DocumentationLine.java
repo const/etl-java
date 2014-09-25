@@ -30,10 +30,25 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
  *
  * @author const
  */
-public class DocumentationLine extends Element {
+public final class DocumentationLine extends Element {
     /**
-     * text
+     * the documentation line text.
      */
-    public java.lang.String text;
+    private java.lang.String text;
 
+    /**
+     * @return the documentation line text.
+     */
+    public String getText() {
+        return text;
+    }
+
+    /**
+     * Set text.
+     *
+     * @param text the text
+     */
+    public void setText(final String text) {
+        this.text = text;
+    }
 }

@@ -25,7 +25,11 @@
 
 package net.sf.etl.parsers.event.impl.term;
 
-import net.sf.etl.parsers.*;
+import net.sf.etl.parsers.PropertyName;
+import net.sf.etl.parsers.SourceLocation;
+import net.sf.etl.parsers.StandardGrammars;
+import net.sf.etl.parsers.TermToken;
+import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.event.unstable.model.doctype.Doctype;
 
 /**
@@ -34,21 +38,21 @@ import net.sf.etl.parsers.event.unstable.model.doctype.Doctype;
  * The listener assumes that parser works correctly and relies on parser error recovery. The listener skips
  * all tokens, but collects all error information from them.
  */
-class DoctypeTokenListener implements TermTokenListener {
+final class DoctypeTokenListener implements TermTokenListener {
     /**
-     * The parser to use
+     * The parser to use.
      */
     private final TermParserImpl parser;
     /**
-     * The document type object
+     * The document type object.
      */
     private final Doctype doctype = new Doctype();
     /**
-     * The last property
+     * The last property.
      */
     private PropertyName lastProperty;
     /**
-     * The start position
+     * The start position.
      */
     private TextPos start;
 
@@ -58,13 +62,13 @@ class DoctypeTokenListener implements TermTokenListener {
      *
      * @param parser the parser
      */
-    DoctypeTokenListener(TermParserImpl parser) {
+    DoctypeTokenListener(final TermParserImpl parser) {
         this.parser = parser;
         parser.addListener(this);
     }
 
     @Override
-    public void observe(TermToken token) {
+    public void observe(final TermToken token) {
         if (start == null) {
             start = token.start();
         }
@@ -76,39 +80,41 @@ class DoctypeTokenListener implements TermTokenListener {
             case VALUE:
                 assert lastProperty != null;
                 if (StandardGrammars.DOCTYPE_GRAMMAR_DOCTYPE_TYPE.equals(lastProperty)) {
-                    doctype.type = token.token().token();
+                    doctype.setType(token.token().token());
                 } else if (StandardGrammars.DOCTYPE_GRAMMAR_DOCTYPE_SYSTEM_ID.equals(lastProperty)) {
-                    doctype.systemId = token.token().token();
+                    doctype.setSystemId(token.token().token());
                 } else if (StandardGrammars.DOCTYPE_GRAMMAR_DOCTYPE_PUBLIC_ID.equals(lastProperty)) {
-                    doctype.publicId = token.token().token();
+                    doctype.setPublicId(token.token().token());
                 } else if (StandardGrammars.DOCTYPE_GRAMMAR_DOCTYPE_CONTEXT.equals(lastProperty)) {
-                    doctype.context = token.token().token();
+                    doctype.setContext(token.token().token());
                 } else {
                     assert false : "Unknown property name: " + lastProperty;
                 }
                 break;
             case STATEMENT_END:
-                doctype.location = new SourceLocation(start, token.start(), parser.getSystemId());
+                doctype.setLocation(new SourceLocation(start, token.start(), parser.getSystemId()));
                 parser.setDoctype(doctype);
                 parser.removeListener(this);
+                break;
+            default:
                 break;
         }
     }
 
     /**
-     * Collect errors related to document type
+     * Collect errors related to document type.
      *
      * @param token the token from which errors are collected
      */
-    private void collectErrors(TermToken token) {
+    private void collectErrors(final TermToken token) {
         if (token.hasErrors()) {
-            doctype.errors.add(token.errorInfo());
+            doctype.getErrors().add(token.errorInfo());
         }
         if (token.hasPhraseToken() && token.token().hasErrors()) {
-            doctype.errors.add(token.token().errorInfo());
+            doctype.getErrors().add(token.token().errorInfo());
         }
         if (token.hasLexicalToken() && token.token().hasErrors()) {
-            doctype.errors.add(token.token().errorInfo());
+            doctype.getErrors().add(token.token().errorInfo());
         }
     }
 }

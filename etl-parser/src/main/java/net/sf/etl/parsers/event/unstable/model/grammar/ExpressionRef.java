@@ -32,10 +32,25 @@ import net.sf.etl.parsers.Token;
  *
  * @author const
  */
-public class ExpressionRef extends ContextOp {
+public final class ExpressionRef extends ContextOp {
     /**
-     * precedence
+     * the precedence.
      */
-    public Token precedence;
+    private Token precedence;
 
+    /**
+     * @return the precedence.
+     */
+    public Token getPrecedence() {
+        return precedence;
+    }
+
+    /**
+     * Set precedence.
+     *
+     * @param precedence the value
+     */
+    public void setPrecedence(final Token precedence) {
+        this.precedence = precedence;
+    }
 }

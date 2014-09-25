@@ -31,11 +31,11 @@ package net.sf.etl.parsers;
  */
 public enum Terms {
     /**
-     * this state indicate that object is starting
+     * this state indicate that object is starting.
      */
     OBJECT_START,
     /**
-     * this state indicate that object has ended
+     * this state indicate that object has ended.
      */
     OBJECT_END,
     /**
@@ -44,15 +44,15 @@ public enum Terms {
      */
     ATTRIBUTES_START,
     /**
-     * this state indicate that attributes for object ended
+     * this state indicate that attributes for object ended.
      */
     ATTRIBUTES_END,
     /**
-     * this state indicate that simple property started
+     * this state indicate that simple property started.
      */
     PROPERTY_START,
     /**
-     * this state indicate that simple property ended
+     * this state indicate that simple property ended.
      */
     PROPERTY_END,
     /**
@@ -62,7 +62,7 @@ public enum Terms {
      */
     LIST_PROPERTY_START,
     /**
-     * this state indicate that list property ended
+     * this state indicate that list property ended.
      */
     LIST_PROPERTY_END,
     /**
@@ -85,23 +85,23 @@ public enum Terms {
      */
     STRUCTURAL,
     /**
-     * this state indicate that expression is starting
+     * this state indicate that expression is starting.
      */
     EXPRESSION_START,
     /**
-     * this state indicate that expression has ended
+     * this state indicate that expression has ended.
      */
     EXPRESSION_END,
     /**
-     * this state indicate that modifiers are starting
+     * this state indicate that modifiers are starting.
      */
     MODIFIERS_START,
     /**
-     * this state indicate that modifiers have ended
+     * this state indicate that modifiers have ended.
      */
     MODIFIERS_END,
     /**
-     * this state indicate that source has ended
+     * this state indicate that source has ended.
      */
     EOF,
     /**
@@ -109,23 +109,23 @@ public enum Terms {
      */
     DOC_COMMENT_START,
     /**
-     * End of section with doc-comments
+     * End of section with doc-comments.
      */
     DOC_COMMENT_END,
     /**
-     * start of segment
+     * start of segment.
      */
     STATEMENT_START,
     /**
-     * end of segment
+     * end of segment.
      */
     STATEMENT_END,
     /**
-     * start of block
+     * start of block.
      */
     BLOCK_START,
     /**
-     * end of block
+     * end of block.
      */
     BLOCK_END,
     /**
@@ -133,9 +133,8 @@ public enum Terms {
      * {@link LoadedGrammarInfo}.
      */
     GRAMMAR_IS_LOADED,
-
     /**
-     * The syntax error (in case if it is not possible to meaningfully associate error with other token)
+     * The syntax error (in case if it is not possible to meaningfully associate error with other token).
      */
     SYNTAX_ERROR
 }

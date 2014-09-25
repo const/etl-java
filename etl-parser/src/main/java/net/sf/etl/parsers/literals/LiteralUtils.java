@@ -41,24 +41,24 @@ public final class LiteralUtils {
     }
 
     /**
-     * Parse number
+     * Parse number.
      *
      * @param input the input token
      * @return information about number.
      */
-    public static NumberInfo parseNumber(String input) {
+    public static NumberInfo parseNumber(final String input) {
         return parseNumber(input, TextPos.START, "unknown:");
     }
 
     /**
-     * Parse number
+     * Parse number.
      *
      * @param input    the input token
      * @param start    the start position
      * @param systemId the system id
      * @return information about number.
      */
-    public static NumberInfo parseNumber(String input, TextPos start, String systemId) {
+    public static NumberInfo parseNumber(final String input, final TextPos start, final String systemId) {
         return new NumberParser(input, start, systemId).parse();
     }
 
@@ -69,7 +69,7 @@ public final class LiteralUtils {
      * @param intToken the integer token to parse
      * @return parsed value
      */
-    public static int parseInt(String intToken) {
+    public static int parseInt(final String intToken) {
         final NumberInfo n = parseNumber(intToken);
         n.checkErrors();
         return n.parseInt();
@@ -81,7 +81,7 @@ public final class LiteralUtils {
      * @param doubleToken the floating point or integer token to parse
      * @return parsed double
      */
-    public static double parseDouble(String doubleToken) {
+    public static double parseDouble(final String doubleToken) {
         final NumberInfo n = parseNumber(doubleToken);
         n.checkErrors();
         return n.parseDouble();
@@ -95,13 +95,13 @@ public final class LiteralUtils {
      * @param stringToken the string token to parse or null
      * @return parsed string or null if null has been passed as argument
      */
-    public static String parseString(String stringToken) {
+    public static String parseString(final String stringToken) {
         if (stringToken == null) {
             return null;
         }
         final StringInfo parseResult = new StringParser(stringToken, TextPos.START, "unknown:").parse();
         parseResult.checkErrors();
-        return parseResult.text;
+        return parseResult.getText();
     }
 
     /**
@@ -113,12 +113,12 @@ public final class LiteralUtils {
      * @param systemId    the  report system id
      * @return parsed string or null if null has been passed as argument
      */
-    public static String parseString(Token stringToken, String systemId) {
+    public static String parseString(final Token stringToken, final String systemId) {
         if (stringToken == null) {
             return null;
         }
         final StringInfo parseResult = new StringParser(stringToken.text(), stringToken.start(), systemId).parse();
         parseResult.checkErrors();
-        return parseResult.text;
+        return parseResult.getText();
     }
 }

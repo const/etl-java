@@ -36,66 +36,195 @@ import java.util.EnumMap;
  */
 public final class TokenKey {
     /**
-     * Map for tokens without modifiers
+     * Map for tokens without modifiers.
      */
-    private final static EnumMap<Tokens, TokenKey> kindMap;
+    private static final EnumMap<Tokens, TokenKey> KIND_MAP;
     /**
-     * The map for the strings without prefix
+     * The map for the strings without prefix.
      */
-    private final static EnumMap<QuoteClass, TokenKey> stringMap;
+    private static final EnumMap<QuoteClass, TokenKey> STRING_MAP;
     /**
-     * The map for multiline strings without prefix
+     * The map for multiline strings without prefix.
      */
-    private final static EnumMap<QuoteClass, TokenKey> multiLineStringMap;
+    private static final EnumMap<QuoteClass, TokenKey> MULTILINE_STRING_MAP;
 
     static {
-        EnumMap<Tokens, TokenKey> tokenKindMap = new EnumMap<Tokens, TokenKey>(Tokens.class);
+        final EnumMap<Tokens, TokenKey> tokenKindMap = new EnumMap<Tokens, TokenKey>(Tokens.class);
         for (Tokens k : Tokens.values()) {
             tokenKindMap.put(k, new TokenKey(k, null, null));
         }
-        kindMap = tokenKindMap;
-        EnumMap<QuoteClass, TokenKey> stringEnumMap = new EnumMap<QuoteClass, TokenKey>(QuoteClass.class);
+        KIND_MAP = tokenKindMap;
+        final EnumMap<QuoteClass, TokenKey> stringEnumMap = new EnumMap<QuoteClass, TokenKey>(QuoteClass.class);
         for (QuoteClass quoteClass : QuoteClass.values()) {
             stringEnumMap.put(quoteClass, new TokenKey(Tokens.STRING, null, quoteClass));
         }
-        stringMap = stringEnumMap;
-        EnumMap<QuoteClass, TokenKey> multiLineStringEnumMap = new EnumMap<QuoteClass, TokenKey>(QuoteClass.class);
+        STRING_MAP = stringEnumMap;
+        final EnumMap<QuoteClass, TokenKey> multiLineStringEnumMap
+                = new EnumMap<QuoteClass, TokenKey>(QuoteClass.class);
         for (QuoteClass quoteClass : QuoteClass.values()) {
             multiLineStringEnumMap.put(quoteClass, new TokenKey(Tokens.MULTILINE_STRING, null, quoteClass));
         }
-        multiLineStringMap = multiLineStringEnumMap;
+        MULTILINE_STRING_MAP = multiLineStringEnumMap;
     }
 
     /**
      * Pre-calculated hash code, the token key is used in hash maps extensively, so hash code is pre-calculated
-     * to speed up lookup and equality comparison
+     * to speed up lookup and equality comparison.
      */
     private final int hashCode;
     /**
-     * The token kind
+     * The token kind.
      */
     private final Tokens kind;
     /**
-     * The modifier (like suffix for numbers or prefix for strings)
+     * The modifier (like suffix for numbers or prefix for strings).
      */
     private final String modifier;
     /**
-     * The first quote for strings
+     * The quote class for strings.
      */
     private final QuoteClass quoteClass;
 
     /**
-     * The private constructor from fields
+     * The private constructor from fields.
      *
      * @param kind       the token kind
      * @param modifier   the token modifier
      * @param quoteClass the quote class
      */
-    private TokenKey(Tokens kind, String modifier, QuoteClass quoteClass) {
+    private TokenKey(final Tokens kind, final String modifier, final QuoteClass quoteClass) {
         this.kind = kind;
         this.modifier = modifier;
         this.quoteClass = quoteClass;
         hashCode = calculateHashCode();
+    }
+
+    /**
+     * Get string token key.
+     *
+     * @param kind   the token kind
+     * @param prefix the string prefix (or null for not prefixed string)
+     * @param start  the start quote
+     * @param end    the end quote
+     * @return the token key with specified parameters
+     */
+    public static TokenKey quoted(final Tokens kind, final String prefix, final int start,
+                                  final int end) {
+        if (start == -1 || end == -1) {
+            throw new IllegalArgumentException(
+                    "Start and end quoted should be defined: " + start + " : "
+                            + end);
+        }
+        return quoted(kind, prefix, QuoteClass.classify(start));
+    }
+
+    /**
+     * Get string token key.
+     *
+     * @param kind       the token kind
+     * @param prefix     the string prefix (or null for not prefixed string)
+     * @param quoteClass the quote class
+     * @return the token key with specified parameters
+     */
+    public static TokenKey quoted(final Tokens kind, final String prefix, final QuoteClass quoteClass) {
+        switch (kind) {
+            case PREFIXED_STRING:
+            case PREFIXED_MULTILINE_STRING:
+                if (prefix == null) {
+                    throw new IllegalArgumentException(
+                            "There must be prefix for prefixed string: " + kind);
+                }
+                break;
+            case STRING:
+                if (prefix != null) {
+                    throw new IllegalArgumentException(
+                            "There must not be prefix for unprefixed string: "
+                                    + kind);
+                }
+                return STRING_MAP.get(quoteClass);
+            case MULTILINE_STRING:
+                if (prefix != null) {
+                    throw new IllegalArgumentException(
+                            "There must not be prefix for unprefixed string: "
+                                    + kind);
+                }
+                return MULTILINE_STRING_MAP.get(quoteClass);
+            default:
+                throw new IllegalArgumentException("Not a string token: " + kind);
+        }
+        return new TokenKey(kind, prefix, quoteClass);
+    }
+
+    /**
+     * Get number token key.
+     *
+     * @param kind   the token kind
+     * @param suffix the number suffix (or null if there is no suffix)
+     * @return the token key with specified parameters
+     */
+    public static TokenKey modified(final Tokens kind, final String suffix) {
+        switch (kind) {
+            case INTEGER_WITH_SUFFIX:
+            case FLOAT_WITH_SUFFIX:
+                if (suffix == null) {
+                    throw new IllegalArgumentException(
+                            "There must be suffix for number with suffix: " + kind);
+                }
+                break;
+            case FLOAT:
+            case INTEGER:
+                if (suffix != null) {
+                    throw new IllegalArgumentException(
+                            "There must not be suffix for plain number: " + kind);
+                }
+                return simple(kind);
+            default:
+                throw new IllegalArgumentException("Not a modified token: " + kind);
+        }
+        return modifierKey(kind, suffix);
+    }
+
+    /**
+     * Get or create modified token key if does not exists yet.
+     *
+     * @param kind   a token kind
+     * @param suffix a token suffix
+     * @return the create key
+     */
+    private static TokenKey modifierKey(final Tokens kind, final String suffix) {
+        return new TokenKey(kind, suffix, null);
+    }
+
+    /**
+     * Get token kind that does not have any characteristic except kind.
+     *
+     * @param kind the token kind
+     * @return token key by token kind
+     */
+    public static TokenKey simple(final Tokens kind) {
+        switch (kind) {
+            case PREFIXED_STRING:
+            case PREFIXED_MULTILINE_STRING:
+            case INTEGER_WITH_SUFFIX:
+            case FLOAT_WITH_SUFFIX:
+            case STRING:
+            case MULTILINE_STRING:
+                throw new IllegalArgumentException(
+                        "Invalid token kind for the method: " + kind);
+            default:
+                return KIND_MAP.get(kind);
+        }
+    }
+
+    /**
+     * Get string token key with symmetric quotes and no prefix.
+     *
+     * @param kind  the token kind
+     * @param quote the quote to use
+     * @return the resulting key
+     */
+    public static TokenKey string(final Tokens kind, final int quote) {
+        return quoted(kind, null, quote, quote);
     }
 
     /**
@@ -144,144 +273,19 @@ public final class TokenKey {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        sb.append("TokenKey");
-        sb.append("{hashCode=").append(hashCode);
-        sb.append(", kind=").append(kind);
-        sb.append(", modifier='").append(modifier).append('\'');
-        sb.append(", quoteClass=").append(quoteClass);
-        sb.append('}');
+        sb.append(kind);
+        if (modifier != null) {
+            sb.append('/').append(modifier);
+        }
+        if (quoteClass != null) {
+            sb.append('!').append(quoteClass);
+        }
         return sb.toString();
     }
 
-    /**
-     * Get string token key
-     *
-     * @param kind   the token kind
-     * @param prefix the string prefix (or null for not prefixed string)
-     * @param start  the start quote
-     * @param end    the end quote
-     * @return the token key with specified parameters
-     */
-    public static TokenKey quoted(Tokens kind, String prefix, int start,
-                                  int end) {
-        if (start == -1 || end == -1) {
-            throw new IllegalArgumentException(
-                    "Start and end quoted should be defined: " + start + " : "
-                            + end);
-        }
-        return quoted(kind, prefix, QuoteClass.classify(start));
-    }
-
-    /**
-     * Get string token key
-     *
-     * @param kind       the token kind
-     * @param prefix     the string prefix (or null for not prefixed string)
-     * @param quoteClass the quote class
-     * @return the token key with specified parameters
-     */
-    public static TokenKey quoted(Tokens kind, String prefix, QuoteClass quoteClass) {
-        switch (kind) {
-            case PREFIXED_STRING:
-            case PREFIXED_MULTILINE_STRING:
-                if (prefix == null) {
-                    throw new IllegalArgumentException(
-                            "There must be prefix for prefixed string: " + kind);
-                }
-                break;
-            case STRING:
-                if (prefix != null) {
-                    throw new IllegalArgumentException(
-                            "There must not be prefix for unprefixed string: "
-                                    + kind);
-                }
-                return stringMap.get(quoteClass);
-            case MULTILINE_STRING:
-                if (prefix != null) {
-                    throw new IllegalArgumentException(
-                            "There must not be prefix for unprefixed string: "
-                                    + kind);
-                }
-                return multiLineStringMap.get(quoteClass);
-            default:
-                throw new IllegalArgumentException("Not a string token: " + kind);
-        }
-        return new TokenKey(kind, prefix, quoteClass);
-    }
-
-    /**
-     * Get number token key
-     *
-     * @param kind   the token kind
-     * @param suffix the number suffix (or null if there is no suffix)
-     * @return the token key with specified parameters
-     */
-    public static TokenKey modified(Tokens kind, String suffix) {
-        switch (kind) {
-            case INTEGER_WITH_SUFFIX:
-            case FLOAT_WITH_SUFFIX:
-                if (suffix == null) {
-                    throw new IllegalArgumentException(
-                            "There must be suffix for number with suffix: " + kind);
-                }
-                break;
-            case FLOAT:
-            case INTEGER:
-                if (suffix != null) {
-                    throw new IllegalArgumentException(
-                            "There must not be suffix for plain number: " + kind);
-                }
-                return simple(kind);
-            default:
-                throw new IllegalArgumentException("Not a modified token: " + kind);
-        }
-        return modifierKey(kind, suffix);
-    }
-
-    /**
-     * Get or create modified token key if does not exists yet
-     *
-     * @param kind   a token kind
-     * @param suffix a token suffix
-     * @return the create key
-     */
-    private static TokenKey modifierKey(Tokens kind, String suffix) {
-        return new TokenKey(kind, suffix, null);
-    }
-
-    /**
-     * Get token kind that does not have any characteristic except kind
-     *
-     * @param kind the token kind
-     * @return token key by token kind
-     */
-    public static TokenKey simple(Tokens kind) {
-        switch (kind) {
-            case PREFIXED_STRING:
-            case PREFIXED_MULTILINE_STRING:
-            case INTEGER_WITH_SUFFIX:
-            case FLOAT_WITH_SUFFIX:
-            case STRING:
-            case MULTILINE_STRING:
-                throw new IllegalArgumentException(
-                        "Invalid token kind for the method: " + kind);
-        }
-        return kindMap.get(kind);
-    }
-
-    /**
-     * Get string token key with symmetric quotes and no prefix
-     *
-     * @param kind  the token kind
-     * @param quote the quote to use
-     * @return the resulting key
-     */
-    public static TokenKey string(Tokens kind, int quote) {
-        return quoted(kind, null, quote, quote);
-    }
-
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
+        // CHECKSTYLE:OFF
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -293,6 +297,7 @@ public final class TokenKey {
         if (modifier != null ? !modifier.equals(tokenKey.modifier) : tokenKey.modifier != null) return false;
 
         return true;
+        // CHECKSTYLE:ON
     }
 
     @Override
@@ -304,9 +309,11 @@ public final class TokenKey {
      * @return calculated hash code
      */
     private int calculateHashCode() {
+        // CHECKSTYLE:OFF
         int result = kind != null ? kind.hashCode() : 0;
         result = 31 * result + (modifier != null ? modifier.hashCode() : 0);
         result = 31 * result + (quoteClass != null ? quoteClass.hashCode() : 0);
         return result;
+        // CHECKSTYLE:ON
     }
 }

@@ -28,25 +28,25 @@ package net.sf.etl.parsers.resource;
 import java.io.Serializable;
 
 /**
- * The request for the resource
+ * The request for the resource.
  */
-public class ResourceRequest implements Serializable {
+public final class ResourceRequest implements Serializable {
     /**
-     * The resource reference
+     * The resource reference.
      */
     private final ResourceReference resource;
     /**
-     * The role
+     * The role.
      */
     private final String role;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param resource the resource
      * @param role     the role of the resource
      */
-    public ResourceRequest(ResourceReference resource, String role) {
+    public ResourceRequest(final ResourceReference resource, final String role) {
         this.resource = resource;
         this.role = role;
     }
@@ -67,16 +67,12 @@ public class ResourceRequest implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("ResourceRequest");
-        sb.append("{resource=").append(resource);
-        sb.append(", role='").append(role).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "ResourceRequest{resource=" + resource + ", role='" + role + "'}";
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
+        //CHECKSTYLE:OFF
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -87,12 +83,15 @@ public class ResourceRequest implements Serializable {
         if (role != null ? !role.equals(that.role) : that.role != null) return false;
 
         return true;
+        //CHECKSTYLE:ON
     }
 
     @Override
     public int hashCode() {
+        //CHECKSTYLE:OFF
         int result = resource != null ? resource.hashCode() : 0;
         result = 31 * result + (role != null ? role.hashCode() : 0);
         return result;
+        //CHECKSTYLE:ON
     }
 }

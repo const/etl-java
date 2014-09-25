@@ -2,7 +2,7 @@
  * Reference ETL Parser for Java
  * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
- * Permission is hereby granted, free of charge, to any person 
+ * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
@@ -25,32 +25,22 @@
 
 package net.sf.etl.parsers.event.unstable.model.grammar;
 
-import net.sf.etl.parsers.ErrorInfo;
-import net.sf.etl.parsers.LoadedGrammarInfo;
 import net.sf.etl.parsers.StandardGrammars;
-import net.sf.etl.parsers.TermToken;
-import net.sf.etl.parsers.event.tree.FieldObjectFactory;
+import net.sf.etl.parsers.event.tree.SimpleObjectFactory;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 /**
- * The object factory that implement typical scenarios for loading grammar objects
+ * The object factory that implement typical scenarios for loading grammar objects.
  */
-public class GrammarLiteObjectFactory extends FieldObjectFactory<Element> {
-    /**
-     * The errors
-     */
-    private final ArrayList<ErrorInfo> errors = new ArrayList<ErrorInfo>();
-    /**
-     * The loaded grammar
-     */
-    private LoadedGrammarInfo loadedGrammar;
+public final class GrammarLiteObjectFactory extends SimpleObjectFactory<Element> {
 
+    /**
+     * The object factory.
+     */
     public GrammarLiteObjectFactory() {
         super(Element.class.getClassLoader());
-        setPosPolicy(PositionPolicy.SOURCE_LOCATION);
+        setPosPolicy(PositionPolicyLocation.<Element, Property, Class<?>, List<Object>>get());
         mapNamespaceToPackage(StandardGrammars.ETL_GRAMMAR_NAMESPACE,
                 "net.sf.etl.parsers.event.unstable.model.grammar");
         ignoreNamespace(StandardGrammars.DOCTYPE_NS);
@@ -59,46 +49,12 @@ public class GrammarLiteObjectFactory extends FieldObjectFactory<Element> {
     }
 
     @Override
-    public void handleErrorFromParser(TermToken errorToken) {
-        if (errorToken.hasErrors()) {
-            errors.add(errorToken.errorInfo());
-        }
-        if (errorToken.hasPhraseToken() && errorToken.token().hasErrors()) {
-            errors.add(errorToken.token().errorInfo());
-        }
-        if (errorToken.hasLexicalToken() && errorToken.token().token().hasErrors()) {
-            errors.add(errorToken.token().token().errorInfo());
-        }
-    }
-
-
-    @Override
-    public void valueEnlisted(Element rc, Field f, Object v) {
+    public void valueEnlisted(final Element rc, final Property f, final Object v) {
         if (v instanceof Element) {
             Element e = (Element) v;
-            e.ownerObject = rc;
-            e.ownerFeature = f;
+            e.setOwnerObject(rc);
+            e.setOwnerFeature(f.getName());
         }
         super.valueEnlisted(rc, f, v);
-    }
-
-    @Override
-    public void handleLoadedGrammar(TermToken token, LoadedGrammarInfo loadedGrammarInfo) {
-        loadedGrammar = loadedGrammarInfo;
-    }
-
-    /**
-     * @return all errors gathered during parsing
-     */
-    public Collection<ErrorInfo> errors() {
-        return errors;
-    }
-
-
-    /**
-     * @return the loaded grammar
-     */
-    public LoadedGrammarInfo getLoadedGrammar() {
-        return loadedGrammar;
     }
 }

@@ -25,13 +25,23 @@
 package net.sf.etl.parsers.term;
 
 import net.sf.etl.parsers.StandardGrammars;
-import net.sf.etl.parsers.TermToken;
 import net.sf.etl.parsers.event.tree.BeansObjectFactory;
 import net.sf.etl.parsers.event.tree.ObjectFactory;
-import net.sf.etl.parsers.term.beans.*;
+import net.sf.etl.parsers.term.beans.BlockExpression;
+import net.sf.etl.parsers.term.beans.Expression;
+import net.sf.etl.parsers.term.beans.ExpressionStatement;
+import net.sf.etl.parsers.term.beans.Identifier;
+import net.sf.etl.parsers.term.beans.IntegerLiteral;
+import net.sf.etl.parsers.term.beans.LetStatement;
+import net.sf.etl.parsers.term.beans.PlusOp;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import java.beans.BeanInfo;
+import java.beans.PropertyDescriptor;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test on imports
@@ -82,13 +92,9 @@ public class ImportsTest extends BeansTermCase {
 
     @Override
     protected BeansObjectFactory createBeansTermParser() {
-        final BeansObjectFactory rc = new BeansObjectFactory(getClass().getClassLoader()) {
-            @Override
-            public void handleErrorFromParser(TermToken errorToken) {
-                fail("Errors from parser are not expected: " + errorToken);
-            }
-        };
-        rc.setPosPolicy(ObjectFactory.PositionPolicy.POSITIONS);
+        final BeansObjectFactory rc = new BeansObjectFactory(getClass().getClassLoader());
+        rc.setPosPolicy(
+                ObjectFactory.PositionPolicyPositions.<Object, PropertyDescriptor, BeanInfo, List<Object>>get());
         rc.ignoreNamespace(StandardGrammars.DOCTYPE_NS);
         rc.mapNamespaceToPackage(
                 "http://etl.sf.net/2006/samples/imports/Expression/0.1",

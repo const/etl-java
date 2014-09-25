@@ -30,5 +30,5 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
  *
  * @author const
  */
-public class OneOrMoreOp extends RepeatOp {
+public final class OneOrMoreOp extends RepeatOp {
 }

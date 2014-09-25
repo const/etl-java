@@ -36,32 +36,33 @@ import net.sf.etl.parsers.event.impl.term.action.PushKeywordsAction;
 import java.util.HashSet;
 
 /**
- * The keyword scope node
+ * The keyword scope node.
  */
-public class KeywordScopeNode extends CleanupScopeNode {
+public final class KeywordScopeNode extends CleanupScopeNode {
     /**
-     * The keyword context to use
+     * The keyword context to use.
      */
     private KeywordContext context;
 
     @Override
-    protected Action buildStartState(ActionBuilder b, Action bodyStates, Action errorExit, Action errorCloseState) {
+    protected Action buildStartState(final ActionBuilder b, final Action bodyStates, final Action errorExit,
+                                     final Action errorCloseState) {
         ensureKeywordsGathered(b);
-        return new PushKeywordsAction(source, context, bodyStates);
+        return new PushKeywordsAction(getSource(), context, bodyStates);
     }
 
     @Override
-    protected Action buildEndState(ActionBuilder b, Action normalExit, Action errorExit) {
+    protected Action buildEndState(final ActionBuilder b, final Action normalExit, final Action errorExit) {
         ensureKeywordsGathered(b);
-        return new PopKeywordsAction(source, context, normalExit);
+        return new PopKeywordsAction(getSource(), context, normalExit);
     }
 
     /**
-     * Ensure that context keywords are gathered
+     * Ensure that context keywords are gathered.
      *
      * @param b the builder for the context
      */
-    private void ensureKeywordsGathered(ActionBuilder b) {
+    private void ensureKeywordsGathered(final ActionBuilder b) {
         if (context == null) {
             final HashSet<Keyword> keywords = new HashSet<Keyword>();
             innerNode().collectKeywords(keywords, new HashSet<ActionBuilder>());

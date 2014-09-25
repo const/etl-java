@@ -30,25 +30,25 @@ import net.sf.etl.parsers.event.grammar.TermParserState;
 import net.sf.etl.parsers.event.grammar.TermParserStateFactory;
 
 /**
- * Create new action state
+ * Create new action state.
  */
-public class ActionStateFactory implements TermParserStateFactory {
+public final class ActionStateFactory implements TermParserStateFactory {
     /**
-     * The start action
+     * The start action.
      */
     private final Action start;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param start the start action
      */
-    public ActionStateFactory(Action start) {
+    public ActionStateFactory(final Action start) {
         this.start = start;
     }
 
     @Override
-    public TermParserState start(TermParserContext context, TermParserState previous) {
+    public TermParserState start(final TermParserContext context, final TermParserState previous) {
         return new ActionState(context, previous, start);
     }
 }

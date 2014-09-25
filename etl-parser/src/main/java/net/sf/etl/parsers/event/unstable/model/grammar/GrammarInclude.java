@@ -30,5 +30,5 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
  *
  * @author const
  */
-public class GrammarInclude extends GrammarRef {
+public final class GrammarInclude extends GrammarRef {
 }

@@ -32,10 +32,26 @@ import net.sf.etl.parsers.Token;
  *
  * @author const
  */
-public class RefOp extends Syntax {
+public final class RefOp extends Syntax {
     /**
-     * name
+     * the name.
      */
-    public Token name;
+    private Token name;
 
+    /**
+     * @return the name.
+     */
+    public Token getName() {
+        return name;
+    }
+
+
+    /**
+     * Set the name.
+     *
+     * @param name the name
+     */
+    public void setName(final Token name) {
+        this.name = name;
+    }
 }

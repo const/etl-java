@@ -25,42 +25,46 @@
 
 package net.sf.etl.parsers.event.impl.term;
 
-import net.sf.etl.parsers.*;
+import net.sf.etl.parsers.DefinitionContext;
+import net.sf.etl.parsers.PhraseToken;
+import net.sf.etl.parsers.SyntaxRole;
+import net.sf.etl.parsers.TermToken;
+import net.sf.etl.parsers.Terms;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 import net.sf.etl.parsers.event.grammar.TermParserState;
 import net.sf.etl.parsers.event.grammar.TermParserStateFactory;
 
 /**
- * The recovery state factory
+ * The recovery state factory.
  */
-public class RecoveryStateFactory implements TermParserStateFactory {
+public final class RecoveryStateFactory implements TermParserStateFactory {
     /**
-     * The static instance for the factory
+     * The static instance for the factory.
      */
     public static final TermParserStateFactory INSTANCE = new RecoveryStateFactory();
 
 
     @Override
-    public TermParserState start(TermParserContext context, TermParserState previous) {
+    public TermParserState start(final TermParserContext context, final TermParserState previous) {
         return new RecoveryParserState(context, previous);
     }
 
     /**
-     * The parser state that is activated in the case of recovery
+     * The parser state that is activated in the case of recovery.
      */
     private static class RecoveryParserState extends TermParserState {
         /**
-         * Nesting level of block skipping
+         * Nesting level of block skipping.
          */
-        int blockSkip = 0;
+        private int blockSkip = 0;
 
         /**
-         * The constructor
+         * The constructor.
          *
          * @param context  context
          * @param previous previous state on the stack
          */
-        protected RecoveryParserState(TermParserContext context, TermParserState previous) {
+        protected RecoveryParserState(final TermParserContext context, final TermParserState previous) {
             super(context, previous);
         }
 
@@ -81,6 +85,7 @@ public class RecoveryStateFactory implements TermParserStateFactory {
 
         @Override
         public void parseMore() {
+            final TermParserContext context = getContext();
             if (TermParserContextUtil.skipIgnorable(null, context, true)) {
                 return;
             }
@@ -114,19 +119,22 @@ public class RecoveryStateFactory implements TermParserStateFactory {
         }
 
         /**
-         * Skip token during recovery
+         * Skip token during recovery.
          */
         private void skipToken() {
+            final TermParserContext context = getContext();
             final PhraseToken current = context.current();
             switch (current.kind()) {
                 case START_BLOCK:
                     blockSkip++;
-                    context.produce(new TermToken(Terms.BLOCK_START, SyntaxRole.CONTROL, DefinitionContext.UNKNOWN, current, current.start(), current.end(), null));
+                    context.produce(new TermToken(Terms.BLOCK_START, SyntaxRole.CONTROL, DefinitionContext.UNKNOWN,
+                            current, current.start(), current.end(), null));
                     context.consumePhraseToken();
                     return;
                 case END_BLOCK:
                     blockSkip--;
-                    context.produce(new TermToken(Terms.BLOCK_END, SyntaxRole.CONTROL, DefinitionContext.UNKNOWN, current, current.start(), current.end(), null));
+                    context.produce(new TermToken(Terms.BLOCK_END, SyntaxRole.CONTROL, DefinitionContext.UNKNOWN,
+                            current, current.start(), current.end(), null));
                     context.consumePhraseToken();
                     return;
                 case STATEMENT_END:

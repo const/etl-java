@@ -31,17 +31,18 @@ import net.sf.etl.parsers.event.impl.term.action.DisableSoftEndAction;
 import net.sf.etl.parsers.event.impl.term.action.EnableSoftEndAction;
 
 /**
- * The node that disables soft ends where they would have been otherwise allowed by the grammar
+ * The node that disables soft ends where they would have been otherwise allowed by the grammar.
  */
-public class DisableSoftEndsNode extends CleanupScopeNode {
+public final class DisableSoftEndsNode extends CleanupScopeNode {
 
     @Override
-    protected Action buildStartState(ActionBuilder b, Action bodyStates, Action errorExit, Action errorCloseState) {
-        return new DisableSoftEndAction(source, bodyStates);
+    protected Action buildStartState(final ActionBuilder b, final Action bodyStates, final Action errorExit,
+                                     final Action errorCloseState) {
+        return new DisableSoftEndAction(getSource(), bodyStates);
     }
 
     @Override
-    protected Action buildEndState(ActionBuilder b, Action normalExit, Action errorExit) {
-        return new EnableSoftEndAction(source, normalExit);
+    protected Action buildEndState(final ActionBuilder b, final Action normalExit, final Action errorExit) {
+        return new EnableSoftEndAction(getSource(), normalExit);
     }
 }

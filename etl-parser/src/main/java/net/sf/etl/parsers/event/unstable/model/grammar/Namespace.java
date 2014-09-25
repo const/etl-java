@@ -32,19 +32,67 @@ import net.sf.etl.parsers.Token;
  *
  * @author const
  */
-public class Namespace extends GrammarMember {
+public final class Namespace extends GrammarMember {
     /**
-     * prefix
+     * the prefix.
      */
-    public Token prefix;
+    private Token prefix;
     /**
-     * URI
+     * the URI.
      */
-    public Token uri;
+    private Token uri;
     /**
      * The modifier meaning that the namespace is used as default for object
      * creation expressions in operators and statements.
      */
-    public Modifier defaultModifier;
+    private Modifier defaultModifier;
 
+    /**
+     * @return the prefix.
+     */
+    public Token getPrefix() {
+        return prefix;
+    }
+
+    /**
+     * Set prefix.
+     *
+     * @param prefix the prefix.
+     */
+    public void setPrefix(final Token prefix) {
+        this.prefix = prefix;
+    }
+
+    /**
+     * @return the URI
+     */
+    public Token getUri() {
+        return uri;
+    }
+
+    /**
+     * Set URI.
+     *
+     * @param uri the uri
+     */
+    public void setUri(final Token uri) {
+        this.uri = uri;
+    }
+
+    /**
+     * @return The modifier meaning that the namespace is used as default for object
+     * creation expressions in operators and statements.
+     */
+    public Modifier getDefaultModifier() {
+        return defaultModifier;
+    }
+
+    /**
+     * Set modifier.
+     *
+     * @param defaultModifier the modifier.
+     */
+    public void setDefaultModifier(final Modifier defaultModifier) {
+        this.defaultModifier = defaultModifier;
+    }
 }

@@ -25,157 +25,267 @@
 
 package net.sf.etl.parsers.event.impl;
 
-import net.sf.etl.parsers.*;
-import net.sf.etl.parsers.characters.*;
+import net.sf.etl.parsers.DefaultTermParserConfiguration;
+import net.sf.etl.parsers.ErrorInfo;
+import net.sf.etl.parsers.ParserException;
+import net.sf.etl.parsers.TermParserConfiguration;
+import net.sf.etl.parsers.TextPos;
+import net.sf.etl.parsers.Token;
+import net.sf.etl.parsers.TokenKey;
+import net.sf.etl.parsers.Tokens;
+import net.sf.etl.parsers.characters.Brackets;
+import net.sf.etl.parsers.characters.Graphics;
+import net.sf.etl.parsers.characters.Identifiers;
+import net.sf.etl.parsers.characters.Numbers;
+import net.sf.etl.parsers.characters.QuoteClass;
+import net.sf.etl.parsers.characters.Whitespaces;
 import net.sf.etl.parsers.event.Lexer;
 import net.sf.etl.parsers.event.ParserState;
 
 import java.nio.CharBuffer;
 
 /**
- * The lexer implementation
+ * The lexer implementation.
  */
-public class LexerImpl implements Lexer {
-    // phases for parsing number
-    private static final int NUMBER_DECIMAL = 0;
-    private static final int NUMBER_DECIMAL_FRACTION = 1;
-    private static final int NUMBER_BASED = 2;
-    private static final int NUMBER_BASED_FRACTION = 3;
-    private static final int NUMBER_BEFORE_EXPONENT = 4;
-    private static final int NUMBER_BEFORE_SUFFIX = 5;
-    private static final int NUMBER_AFTER_EXPONENT = 6;
-    private static final int NUMBER_AFTER_EXPONENT_SIGN = 7;
-    private static final int NUMBER_IN_EXPONENT_VALUE = 8;
-    private static final int NUMBER_SUFFIX = 9;
-    private static final int GRAPHICS_NORMAL = 10;
-    private static final int LINE_COMMENT_NORMAL = 60;
-    private static final int LINE_COMMENT_START = 61;
-    private static final int BLOCK_COMMENT_AFTER_STAR = 20;
-    private static final int BLOCK_COMMENT_AFTER_CR = 21;
-    private static final int BLOCK_COMMENT_NORMAL = 22;
-    private static final int STRING_START_FIRST_QUOTE = 31;
-    private static final int STRING_START_SECOND_QUOTE = 32;
-    private static final int STRING_NORMAL = 33;
-    private static final int STRING_ESCAPED = 35;
-    private static final int STRING_MULTILINE_NORMAL = 36;
-    private static final int STRING_MULTILINE_AFTER_CR = 37;
-    private static final int STRING_MULTILINE_ESCAPED = 38;
-    private static final int STRING_MULTILINE_END_FIRST_QUOTE = 39;
-    private static final int STRING_MULTILINE_END_SECOND_QUOTE = 40;
-    private static final int NEWLINE_NORMAL = 50;
-    private static final int NEWLINE_AFTER_CR = 51;
+public final class LexerImpl implements Lexer {
+    /**
+     * The unknown file URL.
+     */
     public static final String UNKNOWN_FILE = "unknown:file";
     /**
-     * The parser configuration
-     */
-    private final TermParserConfiguration configuration;
-    /**
-     * If true, parsing started
-     */
-    private boolean started;
-    /**
-     * If true, parsing finished
-     */
-    private boolean finished;
-    /**
-     * null or buffer with current data for the token
-     */
-    private StringBuilder text;
-    /**
-     * The key for the token
-     */
-    private Tokens kind;
-    /**
-     * The token
-     */
-    private Token next;
-    /**
-     * The start position
-     */
-    private TextPos start = TextPos.START;
-    /**
-     * The line
-     */
-    private int line = TextPos.START_LINE;
-    /**
-     * The column
-     */
-    private int column = TextPos.START_COLUMN;
-    /**
-     * The offset
-     */
-    private long offset = TextPos.START_OFFSET;
-    /**
-     * The system identifier for the source
+     * The system identifier for the source.
      */
     private String systemId = UNKNOWN_FILE;
     /**
-     * Start modifier
+     * The max supported base.
+     */
+    public static final int MAX_BASE = 36;
+    /**
+     * Number: Decimal digits.
+     * // TODO refactor numbers to be java-like
+     */
+    private static final int NUMBER_DECIMAL = 0;
+    /**
+     * Number: Decimal fraction.
+     */
+    private static final int NUMBER_DECIMAL_FRACTION = 1;
+    /**
+     * Number: Based.
+     */
+    private static final int NUMBER_BASED = 2;
+    /**
+     * Number: Based fraction.
+     */
+    private static final int NUMBER_BASED_FRACTION = 3;
+    /**
+     * Number: Before exponent.
+     */
+    private static final int NUMBER_BEFORE_EXPONENT = 4;
+    /**
+     * Number: before suffix.
+     */
+    private static final int NUMBER_BEFORE_SUFFIX = 5;
+    /**
+     * Number: after exponent.
+     */
+    private static final int NUMBER_AFTER_EXPONENT = 6;
+    /**
+     * Number: after exponent sign.
+     */
+    private static final int NUMBER_AFTER_EXPONENT_SIGN = 7;
+    /**
+     * Number: in exponent value.
+     */
+    private static final int NUMBER_IN_EXPONENT_VALUE = 8;
+    /**
+     * Number: suffix.
+     */
+    private static final int NUMBER_SUFFIX = 9;
+    /**
+     * Graphics: normal.
+     */
+    private static final int GRAPHICS_NORMAL = 10;
+    /**
+     * Line comment: normal.
+     */
+    private static final int LINE_COMMENT_NORMAL = 60;
+    /**
+     * Line comment: start.
+     */
+    private static final int LINE_COMMENT_START = 61;
+    /**
+     * Block comment: after start.
+     */
+    private static final int BLOCK_COMMENT_AFTER_STAR = 20;
+    /**
+     * Block comment: after CR.
+     */
+    private static final int BLOCK_COMMENT_AFTER_CR = 21;
+    /**
+     * Block comment: normal.
+     */
+    private static final int BLOCK_COMMENT_NORMAL = 22;
+    /**
+     * String: start, first quote.
+     */
+    private static final int STRING_START_FIRST_QUOTE = 31;
+    /**
+     * String: start, second quote.
+     */
+    private static final int STRING_START_SECOND_QUOTE = 32;
+    /**
+     * String: normal.
+     */
+    private static final int STRING_NORMAL = 33;
+    /**
+     * String: escaped.
+     */
+    private static final int STRING_ESCAPED = 35;
+    /**
+     * String: multiline normal.
+     */
+    private static final int STRING_MULTILINE_NORMAL = 36;
+    /**
+     * String: multiline after CR.
+     */
+    private static final int STRING_MULTILINE_AFTER_CR = 37;
+    /**
+     * String: multiline escaped.
+     */
+    private static final int STRING_MULTILINE_ESCAPED = 38;
+    /**
+     * String: multiline end fist quote.
+     */
+    private static final int STRING_MULTILINE_END_FIRST_QUOTE = 39;
+    /**
+     * String multiline end second quote.
+     */
+    private static final int STRING_MULTILINE_END_SECOND_QUOTE = 40;
+    /**
+     * Newline: normal.
+     */
+    private static final int NEWLINE_NORMAL = 50;
+    /**
+     * Newline: after CR.
+     */
+    private static final int NEWLINE_AFTER_CR = 51;
+    /**
+     * The parser configuration.
+     */
+    private final TermParserConfiguration configuration;
+    /**
+     * If true, parsing started.
+     */
+    private boolean started;
+    /**
+     * If true, parsing finished.
+     */
+    private boolean finished;
+    /**
+     * null or buffer with current data for the token.
+     */
+    private StringBuilder text;
+    /**
+     * The key for the token.
+     */
+    private Tokens kind;
+    /**
+     * The token.
+     */
+    private Token next;
+    /**
+     * The start position.
+     */
+    private TextPos start = TextPos.START;
+    /**
+     * The line.
+     */
+    private int line = TextPos.START_LINE;
+    /**
+     * The column.
+     */
+    private int column = TextPos.START_COLUMN;
+    /**
+     * The offset.
+     */
+    private long offset = TextPos.START_OFFSET;
+    /**
+     * Start modifier.
      */
     private String modifier;
     /**
-     * Start quote
+     * Start quote.
      */
     private int startQuote;
     /**
-     * End quote
+     * End quote.
      */
     private int endQuote;
     /**
-     * The error
+     * The error.
      */
     private ErrorInfo errorInfo;
     /**
-     * The quote class when parsing string
+     * The quote class when parsing string.
      */
     private QuoteClass quoteClass;
     /**
-     * The phase of parsing complex token
+     * The phase of parsing complex token.
      */
     private int phase;
     /**
-     * Phase start position in the buffer
+     * Phase start position in the buffer.
      */
     private int phaseStart;
     /**
-     * The base of the number
+     * The base of the number.
      */
     private int numberBase;
     /**
-     * The tab size
+     * The tab size.
      */
     private int tabSize;
 
     /**
-     * The constructor from configuration
+     * The constructor from configuration.
      *
      * @param configuration the configuration
      */
-    public LexerImpl(TermParserConfiguration configuration) {
+    public LexerImpl(final TermParserConfiguration configuration) {
         this.configuration = configuration;
     }
 
     /**
-     * The default constructor
+     * The default constructor.
      */
     public LexerImpl() {
         this(DefaultTermParserConfiguration.INSTANCE);
     }
 
-
-    @Override
-    public void start(String systemId, TextPos start) {
-        tabSize = configuration.getTabSize(systemId);
-        if (started) {
-            throw new IllegalStateException("The parsing is already started with: " + systemId + " : " + start);
-        }
-        started = true;
-        this.start = start;
-        this.systemId = systemId;
+    /**
+     * Find column after tab.
+     *
+     * @param current the current position
+     * @param tabSize the tabulation size
+     * @return the new position after tab
+     */
+    public static int tab(final int current, final int tabSize) {
+        return ((current - 1) / tabSize + 1) * tabSize + 1;
     }
 
     @Override
-    public ParserState parse(CharBuffer buffer, boolean eof) {
+    public void start(final String startSystemId, final TextPos startPosition) {
+        tabSize = configuration.getTabSize(startSystemId);
+        if (started) {
+            throw new ParserException("The parsing is already started with: " + systemId + " : " + start);
+        }
+        started = true;
+        this.start = startPosition;
+        this.systemId = startSystemId;
+    }
+
+    @Override
+    public ParserState parse(final CharBuffer buffer, final boolean eof) {
         if (!started) {
             throw new IllegalStateException("The parser is not yet started!");
         }
@@ -193,6 +303,7 @@ public class LexerImpl implements Lexer {
             }
             // handle one lines
             int c = peek(buffer, eof);
+            // CHECKSTYLE:OFF
             switch (c) {
                 case 0x007B: // Ps: LEFT CURLY BRACKET
                 case 0xFF5B: // Ps: FULLWIDTH LEFT CURLY BRACKET
@@ -201,6 +312,7 @@ public class LexerImpl implements Lexer {
                 case 0xFF5D: // Pe: FULLWIDTH RIGHT CURLY BRACKET
                     return single(buffer, eof, Tokens.CLOSE_CURLY);
             }
+            // CHECKSTYLE:ON
             if (Whitespaces.isSpace(c)) {
                 return parseSpace(buffer, eof);
             }
@@ -266,21 +378,38 @@ public class LexerImpl implements Lexer {
         }
     }
 
-    private ParserState parseNumber(CharBuffer buffer, boolean eof) {
+    /**
+     * Start parsing number.
+     *
+     * @param buffer the buffer
+     * @param eof    the eof indicator
+     * @return the parser state
+     */
+    private ParserState parseNumber(final CharBuffer buffer, final boolean eof) {
         kind = Tokens.INTEGER;
         phase = NUMBER_DECIMAL;
         return continueNumber(buffer, eof);
     }
 
-    private ParserState continueNumber(CharBuffer buffer, boolean eof) {
+    /**
+     * Continue parsing number.
+     *
+     * @param buffer the buffer
+     * @param eof    the eof indicator
+     * @return the parser state
+     */
+    private ParserState continueNumber(final CharBuffer buffer, final boolean eof) {
         while (true) {
-            if (moreDataNeeded(buffer, eof)) return ParserState.INPUT_NEEDED;
+            if (moreDataNeeded(buffer, eof)) {
+                return ParserState.INPUT_NEEDED;
+            }
             int codepoint = peek(buffer, eof);
             switch (phase) {
                 case NUMBER_DECIMAL:
                     if (Numbers.isDecimal(codepoint) || Identifiers.isConnectorChar(codepoint)) {
                         codepoint(buffer, eof);
-                    } else if (Numbers.isBasedNumberChar(codepoint) && !Identifiers.isConnectorChar(Character.codePointBefore(text, text.length()))) {
+                    } else if (Numbers.isBasedNumberChar(codepoint)
+                            && !Identifiers.isConnectorChar(Character.codePointBefore(text, text.length()))) {
                         if (moreDataNeededNext(buffer, eof)) {
                             return ParserState.INPUT_NEEDED;
                         }
@@ -295,15 +424,17 @@ public class LexerImpl implements Lexer {
                         }
                         codepoint(buffer, eof);
                         phase = NUMBER_BASED;
-                        if (numberBase < 2 || numberBase > 36) {
+                        if (numberBase < 2 || numberBase > MAX_BASE) {
                             error("lexical.NumberBaseIsOutOfRange", start, current());
-                            numberBase = 36; // using it for sake of parsing only
+                            numberBase = MAX_BASE; // using it for sake of parsing only
                         }
                     } else if (codepoint == '.') {
                         if (Identifiers.isConnectorChar(text.codePointBefore(text.length()))) {
                             return makeToken();
                         }
-                        if (moreDataNeededNext(buffer, eof)) return ParserState.INPUT_NEEDED;
+                        if (moreDataNeededNext(buffer, eof)) {
+                            return ParserState.INPUT_NEEDED;
+                        }
                         codepoint = peekNext(buffer, eof);
                         if (Numbers.isDecimal(codepoint)) {
                             kind = Tokens.FLOAT;
@@ -353,7 +484,8 @@ public class LexerImpl implements Lexer {
                     }
                     break;
                 case NUMBER_BEFORE_EXPONENT:
-                    if (Numbers.isExponentChar(codepoint) && !Identifiers.isConnectorChar(Character.codePointBefore(text, text.length()))) {
+                    if (Numbers.isExponentChar(codepoint)
+                            && !Identifiers.isConnectorChar(Character.codePointBefore(text, text.length()))) {
                         kind = Tokens.FLOAT;
                         codepoint(buffer, eof);
                         phase = NUMBER_AFTER_EXPONENT;
@@ -384,9 +516,9 @@ public class LexerImpl implements Lexer {
                     }
                     break;
                 case NUMBER_BEFORE_SUFFIX:
-                    if (Identifiers.isIdentifierStart(codepoint) && !Numbers.isExponentChar(codepoint) &&
-                            !Identifiers.isConnectorChar(codepoint) &&
-                            !Identifiers.isConnectorChar(Character.codePointBefore(text, text.length()))) {
+                    if (Identifiers.isIdentifierStart(codepoint) && !Numbers.isExponentChar(codepoint)
+                            && !Identifiers.isConnectorChar(codepoint)
+                            && !Identifiers.isConnectorChar(Character.codePointBefore(text, text.length()))) {
                         phase = NUMBER_SUFFIX;
                         phaseStart = text.length();
                         codepoint(buffer, eof);
@@ -409,7 +541,14 @@ public class LexerImpl implements Lexer {
         }
     }
 
-    private ParserState parseString(CharBuffer buffer, boolean eof) {
+    /**
+     * Start parsing string.
+     *
+     * @param buffer the buffer
+     * @param eof    the eof flag
+     * @return the parser state
+     */
+    private ParserState parseString(final CharBuffer buffer, final boolean eof) {
         if (text != null && text.length() != 0) {
             modifier = text.toString();
             kind = Tokens.PREFIXED_STRING;
@@ -421,9 +560,18 @@ public class LexerImpl implements Lexer {
         return continueString(buffer, eof);
     }
 
-    private ParserState continueString(CharBuffer buffer, boolean eof) {
+    /**
+     * Continue parsing string.
+     *
+     * @param buffer the buffer
+     * @param eof    the eof indicator
+     * @return the parser state
+     */
+    private ParserState continueString(final CharBuffer buffer, final boolean eof) {
         while (true) {
-            if (moreDataNeeded(buffer, eof)) return ParserState.INPUT_NEEDED;
+            if (moreDataNeeded(buffer, eof)) {
+                return ParserState.INPUT_NEEDED;
+            }
             int codepoint = peek(buffer, eof);
             switch (phase) {
                 case STRING_START_FIRST_QUOTE:
@@ -516,8 +664,8 @@ public class LexerImpl implements Lexer {
                         return makeToken();
                     }
                     if (!consumeNewLine(buffer, eof, STRING_MULTILINE_AFTER_CR, STRING_MULTILINE_NORMAL)) {
-                        throw new IllegalStateException("Invalid lexer state, in case of after CR, " +
-                                "never should need more data: " + this);
+                        throw new IllegalStateException("Invalid lexer state, in case of after CR, "
+                                + "never should need more data: " + this);
                     }
                     break;
                 case STRING_MULTILINE_END_FIRST_QUOTE:
@@ -552,29 +700,59 @@ public class LexerImpl implements Lexer {
         }
     }
 
-    private ParserState parseSpace(CharBuffer buffer, boolean eof) {
+    /**
+     * Parse space.
+     *
+     * @param buffer the buffer.
+     * @param eof    the eof indicator
+     * @return the parser state
+     */
+    private ParserState parseSpace(final CharBuffer buffer, final boolean eof) {
         kind = Tokens.WHITESPACE;
         return continueSpaces(buffer, eof);
     }
 
-    private ParserState continueSpaces(CharBuffer buffer, boolean eof) {
+    /**
+     * Continue parsing space.
+     *
+     * @param buffer the buffer.
+     * @param eof    the eof indicator
+     * @return the parser state
+     */
+    private ParserState continueSpaces(final CharBuffer buffer, final boolean eof) {
         while (Whitespaces.isSpace(peek(buffer, eof))) {
             final int codepoint = codepoint(buffer, eof);
             if (codepoint == '\t') {
                 column = tab(column - 1, tabSize);
             }
-            if (moreDataNeeded(buffer, eof)) return ParserState.INPUT_NEEDED;
+            if (moreDataNeeded(buffer, eof)) {
+                return ParserState.INPUT_NEEDED;
+            }
         }
         return makeToken();
     }
 
-    private ParserState parseNewline(CharBuffer buffer, boolean eof) {
+    /**
+     * Parse new line.
+     *
+     * @param buffer the buffer.
+     * @param eof    the eof indicator
+     * @return the parser state
+     */
+    private ParserState parseNewline(final CharBuffer buffer, final boolean eof) {
         kind = Tokens.NEWLINE;
         phase = NEWLINE_NORMAL;
         return continueNewLine(buffer, eof);
     }
 
-    private ParserState continueNewLine(CharBuffer buffer, boolean eof) {
+    /**
+     * Continue parsing new line.
+     *
+     * @param buffer the buffer
+     * @param eof    the eof indicator
+     * @return the parser state
+     */
+    private ParserState continueNewLine(final CharBuffer buffer, final boolean eof) {
         if (consumeNewLine(buffer, eof, NEWLINE_AFTER_CR, NEWLINE_NORMAL)) {
             return makeToken();
         } else {
@@ -583,7 +761,7 @@ public class LexerImpl implements Lexer {
     }
 
     /**
-     * Consume new line
+     * Consume new line.
      *
      * @param buffer      the buffer to consume from
      * @param eof         true if the eof
@@ -591,7 +769,8 @@ public class LexerImpl implements Lexer {
      * @param normalPhase the id of normal phase
      * @return true if new line was successfully parsed, false if more data is needed
      */
-    private boolean consumeNewLine(CharBuffer buffer, boolean eof, int crPhase, int normalPhase) {
+    private boolean consumeNewLine(final CharBuffer buffer, final boolean eof, final int crPhase,
+                                   final int normalPhase) {
         int codepoint;
         if (phase == normalPhase) {
             codepoint = codepoint(buffer, eof);
@@ -619,13 +798,13 @@ public class LexerImpl implements Lexer {
     }
 
     /**
-     * Parse identifier
+     * Parse identifier.
      *
      * @param buffer the buffer to parse
      * @param eof    the eof
-     * @return the parsed identifier
+     * @return the parser state
      */
-    private ParserState parseIdentifier(CharBuffer buffer, boolean eof) {
+    private ParserState parseIdentifier(final CharBuffer buffer, final boolean eof) {
         kind = Tokens.IDENTIFIER;
         codepoint(buffer, eof);
         if (moreDataNeeded(buffer, eof)) {
@@ -634,13 +813,21 @@ public class LexerImpl implements Lexer {
         return continueIdentifier(buffer, eof);
     }
 
-    private ParserState continueIdentifier(CharBuffer buffer, boolean eof) {
-        int codepoint;
-        while (Identifiers.isIdentifierPart(codepoint = peek(buffer, eof))) {
+    /**
+     * Continue parsing identifier.
+     *
+     * @param buffer the buffer
+     * @param eof    the eof indicator
+     * @return the parser state
+     */
+    private ParserState continueIdentifier(final CharBuffer buffer, final boolean eof) {
+        int codepoint = peek(buffer, eof);
+        while (Identifiers.isIdentifierPart(codepoint)) {
             codepoint(buffer, eof);
             if (moreDataNeeded(buffer, eof)) {
                 return ParserState.INPUT_NEEDED;
             }
+            codepoint = peek(buffer, eof);
         }
         quoteClass = QuoteClass.classify(codepoint);
         if (quoteClass != null) {
@@ -650,24 +837,31 @@ public class LexerImpl implements Lexer {
     }
 
     /**
-     * Parse identifier
+     * Parse graphics.
      *
      * @param buffer the buffer to parse
      * @param eof    the eof
-     * @return the parsed identifier
+     * @return the parser state
      */
-    private ParserState parseGraphics(CharBuffer buffer, boolean eof) {
+    private ParserState parseGraphics(final CharBuffer buffer, final boolean eof) {
         kind = Tokens.GRAPHICS;
         phase = GRAPHICS_NORMAL;
         return continueGraphics(buffer, eof);
     }
 
-    private ParserState continueGraphics(CharBuffer buffer, boolean eof) {
+    /**
+     * Continue graphics.
+     *
+     * @param buffer the buffer
+     * @param eof    the eof
+     * @return the parser state
+     */
+    private ParserState continueGraphics(final CharBuffer buffer, final boolean eof) {
         while (true) {
             if (moreDataNeeded(buffer, eof)) {
                 return ParserState.INPUT_NEEDED;
             }
-            int codepoint = peek(buffer, eof);
+            final int codepoint = peek(buffer, eof);
             switch (phase) {
                 case GRAPHICS_NORMAL:
                     switch (codepoint) {
@@ -675,10 +869,10 @@ public class LexerImpl implements Lexer {
                             if (moreDataNeededNext(buffer, eof)) {
                                 return ParserState.INPUT_NEEDED;
                             }
-                            int next = peekNext(buffer, eof);
-                            if (next == '*' || next == '/') {
+                            final int nextCodepoint = peekNext(buffer, eof);
+                            if (nextCodepoint == '*' || nextCodepoint == '/') {
                                 if (text == null || text.length() == 0) {
-                                    if (next == '*') {
+                                    if (nextCodepoint == '*') {
                                         return parseBlockComment(buffer, eof);
                                     } else {
                                         return parseLineComment(buffer, eof);
@@ -694,7 +888,7 @@ public class LexerImpl implements Lexer {
                             if (moreDataNeededNext(buffer, eof)) {
                                 return ParserState.INPUT_NEEDED;
                             }
-                            int nextShebang = peekNext(buffer, eof);
+                            final int nextShebang = peekNext(buffer, eof);
                             if (nextShebang == '!') {
                                 if (text == null || text.length() == 0) {
                                     return parseLineComment(buffer, eof);
@@ -714,11 +908,21 @@ public class LexerImpl implements Lexer {
                                 return makeToken();
                             }
                     }
+                    break;
+                default:
+                    break;
             }
         }
     }
 
-    private ParserState parseLineComment(CharBuffer buffer, boolean eof) {
+    /**
+     * Parse line comment.
+     *
+     * @param buffer the buffer to parse
+     * @param eof    the eof indicator
+     * @return the parser state
+     */
+    private ParserState parseLineComment(final CharBuffer buffer, final boolean eof) {
         // it is already known that it is line comment
         kind = Tokens.LINE_COMMENT;
         int first = codepoint(buffer, eof);
@@ -730,7 +934,14 @@ public class LexerImpl implements Lexer {
         return continueLineComment(buffer, eof);
     }
 
-    private ParserState continueLineComment(CharBuffer buffer, boolean eof) {
+    /**
+     * Continue line comment.
+     *
+     * @param buffer the buffer to parse
+     * @param eof    the eof indicator
+     * @return the parser state
+     */
+    private ParserState continueLineComment(final CharBuffer buffer, final boolean eof) {
         int codepoint = peek(buffer, eof);
         if (phase == LINE_COMMENT_START) {
             if (codepoint == '/') {
@@ -751,7 +962,14 @@ public class LexerImpl implements Lexer {
         return makeToken();
     }
 
-    private ParserState parseBlockComment(CharBuffer buffer, boolean eof) {
+    /**
+     * Parse block comment.
+     *
+     * @param buffer the buffer
+     * @param eof    the eof indicator
+     * @return the parser state
+     */
+    private ParserState parseBlockComment(final CharBuffer buffer, final boolean eof) {
         // it is already known that it is line comment
         kind = Tokens.BLOCK_COMMENT;
         codepoint(buffer, eof);
@@ -760,7 +978,14 @@ public class LexerImpl implements Lexer {
         return continueBlockComment(buffer, eof);
     }
 
-    private ParserState continueBlockComment(CharBuffer buffer, boolean eof) {
+    /**
+     * Continue block comment.
+     *
+     * @param buffer the buffer
+     * @param eof    the eof indicator
+     * @return the parser state
+     */
+    private ParserState continueBlockComment(final CharBuffer buffer, final boolean eof) {
         while (true) {
             if (moreDataNeededNext(buffer, eof)) {
                 return ParserState.INPUT_NEEDED;
@@ -809,20 +1034,20 @@ public class LexerImpl implements Lexer {
      * @param token  the token type
      * @return parsing result
      */
-    private ParserState single(CharBuffer buffer, boolean eof, Tokens token) {
+    private ParserState single(final CharBuffer buffer, final boolean eof, final Tokens token) {
         codepoint(buffer, eof);
         kind = token;
         return makeToken();
     }
 
     /**
-     * Consume single code point
+     * Consume single code point.
      *
      * @param buffer the buffer to codepoint from
      * @param eof    the eof flag
      * @return the codepoint value
      */
-    private int codepoint(CharBuffer buffer, boolean eof) {
+    private int codepoint(final CharBuffer buffer, final boolean eof) {
         assert !moreDataNeeded(buffer, eof) : "Can consume only if there is data available";
         int c = Character.codePointAt(buffer, 0);
         if (text == null) {
@@ -842,7 +1067,14 @@ public class LexerImpl implements Lexer {
         return c;
     }
 
-    private int peek(CharBuffer buffer, boolean eof) {
+    /**
+     * Peek character in the buffer.
+     *
+     * @param buffer the buffer
+     * @param eof    the eof indicator
+     * @return the parser state
+     */
+    private int peek(final CharBuffer buffer, final boolean eof) {
         assert !moreDataNeeded(buffer, eof) : "Can peek only if there is data available";
         if (eof && buffer.remaining() == 0) {
             return -1;
@@ -850,7 +1082,14 @@ public class LexerImpl implements Lexer {
         return Character.codePointAt(buffer, 0);
     }
 
-    private int peekNext(CharBuffer buffer, boolean eof) {
+    /**
+     * Peek the next character in the buffer.
+     *
+     * @param buffer the buffer.
+     * @param eof    the eof indicator
+     * @return the codepoint
+     */
+    private int peekNext(final CharBuffer buffer, final boolean eof) {
         assert !moreDataNeededNext(buffer, eof) : "Can peek only if there is data available";
         if (eof && buffer.remaining() == 0) {
             return -1;
@@ -863,16 +1102,37 @@ public class LexerImpl implements Lexer {
         return Character.codePointAt(buffer, p);
     }
 
-    private void error(String id, TextPos s, TextPos e) {
+    /**
+     * Add error to the token.
+     *
+     * @param id the error id
+     * @param s  the star pos
+     * @param e  the end pos
+     */
+    private void error(final String id, final TextPos s, final TextPos e) {
         errorInfo = new ErrorInfo(id, ErrorInfo.NO_ARGS, s, e, systemId, errorInfo);
     }
 
-    private boolean moreDataNeeded(CharBuffer buffer, boolean eof) {
-        return !eof && (buffer.remaining() == 0 ||
-                (buffer.remaining() == 1 && Character.isHighSurrogate(buffer.charAt(0))));
+    /**
+     * Check if more data is needed.
+     *
+     * @param buffer the buffer
+     * @param eof    the eof indicator
+     * @return true if more data is needed
+     */
+    private boolean moreDataNeeded(final CharBuffer buffer, final boolean eof) {
+        return !eof && (buffer.remaining() == 0
+                || (buffer.remaining() == 1 && Character.isHighSurrogate(buffer.charAt(0))));
     }
 
-    private boolean moreDataNeededNext(CharBuffer buffer, boolean eof) {
+    /**
+     * Check if more data is needed for peeking the next character (after the current).
+     *
+     * @param buffer the buffer
+     * @param eof    the eof indicator
+     * @return true if more data is needed
+     */
+    private boolean moreDataNeededNext(final CharBuffer buffer, final boolean eof) {
         if (eof) {
             return false;
         }
@@ -885,7 +1145,7 @@ public class LexerImpl implements Lexer {
     }
 
     /**
-     * Create token
+     * Create token.
      *
      * @return output available status
      */
@@ -928,38 +1188,27 @@ public class LexerImpl implements Lexer {
         return rc;
     }
 
-    /**
-     * Find column after tab
-     *
-     * @param current the current position
-     * @param tabSize the tabulation size
-     * @return the new position after tab
-     */
-    public static int tab(int current, int tabSize) {
-        return ((current - 1) / tabSize + 1) * tabSize + 1;
-    }
-
     @Override
     public String toString() {
-        return "LexerImpl{" +
-                "started=" + started +
-                ", finished=" + finished +
-                ", text=" + text +
-                ", kind=" + kind +
-                ", next=" + next +
-                ", start=" + start +
-                ", line=" + line +
-                ", column=" + column +
-                ", offset=" + offset +
-                ", systemId='" + systemId + '\'' +
-                ", modifier='" + modifier + '\'' +
-                ", startQuote=" + startQuote +
-                ", endQuote=" + endQuote +
-                ", errorInfo=" + errorInfo +
-                ", quoteClass=" + quoteClass +
-                ", phase=" + phase +
-                ", phaseStart=" + phaseStart +
-                ", numberBase=" + numberBase +
-                '}';
+        return "LexerImpl{"
+                + "started=" + started
+                + ", finished=" + finished
+                + ", text=" + text
+                + ", kind=" + kind
+                + ", next=" + next
+                + ", start=" + start
+                + ", line=" + line
+                + ", column=" + column
+                + ", offset=" + offset
+                + ", systemId='" + systemId + '\''
+                + ", modifier='" + modifier + '\''
+                + ", startQuote=" + startQuote
+                + ", endQuote=" + endQuote
+                + ", errorInfo=" + errorInfo
+                + ", quoteClass=" + quoteClass
+                + ", phase=" + phase
+                + ", phaseStart=" + phaseStart
+                + ", numberBase=" + numberBase
+                + '}';
     }
 }

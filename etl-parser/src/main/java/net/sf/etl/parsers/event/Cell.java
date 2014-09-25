@@ -26,11 +26,13 @@
 package net.sf.etl.parsers.event;
 
 /**
- * Single element cell to pass tokens to the parser
+ * Single element cell to pass tokens to the parser.
+ *
+ * @param <T> the value type
  */
-public class Cell<T> {
+public final class Cell<T> {
     /**
-     * The element in the cell
+     * The element in the cell.
      */
     private T element;
 
@@ -42,7 +44,7 @@ public class Cell<T> {
     }
 
     /**
-     * Take element from the cell
+     * Take element from the cell.
      *
      * @return a consumed element
      * @throws IllegalStateException if there is no an element in the cell
@@ -51,13 +53,13 @@ public class Cell<T> {
         if (element == null) {
             throw new IllegalStateException("There is no element in the cell");
         }
-        T rc = element;
+        final T rc = element;
         element = null;
         return rc;
     }
 
     /**
-     * Peek element in the cell
+     * Peek element in the cell.
      *
      * @return a present element
      * @throws IllegalStateException if there is no an element in the cell
@@ -70,20 +72,20 @@ public class Cell<T> {
     }
 
     /**
-     * Put element to the cell
+     * Put element to the cell.
      *
-     * @param element the element to put
+     * @param newValue the element to put
      * @throws IllegalStateException if there is already an element in the cell
      */
-    public void put(T element) {
-        if (element == null) {
+    public void put(final T newValue) {
+        if (newValue == null) {
             throw new NullPointerException("The supplied element could not be null.");
         }
         if (this.element != null) {
-            throw new IllegalStateException("The cell already has element: " + this.element +
-                    " and new element is supplied: " + element);
+            throw new IllegalStateException("The cell already has element: " + this.element
+                    + " and new element is supplied: " + newValue);
         }
-        this.element = element;
+        this.element = newValue;
     }
 
     /**

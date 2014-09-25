@@ -24,6 +24,7 @@
  */
 package net.sf.etl.parsers.event.grammar.impl.nodes;
 
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.SyntaxRole;
 import net.sf.etl.parsers.Terms;
 import net.sf.etl.parsers.TokenKey;
@@ -44,34 +45,34 @@ import java.util.Set;
  *
  * @author const
  */
-public class TokenNode extends Node {
+public final class TokenNode extends Node {
     /**
-     * The kind of token
+     * The kind of token.
      */
     private final Terms termKind;
     /**
-     * The lexical kind of token
+     * The lexical kind of token.
      */
     private final TokenKey tokenKey;
     /**
-     * The role of token
+     * The role of token.
      */
     private final SyntaxRole role;
     /**
-     * The text
+     * The text.
      */
     private final String text;
 
     /**
-     * A constructor from fields
+     * A constructor from fields.
      *
      * @param role     the token role
      * @param termKind the term kind for the token
      * @param text     the text of token
      * @param tokenKey the token kind
      */
-    public TokenNode(Terms termKind, SyntaxRole role, TokenKey tokenKey,
-                     String text) {
+    public TokenNode(final Terms termKind, final SyntaxRole role, final TokenKey tokenKey,
+                     final String text) {
         super();
         this.role = role;
         this.termKind = termKind;
@@ -80,7 +81,7 @@ public class TokenNode extends Node {
     }
 
     @Override
-    public void collectKeywords(Set<Keyword> keywords, Set<ActionBuilder> visited) {
+    public void collectKeywords(final Set<Keyword> keywords, final Set<ActionBuilder> visited) {
         if (text != null) {
             // TODO allow non-keyword fixed values
             keywords.add(Keyword.forText(text, tokenKey));
@@ -88,9 +89,12 @@ public class TokenNode extends Node {
     }
 
     @Override
-    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit, Action recoveryTest) {
+    public Action buildActions(final ActionBuilder b, final Action normalExit, final Action errorExit,
+                               final Action recoveryTest) {
         // Note that building states for the node usually done starting from
         // the last state because next state must be specified.
+        final SourceLocation source = getSource();
+        Action last = normalExit;
         final String errorId;
         final String arg;
         if (text != null) {
@@ -100,17 +104,16 @@ public class TokenNode extends Node {
             errorId = "syntax.UnexpectedToken.expectingKind";
             arg = tokenKey == null ? "*" : tokenKey.toString();
         }
-
         // skip ignorable tokens after this token. Note that when token is
         // not a doc comment, doc comments are treated as ignorable tokens.
-        normalExit = new AdvanceAction(source, normalExit, tokenKey == null || tokenKey.kind() != Tokens.DOC_COMMENT);
-        normalExit = new RecoverySetupAction(source, normalExit, recoveryTest);
+        last = new AdvanceAction(source, last, tokenKey == null || tokenKey.kind() != Tokens.DOC_COMMENT);
+        last = new RecoverySetupAction(source, last, recoveryTest);
         // report token
-        normalExit = new ReportTokenAction(source, normalExit, termKind, role);
+        last = new ReportTokenAction(source, last, termKind, role);
         return new ChoiceBuilder(source).
                 setFallback(ActionUtil.createReportErrorAction(source, errorExit, errorId, arg)).
-                add(buildLookAhead(Collections.<ActionBuilder>emptySet()), normalExit).
-                build(b);
+                add(buildLookAhead(Collections.<ActionBuilder>emptySet()), last).
+                build();
     }
 
     @Override
@@ -119,11 +122,11 @@ public class TokenNode extends Node {
     }
 
     @Override
-    protected LookAheadSet createLookAhead(Set<ActionBuilder> visitedBuilders) {
+    protected LookAheadSet createLookAhead(final Set<ActionBuilder> visitedBuilders) {
         if (text == null) {
-            return LookAheadSet.get(source, tokenKey);
+            return LookAheadSet.get(getSource(), tokenKey);
         } else {
-            return LookAheadSet.getWithText(source, tokenKey, text);
+            return LookAheadSet.getWithText(getSource(), tokenKey, text);
         }
     }
 }

@@ -34,12 +34,43 @@ import net.sf.etl.parsers.Token;
  */
 public abstract class GrammarRef extends GrammarMember {
     /**
-     * systemId
+     * the systemId.
      */
-    public Token systemId;
+    private Token systemId;
     /**
-     * publicId
+     * the publicId.
      */
-    public Token publicId;
+    private Token publicId;
 
+    /**
+     * @return the systemId.
+     */
+    public final Token getSystemId() {
+        return systemId;
+    }
+
+    /**
+     * Set system id.
+     *
+     * @param systemId the system id.
+     */
+    public final void setSystemId(final Token systemId) {
+        this.systemId = systemId;
+    }
+
+    /**
+     * @return the publicId.
+     */
+    public final Token getPublicId() {
+        return publicId;
+    }
+
+    /**
+     * Set public id.
+     *
+     * @param publicId the public id.
+     */
+    public final void setPublicId(final Token publicId) {
+        this.publicId = publicId;
+    }
 }

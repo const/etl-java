@@ -32,41 +32,41 @@ package net.sf.etl.parsers;
  */
 public class ParserIOException extends ParserException {
     /**
-     * serial version id to make eclipse happy
+     * serial version id to make eclipse happy.
      */
     private static final long serialVersionUID = 3258413919604455475L;
 
     /**
-     * A Constructor
+     * A Constructor.
      *
      * @param ex cause exception
      */
-    public ParserIOException(Throwable ex) {
+    public ParserIOException(final Throwable ex) {
         super("IO problem during parsing: " + ex.toString(), ex);
     }
 
     /**
-     * A Constructor
+     * A Constructor.
      */
     public ParserIOException() {
     }
 
     /**
-     * A Constructor
+     * A Constructor.
      *
      * @param msg message for exception
      */
-    public ParserIOException(String msg) {
+    public ParserIOException(final String msg) {
         super(msg);
     }
 
     /**
-     * A Constructor
+     * A Constructor.
      *
      * @param msg message for exception
      * @param ex  an exception
      */
-    public ParserIOException(String msg, Throwable ex) {
+    public ParserIOException(final String msg, final Throwable ex) {
         super(msg, ex);
     }
 }

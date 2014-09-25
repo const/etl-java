@@ -32,8 +32,23 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
  */
 public abstract class RepeatOp extends Syntax {
     /**
-     * syntax
+     * the syntax.
      */
-    public Syntax syntax;
+    private Syntax syntax;
 
+    /**
+     * @return the syntax.
+     */
+    public final Syntax getSyntax() {
+        return syntax;
+    }
+
+    /**
+     * Set the syntax.
+     *
+     * @param syntax the syntax
+     */
+    public final void setSyntax(final Syntax syntax) {
+        this.syntax = syntax;
+    }
 }

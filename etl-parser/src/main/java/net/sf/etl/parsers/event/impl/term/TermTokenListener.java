@@ -28,11 +28,11 @@ package net.sf.etl.parsers.event.impl.term;
 import net.sf.etl.parsers.TermToken;
 
 /**
- * The listener for term tokens that are returned, the tokens are observed in the order they are received
+ * The listener for term tokens that are returned, the tokens are observed in the order they are received.
  */
 public interface TermTokenListener {
     /**
-     * Observe term token
+     * Observe term token.
      *
      * @param token the token to observe
      */

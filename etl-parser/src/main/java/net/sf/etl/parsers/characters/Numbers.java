@@ -26,77 +26,90 @@
 package net.sf.etl.parsers.characters;
 
 /**
- * The class is used to check for numbers
+ * The class is used to check for numbers.
  */
-public class Numbers {
+public final class Numbers {
     /**
-     * Check if the character is an exponent character
+     * The base for hex numbers.
+     */
+    public static final int HEX_BASE = 16;
+
+    /**
+     * Private constructor for utility class.
+     */
+    private Numbers() {
+        // do nothing
+    }
+
+    /**
+     * Check if the character is an exponent character.
      *
      * @param codepoint the codepoint to check
      * @return true if exponent character
      */
-    public static boolean isExponentChar(int codepoint) {
+    public static boolean isExponentChar(final int codepoint) {
         return codepoint == 'e' || codepoint == 'E';
     }
 
     /**
-     * Based number character
+     * Based number character.
      *
      * @param codepoint the codepoint
      * @return true if based number
      */
-    public static boolean isBasedNumberChar(int codepoint) {
+    public static boolean isBasedNumberChar(final int codepoint) {
         return codepoint == '#';
     }
 
     /**
-     * Check if hexadecimal digit
+     * Check if hexadecimal digit.
      *
      * @param codepoint codepoint to check
      * @return true if hex digit
      */
-    public static boolean isHex(int codepoint) {
-        return isValidDigit(codepoint, 16);
+    public static boolean isHex(final int codepoint) {
+        return isValidDigit(codepoint, HEX_BASE);
     }
 
     /**
-     * Check if decimal digit
+     * Check if decimal digit.
      *
      * @param codepoint codepoint to check
      * @return true if a digit
      */
-    public static boolean isDecimal(int codepoint) {
+    public static boolean isDecimal(final int codepoint) {
         return Character.isDigit(codepoint);
     }
 
     /**
-     * Check if valid digit in the specified base
+     * Check if valid digit in the specified base.
      *
      * @param codepoint codepoint to check
      * @param base      the base to check
      * @return true if a digit
      */
-    public static boolean isValidDigit(int codepoint, int base) {
+    public static boolean isValidDigit(final int codepoint, final int base) {
         return Character.digit(codepoint, base) != -1;
     }
 
     /**
-     * Check if valid digit in some base
+     * Check if valid digit in some base.
      *
      * @param codepoint codepoint to check
      * @return true if a digit
      */
-    public static boolean isAnyDigit(int codepoint) {
+    public static boolean isAnyDigit(final int codepoint) {
         return Character.digit(codepoint, Character.MAX_RADIX) != -1;
     }
 
     /**
-     * Check for plus sign
+     * Check for plus sign.
      *
      * @param codepoint the codepoint to check
      * @return true if this is a plus sign
      */
-    public static boolean isPlus(int codepoint) {
+    public static boolean isPlus(final int codepoint) {
+        //CHECKSTYLE:OFF
         switch (codepoint) {
             case 0x002B: // PLUS SIGN	Sm	0	ES					N
             case 0x2796: // HEAVY MINUS SIGN	So	0	ON					N
@@ -106,15 +119,17 @@ public class Numbers {
             default:
                 return false;
         }
+        //CHECKSTYLE:ON
     }
 
     /**
-     * Check for minus sign
+     * Check for minus sign.
      *
      * @param codepoint the codepoint to check
      * @return true if this is a plus sign
      */
-    public static boolean isMinus(int codepoint) {
+    public static boolean isMinus(final int codepoint) {
+        //CHECKSTYLE:OFF
         switch (codepoint) {
             case 0x002D: // HYPHEN-MINUS	Pd	0	ES					N
             case 0x2212: // MINUS SIGN	Sm	0	ES					N
@@ -125,15 +140,17 @@ public class Numbers {
             default:
                 return false;
         }
+        //CHECKSTYLE:ON
     }
 
     /**
-     * Check if codepoint is a decimal point
+     * Check if codepoint is a decimal point.
      *
      * @param codepoint the codepoint to check
      * @return true if codepoint represent decimal number
      */
-    public static boolean isDecimalDot(int codepoint) {
+    public static boolean isDecimalDot(final int codepoint) {
+        //CHECKSTYLE:OFF
         switch (codepoint) {
             case 0x002E: //	FULL STOP	Po	0	CS					N	PERIOD
             case 0xFE52: //	SMALL FULL STOP	Po	0	CS	<small> 002E				N	SMALL PERIOD
@@ -142,5 +159,6 @@ public class Numbers {
             default:
                 return false;
         }
+        //CHECKSTYLE:ON
     }
 }

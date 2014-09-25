@@ -37,34 +37,35 @@ import java.util.List;
  * The linker for the productions in the grammar. The linker is scoped to grammar compilation session.
  * It allows linking both statement and expression productions.
  */
-public class ActionLinker {
+public final class ActionLinker {
     /**
-     * Scheduled links for the block
+     * Scheduled links for the block.
      */
-    private final HashMap<DefinitionContext, List<CallAction>> blocks = new HashMap<DefinitionContext, List<CallAction>>();
+    private final HashMap<DefinitionContext, List<CallAction>> blocks =
+            new HashMap<DefinitionContext, List<CallAction>>();
 
     /**
-     * Resolve block
+     * Resolve block.
      *
      * @param context the context
      * @param factory the state factory for the block
      */
-    public void resolveBlock(DefinitionContext context, TermParserStateFactory factory) {
+    public void resolveBlock(final DefinitionContext context, final TermParserStateFactory factory) {
         List<CallAction> calls = blocks.get(context);
         if (calls != null) {
             for (CallAction call : calls) {
-                call.stateFactory = factory;
+                call.setStateFactory(factory);
             }
         }
     }
 
     /**
-     * Schedule linking for the block, this is done is order to implement recursion for the grammars
+     * Schedule linking for the block, this is done is order to implement recursion for the grammars.
      *
      * @param action  the call action that needs reference to other block
      * @param context the context of the invoked block
      */
-    public void linkBlock(CallAction action, DefinitionContext context) {
+    public void linkBlock(final CallAction action, final DefinitionContext context) {
         List<CallAction> calls = blocks.get(context);
         if (calls == null) {
             calls = new ArrayList<CallAction>();

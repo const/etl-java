@@ -29,11 +29,11 @@ import net.sf.etl.parsers.PhraseToken;
 import net.sf.etl.parsers.Token;
 
 /**
- * The phrase parser
+ * The phrase parser.
  */
 public interface PhraseParser {
     /**
-     * Start parsing
+     * Start parsing.
      *
      * @param systemId the system id
      */
@@ -45,7 +45,7 @@ public interface PhraseParser {
     PhraseToken read();
 
     /**
-     * Parse token,
+     * Parse token.
      *
      * @param token the cell with the token, the cell must contain element. The element is removed if
      *              it is consumed and more date is needed.

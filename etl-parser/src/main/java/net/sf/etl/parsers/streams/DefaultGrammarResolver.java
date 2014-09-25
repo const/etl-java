@@ -23,14 +23,13 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers.streams.util;
+package net.sf.etl.parsers.streams;
 
 import net.sf.etl.parsers.DefaultTermParserConfiguration;
 import net.sf.etl.parsers.ParserException;
 import net.sf.etl.parsers.TermParserConfiguration;
 import net.sf.etl.parsers.event.TermParser;
 import net.sf.etl.parsers.event.grammar.GrammarCompilerSession;
-import net.sf.etl.parsers.streams.GrammarResolver;
 
 import java.util.Collections;
 import java.util.Set;
@@ -39,15 +38,15 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * The caching grammar resolver, it is based on system ids
+ * The caching grammar resolver, it is based on system ids.
  */
-public class DefaultGrammarResolver implements GrammarResolver {
+public final class DefaultGrammarResolver implements GrammarResolver {
     /**
-     * The resolver instance
+     * The resolver instance.
      */
     public static final DefaultGrammarResolver INSTANCE = new DefaultGrammarResolver();
     /**
-     * The configuration
+     * The configuration.
      */
     private final TermParserConfiguration configuration;
     /**
@@ -56,30 +55,31 @@ public class DefaultGrammarResolver implements GrammarResolver {
     private final Set<String> loadedGrammars;
 
     /**
-     * The constructor from default configuration
+     * The constructor from default configuration.
      */
     public DefaultGrammarResolver() {
         this(DefaultTermParserConfiguration.INSTANCE, Collections.<String>emptySet());
     }
 
     /**
-     * The caching resolver
+     * The caching resolver.
      *
      * @param configuration  the configuration
      * @param loadedGrammars the loaded grammars
      */
-    public DefaultGrammarResolver(TermParserConfiguration configuration, final Set<String> loadedGrammars) {
+    public DefaultGrammarResolver(final TermParserConfiguration configuration,
+                                  final Set<String> loadedGrammars) {
         this.configuration = configuration;
         this.loadedGrammars = loadedGrammars;
     }
 
     /**
-     * The resolve the grammar and finish when it is done
+     * The resolve the grammar and finish when it is done.
      *
      * @param termParser the request
      */
     @Override
-    public void resolve(TermParser termParser) {
+    public void resolve(final TermParser termParser) {
         final AtomicBoolean finished = new AtomicBoolean(false);
         final LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>();
         new GrammarCompilerSession(
@@ -88,7 +88,7 @@ public class DefaultGrammarResolver implements GrammarResolver {
                 termParser,
                 new Executor() {
                     @Override
-                    public void execute(Runnable command) {
+                    public void execute(final Runnable command) {
                         queue.add(command);
                     }
                 },
@@ -104,8 +104,8 @@ public class DefaultGrammarResolver implements GrammarResolver {
             try {
                 queue.take().run();
             } catch (Exception e) {
-                throw new ParserException("The grammar resolution process for " +
-                        termParser.getSystemId() + " is interrupted", e);
+                throw new ParserException("The grammar resolution process for "
+                        + termParser.getSystemId() + " is interrupted", e);
             }
         }
     }

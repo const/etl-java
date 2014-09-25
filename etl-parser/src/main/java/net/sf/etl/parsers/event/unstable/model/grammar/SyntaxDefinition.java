@@ -27,6 +27,7 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
 import net.sf.etl.parsers.Token;
 
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * The SyntaxDefinition node class. This class is a part of the lightweight
@@ -36,12 +37,34 @@ import java.util.LinkedList;
  */
 public abstract class SyntaxDefinition extends ContextMember {
     /**
-     * syntax
+     * the syntax.
      */
-    public final LinkedList<SyntaxStatement> syntax = new LinkedList<SyntaxStatement>();
+    private final List<SyntaxStatement> syntax = new LinkedList<SyntaxStatement>();
     /**
-     * name
+     * the name.
      */
-    public Token name;
+    private Token name;
 
+    /**
+     * @return the syntax.
+     */
+    public final List<SyntaxStatement> getSyntax() {
+        return syntax;
+    }
+
+    /**
+     * @return the name.
+     */
+    public final Token getName() {
+        return name;
+    }
+
+    /**
+     * Set the name.
+     *
+     * @param name the name.
+     */
+    public final void setName(final Token name) {
+        this.name = name;
+    }
 }

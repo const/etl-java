@@ -29,27 +29,27 @@ import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 /**
- * Return to the caller
+ * Return to the caller.
  */
-public class ReturnAction extends Action {
+public final class ReturnAction extends Action {
     /**
-     * If true, the method is returning successfully
+     * If true, the method is returning successfully.
      */
-    public final boolean success;
+    private final boolean success;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param source  the source location in the grammar that caused this node creation
      * @param success if true, the method is returning successfully
      */
-    public ReturnAction(SourceLocation source, boolean success) {
+    public ReturnAction(final SourceLocation source, final boolean success) {
         super(source);
         this.success = success;
     }
 
     @Override
-    public void parseMore(TermParserContext context, ActionState state) {
+    public void parseMore(final TermParserContext context, final ActionState state) {
         context.exit(state, success);
     }
 }

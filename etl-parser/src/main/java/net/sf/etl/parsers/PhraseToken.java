@@ -32,22 +32,22 @@ package net.sf.etl.parsers;
  */
 public final class PhraseToken extends AbstractToken {
     /**
-     * kind of phase token
+     * kind of phase token.
      */
     private final PhraseTokens kind;
     /**
-     * Wrapped token from lexer
+     * Wrapped token from lexer.
      */
     private final Token wrappedToken;
 
     /**
-     * A constructor from token
+     * A constructor from token.
      *
      * @param kind   a phrase token kind
      * @param token  a a token from lexer
      * @param errors errors
      */
-    public PhraseToken(PhraseTokens kind, Token token, ErrorInfo errors) {
+    public PhraseToken(final PhraseTokens kind, final Token token, final ErrorInfo errors) {
         super(token.start(), token.end(), errors);
         if (kind == null) {
             throw new NullPointerException("Kind must not be null");
@@ -72,14 +72,14 @@ public final class PhraseToken extends AbstractToken {
     }
 
     /**
-     * A constructor for mark-up phrase token
+     * A constructor for mark-up phrase token.
      *
      * @param kind     a kind of token. It must be one of the following values
      *                 START_BLOCK, END_BLOCK, STATEMENT_END, or END_BLOCK.
      * @param position a position in stream
      * @param errors   errors
      */
-    public PhraseToken(PhraseTokens kind, TextPos position, ErrorInfo errors) {
+    public PhraseToken(final PhraseTokens kind, final TextPos position, final ErrorInfo errors) {
         super(position, position, errors);
         if (kind == null) {
             throw new NullPointerException("Kind must not be null");
@@ -134,9 +134,8 @@ public final class PhraseToken extends AbstractToken {
 
     @Override
     public String toString() {
-        return "PhraseToken{" +
-                "kind=" + kind +
-                ", wrappedToken=" + wrappedToken +
-                ", location = " + start() + "-" + end() + "}";
+        return "PhraseToken{" + kind
+                + ", " + wrappedToken
+                + ", " + start() + "-" + end() + "}";
     }
 }

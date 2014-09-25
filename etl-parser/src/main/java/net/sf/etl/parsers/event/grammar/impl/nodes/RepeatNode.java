@@ -24,6 +24,7 @@
  */
 package net.sf.etl.parsers.event.grammar.impl.nodes;
 
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.LookAheadSet;
 import net.sf.etl.parsers.event.grammar.impl.ActionBuilder;
 import net.sf.etl.parsers.event.impl.term.action.Action;
@@ -39,9 +40,14 @@ import java.util.Set;
  *
  * @author const
  */
-public class RepeatNode extends ScopeNode {
+public final class RepeatNode extends ScopeNode {
     @Override
-    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit, Action recoveryTest) {
+    public Action buildActions(final ActionBuilder b, final Action normalExitAction, final Action errorExitAction,
+                               final Action recoveryTestAction) {
+        Action normalExit = normalExitAction;
+        Action errorExit = errorExitAction;
+        Action recoveryTest = recoveryTestAction;
+        final SourceLocation source = getSource();
         final NopAction loopEntry = new NopAction(source);
         LookAheadSet la = innerNode().buildLookAhead();
         // if inner node matches empty, it is tried at least once because it
@@ -53,25 +59,25 @@ public class RepeatNode extends ScopeNode {
         normalExit = new RecoverySetupAction(source, normalExit, recoveryTest);
         errorExit = new RecoverySetupAction(source, errorExit, recoveryTest);
         RecoveryChoiceAction recoveryChoiceAction = new RecoveryChoiceAction(source, errorExit);
-        recoveryChoiceAction.recoveryPath = loopEntry;
+        recoveryChoiceAction.setRecoveryPath(loopEntry);
         errorExit = recoveryChoiceAction;
         recoveryTest = new ChoiceBuilder(source).
                 setFallback(recoveryTest).
-                add(la, new RecoveryVoteAction(source, recoveryChoiceAction)).build(b);
+                add(la, new RecoveryVoteAction(source, recoveryChoiceAction)).build();
         final Action inner = innerNode().buildActions(b, loopEntry, errorExit, recoveryTest);
-        loopEntry.next = new ChoiceBuilder(source).setFallback(normalExit).add(la, inner).build(b);
-        return loopEntry.next;
+        loopEntry.setNext(new ChoiceBuilder(source).setFallback(normalExit).add(la, inner).build());
+        return loopEntry.getNext();
     }
 
     @Override
-    protected LookAheadSet createLookAhead(Set<ActionBuilder> visitedBuilders) {
+    protected LookAheadSet createLookAhead(final Set<ActionBuilder> visitedBuilders) {
         final LookAheadSet inner = innerNode().buildLookAhead(visitedBuilders);
         LookAheadSet rc;
         if (inner.containsEmpty()) {
             rc = inner;
         } else {
             rc = new LookAheadSet(inner);
-            rc.addEmpty(source);
+            rc.addEmpty(getSource());
         }
         return rc;
     }

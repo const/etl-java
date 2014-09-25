@@ -31,18 +31,65 @@ import net.sf.etl.parsers.Token;
  *
  * @author const
  */
-public class Let extends SyntaxStatement {
+public final class Let extends SyntaxStatement {
     /**
-     * name
+     * the name.
      */
-    public Token name;
+    private Token name;
     /**
-     * operator
+     * the operator.
      */
-    public Token operator;
+    private Token operator;
     /**
-     * expression
+     * the expression.
      */
-    public Syntax expression;
+    private Syntax expression;
 
+    /**
+     * @return the name.
+     */
+    public Token getName() {
+        return name;
+    }
+
+    /**
+     * Set the name.
+     *
+     * @param name the name
+     */
+    public void setName(final Token name) {
+        this.name = name;
+    }
+
+    /**
+     * @return the operator.
+     */
+    public Token getOperator() {
+        return operator;
+    }
+
+    /**
+     * Set the operator.
+     *
+     * @param operator the operator
+     */
+    public void setOperator(final Token operator) {
+        this.operator = operator;
+    }
+
+    /**
+     * @return the expression.
+     */
+    public Syntax getExpression() {
+        return expression;
+    }
+
+    /**
+     * Set expression.
+     *
+     * @param expression the expression
+     */
+    public void setExpression(final Syntax expression) {
+        this.expression = expression;
+    }
 }

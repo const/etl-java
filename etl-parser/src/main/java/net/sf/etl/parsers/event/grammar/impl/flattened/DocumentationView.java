@@ -34,22 +34,22 @@ import net.sf.etl.parsers.event.unstable.model.grammar.DocumentationSyntax;
 public class DocumentationView extends DefinitionView {
 
     /**
-     * The constructor from view
+     * The constructor from view.
      *
      * @param context    the including context
      * @param definition the view to copy
      */
-    public DocumentationView(ContextView context, DefinitionView definition) {
+    public DocumentationView(final ContextView context, final DefinitionView definition) {
         super(context, definition);
     }
 
     /**
-     * A constructor from definition
+     * A constructor from definition.
      *
      * @param context    the defining context
      * @param definition the definition
      */
-    public DocumentationView(ContextView context, DocumentationSyntax definition) {
+    public DocumentationView(final ContextView context, final DocumentationSyntax definition) {
         super(context, definition);
     }
 }

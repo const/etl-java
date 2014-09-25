@@ -27,6 +27,7 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
 import net.sf.etl.parsers.Token;
 
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * The StringOp node class. This class is a part of the lightweight grammar
@@ -34,17 +35,56 @@ import java.util.LinkedList;
  *
  * @author const
  */
-public class StringOp extends TokenRefOp {
+public final class StringOp extends TokenRefOp {
     /**
-     * prefix for the string (identifier)
+     * the prefix for the string (identifier).
      */
-    public final LinkedList<Token> prefix = new LinkedList<Token>();
+    private final List<Token> prefix = new LinkedList<Token>();
     /**
-     * quote for the string (for symmetric case)
+     * the quote for the string (for symmetric case).
      */
-    public Token quote;
+    private Token quote;
     /**
-     * multiline flag
+     * the multiline flag.
      */
-    public Token multiline;
+    private Token multiline;
+
+    /**
+     * @return the prefix for the string (identifier).
+     */
+    public List<Token> getPrefix() {
+        return prefix;
+    }
+
+    /**
+     * @return the quote for the string (for symmetric case).
+     */
+    public Token getQuote() {
+        return quote;
+    }
+
+    /**
+     * Set the quote.
+     *
+     * @param quote the quote.
+     */
+    public void setQuote(final Token quote) {
+        this.quote = quote;
+    }
+
+    /**
+     * @return the multiline flag.
+     */
+    public Token getMultiline() {
+        return multiline;
+    }
+
+    /**
+     * Set multiline.
+     *
+     * @param multiline the multiline flag.
+     */
+    public void setMultiline(final Token multiline) {
+        this.multiline = multiline;
+    }
 }

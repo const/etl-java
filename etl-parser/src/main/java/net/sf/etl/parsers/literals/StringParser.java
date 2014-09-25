@@ -33,40 +33,58 @@ import net.sf.etl.parsers.characters.QuoteClass;
 import net.sf.etl.parsers.characters.Whitespaces;
 
 /**
- * Standard string parser
+ * Standard string parser.
  */
-public class StringParser extends BaseLiteralParser {
+public final class StringParser extends BaseLiteralParser {
     /**
-     * The string literal prefix
+     * The size of UTF-16 escape.
+     */
+    private static final int UTF16_ESCAPE_SIZE = 4;
+    /**
+     * The size of UTF-32 escape.
+     */
+    private static final int UTF32_ESCAPE_SIZE = 8;
+    /**
+     * The hex base.
+     */
+    private static final int HEX_BASE = 16;
+    /**
+     * The hex shift.
+     */
+    private static final int HEX_SHIFT = 4;
+    /**
+     * The string literal prefix.
      */
     private String prefix;
     /**
-     * The parsed string text
+     * The parsed string text.
      */
     private String text;
     /**
-     * The quote class for the string
+     * The quote class for the string.
      */
     private QuoteClass quoteClass;
     /**
-     * The start quote for string
+     * The start quote for string.
      */
     private int startQuote = -1;
     /**
-     * The end quote
+     * The end quote.
      */
     private int endQuote = -1;
     /**
-     * The token kind
+     * The token kind.
      */
     private Tokens kind;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param inputText the input text
+     * @param start     the initial position
+     * @param systemId  the system id
      */
-    public StringParser(String inputText, TextPos start, String systemId) {
+    public StringParser(final String inputText, final TextPos start, final String systemId) {
         super(inputText, start, systemId);
     }
 
@@ -77,22 +95,18 @@ public class StringParser extends BaseLiteralParser {
     public StringInfo parse() {
         if (kind == null) {
             doParse();
-            text = buffer.toString();
+            text = buffer().toString();
         }
-        return new StringInfo(inputText, kind, text, prefix, quoteClass, startQuote, endQuote, errors);
+        return new StringInfo(inputText(), kind, text, prefix, quoteClass, startQuote, endQuote, errors());
     }
 
+    /**
+     * Preform string parsing.
+     */
     private void doParse() {
         kind = Tokens.STRING;
         int ch = la();
-        if (Identifiers.isIdentifierStart(ch)) {
-            do {
-                ch = next(true);
-            } while (Identifiers.isIdentifierPart(ch));
-            prefix = buffer.toString();
-            buffer.setLength(0);
-            kind = Tokens.PREFIXED_STRING;
-        }
+        ch = parsePrefix(ch);
         quoteClass = QuoteClass.classify(ch);
         if (quoteClass == null) {
             error("lexical.NonQuoteCharacter");
@@ -144,13 +158,13 @@ public class StringParser extends BaseLiteralParser {
                             ch = next(false);
                             int i = 0, value = 0;
                             while (Numbers.isHex(ch)) {
-                                value = (value << 4) + Character.digit(ch, 16);
+                                value = (value << HEX_SHIFT) + Character.digit(ch, HEX_BASE);
                                 ch = next(false);
                                 i++;
                             }
                             if (Character.isValidCodePoint(value)) {
                                 if (i != 0) {
-                                    buffer.appendCodePoint(value);
+                                    buffer().appendCodePoint(value);
                                 }
                             } else {
                                 error("lexical.InvalidCodePoint");
@@ -171,30 +185,30 @@ public class StringParser extends BaseLiteralParser {
                         break;
                     case 'u':
                         ch = next(false);
-                        ch = parseHexEscape(4, ch);
+                        ch = parseHexEscape(UTF16_ESCAPE_SIZE, ch);
                         break;
                     case 'U':
                         ch = next(false);
-                        ch = parseHexEscape(8, ch);
+                        ch = parseHexEscape(UTF32_ESCAPE_SIZE, ch);
                         break;
                     case 'n':
-                        buffer.append('\n');
+                        buffer().append('\n');
                         ch = next(false);
                         break;
                     case 'r':
-                        buffer.append('\r');
+                        buffer().append('\r');
                         ch = next(false);
                         break;
                     case 't':
-                        buffer.append('\t');
+                        buffer().append('\t');
                         ch = next(false);
                         break;
                     case 'f':
-                        buffer.append('\f');
+                        buffer().append('\f');
                         ch = next(false);
                         break;
                     case 'b':
-                        buffer.append('\b');
+                        buffer().append('\b');
                         ch = next(false);
                         break;
                     default:
@@ -212,8 +226,7 @@ public class StringParser extends BaseLiteralParser {
                     if (cr && ch == Whitespaces.LF) {
                         ch = next(true);
                     }
-                    line++;
-                    column = TextPos.START_COLUMN;
+                    nextLine();
                     if (cut) {
                         while (Whitespaces.isSpace(ch)) {
                             ch = next(false);
@@ -239,23 +252,43 @@ public class StringParser extends BaseLiteralParser {
     }
 
     /**
-     * Parse fixed size hex escape and add it to buffer as a codepoint
+     * Parse prefix.
      *
-     * @param n  max number of characters to parse
-     * @param ch the current character
+     * @param firstChar the current character
+     * @return the current character
+     */
+    private int parsePrefix(final int firstChar) {
+        int ch = firstChar;
+        if (Identifiers.isIdentifierStart(ch)) {
+            do {
+                ch = next(true);
+            } while (Identifiers.isIdentifierPart(ch));
+            prefix = buffer().toString();
+            buffer().setLength(0);
+            kind = Tokens.PREFIXED_STRING;
+        }
+        return ch;
+    }
+
+    /**
+     * Parse fixed size hex escape and add it to buffer as a codepoint.
+     *
+     * @param n       max number of characters to parse
+     * @param current the current character
      * @return the next current character
      */
-    private int parseHexEscape(int n, int ch) {
+    private int parseHexEscape(final int n, final int current) {
         int i = 0;
         int value = 0;
+        int ch = current;
         while (i < n && Numbers.isHex(ch)) {
-            value = (value << 4) + Character.digit(ch, 16);
+            value = (value << HEX_SHIFT) + Character.digit(ch, HEX_BASE);
             ch = next(false);
             i++;
         }
         if (Character.isValidCodePoint(value)) {
             if (i != 0) {
-                buffer.appendCodePoint(value);
+                buffer().appendCodePoint(value);
             }
         } else {
             error("lexical.InvalidCodePoint");

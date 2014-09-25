@@ -27,7 +27,16 @@ package net.sf.etl.parsers.event.grammar.impl.flattened;
 import net.sf.etl.parsers.DefinitionInfo;
 import net.sf.etl.parsers.ObjectName;
 import net.sf.etl.parsers.SourceLocation;
-import net.sf.etl.parsers.event.unstable.model.grammar.*;
+import net.sf.etl.parsers.event.unstable.model.grammar.Attributes;
+import net.sf.etl.parsers.event.unstable.model.grammar.ChoiceCaseDef;
+import net.sf.etl.parsers.event.unstable.model.grammar.ChoiceDef;
+import net.sf.etl.parsers.event.unstable.model.grammar.Def;
+import net.sf.etl.parsers.event.unstable.model.grammar.DocumentationSyntax;
+import net.sf.etl.parsers.event.unstable.model.grammar.Element;
+import net.sf.etl.parsers.event.unstable.model.grammar.OperatorDefinition;
+import net.sf.etl.parsers.event.unstable.model.grammar.Statement;
+import net.sf.etl.parsers.event.unstable.model.grammar.SyntaxDefinition;
+import net.sf.etl.parsers.event.unstable.model.grammar.SyntaxStatement;
 
 import java.util.List;
 
@@ -39,41 +48,41 @@ import java.util.List;
 
 public abstract class DefinitionView extends ContextMemberView {
     /**
-     * The wrapped definition
+     * The wrapped definition.
      */
     private final SyntaxDefinition definition;
     /**
-     * The original definition
+     * The original definition.
      */
     private final DefinitionView originalDefinition;
     /**
-     * The The definition info
+     * The The definition info.
      */
     private final DefinitionInfo definitionInfo;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param context    the context that defines this definition
      * @param definition the wrapped definition
      */
-    protected DefinitionView(ContextView context, SyntaxDefinition definition) {
+    protected DefinitionView(final ContextView context, final SyntaxDefinition definition) {
         super(context, context);
         this.definition = definition;
         this.originalDefinition = this;
         this.definitionInfo = new DefinitionInfo(
                 context.getDefinitionContext(),
-                definition.name.text(),
-                definition.location);
+                definition.getName().text(),
+                definition.getLocation());
     }
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param context    the context that includes this definition
      * @param definition the wrapped definition
      */
-    protected DefinitionView(ContextView context, DefinitionView definition) {
+    protected DefinitionView(final ContextView context, final DefinitionView definition) {
         super(definition.definingContext(), context);
         this.definition = definition.definition();
         this.originalDefinition = definition.originalDefinition;
@@ -83,29 +92,14 @@ public abstract class DefinitionView extends ContextMemberView {
                 originalDefinition.definitionInfo().getLocation());
     }
 
-
     /**
-     * @return the definition info
-     */
-    public DefinitionInfo definitionInfo() {
-        return definitionInfo;
-    }
-
-    /**
-     * @return the name of definition
-     */
-    public String name() {
-        return definition().name.text();
-    }
-
-    /**
-     * Get view of definition
+     * Get view of definition.
      *
      * @param context the defining context
      * @param def     the definition
      * @return the view for definition
      */
-    public static DefinitionView get(ContextView context, SyntaxDefinition def) {
+    public static DefinitionView get(final ContextView context, final SyntaxDefinition def) {
         if (def instanceof Def) {
             return new DefView(context, (Def) def);
         } else if (def instanceof ChoiceDef) {
@@ -126,13 +120,13 @@ public abstract class DefinitionView extends ContextMemberView {
     }
 
     /**
-     * Get view of definition
+     * Get view of definition.
      *
      * @param context the defining context
      * @param def     the definition
      * @return the view for definition
      */
-    public static DefinitionView get(ContextView context, DefinitionView def) {
+    public static DefinitionView get(final ContextView context, final DefinitionView def) {
         if (def instanceof DefView) {
             return new DefView(context, def);
         } else if (def instanceof ChoiceDefView) {
@@ -153,46 +147,61 @@ public abstract class DefinitionView extends ContextMemberView {
     }
 
     /**
+     * @return the definition info
+     */
+    public final DefinitionInfo definitionInfo() {
+        return definitionInfo;
+    }
+
+    /**
+     * @return the name of definition
+     */
+    public final String name() {
+        return definition().getName().text();
+    }
+
+    /**
      * @return the original definition
      */
-    public DefinitionView originalDefinition() {
+    public final DefinitionView originalDefinition() {
         return originalDefinition;
     }
 
     /**
      * @return the definition from grammar.
      */
-    public SyntaxDefinition definition() {
+    public final SyntaxDefinition definition() {
         return definition;
     }
 
     /**
-     * Resolve prefix to the object in the context of definition's grammar
+     * Resolve prefix to the object in the context of definition's grammar.
      *
      * @param prefix the prefix to resolve
      * @return namespace for prefix in the context of the definition
      */
-    public String resolvePrefix(String prefix) {
+    public final String resolvePrefix(final String prefix) {
         return originalDefinition.definingContext().grammar().namespace(prefix);
     }
 
     /**
      * @return statements inside documentation syntax
      */
-    public List<SyntaxStatement> statements() {
+    public final List<SyntaxStatement> statements() {
         final SyntaxDefinition s = definition();
-        return s.syntax;
+        return s.getSyntax();
     }
 
     /**
-     * Report error
+     * Report error.
      *
      * @param view     the definition view that contains the problem
      * @param e        the element about which error is reported
      * @param errorId  the error id
      * @param errorArg the error arguments
      */
-    protected void error(DefinitionView view, Element e, String errorId, Object... errorArg) {
+    protected final void error(final DefinitionView view, final Element e, final String errorId,
+                               final Object... errorArg) {
         view.definingContext().error(e, errorId, errorArg);
     }
 
@@ -203,24 +212,23 @@ public abstract class DefinitionView extends ContextMemberView {
      * @param name a object name in the syntax
      * @return a name to convert
      */
-    public ObjectName convertName(net.sf.etl.parsers.event.unstable.model.grammar.ObjectName name) {
-        final DefinitionView originalDefinition = originalDefinition();
+    public final ObjectName convertName(final net.sf.etl.parsers.event.unstable.model.grammar.ObjectName name) {
         final ContextView definingContext = originalDefinition.definingContext();
         final GrammarView grammar = definingContext.grammar();
-        final String prefix = name.prefix.text();
+        final String prefix = name.getPrefix().text();
         final String uri = grammar.namespace(prefix);
         if (uri == null) {
             error(originalDefinition, name, "grammar.ObjectName.undefinedPrefix", prefix);
         }
         // NOTE POST 0.2: try to use cache
-        return new ObjectName(uri, name.name.text());
+        return new ObjectName(uri, name.getName().text());
     }
 
 
     /**
      * @return get location associated with the definition
      */
-    public SourceLocation sourceLocation() {
-        return originalDefinition().definition().sourceLocation();
+    public final SourceLocation sourceLocation() {
+        return originalDefinition().definition().getSourceLocation();
     }
 }

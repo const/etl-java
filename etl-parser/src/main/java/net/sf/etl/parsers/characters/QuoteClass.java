@@ -26,41 +26,60 @@
 package net.sf.etl.parsers.characters;
 
 /**
- * The classes of the quotes
+ * The classes of the quotes.
  */
 public enum QuoteClass {
+    /**
+     * The double quote class.
+     */
     DOUBLE_QUOTE(0x0022),
+    /**
+     * The single quote class.
+     */
     SINGLE_QUOTE(0x0027),
+    /**
+     * The double angle quote.
+     */
     DOUBLE_ANGLE(0x00AB),
+    /**
+     * The single angle quote.
+     */
     SINGLE_ANGLE(0x2039),
+    /**
+     * The single corner quote.
+     */
     SINGLE_CORNER(0x300C),
+    /**
+     * The dobule corner quote.
+     */
     DOUBLE_CORNER(0x300E),
+    /**
+     * The single directed quote.
+     */
     SINGLE_DIRECTED(0x2018),
+    /**
+     * The double directed quote.
+     */
     DOUBLE_DIRECTED(0x201C),
+    /**
+     * The double prime quote.
+     */
     DOUBLE_PRIME(0x301D);
 
     /**
-     * The sample codepoint
+     * The sample codepoint.
      */
     private final int sample;
 
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param sample the sample code point
      */
-    private QuoteClass(int sample) {
+    private QuoteClass(final int sample) {
         this.sample = sample;
     }
-
-    /**
-     * @return sample codepoint
-     */
-    public int sample() {
-        return sample;
-    }
-
 
     /**
      * Classify codepoint with respect to quote class.
@@ -68,7 +87,8 @@ public enum QuoteClass {
      * @param codepoint the codepoint to classify
      * @return the quote class, null if the codepoint does not represents the quote
      */
-    public static QuoteClass classify(int codepoint) {
+    public static QuoteClass classify(final int codepoint) {
+        //CHECKSTYLE:OFF
         switch (codepoint) {
             case 0x0022: // Quotation_Mark # Po       QUOTATION MARK
             case 0xFF02: // Quotation_Mark # Po       FULLWIDTH QUOTATION MARK
@@ -111,6 +131,14 @@ public enum QuoteClass {
             default:
                 return null;
         }
+        //CHECKSTYLE:ON
+    }
+
+    /**
+     * @return sample codepoint
+     */
+    public int sample() {
+        return sample;
     }
 
     @Override

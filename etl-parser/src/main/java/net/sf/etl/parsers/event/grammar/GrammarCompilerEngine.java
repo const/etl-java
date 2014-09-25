@@ -40,9 +40,10 @@ import java.util.Collection;
  */
 public interface GrammarCompilerEngine {
     /**
-     * Start compiling the grammar
+     * Start compiling the grammar.
      *
-     * @param reference the initial grammar request (the value will be used for value returned from {@link #read()} after grammar is completed)
+     * @param reference the initial grammar request (the value will be used for value returned from
+     *                  {@link #read()} after grammar is completed)
      */
     void start(ResourceRequest reference);
 
@@ -57,7 +58,7 @@ public interface GrammarCompilerEngine {
     Collection<ResourceRequest> requests();
 
     /**
-     * Parse and provide grammar object
+     * Parse and provide grammar object.
      *
      * @param grammar the parsed grammar model object
      * @param errors  the errors that happened during the parsing grammar object
@@ -66,7 +67,7 @@ public interface GrammarCompilerEngine {
     void provide(ResolvedObject<Grammar> grammar, ErrorInfo errors);
 
     /**
-     * This method is invoked if the resource request fails to be satisfied
+     * This method is invoked if the resource request fails to be satisfied.
      *
      * @param request   the resource request
      * @param resources the used resources

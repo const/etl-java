@@ -32,30 +32,30 @@ package net.sf.etl.parsers;
  */
 public final class SourceLocation {
     /**
-     * The unknown location
+     * The unknown location.
      */
-    public final static SourceLocation UNKNOWN = new SourceLocation(TextPos.START, TextPos.START, "unknown:");
+    public static final SourceLocation UNKNOWN = new SourceLocation(TextPos.START, TextPos.START, "unknown:");
     /**
-     * the start of source code fragment
+     * the start of source code fragment.
      */
     private final TextPos start;
     /**
-     * the end of source code fragment
+     * the end of source code fragment.
      */
     private final TextPos end;
     /**
-     * the location of source code fragment
+     * the location of source code fragment.
      */
     private final String systemId;
 
     /**
-     * A constructor from fields
+     * A constructor from fields.
      *
      * @param start    the start of source code fragment
      * @param end      the end of source code fragment
      * @param systemId the location of source code fragment
      */
-    public SourceLocation(TextPos start, TextPos end, String systemId) {
+    public SourceLocation(final TextPos start, final TextPos end, final String systemId) {
         super();
         this.end = end;
         this.start = start;
@@ -93,7 +93,7 @@ public final class SourceLocation {
 
     /**
      * @return The short form of location string useful for reporting. It only
-     *         reports the last name component of the URL.
+     * reports the last name component of the URL.
      */
     public String toShortString() {
         return shortSystemId() + start + "-" + end;
@@ -101,14 +101,6 @@ public final class SourceLocation {
 
     @Override
     public String toString() {
-        final StringBuilder rc = new StringBuilder();
-        rc.append('[');
-        rc.append(systemId);
-        rc.append(':');
-        rc.append(start);
-        rc.append('-');
-        rc.append(end);
-        rc.append("]");
-        return rc.toString();
+        return "[" + systemId + ':' + start + '-' + end + "]";
     }
 }

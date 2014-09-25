@@ -22,16 +22,17 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package net.sf.etl.parsers.streams;
 
 /**
- * The abstract parser
+ * The abstract parser.
+ *
+ * @param <TokenType> the token type
  */
 public interface AbstractReader<TokenType> {
 
     /**
-     * @return system id associated with this lexer
+     * @return system id associated with this parser
      */
     String getSystemId();
 
@@ -39,28 +40,26 @@ public interface AbstractReader<TokenType> {
      * Move to next token in the stream.
      *
      * @return true if next token was parsed, false if end of file is reached an
-     *         no more tokens are available.
-     * @throws net.sf.etl.parsers.ParserIOException
-     *          if there is IO problem.
+     * no more tokens are available.
+     * @throws net.sf.etl.parsers.ParserIOException if there is IO problem.
      */
     boolean advance();
 
     /**
      * Closes lexer and underlying stream if there is one.
      *
-     * @throws net.sf.etl.parsers.ParserIOException
-     *          if there is IO problem during close.
+     * @throws net.sf.etl.parsers.ParserIOException if there is IO problem during close.
      */
     void close();
 
     /**
      * @return true if parser is valid and still open. If method advance or
-     *         current had thrown exception, than parser becomes invalid.
+     * current had thrown exception, than parser becomes invalid.
      */
     boolean isValid();
 
     /**
-     * @return true if parser has been closed
+     * @return true if parser has been closed.
      */
     boolean isClosed();
 

@@ -29,34 +29,36 @@ import net.sf.etl.parsers.ParserException;
 import net.sf.etl.parsers.ParserIOException;
 
 /**
- * The base class for the parsers
+ * The base class for the parsers.
+ *
+ * @param <T> the token type
  */
 public abstract class AbstractReaderImpl<T> implements AbstractReader<T> {
     /**
-     * The exception
+     * The exception.
      */
-    ParserException exception;
+    private ParserException exception;
     /**
-     * True if the stream is closed
+     * True if the stream is closed.
      */
-    boolean closed;
+    private boolean closed;
     /**
-     * The current token
+     * The current token.
      */
-    T current;
+    private T current;
 
     @Override
-    public boolean isValid() {
+    public final boolean isValid() {
         return exception == null;
     }
 
     @Override
-    public boolean isClosed() {
+    public final boolean isClosed() {
         return closed;
     }
 
     @Override
-    public boolean advance() {
+    public final boolean advance() {
         ensureValid();
         try {
             return doAdvance();
@@ -70,16 +72,16 @@ public abstract class AbstractReaderImpl<T> implements AbstractReader<T> {
     }
 
     /**
-     * Do advancing using underlying resources
+     * Do advancing using underlying resources.
      *
      * @return if moved to next token
      */
     protected abstract boolean doAdvance();
 
     /**
-     * Ensure that the parser is in valid state
+     * Ensure that the parser is in valid state.
      */
-    protected void ensureValid() {
+    protected final void ensureValid() {
         if (exception != null) {
             throw exception;
         }
@@ -88,8 +90,17 @@ public abstract class AbstractReaderImpl<T> implements AbstractReader<T> {
         }
     }
 
+    /**
+     * Set current token.
+     *
+     * @param current the current token
+     */
+    protected final void setCurrent(final T current) {
+        this.current = current;
+    }
+
     @Override
-    public T current() {
+    public final T current() {
         ensureValid();
         if (current == null) {
             throw new ParserException("You need to advance first");
@@ -98,7 +109,7 @@ public abstract class AbstractReaderImpl<T> implements AbstractReader<T> {
     }
 
     @Override
-    public void close() {
+    public final void close() {
         try {
             if (closed) {
                 closed = true;
@@ -110,9 +121,9 @@ public abstract class AbstractReaderImpl<T> implements AbstractReader<T> {
     }
 
     /**
-     * Perform close operation
+     * Perform close operation.
      *
-     * @throws Exception
+     * @throws Exception if any problem
      */
     protected abstract void doClose() throws Exception;
 }

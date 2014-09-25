@@ -29,14 +29,22 @@ package net.sf.etl.parsers.characters;
  * This is class provides checks for identifiers. Identifiers are unicode identifiers except that they could start
  * from connector character as well.
  */
-public class Identifiers {
+public final class Identifiers {
     /**
-     * Check if the character is unicode connector character ("Pc" category)
+     * Private constructor for utility class.
+     */
+    private Identifiers() {
+        // do nothing
+    }
+
+    /**
+     * Check if the character is unicode connector character ("Pc" category).
      *
      * @param c the character to check
      * @return true if the character is a connector character
      */
-    public static boolean isConnectorChar(int c) {
+    public static boolean isConnectorChar(final int c) {
+        //CHECKSTYLE:OFF
         switch (c) {
             case 0x005F: // Pc: LOW LINE
             case 0x203F: // Pc: UNDERTIE
@@ -52,6 +60,7 @@ public class Identifiers {
             default:
                 return false;
         }
+        //CHECKSTYLE:ON
     }
 
     /**
@@ -61,7 +70,7 @@ public class Identifiers {
      * @param codepoint the code point to test
      * @return true if the character is a valid identifier start character
      */
-    public static boolean isIdentifierStart(int codepoint) {
+    public static boolean isIdentifierStart(final int codepoint) {
         return isConnectorChar(codepoint) || Character.isUnicodeIdentifierStart(codepoint);
     }
 
@@ -72,7 +81,7 @@ public class Identifiers {
      * @param codepoint the code point to test
      * @return true if the character is a valid identifier start character
      */
-    public static boolean isIdentifierPart(int codepoint) {
+    public static boolean isIdentifierPart(final int codepoint) {
         return Character.isUnicodeIdentifierPart(codepoint);
     }
 }

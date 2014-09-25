@@ -26,8 +26,6 @@ package net.sf.etl.parsers.event.tree;
 
 import net.sf.etl.parsers.ObjectName;
 import net.sf.etl.parsers.PropertyName;
-import net.sf.etl.parsers.Token;
-import net.sf.etl.parsers.literals.LiteralUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -67,69 +65,72 @@ import java.util.logging.Logger;
  * @param <BaseObject> a type of the base object
  * @author const
  */
-public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<BaseObject, Field, Class<?>, List<Object>> {
+public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<BaseObject, Field,
+        Class<?>, List<Object>> {
     /**
-     * The logger
+     * The logger.
      */
-    private static final Logger log = Logger.getLogger(ReflectionObjectFactoryBase.class.getName());
+    private static final Logger LOG = Logger.getLogger(ReflectionObjectFactoryBase.class.getName());
 
     /**
      * The cache of fields.
      */
-    private final HashMap<Class<?>, HashMap<String, Field>> fieldCache = new HashMap<Class<?>, HashMap<String, Field>>();
+    private final HashMap<Class<?>, HashMap<String, Field>> fieldCache =
+            new HashMap<Class<?>, HashMap<String, Field>>();
 
     /**
-     * The constructor from super class
+     * The constructor from super class.
      *
      * @param classLoader the class loader for the parser
      */
-    public FieldObjectFactory(ClassLoader classLoader) {
+    public FieldObjectFactory(final ClassLoader classLoader) {
         super(classLoader);
     }
 
     @Override
-    public void addToFeature(BaseObject rc, Field f, List<Object> holder, Object v) {
+    public final void addToFeature(final BaseObject rc, final Field f, final List<Object> holder, final Object v) {
         holder.add(v);
         valueEnlisted(rc, f, v);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    protected BaseObject createInstance(Class<?> metaObject, ObjectName name) {
+    protected final BaseObject createInstance(final Class<?> metaObject, final ObjectName name) {
         try {
             return (BaseObject) metaObject.newInstance();
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            if (log.isLoggable(Level.SEVERE)) {
-                log.log(Level.SEVERE, "Instance of " + metaObject.getCanonicalName() + " cannot be created.", e);
+            if (LOG.isLoggable(Level.SEVERE)) {
+                LOG.log(Level.SEVERE, "Instance of " + metaObject.getCanonicalName() + " cannot be created.", e);
             }
             throw new RuntimeException("Instance of " + metaObject.getCanonicalName() + " cannot be created.", e);
         }
     }
 
     @Override
-    public void endListCollection(BaseObject rc, Class<?> metaObject, Field f, List<Object> holder) {
+    public final void endListCollection(final BaseObject rc, final Class<?> metaObject, final Field f,
+                                        final List<Object> holder) {
         // do nothing
     }
 
     @Override
-    protected Class<?> getMetaObject(ObjectName name) {
+    protected final Class<?> getMetaObject(final ObjectName name) {
         return getObjectClass(name);
     }
 
     @Override
-    public Field getPropertyMetaObject(BaseObject rc, Class<?> metaObject, String name) {
+    public final Field getPropertyMetaObject(final BaseObject rc, final Class<?> metaObject, final String name) {
         return field(metaObject, name);
     }
 
     @Override
-    public void setToFeature(BaseObject rc, Field f, Object v) {
+    public final void setToFeature(final BaseObject rc, final Field f, final Object v) {
         try {
             f.set(rc, v);
         } catch (IllegalAccessException e) {
-            if (log.isLoggable(Level.SEVERE)) {
-                log.log(Level.SEVERE, "The field " + f + " cannot be accessed.", e);
+            if (LOG.isLoggable(Level.SEVERE)) {
+                LOG.log(Level.SEVERE, "The field " + f + " cannot be accessed.", e);
             }
             throw new RuntimeException("The field " + f + " cannot be accessed.", e);
         }
@@ -137,31 +138,31 @@ public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Object> startListCollection(BaseObject rc, Class<?> metaObject, Field f) {
+    public final List<Object> startListCollection(final BaseObject rc, final Class<?> metaObject, final Field f) {
         try {
-            List<Object> list = (List<Object>) f.get(rc);
+            final List<Object> list = (List<Object>) f.get(rc);
             if (list == null) {
-                if (log.isLoggable(Level.SEVERE)) {
-                    log.log(Level.SEVERE, "The field " + f + " must have a collection value.");
+                if (LOG.isLoggable(Level.SEVERE)) {
+                    LOG.log(Level.SEVERE, "The field " + f + " must have a collection value.");
                 }
                 throw new IllegalStateException("The field " + f + " must have a collection value.");
             }
             return list;
         } catch (ClassCastException e) {
-            if (log.isLoggable(Level.SEVERE)) {
-                log.log(Level.SEVERE, "The field " + f + " is not of List type.", e);
+            if (LOG.isLoggable(Level.SEVERE)) {
+                LOG.log(Level.SEVERE, "The field " + f + " is not of List type.", e);
             }
             throw e;
         } catch (IllegalAccessException e) {
-            if (log.isLoggable(Level.SEVERE)) {
-                log.log(Level.SEVERE, "The field " + f + " cannot be accessed.", e);
+            if (LOG.isLoggable(Level.SEVERE)) {
+                LOG.log(Level.SEVERE, "The field " + f + " cannot be accessed.", e);
             }
             throw new RuntimeException("The field " + f + " cannot be accessed.", e);
         }
     }
 
     @Override
-    public Object parseValue(BaseObject rc, Field f, Token value) {
+    protected final Class<?> getFeatureType(final Field f) {
         Class<?> elementType = f.getType();
         if (List.class.isAssignableFrom(elementType)) {
             Type rawType = f.getGenericType();
@@ -178,26 +179,7 @@ public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<
                         + f.getGenericType().getClass().getCanonicalName());
             }
         }
-        if (elementType == Token.class) {
-            return value;
-        }
-        if (elementType == String.class) {
-            return value.text();
-        } else if (elementType == int.class || elementType == Integer.class) {
-            return LiteralUtils.parseInt(value.text());
-        } else if (elementType.isEnum()) {
-            final String text = value.text();
-            for (final Object o : elementType.getEnumConstants()) {
-                final Enum<?> e = (Enum<?>) o;
-                // note that line below works only for single-word enums
-                if (text.equalsIgnoreCase(e.name())) {
-                    return e;
-                }
-            }
-            throw new RuntimeException("No constant with name " + value.text()
-                    + " in enum " + elementType.getCanonicalName());
-        }
-        throw new RuntimeException("Unsupported field type " + f);
+        return elementType;
     }
 
     /**
@@ -209,7 +191,7 @@ public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<
      * @param f  a filed of the object
      * @param v  a value added to field
      */
-    protected void valueEnlisted(BaseObject rc, Field f, Object v) {
+    protected void valueEnlisted(final BaseObject rc, final Field f, final Object v) {
         // by default, do nothing
     }
 
@@ -221,23 +203,23 @@ public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<
      * @param name a name to get
      * @return the field
      */
-    private Field field(Class<?> c, String name) {
+    private Field field(final Class<?> c, final String name) {
         try {
-            name = PropertyName.lowerCaseFeatureName(name);
+            final String featureName = PropertyName.lowerCaseFeatureName(name);
             HashMap<String, Field> classFields = fieldCache.get(c);
             if (classFields == null) {
                 classFields = new HashMap<String, Field>();
                 fieldCache.put(c, classFields);
             }
-            Field rc = classFields.get(name);
+            Field rc = classFields.get(featureName);
             if (rc == null) {
-                rc = c.getField(name);
-                classFields.put(name, rc);
+                rc = c.getField(featureName);
+                classFields.put(featureName, rc);
             }
             return rc;
         } catch (Exception e) {
-            if (log.isLoggable(Level.SEVERE)) {
-                log.log(Level.SEVERE, "Unable to find field " + name + " in class " + c.getCanonicalName(), e);
+            if (LOG.isLoggable(Level.SEVERE)) {
+                LOG.log(Level.SEVERE, "Unable to find field " + name + " in class " + c.getCanonicalName(), e);
             }
             throw new RuntimeException("Unable to find field " + name + " in class " + c.getCanonicalName(), e);
         }

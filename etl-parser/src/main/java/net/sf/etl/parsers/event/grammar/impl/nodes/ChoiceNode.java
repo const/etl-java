@@ -24,6 +24,7 @@
  */
 package net.sf.etl.parsers.event.grammar.impl.nodes;
 
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.LookAheadSet;
 import net.sf.etl.parsers.event.grammar.impl.ActionBuilder;
 import net.sf.etl.parsers.event.grammar.impl.flattened.ContextView;
@@ -39,20 +40,22 @@ import java.util.Set;
  *
  * @author const
  */
-public class ChoiceNode extends GroupNode {
+public final class ChoiceNode extends GroupNode {
 
     @Override
-    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit, Action recoveryTest) {
+    public Action buildActions(final ActionBuilder b, final Action normalExit, final Action errorExit,
+                               final Action recoveryTest) {
         final HashSet<ActionBuilder> visitedSet = new HashSet<ActionBuilder>();
         final LookAheadSet choiceLa = buildLookAhead();
-        ChoiceBuilder builder = new ChoiceBuilder(source);
+        final SourceLocation source = getSource();
+        final ChoiceBuilder builder = new ChoiceBuilder(source);
         builder.setFallback(ActionUtil.createReportErrorAction(source, errorExit,
                 "syntax.UnexpectedToken.expectingTokens",
                 choiceLa.toString()));
         for (Node node : nodes()) {
             builder.add(node.buildLookAhead(visitedSet), node.buildActions(b, normalExit, errorExit, recoveryTest));
         }
-        return builder.build(b);
+        return builder.build();
     }
 
     @Override
@@ -68,7 +71,7 @@ public class ChoiceNode extends GroupNode {
 
 
     @Override
-    protected LookAheadSet createLookAhead(Set<ActionBuilder> visitedBuilders) {
+    protected LookAheadSet createLookAhead(final Set<ActionBuilder> visitedBuilders) {
         // TODO handle case of empty node
         assert !nodes().isEmpty() : "Choice node must have at least one alternative";
         final Iterator<Node> i = nodes().iterator();

@@ -32,14 +32,45 @@ import net.sf.etl.parsers.Token;
  *
  * @author const
  */
-public class ObjectName extends Element {
+public final class ObjectName extends Element {
     /**
-     * prefix
+     * The prefix.
      */
-    public Token prefix;
+    private Token prefix;
     /**
-     * name
+     * The name.
      */
-    public Token name;
+    private Token name;
 
+    /**
+     * @return the prefix.
+     */
+    public Token getPrefix() {
+        return prefix;
+    }
+
+    /**
+     * Set the prefix.
+     *
+     * @param prefix the prefix
+     */
+    public void setPrefix(final Token prefix) {
+        this.prefix = prefix;
+    }
+
+    /**
+     * @return the name.
+     */
+    public Token getName() {
+        return name;
+    }
+
+    /**
+     * Set the name.
+     *
+     * @param name the name
+     */
+    public void setName(final Token name) {
+        this.name = name;
+    }
 }

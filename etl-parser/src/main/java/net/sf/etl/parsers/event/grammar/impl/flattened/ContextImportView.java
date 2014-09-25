@@ -27,54 +27,55 @@ package net.sf.etl.parsers.event.grammar.impl.flattened;
 import net.sf.etl.parsers.event.unstable.model.grammar.ContextImport;
 
 /**
- * This is a view of context import
+ * This is a view of context import.
  *
  * @author const
  */
-public class ContextImportView extends ContextMemberView {
+public final class ContextImportView extends ContextMemberView {
     /**
-     * The local name of imported context
+     * The local name of imported context.
      */
     private final String localName;
     /**
-     * The context import definition
+     * The context import definition.
      */
     private final ContextImport definition;
     /**
-     * The referenced context
+     * The referenced context.
      */
     private final ContextView referencedContext;
     /**
-     * The original definition
+     * The original definition.
      */
     private final ContextImportView originalDefinition;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param definition        the context import to be wrapped
      * @param definingContext   the context that defined this context import
      * @param referencedContext the context referenced by this import
      */
-    public ContextImportView(ContextImport definition, ContextView definingContext, ContextView referencedContext) {
+    public ContextImportView(final ContextImport definition, final ContextView definingContext,
+                             final ContextView referencedContext) {
         super(definingContext, definingContext);
         this.definition = definition;
-        this.localName = definition.localName;
+        this.localName = definition.getLocalName();
         this.referencedContext = referencedContext;
         this.originalDefinition = this;
     }
 
     /**
-     * The constructor from other definition
+     * The constructor from other definition.
      *
      * @param importingContext the context that imports definition
      * @param definition       the context import to be wrapped
      */
-    public ContextImportView(ContextView importingContext, ContextImportView definition) {
+    public ContextImportView(final ContextView importingContext, final ContextImportView definition) {
         super(definition.definingContext(), importingContext);
         this.definition = definition.definition;
         this.localName = definition.localName;
-        if (definition.definition.grammarName != null) {
+        if (definition.definition.getGrammarName() != null) {
             this.referencedContext = definition.referencedContext;
         } else {
             this.referencedContext = importingContext.grammar().context(definition.referencedContext.name());

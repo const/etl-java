@@ -31,10 +31,25 @@ import net.sf.etl.parsers.Token;
  *
  * @author const
  */
-public class ListOp extends CompositeSyntax {
+public final class ListOp extends CompositeSyntax {
     /**
-     * separator
+     * The separator.
      */
-    public Token separator;
+    private Token separator;
 
+    /**
+     * @return the separator
+     */
+    public Token getSeparator() {
+        return separator;
+    }
+
+    /**
+     * Set the separator.
+     *
+     * @param separator the separator
+     */
+    public void setSeparator(final Token separator) {
+        this.separator = separator;
+    }
 }

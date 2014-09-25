@@ -32,34 +32,37 @@ import java.util.List;
 
 /**
  * The resolved object wrapper that is used to describe a resolution process to the compiler. The object is immutable.
+ *
+ * @param <T> the value type
  */
-public class ResolvedObject<T> implements Serializable {
+public final class ResolvedObject<T> implements Serializable {
     /**
-     * The original resource request
+     * The original resource request.
      */
     private final ResourceRequest request;
     /**
-     * The resources consulted while resolving the object
+     * The resources consulted while resolving the object.
      */
     private final List<ResourceUsage> resolutionHistory;
     /**
-     * The descriptor of resource (assuming that system id is known, so it does not contains resolution history)
+     * The descriptor of resource (assuming that system id is known, so it does not contains resolution history).
      */
     private final ResourceDescriptor descriptor;
     /**
-     * The resolved object itself
+     * The resolved object itself.
      */
     private final T object;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param request           the original request
      * @param resolutionHistory the resolution history
      * @param descriptor        the resource descriptor
      * @param object            the resolved object
      */
-    public ResolvedObject(ResourceRequest request, List<ResourceUsage> resolutionHistory, ResourceDescriptor descriptor, T object) {
+    public ResolvedObject(final ResourceRequest request, final List<ResourceUsage> resolutionHistory,
+                          final ResourceDescriptor descriptor, final T object) {
         if (request == null) {
             throw new IllegalArgumentException("the request must not be null");
         }
@@ -67,9 +70,9 @@ public class ResolvedObject<T> implements Serializable {
             throw new IllegalArgumentException("the descriptor must not be null");
         }
         this.request = request;
-        this.resolutionHistory = resolutionHistory == null || resolutionHistory.isEmpty() ?
-                Collections.<ResourceUsage>emptyList() :
-                Collections.unmodifiableList(new ArrayList<ResourceUsage>(resolutionHistory));
+        this.resolutionHistory = resolutionHistory == null || resolutionHistory.isEmpty()
+                ? Collections.<ResourceUsage>emptyList()
+                : Collections.unmodifiableList(new ArrayList<ResourceUsage>(resolutionHistory));
         this.descriptor = descriptor;
         this.object = object;
     }
@@ -89,14 +92,14 @@ public class ResolvedObject<T> implements Serializable {
     }
 
     /**
-     * The same request but with other object
+     * The same request but with other object.
      *
-     * @param object  the object
-     * @param <Other> the object type
+     * @param newObject the object
+     * @param <Other>   the object type
      * @return new resolved object instance
      */
-    public <Other> ResolvedObject<Other> withOtherObject(Other object) {
-        return new ResolvedObject<Other>(request, resolutionHistory, descriptor, object);
+    public <Other> ResolvedObject<Other> withOtherObject(final Other newObject) {
+        return new ResolvedObject<Other>(request, resolutionHistory, descriptor, newObject);
     }
 
     /**
@@ -107,7 +110,8 @@ public class ResolvedObject<T> implements Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
+        //CHECKSTYLE:OFF
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -120,15 +124,18 @@ public class ResolvedObject<T> implements Serializable {
         if (!descriptor.equals(that.descriptor)) return false;
 
         return true;
+        //CHECKSTYLE:ON
     }
 
     @Override
     public int hashCode() {
+        //CHECKSTYLE:OFF
         int result = request.hashCode();
         result = 31 * result + resolutionHistory.hashCode();
         result = 31 * result + descriptor.hashCode();
         result = 31 * result + (object != null ? object.hashCode() : 0);
         return result;
+        //CHECKSTYLE:ON
     }
 
     /**

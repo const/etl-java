@@ -29,34 +29,33 @@ import net.sf.etl.parsers.ErrorInfo;
 import net.sf.etl.parsers.ParserException;
 
 /**
- * The exception related to literal parsing
+ * The exception related to literal parsing.
  */
 public class LiteralParseException extends ParserException {
     /**
-     * The exception constructor
+     * The exception constructor.
      *
      * @param type   the type of object
      * @param text   the text of the token
      * @param errors the errors related to token
      */
-    public LiteralParseException(String type, String text, ErrorInfo errors) {
+    public LiteralParseException(final String type, final String text, final ErrorInfo errors) {
         super(message(type, text, errors));
     }
 
     /**
-     * Create error message
+     * Create error message.
      *
      * @param type   the type of object to be parsed
      * @param text   the text of the token
      * @param errors the list of errors
      * @return the message for the exception
      */
-    private static String message(String type, String text, ErrorInfo errors) {
+    private static String message(final String type, final String text, final ErrorInfo errors) {
         StringBuilder b = new StringBuilder();
         b.append("Error parsing ").append(type).append(" '").append(text).append("':");
-        while (errors != null) {
+        for (ErrorInfo e = errors; e != null; e = e.cause()) {
             b.append("\n  ").append(errors.message()).append(" ").append(errors.end());
-            errors = errors.cause();
         }
         return b.toString();
     }

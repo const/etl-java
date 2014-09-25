@@ -25,45 +25,45 @@
 package net.sf.etl.parsers.event.unstable.model.grammar;
 
 /**
- * Enumeration Associativity
+ * Enumeration Associativity.
  *
  * @author const
  */
 public enum Associativity {
     /**
-     * literal f
+     * literal f.
      */
     F,
     /**
-     * literal fx
+     * literal fx.
      */
     FX,
     /**
-     * literal fy
+     * literal fy.
      */
     FY,
     /**
-     * literal xfx
+     * literal xfx.
      */
     XFX,
     /**
-     * literal xfy
+     * literal xfy.
      */
     XFY,
     /**
-     * literal xf
+     * literal xf.
      */
     XF,
     /**
-     * literal yfx
+     * literal yfx.
      */
     YFX,
     /**
-     * literal yf
+     * literal yf.
      */
     YF,
     /**
-     * literal yf
+     * literal yf.
      */
     YFY,
 }

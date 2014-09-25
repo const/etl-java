@@ -24,133 +24,144 @@
  */
 package net.sf.etl.parsers.event.grammar.impl.flattened;
 
-import net.sf.etl.parsers.*;
+import net.sf.etl.parsers.ErrorInfo;
+import net.sf.etl.parsers.GrammarInfo;
+import net.sf.etl.parsers.SourceLocation;
+import net.sf.etl.parsers.StandardGrammars;
+import net.sf.etl.parsers.Token;
 import net.sf.etl.parsers.event.grammar.impl.flattened.DirectedAcyclicGraph.Node;
-import net.sf.etl.parsers.event.unstable.model.grammar.*;
+import net.sf.etl.parsers.event.unstable.model.grammar.Context;
+import net.sf.etl.parsers.event.unstable.model.grammar.Element;
+import net.sf.etl.parsers.event.unstable.model.grammar.Grammar;
+import net.sf.etl.parsers.event.unstable.model.grammar.GrammarImport;
+import net.sf.etl.parsers.event.unstable.model.grammar.GrammarInclude;
+import net.sf.etl.parsers.event.unstable.model.grammar.GrammarMember;
+import net.sf.etl.parsers.event.unstable.model.grammar.GrammarRef;
+import net.sf.etl.parsers.event.unstable.model.grammar.Namespace;
 import net.sf.etl.parsers.literals.LiteralUtils;
 import net.sf.etl.parsers.literals.StringInfo;
 import net.sf.etl.parsers.literals.StringParser;
-import net.sf.etl.parsers.resource.*;
+import net.sf.etl.parsers.resource.ResolvedObject;
+import net.sf.etl.parsers.resource.ResourceDescriptor;
+import net.sf.etl.parsers.resource.ResourceReference;
+import net.sf.etl.parsers.resource.ResourceRequest;
+import net.sf.etl.parsers.resource.ResourceUsage;
 
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * A view of individual grammar
+ * A view of individual grammar.
  *
  * @author const
  */
-public class GrammarView {
+public final class GrammarView {
     /**
-     * The gatherer for grammar imports
+     * The gatherer for grammar imports.
      */
-    private static final GrammarImportDefinitionGatherer IMPORT_DEFINITION_GATHERER = new GrammarImportDefinitionGatherer();
+    private static final GrammarImportDefinitionGatherer IMPORT_DEFINITION_GATHERER =
+            new GrammarImportDefinitionGatherer();
     /**
-     * The default context for this grammar
-     */
-    private ContextView defaultContext;
-    /**
-     * A DAG along with context include paths
+     * A DAG along with context include paths.
      */
     private final DirectedAcyclicGraph<ContextView> contextContextIncludeDAG = new DirectedAcyclicGraph<ContextView>();
     /**
-     * The grammar assembly for this grammar view
+     * The grammar assembly for this grammar view.
      */
     private final GrammarAssembly assembly;
     /**
-     * The grammar accessible through this view
+     * The grammar accessible through this view.
      */
     private final Grammar grammar;
     /**
-     * The map from context name to context view
+     * The map from context name to context view.
      */
     private final Map<String, ContextView> contexts = new HashMap<String, ContextView>();
     /**
-     * The map from local name to imported grammar view
+     * The map from local name to imported grammar view.
      */
     private final Map<String, GrammarImportView> importedGrammars = new HashMap<String, GrammarImportView>();
     /**
-     * The set of all included grammar views
+     * The set of all included grammar views.
      */
     private final Node<GrammarView> includeNode;
     /**
-     * The map from local name to namespace URI
+     * The map from local name to namespace URI.
      */
     private final Map<String, String> namespaceDeclarations = new HashMap<String, String>();
     /**
-     * The default namespace prefix, null if there is no default namespace
-     */
-    private Token defaultNamespacePrefix;
-    /**
-     * The system id for this grammar
+     * The system id for this grammar.
      */
     private final String systemId;
     /**
-     * The name of grammar
+     * The name of grammar.
      */
     private final String grammarName;
     /**
-     * The first {@link ResolvedObject} with which this grammar was found
+     * The first {@link ResolvedObject} with which this grammar was found.
      */
     private final ResolvedObject<Grammar> firstResolved;
     /**
-     * The collection of grammar references
+     * The collection of grammar references.
      */
-    private final IdentityHashMap<GrammarRef, ResourceReference> references = new IdentityHashMap<GrammarRef, ResourceReference>();
+    private final IdentityHashMap<GrammarRef, ResourceReference> references =
+            new IdentityHashMap<GrammarRef, ResourceReference>();
     /**
-     * The grammars used for creating this grammar
+     * The grammars used for creating this grammar.
      */
     private final HashSet<ResolvedObject<GrammarView>> usedGrammars = new HashSet<ResolvedObject<GrammarView>>();
     /**
-     * The failed grammars
+     * The failed grammars.
      */
-    private final ArrayList<GrammarAssembly.FailedGrammar> failedGrammars = new ArrayList<GrammarAssembly.FailedGrammar>();
+    private final ArrayList<GrammarAssembly.FailedGrammar> failedGrammars =
+            new ArrayList<GrammarAssembly.FailedGrammar>();
     /**
-     * The grammar info
+     * The grammar info.
      */
     private final GrammarInfo grammarInfo;
+    /**
+     * The default context for this grammar.
+     */
+    private ContextView defaultContext;
+    /**
+     * The default namespace prefix, null if there is no default namespace.
+     */
+    private Token defaultNamespacePrefix;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param assembly the grammar assembly to which this grammar view belongs
      * @param grammar  the grammar for this grammar view
      */
-    public GrammarView(GrammarAssembly assembly, ResolvedObject<Grammar> grammar) {
+    public GrammarView(final GrammarAssembly assembly, final ResolvedObject<Grammar> grammar) {
         this.assembly = assembly;
         this.grammar = grammar.getObject();
         this.firstResolved = grammar;
         this.systemId = grammar.getDescriptor().getSystemId();
         this.grammarName = createGrammarName(this.grammar);
         this.includeNode = assembly.getIncludeNode(this);
-        this.grammarInfo = new GrammarInfo(systemId, grammarName, parseVersion(grammar.getObject().version));
+        this.grammarInfo = new GrammarInfo(systemId, grammarName, parseVersion(grammar.getObject().getVersion()));
     }
 
     /**
-     * Parse version
-     *
-     * @param version the version to parse
-     * @return the parsed version
-     */
-    private String parseVersion(Token version) {
-        if (version == null) {
-            return null;
-        }
-        final StringInfo parse = new StringParser(version.text(), version.start(), systemId).parse();
-        error(parse.errors);
-        return parse.text;
-    }
-
-    /**
-     * Get grammar name from grammar
+     * Get grammar name from grammar.
      *
      * @param grammar a grammar to examining
      * @return the qualified name of the grammar as a string.
      */
-    private static String createGrammarName(Grammar grammar) {
+    private static String createGrammarName(final Grammar grammar) {
         final StringBuilder rc = new StringBuilder();
         boolean isFirst = true;
-        for (final Token s : grammar.name) {
+        for (final Token s : grammar.getName()) {
             if (isFirst) {
                 isFirst = false;
             } else {
@@ -162,7 +173,22 @@ public class GrammarView {
     }
 
     /**
-     * @return the created descriptor for the grammar view
+     * Parse version.
+     *
+     * @param version the version to parse
+     * @return the parsed version
+     */
+    private String parseVersion(final Token version) {
+        if (version == null) {
+            return null;
+        }
+        final StringInfo parse = new StringParser(version.text(), version.start(), systemId).parse();
+        error(parse.getErrors());
+        return parse.getText();
+    }
+
+    /**
+     * @return the created descriptor for the grammar view.
      */
     public ResourceDescriptor createDescriptor() {
         HashSet<GrammarView> visited = new HashSet<GrammarView>();
@@ -170,12 +196,12 @@ public class GrammarView {
     }
 
     /**
-     * Create the descriptor
+     * Create the descriptor.
      *
      * @param visited the visited grammars
      * @return the descriptor
      */
-    private ResourceDescriptor createDescriptor(HashSet<GrammarView> visited) {
+    private ResourceDescriptor createDescriptor(final HashSet<GrammarView> visited) {
         final ResourceDescriptor resource = firstResolved.getDescriptor();
         if (visited.contains(this)) {
             return new ResourceDescriptor(resource.getSystemId(), resource.getType(), resource.getVersion());
@@ -190,10 +216,11 @@ public class GrammarView {
                         StandardGrammars.USED_GRAMMAR_REQUEST_TYPE));
             }
             for (GrammarAssembly.FailedGrammar failedGrammar : failedGrammars) {
-                resourceUsages.addAll(failedGrammar.usedResources);
+                resourceUsages.addAll(failedGrammar.getUsedResources());
             }
             visited.remove(this);
-            return new ResourceDescriptor(resource.getSystemId(), resource.getType(), resource.getVersion(), resourceUsages);
+            return new ResourceDescriptor(resource.getSystemId(), resource.getType(), resource.getVersion(),
+                    resourceUsages);
         }
     }
 
@@ -202,7 +229,7 @@ public class GrammarView {
      */
     Set<ResourceReference> referencedGrammars() {
         HashSet<ResourceReference> requests = new HashSet<ResourceReference>();
-        for (GrammarMember m : grammar.content) {
+        for (GrammarMember m : grammar.getContent()) {
             if (m instanceof GrammarImport) {
                 final ResourceReference request = toReference((GrammarImport) m);
                 if (request != null) {
@@ -219,40 +246,47 @@ public class GrammarView {
     }
 
     /**
-     * Create resource reference from grammar reference
+     * Create resource reference from grammar reference.
      *
      * @param ref the grammar reference
      * @return the resource reference
      */
-    private ResourceReference toReference(GrammarRef ref) {
+    private ResourceReference toReference(final GrammarRef ref) {
         ResourceReference resourceReference = references.get(ref);
         if (resourceReference == null) {
-            resourceReference = getResourceReference(ref.systemId, ref.publicId);
+            resourceReference = getResourceReference(ref.getSystemId(), ref.getPublicId());
             references.put(ref, resourceReference);
         }
         return resourceReference;
     }
 
     /**
-     * Parse string token
+     * Parse string token.
      *
      * @param value the value to parse
      * @return the parsed value
      */
-    private StringInfo parse(Token value) {
+    private StringInfo parse(final Token value) {
         return value == null ? null : new StringParser(value.text(), value.start(), getSystemId()).parse();
     }
 
-    private ResourceReference getResourceReference(Token systemIdToken, Token publicIdToken) {
+    /**
+     * Get resource reference from doctype.
+     *
+     * @param systemIdToken the systemId token
+     * @param publicIdToken the publicId token
+     * @return the resource reference
+     */
+    private ResourceReference getResourceReference(final Token systemIdToken, final Token publicIdToken) {
         StringInfo refSystemId = parse(systemIdToken);
-        if (refSystemId != null && refSystemId.errors != null) {
-            error(refSystemId.errors);
+        if (refSystemId != null && refSystemId.getErrors() != null) {
+            error(refSystemId.getErrors());
         }
         StringInfo refPublicId = parse(publicIdToken);
-        if (refPublicId != null && refPublicId.errors != null) {
-            error(refPublicId.errors);
+        if (refPublicId != null && refPublicId.getErrors() != null) {
+            error(refPublicId.getErrors());
         }
-        String textSystemId = refSystemId == null ? null : refSystemId.text;
+        String textSystemId = refSystemId == null ? null : refSystemId.getText();
         if (textSystemId != null) {
             try {
                 final URI uri = URI.create(systemId);
@@ -263,26 +297,26 @@ public class GrammarView {
                 error(systemIdToken, "grammar.GrammarRef.systemIdParseError", systemIdToken.text());
             }
         }
-        final String textPublicId = refPublicId == null ? null : refPublicId.text;
-        return textPublicId == null && textSystemId == null ? null :
-                new ResourceReference(textSystemId, textPublicId);
+        final String textPublicId = refPublicId == null ? null : refPublicId.getText();
+        return textPublicId == null && textSystemId == null ? null
+                : new ResourceReference(textSystemId, textPublicId);
     }
 
     /**
      * This method examines grammar and gathers initial information about it.
      */
-    void prepareContexts() {
-        for (final GrammarMember m : grammar.content) {
+    public void prepareContexts() {
+        for (final GrammarMember m : grammar.getContent()) {
             if (m instanceof GrammarImport) {
                 final GrammarImport gi = (GrammarImport) m;
                 final GrammarView importedGrammar = getReferencedGrammar(gi);
                 if (importedGrammar == null) {
                     failedGrammars.add(assembly.failure(
                             new ResourceRequest(toReference(gi), StandardGrammars.USED_GRAMMAR_REQUEST_TYPE)));
-                } else if (importedGrammars.containsKey(gi.name.text())) {
-                    error(gi, "grammar.Grammar.duplicateImport", gi.name);
+                } else if (importedGrammars.containsKey(gi.getName().text())) {
+                    error(gi, "grammar.Grammar.duplicateImport", gi.getName());
                 } else {
-                    importedGrammars.put(gi.name.text(), new GrammarImportView(this,
+                    importedGrammars.put(gi.getName().text(), new GrammarImportView(this,
                             gi, importedGrammar));
                 }
             } else if (m instanceof GrammarInclude) {
@@ -298,67 +332,68 @@ public class GrammarView {
                 }
             } else if (m instanceof Namespace) {
                 final Namespace ns = (Namespace) m;
-                if (namespaceDeclarations.containsKey(ns.prefix.text())) {
+                if (namespaceDeclarations.containsKey(ns.getPrefix().text())) {
                     error(ns, "grammar.Grammar.duplicateNamespaceDeclaration",
-                            ns.prefix, namespaceDeclarations.get(ns.prefix.text()));
+                            ns.getPrefix(), namespaceDeclarations.get(ns.getPrefix().text()));
                 }
                 try {
                     // attempt to parse string as URI and return error if it is
                     // impossible
-                    new URI(LiteralUtils.parseString(ns.uri.text()));
+                    new URI(LiteralUtils.parseString(ns.getUri().text()));
                 } catch (final Exception ex) {
                     error(ns, "grammar.Grammar.invalidUriInNamespaceDeclaration",
-                            ns.prefix, ns.uri);
+                            ns.getPrefix(), ns.getUri());
                 }
-                namespaceDeclarations.put(ns.prefix.text(), ns.uri.text());
-                if (ns.defaultModifier != null) {
+                namespaceDeclarations.put(ns.getPrefix().text(), ns.getUri().text());
+                if (ns.getDefaultModifier() != null) {
                     if (defaultNamespacePrefix != null) {
                         error(ns, "grammar.Grammar.duplicateDefaultNamespace",
-                                defaultNamespacePrefix.text(), namespaceDeclarations.get(defaultNamespacePrefix.text()));
+                                defaultNamespacePrefix.text(),
+                                namespaceDeclarations.get(defaultNamespacePrefix.text()));
                     } else {
-                        defaultNamespacePrefix = ns.prefix;
+                        defaultNamespacePrefix = ns.getPrefix();
                     }
                 }
             } else if (m instanceof Context) {
                 final Context c = (Context) m;
-                if (contexts.containsKey(c.name)) {
-                    error(c, "grammar.Grammar.duplicateContext", c.name);
+                if (contexts.containsKey(c.getName())) {
+                    error(c, "grammar.Grammar.duplicateContext", c.getName());
                 } else {
-                    getOrCreateContext(c.name, c);
+                    getOrCreateContext(c.getName(), c);
                 }
             }
         }
     }
 
     /**
-     * Report non fatal grammar error
+     * Report non fatal grammar error.
      *
      * @param e       the element in error
      * @param errorId the error identifier
      * @param args    the error arguments
      */
-    public void error(Element e, String errorId, Object... args) {
+    public void error(final Element e, final String errorId, final Object... args) {
         assembly.error(e, errorId, args);
     }
 
 
     /**
-     * Add error
+     * Add error.
      *
      * @param error the error to add
      */
-    public void error(ErrorInfo error) {
+    public void error(final ErrorInfo error) {
         assembly.error(error);
     }
 
     /**
-     * Add new error related to token in this grammar
+     * Add new error related to token in this grammar.
      *
      * @param token   the token
      * @param errorId the error id
      * @param arg     the error arg
      */
-    public void error(Token token, String errorId, Object arg) {
+    public void error(final Token token, final String errorId, final Object arg) {
         assembly.error(new ErrorInfo(errorId,
                 Collections.singletonList(arg),
                 new SourceLocation(token.start(), token.end(), systemId),
@@ -367,12 +402,12 @@ public class GrammarView {
 
 
     /**
-     * Get grammar referenced by grammar import or include
+     * Get grammar referenced by grammar import or include.
      *
      * @param gr grammar reference
      * @return view of referenced grammar
      */
-    public GrammarView getReferencedGrammar(GrammarRef gr) {
+    public GrammarView getReferencedGrammar(final GrammarRef gr) {
         final ResolvedObject<GrammarView> resolvedObject =
                 assembly.resolveGrammar(toReference(gr));
         if (resolvedObject == null) {
@@ -391,44 +426,42 @@ public class GrammarView {
     }
 
     /**
-     * Gather grammar imports related to grammar
+     * Gather grammar imports related to grammar.
      */
     public void gatherImports() {
         IMPORT_DEFINITION_GATHERER.gatherDefinitions(this);
     }
 
     /**
-     * Build context using grammar include relationship
+     * Build context using grammar include relationship.
      */
     public void buildContexts() {
-        for (final Iterator<GrammarView> i = includeNode.immediateParentsIterator(); i.hasNext(); ) {
-            final GrammarView pg = i.next();
+        for (GrammarView pg : includeNode.immediateParents()) {
             for (final ContextView pgc : pg.contexts.values()) {
                 final ContextView lc = getOrCreateContext(pgc.name());
                 lc.processGrammarInclude(pgc);
             }
-
         }
     }
 
     /**
-     * Get or create context by name
+     * Get or create context by name.
      *
      * @param name the name of context
      * @return the context for the specified name
      */
-    ContextView getOrCreateContext(String name) {
+    ContextView getOrCreateContext(final String name) {
         return getOrCreateContext(name, null);
     }
 
     /**
-     * Get context by name
+     * Get context by name.
      *
      * @param name the name of context
      * @param c    the context
      * @return the context for the specified name
      */
-    private ContextView getOrCreateContext(String name, Context c) {
+    private ContextView getOrCreateContext(final String name, final Context c) {
         ContextView lc = contexts.get(name);
         if (lc == null) {
             lc = new ContextView(this, name, c, assembly.contextGrammarIncludeDAG(), contextContextIncludeDAG());
@@ -438,23 +471,23 @@ public class GrammarView {
     }
 
     /**
-     * Get imported grammar
+     * Get imported grammar.
      *
-     * @param grammarName the grammar import name
+     * @param grammarImportName the grammar import name
      * @return the imported grammar or null if grammar does not exists
      */
-    public GrammarView getImportedGrammar(String grammarName) {
-        GrammarImportView importView = importedGrammars.get(grammarName);
+    public GrammarView getImportedGrammar(final String grammarImportName) {
+        GrammarImportView importView = importedGrammars.get(grammarImportName);
         return importView == null ? null : importView.getImportedGrammar();
     }
 
     /**
-     * Get current context without creating it on demand
+     * Get current context without creating it on demand.
      *
      * @param contextName the context name
      * @return the context that exists or null.
      */
-    public ContextView context(String contextName) {
+    public ContextView context(final String contextName) {
         return contexts.get(contextName);
     }
 
@@ -476,11 +509,11 @@ public class GrammarView {
      * @return true if wrapped grammar is abstract
      */
     public boolean isAbstract() {
-        return grammar.abstractModifier != null;
+        return grammar.getAbstractModifier() != null;
     }
 
     /**
-     * flatten grammar according to internal extension constructs
+     * flatten grammar according to internal extension constructs.
      */
     void flattenGrammar() {
         assert !isAbstract() : "This method should not be called for abstract grammars";
@@ -490,13 +523,13 @@ public class GrammarView {
                 if (grammarImport.getSourceGrammar() == this) {
                     error(grammarImport.getGrammarImport(),
                             "grammar.GrammarImport.importOfAbstractGrammar",
-                            grammarImport.getGrammarImport().name,
+                            grammarImport.getGrammarImport().getName(),
                             grammarImport.getImportedGrammar().getSystemId());
                 } else {
                     error(grammar,
                             "grammar.GrammarImport.includedImportOfAbstractGrammar",
                             grammarImport.getSourceGrammar().getSystemId(),
-                            grammarImport.getGrammarImport().name,
+                            grammarImport.getGrammarImport().getName(),
                             grammarImport.getImportedGrammar().getSystemId());
                 }
             }
@@ -527,12 +560,12 @@ public class GrammarView {
     }
 
     /**
-     * Get string that decodes to namespace URI
+     * Get string that decodes to namespace URI.
      *
      * @param prefix the namespace prefix
      * @return the namespace for the prefix
      */
-    public String namespace(String prefix) {
+    public String namespace(final String prefix) {
         final String namespace = namespaceDeclarations.get(prefix);
         if (namespace == null) {
             return null;
@@ -579,14 +612,13 @@ public class GrammarView {
      *
      * @param visitedGrammars the collection to which grammars are gathered.
      */
-    private void getGrammarDependencies(HashSet<GrammarView> visitedGrammars) {
+    private void getGrammarDependencies(final HashSet<GrammarView> visitedGrammars) {
         // If grammar is already visited, dependencies either already here
         // or are in process being added.
         if (!visitedGrammars.contains(this)) {
             visitedGrammars.add(this);
             // get dependencies of the parent grammars
-            for (final Iterator<GrammarView> i = includeNode.immediateParentsIterator(); i.hasNext(); ) {
-                final GrammarView v = i.next();
+            for (final GrammarView v : includeNode.immediateParents()) {
                 v.getGrammarDependencies(visitedGrammars);
             }
             // get dependencies of imported grammar
@@ -605,8 +637,11 @@ public class GrammarView {
         return firstResolved;
     }
 
+    /**
+     * @return the grammar information
+     */
     public GrammarInfo grammarInfo() {
-        return grammarInfo;  //To change body of created methods use File | Settings | File Templates.
+        return grammarInfo;
     }
 
     /**
@@ -618,32 +653,38 @@ public class GrammarView {
     private static class GrammarImportDefinitionGatherer extends
             DirectedAcyclicGraph.ImportDefinitionGatherer<GrammarView, String, GrammarImportView, GrammarView> {
         @Override
-        protected Node<GrammarView> getHolderNode(GrammarView definitionHolder) {
+        protected GrammarImportView includingDefinition(final GrammarView sourceHolder,
+                                                        final GrammarImportView object) {
+            return object;
+        }
+
+        @Override
+        protected Node<GrammarView> getHolderNode(final GrammarView definitionHolder) {
             return (definitionHolder).includeNode;
         }
 
         @Override
-        protected Node<GrammarView> definitionNode(GrammarImportView definition) {
+        protected Node<GrammarView> definitionNode(final GrammarImportView definition) {
             return (definition).getSourceGrammar().includeNode;
         }
 
         @Override
-        protected String definitionKey(GrammarImportView definition) {
-            return (definition).getGrammarImport().name.text();
+        protected String definitionKey(final GrammarImportView definition) {
+            return (definition).getGrammarImport().getName().text();
         }
 
         @Override
-        protected Map<String, GrammarImportView> definitionMap(GrammarView holder) {
+        protected Map<String, GrammarImportView> definitionMap(final GrammarView holder) {
             return (holder).importedGrammars;
         }
 
         @Override
-        protected void reportDuplicateImportError(GrammarView sourceHolder, String key) {
+        protected void reportDuplicateImportError(final GrammarView sourceHolder, final String key) {
             sourceHolder.error(sourceHolder.getGrammar(), "grammar.Grammar.duplicateIncludedImportNames", key);
         }
 
         @Override
-        protected GrammarView importedObject(GrammarImportView importDefinition) {
+        protected GrammarView importedObject(final GrammarImportView importDefinition) {
             return (importDefinition).getImportedGrammar();
         }
     }

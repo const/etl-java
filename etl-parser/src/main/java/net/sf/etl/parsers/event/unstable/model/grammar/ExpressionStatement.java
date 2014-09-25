@@ -30,10 +30,25 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
  *
  * @author const
  */
-public class ExpressionStatement extends SyntaxStatement {
+public final class ExpressionStatement extends SyntaxStatement {
     /**
-     * syntax
+     * the syntax.
      */
-    public Syntax syntax;
+    private Syntax syntax;
 
+    /**
+     * @return the syntax.
+     */
+    public Syntax getSyntax() {
+        return syntax;
+    }
+
+    /**
+     * Set the syntax.
+     *
+     * @param syntax the syntax
+     */
+    public void setSyntax(final Syntax syntax) {
+        this.syntax = syntax;
+    }
 }

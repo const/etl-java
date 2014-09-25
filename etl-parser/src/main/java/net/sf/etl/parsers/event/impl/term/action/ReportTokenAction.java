@@ -25,42 +25,46 @@
 
 package net.sf.etl.parsers.event.impl.term.action;
 
-import net.sf.etl.parsers.*;
+import net.sf.etl.parsers.PhraseToken;
+import net.sf.etl.parsers.SourceLocation;
+import net.sf.etl.parsers.SyntaxRole;
+import net.sf.etl.parsers.TermToken;
+import net.sf.etl.parsers.Terms;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 /**
- * The action that reports current phrase token to the parser with the specified kind and syntax role
+ * The action that reports current phrase token to the parser with the specified kind and syntax role.
  */
-public class ReportTokenAction extends SimpleAction {
+public final class ReportTokenAction extends SimpleAction {
     /**
-     * Kind used for reporting
+     * Kind used for reporting.
      */
-    Terms kind;
+    private final Terms kind;
     /**
-     * The syntax role
+     * The syntax role.
      */
-    SyntaxRole role;
+    private final SyntaxRole role;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param source the source location in the grammar that caused this node creation
      * @param next   the next action
      * @param kind   the kind of token
      * @param role   the role of token
      */
-    public ReportTokenAction(SourceLocation source, Action next, Terms kind, SyntaxRole role) {
+    public ReportTokenAction(final SourceLocation source, final Action next, final Terms kind, final SyntaxRole role) {
         super(source, next);
         this.kind = kind;
         this.role = role;
     }
 
     @Override
-    public void parseMore(TermParserContext context, ActionState state) {
+    public void parseMore(final TermParserContext context, final ActionState state) {
         PhraseToken in = context.current();
-        TermToken out = new TermToken(kind, role, null, in, in.start(), in.end(), source, null);
+        TermToken out = new TermToken(kind, role, null, in, in.start(), in.end(), getSource(), null);
         context.produce(out);
         context.consumePhraseToken();
-        state.nextAction(next);
+        state.nextAction(getNext());
     }
 }

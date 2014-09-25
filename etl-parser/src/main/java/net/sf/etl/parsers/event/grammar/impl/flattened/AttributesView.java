@@ -27,30 +27,30 @@ package net.sf.etl.parsers.event.grammar.impl.flattened;
 import net.sf.etl.parsers.event.unstable.model.grammar.Attributes;
 
 /**
- * This a view specific for attributes definition
+ * This a view specific for attributes definition.
  *
  * @author const
  */
 public class AttributesView extends DefinitionView {
 
     /**
-     * A constructor to instantiate definition view along with grammar include
+     * A constructor to instantiate definition view along with grammar include.
      * path
      *
      * @param context    the new including context
      * @param definition the view in other grammar
      */
-    public AttributesView(ContextView context, AttributesView definition) {
+    public AttributesView(final ContextView context, final AttributesView definition) {
         super(context, definition);
     }
 
     /**
-     * A constructor from fields
+     * A constructor from fields.
      *
      * @param context    the defining context
      * @param definition the definition
      */
-    public AttributesView(ContextView context, Attributes definition) {
+    public AttributesView(final ContextView context, final Attributes definition) {
         super(context, definition);
     }
 }

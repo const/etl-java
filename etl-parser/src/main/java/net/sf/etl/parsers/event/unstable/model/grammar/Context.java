@@ -24,27 +24,84 @@
  */
 package net.sf.etl.parsers.event.unstable.model.grammar;
 
+import java.util.List;
+
 /**
  * The Context node class. This class is a part of the lightweight grammar
  * model.
  *
  * @author const
  */
-public class Context extends GrammarMember {
+public final class Context extends GrammarMember {
     /**
-     * name
+     * content.
      */
-    public java.lang.String name;
+    private final List<ContextMember> content = new java.util.ArrayList<ContextMember>();
     /**
-     * abstractModifier
+     * name.
      */
-    public Modifier abstractModifier;
+    private java.lang.String name;
     /**
-     * defaultModifier
+     * abstract modifier.
      */
-    public Modifier defaultModifier;
+    private Modifier abstractModifier;
     /**
-     * content
+     * default modifier.
      */
-    public final java.util.ArrayList<ContextMember> content = new java.util.ArrayList<ContextMember>();
+    private Modifier defaultModifier;
+
+    /**
+     * @return content
+     */
+    public List<ContextMember> getContent() {
+        return content;
+    }
+
+    /**
+     * @return name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Set name.
+     *
+     * @param name the name
+     */
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return abstract modifier
+     */
+    public Modifier getAbstractModifier() {
+        return abstractModifier;
+    }
+
+    /**
+     * Set abstract modifier.
+     *
+     * @param abstractModifier the modifier
+     */
+    public void setAbstractModifier(final Modifier abstractModifier) {
+        this.abstractModifier = abstractModifier;
+    }
+
+    /**
+     * @return default modifier
+     */
+    public Modifier getDefaultModifier() {
+        return defaultModifier;
+    }
+
+    /**
+     * Set default modifier.
+     *
+     * @param defaultModifier the modifier
+     */
+    public void setDefaultModifier(final Modifier defaultModifier) {
+        this.defaultModifier = defaultModifier;
+    }
 }

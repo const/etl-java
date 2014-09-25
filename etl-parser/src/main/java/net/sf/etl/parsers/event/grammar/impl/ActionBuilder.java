@@ -24,13 +24,40 @@
  */
 package net.sf.etl.parsers.event.grammar.impl;
 
-import net.sf.etl.parsers.*;
+import net.sf.etl.parsers.DefinitionContext;
+import net.sf.etl.parsers.DefinitionInfo;
+import net.sf.etl.parsers.ExpressionContext;
+import net.sf.etl.parsers.ObjectName;
+import net.sf.etl.parsers.PropertyName;
+import net.sf.etl.parsers.SourceLocation;
+import net.sf.etl.parsers.SyntaxRole;
+import net.sf.etl.parsers.Terms;
+import net.sf.etl.parsers.Token;
+import net.sf.etl.parsers.TokenKey;
 import net.sf.etl.parsers.event.grammar.Keyword;
 import net.sf.etl.parsers.event.grammar.LookAheadSet;
 import net.sf.etl.parsers.event.grammar.impl.flattened.DefinitionView;
 import net.sf.etl.parsers.event.grammar.impl.flattened.GrammarView;
 import net.sf.etl.parsers.event.grammar.impl.flattened.WrapperLink;
-import net.sf.etl.parsers.event.grammar.impl.nodes.*;
+import net.sf.etl.parsers.event.grammar.impl.nodes.BlockNode;
+import net.sf.etl.parsers.event.grammar.impl.nodes.CallNode;
+import net.sf.etl.parsers.event.grammar.impl.nodes.ChoiceNode;
+import net.sf.etl.parsers.event.grammar.impl.nodes.CommitMarkNode;
+import net.sf.etl.parsers.event.grammar.impl.nodes.DisableSoftEndsNode;
+import net.sf.etl.parsers.event.grammar.impl.nodes.ErrorNode;
+import net.sf.etl.parsers.event.grammar.impl.nodes.FallbackObjectNode;
+import net.sf.etl.parsers.event.grammar.impl.nodes.FirstChoiceNode;
+import net.sf.etl.parsers.event.grammar.impl.nodes.GroupNode;
+import net.sf.etl.parsers.event.grammar.impl.nodes.KeywordScopeNode;
+import net.sf.etl.parsers.event.grammar.impl.nodes.MarkedNode;
+import net.sf.etl.parsers.event.grammar.impl.nodes.Node;
+import net.sf.etl.parsers.event.grammar.impl.nodes.ObjectNode;
+import net.sf.etl.parsers.event.grammar.impl.nodes.PropertyNode;
+import net.sf.etl.parsers.event.grammar.impl.nodes.RepeatNode;
+import net.sf.etl.parsers.event.grammar.impl.nodes.ScopeNode;
+import net.sf.etl.parsers.event.grammar.impl.nodes.SequenceNode;
+import net.sf.etl.parsers.event.grammar.impl.nodes.TermContextScope;
+import net.sf.etl.parsers.event.grammar.impl.nodes.TokenNode;
 import net.sf.etl.parsers.event.impl.term.action.ActionStateFactory;
 import net.sf.etl.parsers.event.impl.term.action.CallAction;
 import net.sf.etl.parsers.event.impl.term.action.RecoveryVoteAction;
@@ -50,69 +77,71 @@ import java.util.Set;
  *
  * @author const
  */
-public class ActionBuilder {
+public final class ActionBuilder {
     /**
-     * the stack of nodes
+     * the stack of nodes.
      */
     private final ListStack<Node> stack = new ListStack<Node>();
     /**
-     * the node to return
-     */
-    private Node returnNode;
-    /**
-     * the stack of definitions
+     * the stack of definitions.
      */
     private final ArrayList<DefinitionView> definitionStack = new ArrayList<DefinitionView>();
     /**
-     * the context compiler, it is used for error reporting
+     * the context compiler, it is used for error reporting.
      */
     private final ContextBuilder contextBuilder;
     /**
-     * The state factory
-     */
-    private ActionStateFactory targetFactory;
-    /**
-     * The call nodes that reference this state builder factory
+     * The call nodes that reference this state builder factory.
      */
     private final ArrayList<CallAction> referrers = new ArrayList<CallAction>();
+    /**
+     * the node to return.
+     */
+    private Node returnNode;
+    /**
+     * The state factory.
+     */
+    private ActionStateFactory targetFactory;
 
     /**
-     * A constructor for builder
+     * A constructor for builder.
      *
      * @param contextBuilder the parent builder
      */
-    public ActionBuilder(ContextBuilder contextBuilder) {
+    public ActionBuilder(final ContextBuilder contextBuilder) {
         this.contextBuilder = contextBuilder;
     }
 
     /**
-     * Start node
+     * Start node.
      *
+     * @param e the element
      * @param n the node to start
      */
-    private void startNode(Element e, Node n) {
-        startNode(e.location, n);
+    private void startNode(final Element e, final Node n) {
+        startNode(e.getLocation(), n);
     }
 
     /**
-     * Start node
+     * Start node.
      *
-     * @param n the node to start
+     * @param location the definition location
+     * @param n        the node to start
      */
-    private void startNode(SourceLocation location, Node n) {
+    private void startNode(final SourceLocation location, final Node n) {
         setNodeContext(location, n);
         stack.push(n);
     }
 
 
     /**
-     * Supply context information to node
+     * Supply context information to node.
      *
      * @param location the element location
      * @param n        the node to update
      */
-    private void setNodeContext(SourceLocation location, Node n) {
-        n.source = location;
+    private void setNodeContext(final SourceLocation location, final Node n) {
+        n.setSource(location);
         n.setBuilder(this);
         if (!definitionStack.isEmpty()) {
             n.setDefinition(topDefinition());
@@ -120,17 +149,17 @@ public class ActionBuilder {
     }
 
     /**
-     * End node
+     * End node.
      *
      * @param <T> the node type
      * @param cls the class of node to end
      * @return a node that have been finished to be created
      */
-    private <T extends Node> T endNode(Class<T> cls) {
+    private <T extends Node> T endNode(final Class<T> cls) {
         final Node value = stack.pop();
         if (value.getClass() != cls) {
-            throw new IllegalStateException("The top of type " + value.getClass().getName() +
-                    " does not match expected " + cls.getName());
+            throw new IllegalStateException("The top of type " + value.getClass().getName()
+                    + " does not match expected " + cls.getName());
         }
         final T ct = cls.cast(value);
         if (stack.isEmpty()) {
@@ -143,11 +172,11 @@ public class ActionBuilder {
     }
 
     /**
-     * Helper method that adds ct to current top node
+     * Helper method that adds ct to current top node.
      *
      * @param ct the node to add
      */
-    private void processNode(Node ct) {
+    private void processNode(final Node ct) {
         final Node top = stack.peek();
         if (top instanceof GroupNode) {
             final GroupNode sn = (GroupNode) top;
@@ -161,16 +190,22 @@ public class ActionBuilder {
     }
 
     /**
-     * Write current single node
+     * Write current single node.
      *
      * @param e the element
      * @param n node to write
      */
-    private void singleNode(Element e, Node n) {
-        singleNode(e.location, n);
+    private void singleNode(final Element e, final Node n) {
+        singleNode(e.getLocation(), n);
     }
 
-    private void singleNode(SourceLocation location, Node n) {
+    /**
+     * Write current single node.
+     *
+     * @param location the definition location
+     * @param n        node to write
+     */
+    private void singleNode(final SourceLocation location, final Node n) {
         setNodeContext(location, n);
         if (stack.isEmpty()) {
             assert returnNode == null : "there already is return node";
@@ -182,32 +217,32 @@ public class ActionBuilder {
 
 
     /**
-     * Start keyword scope node
+     * Start keyword scope node.
      *
      * @param e the element
      */
-    public void startKeywords(Element e) {
+    public void startKeywords(final Element e) {
         startNode(e, new KeywordScopeNode());
     }
 
     /**
-     * End keyword scope node
+     * End keyword scope node.
      */
     public void endKeywords() {
         endNode(KeywordScopeNode.class);
     }
 
     /**
-     * start choice node
+     * start a first choice node.
      *
      * @param e the element
      */
-    public void startFirstChoice(Element e) {
+    public void startFirstChoice(final Element e) {
         startNode(e, new FirstChoiceNode());
     }
 
     /**
-     * end choice node
+     * end the first choice node.
      *
      * @return just closed node
      */
@@ -216,70 +251,70 @@ public class ActionBuilder {
     }
 
     /**
-     * start choice node
+     * start a choice node.
      *
      * @param e the element
      */
-    public void startChoice(Element e) {
+    public void startChoice(final Element e) {
         startNode(e, new ChoiceNode());
     }
 
     /**
-     * end choice node
+     * end the choice node.
      */
     public void endChoice() {
         endNode(ChoiceNode.class);
     }
 
     /**
-     * start repeat node
+     * start a repeat node.
      *
      * @param e the element
      */
-    public void startRepeat(Element e) {
+    public void startRepeat(final Element e) {
         startNode(e, new RepeatNode());
     }
 
     /**
-     * end repeat node
+     * end the repeat node.
      */
     public void endRepeat() {
         endNode(RepeatNode.class);
     }
 
     /**
-     * start repeat node
+     * create a block node.
      *
      * @param e       the element
      * @param context a context of the block
      */
-    public void block(Element e, DefinitionContext context) {
+    public void block(final Element e, final DefinitionContext context) {
         singleNode(e, new BlockNode(context));
     }
 
     /**
-     * Create call node
+     * Create a call node.
      *
      * @param e       the element
      * @param builder a builder for factory associated with the node
      */
-    public void call(Element e, ActionBuilder builder) {
+    public void call(final Element e, final ActionBuilder builder) {
         final CallNode n = new CallNode(builder);
         singleNode(e, n);
     }
 
     /**
-     * start object node
+     * start an object node.
      *
      * @param e    the element
      * @param name the name of object
      */
-    public void startObject(Element e, ObjectName name) {
+    public void startObject(final Element e, final ObjectName name) {
         startNode(e, new ObjectNode(name, false, null));
     }
 
     /**
-     * end object node
+     * end the object node.
      *
      * @return the object node that have been created
      */
@@ -288,137 +323,137 @@ public class ActionBuilder {
     }
 
     /**
-     * start property node
+     * start a property node.
      *
      * @param e      the element
      * @param name   the name of property
      * @param isList flag indicating if it is a list property
      */
-    public void startProperty(Element e, PropertyName name, boolean isList) {
-        startProperty(e.location, name, isList);
+    public void startProperty(final Element e, final PropertyName name, final boolean isList) {
+        startProperty(e.getLocation(), name, isList);
     }
 
     /**
-     * Start property node
+     * Start a property node.
      *
      * @param location the element location
      * @param name     the name of property
      * @param isList   flag indicating if it is a list property
      */
-    private void startProperty(SourceLocation location, PropertyName name, boolean isList) {
+    private void startProperty(final SourceLocation location, final PropertyName name, final boolean isList) {
         startNode(location, new PropertyNode(name, isList, false));
     }
 
     /**
-     * start property node at mark
+     * start a property node at mark.
      *
      * @param e      the element
      * @param name   the name of property
      * @param isList flag indicating if it is a list property
      */
-    public void startPropertyAtMark(Element e, PropertyName name, boolean isList) {
+    public void startPropertyAtMark(final Element e, final PropertyName name, final boolean isList) {
         startNode(e, new PropertyNode(name, isList, true));
     }
 
     /**
-     * end property node
+     * end the property node.
      */
     public void endProperty() {
         endNode(PropertyNode.class);
     }
 
     /**
-     * start sequence node
+     * start a sequence node.
      *
      * @param e the element
      */
-    public void startSequence(Element e) {
+    public void startSequence(final Element e) {
         startNode(e, new SequenceNode());
     }
 
     /**
-     * end sequence node
+     * end the sequence node.
      */
     public void endSequence() {
         endNode(SequenceNode.class);
     }
 
     /**
-     * start expression node
+     * start an expression node.
      *
      * @param e       the element
      * @param context the context for the node
      */
-    public void startExpression(Element e, ExpressionContext context) {
+    public void startExpression(final Element e, final ExpressionContext context) {
         startNode(e, new TermContextScope(Terms.EXPRESSION_START, Terms.EXPRESSION_END, context));
     }
 
     /**
-     * end expression node
+     * end the expression node.
      */
     public void endExpression() {
         endNode(TermContextScope.class);
     }
 
     /**
-     * start attributes node
+     * start an attributes node.
      *
      * @param e       the element
      * @param context the context for the node
      */
-    public void startAttributes(Element e, DefinitionInfo context) {
+    public void startAttributes(final Element e, final DefinitionInfo context) {
         startNode(e, new TermContextScope(Terms.ATTRIBUTES_START, Terms.ATTRIBUTES_END, context));
     }
 
     /**
-     * end attributes node
+     * end the attributes node.
      */
     public void endAttributes() {
         endNode(TermContextScope.class);
     }
 
     /**
-     * start attributes node
+     * start a doc comments node.
      *
      * @param e       the element
      * @param context the context for the node
      */
-    public void startDocComment(Element e, DefinitionInfo context) {
+    public void startDocComment(final Element e, final DefinitionInfo context) {
         startNode(e, new TermContextScope(Terms.DOC_COMMENT_START, Terms.DOC_COMMENT_END, context));
     }
 
     /**
-     * end attributes node
+     * end the doc comments node.
      */
     public void endDocComment() {
         endNode(TermContextScope.class);
     }
 
     /**
-     * start modifiers node
+     * start a modifiers node.
      *
      * @param e the element
      */
-    public void startModifiers(Element e) {
+    public void startModifiers(final Element e) {
         startNode(e, new TermContextScope(Terms.MODIFIERS_START, Terms.MODIFIERS_END, null, false));
     }
 
     /**
-     * end modifiers node
+     * end the modifiers node.
      */
     public void endModifiers() {
         endNode(TermContextScope.class);
     }
 
     /**
-     * Create node that matches specified text
+     * Create node that matches specified text.
      *
      * @param e     the element
      * @param kind  the term kind of node
      * @param role  the role of the node
      * @param token the text of the node (must be in the same source as element)
      */
-    public void tokenText(Element e, Terms kind, SyntaxRole role, Token token) {
+    public void tokenText(final Element e, final Terms kind, final SyntaxRole role, final Token token) {
         TokenKey key = token.key();
         switch (key.kind()) {
             case STRING:
@@ -436,11 +471,12 @@ public class ActionBuilder {
                         + token.key() + " for value: "
                         + token.text());
         }
-        token(new SourceLocation(token.start(), token.end(), e.location.systemId()), kind, role, key, token.text());
+        token(new SourceLocation(token.start(), token.end(), e.getLocation().systemId()),
+                kind, role, key, token.text());
     }
 
     /**
-     * Generic method that add token node
+     * Generic method that add token node.
      *
      * @param location the element location
      * @param kind     the term kind
@@ -448,90 +484,93 @@ public class ActionBuilder {
      * @param tokenKey the token kind
      * @param text     the text of token
      */
-    private void token(SourceLocation location, Terms kind, SyntaxRole role, TokenKey tokenKey, String text) {
+    private void token(final SourceLocation location, final Terms kind, final SyntaxRole role,
+                       final TokenKey tokenKey, final String text) {
         singleNode(location, new TokenNode(kind, role, tokenKey, text));
     }
 
     /**
-     * A error node
+     * A error node.
      *
+     * @param e         the element
      * @param errorId   the error id
      * @param errorArgs the error arguments
      */
-    public void error(Element e, String errorId, Object... errorArgs) {
+    public void error(final Element e, final String errorId, final Object... errorArgs) {
         singleNode(e, new ErrorNode(errorId, errorArgs));
     }
 
     /**
-     * Create node that matches specified token kind
+     * Create a node that matches specified token kind.
      *
      * @param e        the element
      * @param kind     the term kind of node
      * @param role     the role of the node
      * @param tokenKey the token kind
      */
-    public void tokenText(Element e, Terms kind, SyntaxRole role, TokenKey tokenKey) {
-        token(e.location, kind, role, tokenKey, null);
+    public void tokenText(final Element e, final Terms kind, final SyntaxRole role, final TokenKey tokenKey) {
+        token(e.getLocation(), kind, role, tokenKey, null);
     }
 
     /**
-     * Create node that matches specified token
+     * Create node that matches specified token.
      *
      * @param e    the element
      * @param kind the term kind of node
      * @param role the role of the node
      */
-    public void anyToken(Element e, Terms kind, SyntaxRole role) {
-        token(e.location, kind, role, null, null);
+    public void anyToken(final Element e, final Terms kind, final SyntaxRole role) {
+        token(e.getLocation(), kind, role, null, null);
     }
 
     /**
-     * start marked region node
+     * Start marked region node.
      *
      * @param e the element
      */
-    public void startMarked(Element e) {
+    public void startMarked(final Element e) {
         startNode(e, new MarkedNode());
     }
 
     /**
-     * end marked region node
+     * End marked region node.
      */
     public void endMarked() {
         endNode(MarkedNode.class);
     }
 
     /**
-     * create commit mark node
+     * Create commit mark node.
      *
      * @param e the element
      */
-    public void commitMark(Element e) {
+    public void commitMark(final Element e) {
         singleNode(e, new CommitMarkNode());
     }
 
     /**
-     * Start compiling definition
+     * Start compiling a definition.
      *
      * @param view the definition view to compile
      */
-    public void startDefinition(DefinitionView view) {
+    public void startDefinition(final DefinitionView view) {
         definitionStack.add(view);
     }
 
     /**
-     * Start statement
+     * Start a statement.
      *
      * @param e    the element
      * @param view the statement definition
      */
-    public void startStatement(Element e, DefinitionView view) {
+    public void startStatement(final Element e, final DefinitionView view) {
         startDefinition(view);
-        startNode(e, new TermContextScope(Terms.STATEMENT_START, Terms.STATEMENT_END, view.definitionInfo(), TermContextScope.MarkMode.BEFORE_MARK));
+        startNode(e, new TermContextScope(Terms.STATEMENT_START, Terms.STATEMENT_END,
+                view.definitionInfo(), TermContextScope.MarkMode.BEFORE_MARK));
     }
 
     /**
-     * End statement
+     * End the statement.
      */
     public void endStatement() {
         endNode(TermContextScope.class);
@@ -539,53 +578,53 @@ public class ActionBuilder {
     }
 
     /**
-     * The end definition
+     * End the definition.
      */
     public void endDefinition() {
         definitionStack.remove(definitionStack.size() - 1);
     }
 
     /**
-     * Start object at mark
+     * Start an object at mark.
      *
      * @param e        the element
      * @param name     the object to start
      * @param wrappers the wrappers for this object node
      */
-    public void startObjectAtMark(Element e, ObjectName name, WrapperLink wrappers) {
+    public void startObjectAtMark(final Element e, final ObjectName name, final WrapperLink wrappers) {
         startNode(e, new ObjectNode(name, true, wrappers));
     }
 
     /**
-     * Start fallback scope, the scope has to be initialized at some time
+     * Start fallback scope, the scope has to be initialized at some time.
      *
      * @param e the element
      * @return the created node
      */
-    public FallbackObjectNode startFallbackScope(Element e) {
+    public FallbackObjectNode startFallbackScope(final Element e) {
         final FallbackObjectNode rc = new FallbackObjectNode();
         startNode(e, rc);
         return rc;
     }
 
     /**
-     * End fallback scope
+     * End fallback scope.
      */
     public void endFallbackScope() {
         endNode(FallbackObjectNode.class);
     }
 
     /**
-     * Start disable soft ends
+     * Start disable soft ends.
      *
      * @param e the element
      */
-    public void startDisableSoftEnds(Element e) {
+    public void startDisableSoftEnds(final Element e) {
         startNode(e, new DisableSoftEndsNode());
     }
 
     /**
-     * End fallback scope
+     * End fallback scope.
      */
     public void endDisableSoftEnds() {
         endNode(DisableSoftEndsNode.class);
@@ -593,35 +632,36 @@ public class ActionBuilder {
 
 
     /**
-     * Start object at mark
+     * Start object at mark.
      *
      * @param e    the element
      * @param name the object to start
      */
-    public void startObjectAtMark(Element e, ObjectName name) {
+    public void startObjectAtMark(final Element e, final ObjectName name) {
         startNode(e, new ObjectNode(name, true, null));
     }
 
     /**
-     * Start wrapper
+     * Start wrapper.
      *
      * @param w the wrapper to start
      */
-    public void startWrapper(Wrapper w) {
+    public void startWrapper(final Wrapper w) {
         if (w != null) {
             final DefinitionView d = topDefinition();
-            startObject(w.object, d.convertName(w.object));
-            startProperty(new SourceLocation(w.property.start(), w.property.end(), w.location.systemId()),
-                    new PropertyName(w.property.text()), false);
+            startObject(w.getObject(), d.convertName(w.getObject()));
+            startProperty(new SourceLocation(w.getProperty().start(), w.getProperty().end(),
+                            w.getLocation().systemId()),
+                    new PropertyName(w.getProperty().text()), false);
         }
     }
 
     /**
-     * End wrapper
+     * End wrapper.
      *
      * @param w the wrapper to end
      */
-    public void endWrapper(Wrapper w) {
+    public void endWrapper(final Wrapper w) {
         if (w != null) {
             endProperty();
             endObject();
@@ -658,12 +698,12 @@ public class ActionBuilder {
     }
 
     /**
-     * Build lookahead
+     * Build lookahead.
      *
      * @param visitedBuilders the list of visited builders
      * @return built look ahead
      */
-    public LookAheadSet buildLookAhead(Set<ActionBuilder> visitedBuilders) {
+    public LookAheadSet buildLookAhead(final Set<ActionBuilder> visitedBuilders) {
         if (visitedBuilders.add(this)) {
             try {
                 return returnNode.buildLookAhead(visitedBuilders);
@@ -680,17 +720,17 @@ public class ActionBuilder {
     }
 
     /**
-     * Build state machine
+     * Build state machine.
      */
     public void buildActions() {
         returnNode = returnNode.flatten();
         targetFactory = new ActionStateFactory(
                 returnNode.buildActions(this,
-                        new ReturnAction(returnNode.source, true),
-                        new ReturnAction(returnNode.source, false),
+                        new ReturnAction(returnNode.getSource(), true),
+                        new ReturnAction(returnNode.getSource(), false),
                         RecoveryVoteAction.NO_RECOVERY));
         for (CallAction referrer : referrers) {
-            referrer.stateFactory = targetFactory;
+            referrer.setStateFactory(targetFactory);
         }
         referrers.clear();
     }
@@ -710,12 +750,12 @@ public class ActionBuilder {
     }
 
     /**
-     * Collect keywords directly visible to the caller, keywords inside the block are not collected
+     * Collect keywords directly visible to the caller, keywords inside the block are not collected.
      *
      * @param keywords the keywords
      * @param visited  the visited builders
      */
-    public void collectKeywords(Set<Keyword> keywords, Set<ActionBuilder> visited) {
+    public void collectKeywords(final Set<Keyword> keywords, final Set<ActionBuilder> visited) {
         if (visited.contains(this)) {
             return;
         }
@@ -724,13 +764,13 @@ public class ActionBuilder {
     }
 
     /**
-     * Link to the call node
+     * Link to the call node.
      *
      * @param callNode the call node
      */
-    public void link(CallAction callNode) {
+    public void link(final CallAction callNode) {
         if (targetFactory != null) {
-            callNode.stateFactory = targetFactory;
+            callNode.setStateFactory(targetFactory);
         } else {
             referrers.add(callNode);
         }

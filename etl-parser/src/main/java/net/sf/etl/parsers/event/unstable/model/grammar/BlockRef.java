@@ -30,5 +30,5 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
  *
  * @author const
  */
-public class BlockRef extends ContextOp {
+public final class BlockRef extends ContextOp {
 }

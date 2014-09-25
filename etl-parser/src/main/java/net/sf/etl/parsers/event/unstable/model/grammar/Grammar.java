@@ -26,31 +26,95 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
 
 import net.sf.etl.parsers.Token;
 
+import java.util.List;
+
 /**
  * The Grammar node class. This class is a part of the lightweight grammar
  * model.
  *
  * @author const
  */
-public class Grammar extends AbstractStatement {
+public final class Grammar extends AbstractStatement {
     /**
-     * content
+     * the content.
      */
-    public final java.util.ArrayList<GrammarMember> content = new java.util.ArrayList<GrammarMember>();
+    private final List<GrammarMember> content = new java.util.ArrayList<GrammarMember>();
     /**
-     * abstract modifier
+     * The name.
      */
-    public Modifier abstractModifier;
+    private final List<Token> name = new java.util.ArrayList<Token>();
     /**
-     * Script modifier
+     * the abstract modifier.
      */
-    public Modifier scriptModifier;
+    private Modifier abstractModifier;
     /**
-     * The name
+     * the script modifier.
      */
-    public final java.util.ArrayList<Token> name = new java.util.ArrayList<Token>();
+    private Modifier scriptModifier;
     /**
-     * The version of the grammar
+     * the version of the grammar.
      */
-    public Token version;
+    private Token version;
+
+    /**
+     * @return the content.
+     */
+    public List<GrammarMember> getContent() {
+        return content;
+    }
+
+    /**
+     * @return The name.
+     */
+    public List<Token> getName() {
+        return name;
+    }
+
+    /**
+     * @return the abstract modifier.
+     */
+    public Modifier getAbstractModifier() {
+        return abstractModifier;
+    }
+
+    /**
+     * Set modifier.
+     *
+     * @param abstractModifier the modifier
+     */
+    public void setAbstractModifier(final Modifier abstractModifier) {
+        this.abstractModifier = abstractModifier;
+    }
+
+    /**
+     * @return the script modifier.
+     */
+    public Modifier getScriptModifier() {
+        return scriptModifier;
+    }
+
+    /**
+     * Set modifier.
+     *
+     * @param scriptModifier the modifier
+     */
+    public void setScriptModifier(final Modifier scriptModifier) {
+        this.scriptModifier = scriptModifier;
+    }
+
+    /**
+     * @return the version of the grammar.
+     */
+    public Token getVersion() {
+        return version;
+    }
+
+    /**
+     * Set modifier.
+     *
+     * @param version the modifier
+     */
+    public void setVersion(final Token version) {
+        this.version = version;
+    }
 }

@@ -28,7 +28,11 @@ import net.sf.etl.parsers.event.grammar.LookAheadSet;
 import net.sf.etl.parsers.event.grammar.impl.ActionBuilder;
 import net.sf.etl.parsers.event.impl.term.action.Action;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.ListIterator;
+import java.util.Set;
 
 /**
  * This node represents first choice construct. This construct tries to select
@@ -36,14 +40,16 @@ import java.util.*;
  *
  * @author const
  */
-public class FirstChoiceNode extends GroupNode {
+public final class FirstChoiceNode extends GroupNode {
     @Override
-    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit, Action recoveryTest) {
+    public Action buildActions(final ActionBuilder b, final Action normalExit, final Action errorExit,
+                               final Action recoveryTest) {
         final HashSet<ActionBuilder> visitedSet = new HashSet<ActionBuilder>();
         ArrayList<Node> nodes = new ArrayList<Node>(nodes());
         Action current = null;
         if (matchesEmpty() && !nodes.get(nodes().size() - 1).matchesEmpty()) {
-            for (ListIterator<Node> i = nodes().listIterator(nodes().size()); i.hasPrevious(); ) {
+            ListIterator<Node> i = nodes().listIterator(nodes().size());
+            while (i.hasPrevious()) {
                 Node node = i.previous();
                 if (node.matchesEmpty()) {
                     current = node.buildActions(b, normalExit, errorExit, recoveryTest);
@@ -57,12 +63,12 @@ public class FirstChoiceNode extends GroupNode {
         }
         Collections.reverse(nodes);
         for (Node node : nodes) {
-            ChoiceBuilder choiceBuilder = new ChoiceBuilder(source);
+            ChoiceBuilder choiceBuilder = new ChoiceBuilder(getSource());
             choiceBuilder.setFallback(current);
             LookAheadSet la = new LookAheadSet(node.buildLookAhead(visitedSet));
             la.removeEmpty();
             choiceBuilder.add(la, node.buildActions(b, normalExit, errorExit, recoveryTest));
-            current = choiceBuilder.build(b);
+            current = choiceBuilder.build();
         }
         return current;
     }
@@ -79,7 +85,7 @@ public class FirstChoiceNode extends GroupNode {
     }
 
     @Override
-    protected LookAheadSet createLookAhead(Set<ActionBuilder> visitedBuilders) {
+    protected LookAheadSet createLookAhead(final Set<ActionBuilder> visitedBuilders) {
         assert nodes().size() >= 2 : "First choice node must have at least two alternative";
         final LookAheadSet rc = new LookAheadSet();
         for (final Node node : nodes()) {

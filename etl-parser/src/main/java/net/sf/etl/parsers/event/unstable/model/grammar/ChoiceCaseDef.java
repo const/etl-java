@@ -27,13 +27,29 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
 import net.sf.etl.parsers.Token;
 
 /**
- * The choice case class, this represents a single contribution to some case
+ * The choice case class, this represents a single contribution to some case.
  *
  * @author const
  */
-public class ChoiceCaseDef extends SyntaxDefinition {
+public final class ChoiceCaseDef extends SyntaxDefinition {
     /**
-     * Name of choice this case contributes to
+     * Name of choice this case contributes to.
      */
-    public Token choiceName;
+    private Token choiceName;
+
+    /**
+     * @return name of choice this case contributes to
+     */
+    public Token getChoiceName() {
+        return choiceName;
+    }
+
+    /**
+     * Set name of choice this case contributes to.
+     *
+     * @param choiceName the choice name
+     */
+    public void setChoiceName(final Token choiceName) {
+        this.choiceName = choiceName;
+    }
 }

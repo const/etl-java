@@ -34,14 +34,15 @@ import net.sf.etl.parsers.event.impl.term.action.PushMarkAction;
  *
  * @author const
  */
-public class MarkedNode extends CleanupScopeNode {
+public final class MarkedNode extends CleanupScopeNode {
     @Override
-    protected Action buildStartState(ActionBuilder b, Action bodyStates, Action errorExit, Action errorCloseState) {
-        return new PushMarkAction(source, bodyStates);
+    protected Action buildStartState(final ActionBuilder b, final Action bodyStates, final Action errorExit,
+                                     final Action errorCloseState) {
+        return new PushMarkAction(getSource(), bodyStates);
     }
 
     @Override
-    protected Action buildEndState(ActionBuilder b, Action normalExit, Action errorExit) {
-        return new PopMarkAction(source, normalExit);
+    protected Action buildEndState(final ActionBuilder b, final Action normalExit, final Action errorExit) {
+        return new PopMarkAction(getSource(), normalExit);
     }
 }

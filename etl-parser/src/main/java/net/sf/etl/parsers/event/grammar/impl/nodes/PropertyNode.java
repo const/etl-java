@@ -31,28 +31,28 @@ import net.sf.etl.parsers.event.impl.term.action.Action;
 import net.sf.etl.parsers.event.impl.term.action.StructuralTokenAction;
 
 /**
- * Then property scope node
+ * Then property scope node.
  *
  * @author const
  */
-public class PropertyNode extends TermScopeNode {
+public final class PropertyNode extends TermScopeNode {
     /**
-     * The name of property
+     * The name of property.
      */
     private final PropertyName name;
     /**
-     * The flag that indicates that it is a list property
+     * The flag that indicates that it is a list property.
      */
     private final boolean isList;
 
     /**
-     * A constructor
+     * A constructor.
      *
      * @param name   a property name for the scope
      * @param isList true if it is a list property
      * @param atMark if true the property should be started at mark
      */
-    public PropertyNode(PropertyName name, boolean isList, boolean atMark) {
+    public PropertyNode(final PropertyName name, final boolean isList, final boolean atMark) {
         super(atMark);
         this.name = name;
         this.isList = isList;
@@ -74,15 +74,16 @@ public class PropertyNode extends TermScopeNode {
 
 
     @Override
-    protected Action buildStartState(ActionBuilder b, Action bodyStates, Action errorExit, Action errorCloseState) {
-        return new StructuralTokenAction(source, bodyStates, isList ? Terms.LIST_PROPERTY_START : Terms.PROPERTY_START,
+    protected Action buildStartState(final ActionBuilder b, final Action bodyStates, final Action errorExit,
+                                     final Action errorCloseState) {
+        return new StructuralTokenAction(getSource(), bodyStates,
+                isList ? Terms.LIST_PROPERTY_START : Terms.PROPERTY_START,
                 name, isAtMark());
     }
 
     @Override
-    protected Action buildEndState(ActionBuilder b, Action normalExit, Action errorExit) {
-        return new StructuralTokenAction(source, normalExit, isList ? Terms.LIST_PROPERTY_END
-                : Terms.PROPERTY_END, name, false);
+    protected Action buildEndState(final ActionBuilder b, final Action normalExit, final Action errorExit) {
+        return new StructuralTokenAction(getSource(), normalExit,
+                isList ? Terms.LIST_PROPERTY_END : Terms.PROPERTY_END, name, false);
     }
-
 }

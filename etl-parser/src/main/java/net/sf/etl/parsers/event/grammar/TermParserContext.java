@@ -30,11 +30,12 @@ import net.sf.etl.parsers.TermToken;
 import net.sf.etl.parsers.event.TermParser;
 
 /**
- * The implementation side API for {@link net.sf.etl.parsers.event.impl.TermParserImpl} that could be used by parser implementations.
+ * The implementation side API for {@link net.sf.etl.parsers.event.impl.term.TermParserImpl}
+ * that could be used by parser implementations.
  */
 public interface TermParserContext {
     /**
-     * @return true the parser is in the script mode
+     * @return true the parser is in the script mode.
      */
     boolean isScriptMode();
 
@@ -50,7 +51,7 @@ public interface TermParserContext {
     void consumePhraseToken();
 
     /**
-     * Produce token at the end of the stream
+     * Produce token at the end of the stream.
      *
      * @param token the token to produce
      * @return true if next token should be generated
@@ -58,7 +59,7 @@ public interface TermParserContext {
     boolean produce(TermToken token);
 
     /**
-     * Produce token after mark
+     * Produce token after mark.
      *
      * @param token the token to produce
      * @return true if next token should be generated
@@ -66,29 +67,29 @@ public interface TermParserContext {
     boolean produceAfterMark(TermToken token);
 
     /**
-     * Produce before mark
+     * Produce before mark.
      *
      * @param termToken the token mark
      */
     void produceBeforeMark(TermToken termToken);
 
     /**
-     * Push mark at mark stack
+     * Push mark at mark stack.
      */
     void pushMark();
 
     /**
-     * Commit the current mark, the mark could be committed only if all previous marks were committed
+     * Commit the current mark, the mark could be committed only if all previous marks were committed.
      */
     void commitMark();
 
     /**
-     * Pop mark at mark stack
+     * Pop mark at mark stack.
      */
     void popMark();
 
     /**
-     * Push keyword context
+     * Push keyword context.
      *
      * @param context context
      */
@@ -100,21 +101,21 @@ public interface TermParserContext {
     Keyword classify();
 
     /**
-     * Pop keyword context
+     * Pop keyword context.
      *
      * @param context context
      */
     void popKeywordContext(KeywordContext context);
 
     /**
-     * State management
+     * State management.
      *
      * @param stateFactory state factory
      */
     void call(TermParserStateFactory stateFactory);
 
     /**
-     * Exit using state
+     * Exit using state.
      *
      * @param state   the state
      * @param success if ended successfully
@@ -122,7 +123,7 @@ public interface TermParserContext {
     void exit(TermParserState state, boolean success);
 
     /**
-     * Change state of flag is skip ignorable is needed
+     * Change state of flag is skip ignorable is needed.
      */
     void advanced();
 
@@ -137,23 +138,25 @@ public interface TermParserContext {
     boolean canSoftEndStatement();
 
     /**
-     * Start soft end context
+     * Start soft end context.
      */
     void startSoftEndContext();
 
     /**
-     * Disable soft end for the segment
+     * Disable soft end for the segment.
      */
     void disableSoftEnd();
 
     /**
      * Enable soft end for the segment, note if the segment soft end was disabled twice,
      * then it should be enabled the same amount of times.
+     *
+     * @return true if the soft ends are actually enabled (false if it was disabled more times than enabled)
      */
     boolean enableSoftEnd();
 
     /**
-     * End soft end context
+     * End soft end context.
      */
     void endSoftEndContext();
 

@@ -29,7 +29,6 @@ import net.sf.etl.parsers.event.grammar.impl.ActionBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 
 /**
@@ -39,37 +38,58 @@ import java.util.Set;
  */
 public abstract class GroupNode extends Node {
     /**
-     * The list of nodes
+     * The list of nodes.
      */
     private final ArrayList<Node> nodes = new ArrayList<Node>();
 
     /**
      * @return the list of nodes
      */
-    public List<Node> nodes() {
+    public final List<Node> nodes() {
         return nodes;
     }
 
     @Override
-    public void collectKeywords(Set<Keyword> keywords, Set<ActionBuilder> visited) {
-        for (Node node : nodes) {
+    public final void collectKeywords(final Set<Keyword> keywords, final Set<ActionBuilder> visited) {
+        for (final Node node : nodes) {
             node.collectKeywords(keywords, visited);
         }
     }
 
+    // CHECKSTYLE:OFF
     @Override
     public Node flatten() {
-        for (ListIterator<Node> i = nodes().listIterator(); i.hasNext(); ) {
-            Node next = i.next().flatten();
-            if (next.getClass() == getClass()) {
-                i.remove();
-                for (Node node : ((GroupNode) next).nodes()) {
-                    i.add(node);
-                }
-            } else {
-                i.set(next);
+        boolean needsFlatten = false;
+        final Class<?> type = getClass();
+        for (Node node : nodes) {
+            if (node.getClass() == type) {
+                needsFlatten = true;
+                break;
             }
         }
+        if (needsFlatten) {
+            final ArrayList<Node> copy = new ArrayList<Node>(nodes);
+            nodes.clear();
+            flattenTo(type, copy, nodes);
+        }
         return this;
+    }
+    // CHECKSTYLE:ON
+
+    /**
+     * Flatten nodes.
+     *
+     * @param type      the node type
+     * @param toFlatten the non flat nodes.
+     * @param result    the nodes to flatten
+     */
+    private void flattenTo(final Class<?> type, final List<Node> toFlatten, final ArrayList<Node> result) {
+        for (Node node : toFlatten) {
+            if (node.getClass() == type) {
+                flattenTo(type, ((GroupNode) node).nodes(), result);
+            } else {
+                result.add(node);
+            }
+        }
     }
 }

@@ -32,10 +32,25 @@ import net.sf.etl.parsers.Token;
  *
  * @author const
  */
-public class GrammarImport extends GrammarRef {
+public final class GrammarImport extends GrammarRef {
     /**
-     * name
+     * the name.
      */
-    public Token name;
+    private Token name;
 
+    /**
+     * @return the name.
+     */
+    public Token getName() {
+        return name;
+    }
+
+    /**
+     * Set the name.
+     *
+     * @param name the name
+     */
+    public void setName(final Token name) {
+        this.name = name;
+    }
 }

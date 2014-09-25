@@ -25,6 +25,7 @@
 package net.sf.etl.parsers.event.unstable.model.grammar;
 
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * The Sequence node class. This class is a part of the lightweight grammar
@@ -32,9 +33,16 @@ import java.util.LinkedList;
  *
  * @author const
  */
-public class Sequence extends Syntax {
+public final class Sequence extends Syntax {
     /**
-     * syntax
+     * The syntax.
      */
-    public final LinkedList<SyntaxStatement> syntax = new LinkedList<SyntaxStatement>();
+    private final List<SyntaxStatement> syntax = new LinkedList<SyntaxStatement>();
+
+    /**
+     * @return the syntax.
+     */
+    public List<SyntaxStatement> getSyntax() {
+        return syntax;
+    }
 }

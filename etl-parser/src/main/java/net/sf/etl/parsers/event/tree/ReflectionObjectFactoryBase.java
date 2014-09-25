@@ -26,9 +26,7 @@ package net.sf.etl.parsers.event.tree;
 
 import net.sf.etl.parsers.ObjectName;
 import net.sf.etl.parsers.ParserException;
-import net.sf.etl.parsers.TermToken;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,36 +43,30 @@ import java.util.logging.Logger;
 public abstract class ReflectionObjectFactoryBase<BaseObjectType, FeatureType, MetaObjectType, HolderType>
         extends ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> {
     /**
-     * The logger
+     * The logger.
      */
-    private static final Logger log = Logger.getLogger(ReflectionObjectFactoryBase.class.getName());
+    private static final Logger LOG = Logger.getLogger(ReflectionObjectFactoryBase.class.getName());
     /**
-     * The class loader that should be used to load classes
+     * The class loader that should be used to load classes.
      */
-    protected final ClassLoader classLoader;
+    private final ClassLoader classLoader;
     /**
-     * the active token collectors
+     * The map from namespace to java package.
      */
-    protected final ArrayList<TokenCollector> collectors = new ArrayList<TokenCollector>();
+    private final HashMap<String, String> namespaceMapping = new HashMap<String, String>();
     /**
-     * The map from namespace to java package
+     * The map from namespace to object to java class.
      */
-    protected final HashMap<String, String> namespaceMapping = new HashMap<String, String>();
-    /**
-     * The map from namespace to object to java class
-     */
-    protected final HashMap<String, HashMap<String, Class<?>>> objectMapping = new HashMap<String, HashMap<String, Class<?>>>();
+    private final HashMap<String, HashMap<String, Class<?>>> objectMapping =
+            new HashMap<String, HashMap<String, Class<?>>>();
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param classLoader the class loader for the parser
      */
-    public ReflectionObjectFactoryBase(ClassLoader classLoader) {
-        if (classLoader == null) {
-            classLoader = getClassLoader();
-        }
-        this.classLoader = classLoader;
+    public ReflectionObjectFactoryBase(final ClassLoader classLoader) {
+        this.classLoader = classLoader == null ? getClassLoader() : classLoader;
     }
 
     /**
@@ -88,39 +80,39 @@ public abstract class ReflectionObjectFactoryBase<BaseObjectType, FeatureType, M
      *
      * @return the class loader
      */
-    protected ClassLoader getClassLoader() {
-        ClassLoader classLoader = null;
+    private ClassLoader getClassLoader() {
+        ClassLoader factoryClassLoader = null;
         try {
-            classLoader = Thread.currentThread().getContextClassLoader();
+            factoryClassLoader = Thread.currentThread().getContextClassLoader();
         } catch (final Exception ex) {
-            if (log.isLoggable(Level.FINE)) {
-                log.log(Level.FINE, "There is a security problem with getting classLoader", ex);
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "There is a security problem with getting classLoader", ex);
             }
         }
-        if (classLoader == null) {
-            classLoader = getClass().getClassLoader();
+        if (factoryClassLoader == null) {
+            factoryClassLoader = getClass().getClassLoader();
         }
-        return classLoader;
+        return factoryClassLoader;
     }
 
     /**
-     * Add mapping from namespace to java package
+     * Add mapping from namespace to java package.
      *
      * @param namespace   the namespace
      * @param javaPackage the java package
      */
-    public void mapNamespaceToPackage(String namespace, String javaPackage) {
+    public final void mapNamespaceToPackage(final String namespace, final String javaPackage) {
         namespaceMapping.put(namespace, javaPackage);
     }
 
     /**
-     * Map name to the class
+     * Map name to the class.
      *
      * @param namespace the object namespace
      * @param name      the object name in parser
      * @param beanClass the class of java bean
      */
-    public void mapNameToClass(String namespace, String name, Class<?> beanClass) {
+    public final void mapNameToClass(final String namespace, final String name, final Class<?> beanClass) {
         HashMap<String, Class<?>> nameToClass = objectMapping.get(namespace);
         if (nameToClass == null) {
             nameToClass = new HashMap<String, Class<?>>();
@@ -130,12 +122,12 @@ public abstract class ReflectionObjectFactoryBase<BaseObjectType, FeatureType, M
     }
 
     /**
-     * Get object class
+     * Get object class.
      *
      * @param name the name of class
      * @return class for the object name
      */
-    protected Class<?> getObjectClass(ObjectName name) {
+    protected final Class<?> getObjectClass(final ObjectName name) {
         // check object name map
         final HashMap<String, Class<?>> nameToObject = objectMapping.get(name.namespace());
         if (nameToObject != null) {
@@ -157,43 +149,11 @@ public abstract class ReflectionObjectFactoryBase<BaseObjectType, FeatureType, M
                 }
                 return rc;
             } catch (final ClassNotFoundException ex) {
-                if (log.isLoggable(Level.FINE)) {
-                    log.log(Level.FINE, "Class has not been found for name: " + name);
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.log(Level.FINE, "Class has not been found for name: " + name);
                 }
             }
         }
         throw new ParserException("Class not found for object name " + name);
-    }
-
-    /**
-     * Handle any token
-     *
-     * @param token the token
-     */
-    @Override
-    public void handleToken(TermToken token) {
-        super.handleToken(token);
-        if (!collectors.isEmpty()) {
-            for (TokenCollector c : collectors) {
-                c.collect(token);
-            }
-        }
-    }
-
-    @Override
-    public void objectEnded(BaseObjectType object, TermToken token) {
-        if (object instanceof TokenCollector) {
-            TokenCollector r = collectors.remove(collectors.size() - 1);
-            assert r == object;
-        }
-        super.objectEnded(object, token);
-    }
-
-    @Override
-    public void objectStarted(BaseObjectType object, TermToken token) {
-        if (object instanceof TokenCollector) {
-            collectors.add((TokenCollector) object);
-        }
-        super.objectStarted(object, token);
     }
 }

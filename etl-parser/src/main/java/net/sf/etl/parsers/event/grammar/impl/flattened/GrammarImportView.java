@@ -32,28 +32,29 @@ import net.sf.etl.parsers.event.unstable.model.grammar.GrammarImport;
  *
  * @author const
  */
-public class GrammarImportView {
+public final class GrammarImportView {
     /**
-     * The source grammar that contains initial import directive
+     * The source grammar that contains initial import directive.
      */
     private final GrammarView sourceGrammar;
     /**
-     * The grammar import construct
+     * The grammar import construct.
      */
     private final GrammarImport grammarImport;
     /**
-     * The imported grammar
+     * The imported grammar.
      */
     private final GrammarView importedGrammar;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param sourceGrammar   the source grammar that contains initial import directive
      * @param importedGrammar the imported grammar
      * @param grammarImport   the grammar import construct from grammar definition
      */
-    public GrammarImportView(GrammarView sourceGrammar, GrammarImport grammarImport, GrammarView importedGrammar) {
+    public GrammarImportView(final GrammarView sourceGrammar, final GrammarImport grammarImport,
+                             final GrammarView importedGrammar) {
         super();
         this.sourceGrammar = sourceGrammar;
         this.grammarImport = grammarImport;

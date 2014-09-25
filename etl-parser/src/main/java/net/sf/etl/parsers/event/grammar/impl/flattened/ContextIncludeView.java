@@ -27,34 +27,34 @@ package net.sf.etl.parsers.event.grammar.impl.flattened;
 import net.sf.etl.parsers.event.unstable.model.grammar.ContextInclude;
 
 /**
- * The view of context include. This is used to hold information about included context
+ * The view of context include. This is used to hold information about included context.
  *
  * @author const
  */
-public class ContextIncludeView extends ContextMemberView {
+public final class ContextIncludeView extends ContextMemberView {
     /**
-     * The context referenced from this definition
+     * The context referenced from this definition.
      */
     private final ContextView referencedContext;
     /**
-     * The wrapper for all definitions from that context
+     * The wrapper for all definitions from that context.
      */
     private final WrapperLink wrappers;
     /**
-     * The original definition
+     * The original definition.
      */
     private final ContextIncludeView originalDefinition;
     /**
-     * The wrapped definition
+     * The wrapped definition.
      */
     private final ContextIncludeView wrappedDefinition;
     /**
-     * The context include element
+     * The context include element.
      */
     private final ContextInclude contextIncludeElement;
 
     /**
-     * The constructor for original place
+     * The constructor for original place.
      *
      * @param contextIncludeElement the element that have caused inclusion of the context
      * @param definingContext       the defining context
@@ -62,9 +62,9 @@ public class ContextIncludeView extends ContextMemberView {
      * @param wrappers              the wrapper chain to be used for statements. It can be null to
      *                              represent that fact that no wrapping is required.
      */
-    public ContextIncludeView(ContextInclude contextIncludeElement,
-                              ContextView definingContext, ContextView referencedContext,
-                              WrapperLink wrappers) {
+    public ContextIncludeView(final ContextInclude contextIncludeElement,
+                              final ContextView definingContext, final ContextView referencedContext,
+                              final WrapperLink wrappers) {
         super(definingContext, definingContext);
         this.referencedContext = referencedContext;
         this.wrappers = wrappers;
@@ -74,13 +74,13 @@ public class ContextIncludeView extends ContextMemberView {
     }
 
     /**
-     * The copy constructor for including the definition
+     * The copy constructor for including the definition.
      *
      * @param includingContext the context in new grammar that includes the definition
      * @param includeView      the view in the parent grammar
      */
-    public ContextIncludeView(ContextView includingContext,
-                              ContextIncludeView includeView) {
+    public ContextIncludeView(final ContextView includingContext,
+                              final ContextIncludeView includeView) {
         super(includeView.definingContext(), includingContext);
         this.referencedContext = includingContext.grammar().context(
                 includeView.referencedContext().name());
@@ -96,13 +96,13 @@ public class ContextIncludeView extends ContextMemberView {
     }
 
     /**
-     * The constructor for transitive include view
+     * The constructor for transitive include view.
      *
      * @param includingView the context in new grammar that includes the definition
      * @param includedView  the view in other context
      */
-    public ContextIncludeView(ContextIncludeView includingView,
-                              ContextIncludeView includedView) {
+    public ContextIncludeView(final ContextIncludeView includingView,
+                              final ContextIncludeView includedView) {
         super(includedView.definingContext(), includingView.includingContext());
         this.referencedContext = includedView.referencedContext;
         this.wrappers = WrapperLink.concatenate(includingView.wrappers(),

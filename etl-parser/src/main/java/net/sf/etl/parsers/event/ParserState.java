@@ -26,23 +26,23 @@
 package net.sf.etl.parsers.event;
 
 /**
- * The event driven parse result
+ * The event driven parse result.
  */
 public enum ParserState {
     /**
-     * The parser needs more data to produce tokens
+     * The parser needs more data to produce tokens.
      */
     INPUT_NEEDED,
     /**
-     * The output is available
+     * The output is available.
      */
     OUTPUT_AVAILABLE,
     /**
-     * Additional ResourceI is needed
+     * Additional resource is needed.
      */
     RESOURCE_NEEDED,
     /**
-     * The end of file is reached
+     * The end of file is reached.
      */
     EOF
 }

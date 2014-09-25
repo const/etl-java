@@ -31,21 +31,21 @@ package net.sf.etl.parsers;
  */
 public final class ObjectName {
     /**
-     * object namespace
+     * object namespace.
      */
     private final String namespace;
     /**
-     * object name
+     * object name.
      */
     private final String name;
 
     /**
-     * A constructor
+     * A constructor.
      *
      * @param namespace namespace
      * @param name      name
      */
-    public ObjectName(String namespace, String name) {
+    public ObjectName(final String namespace, final String name) {
         super();
         this.name = name;
         this.namespace = namespace;
@@ -65,25 +65,29 @@ public final class ObjectName {
         return namespace;
     }
 
-    @SuppressWarnings("RedundantIfStatement")
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
+        //CHECKSTYLE:OFF
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         ObjectName that = (ObjectName) o;
 
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        //noinspection RedundantIfStatement
         if (namespace != null ? !namespace.equals(that.namespace) : that.namespace != null) return false;
 
         return true;
+        //CHECKSTYLE:ON
     }
 
     @Override
     public int hashCode() {
+        //CHECKSTYLE:OFF
         int result = namespace != null ? namespace.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
+        //CHECKSTYLE:ON
     }
 
     @Override

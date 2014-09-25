@@ -31,23 +31,23 @@ package net.sf.etl.parsers.event.grammar.impl.flattened;
  */
 public abstract class ContextMemberView {
     /**
-     * the context that included definition from other grammar
+     * the context that included definition from other grammar.
      */
     private final ContextView includingContext;
 
     /**
-     * the context that defines this definition
+     * the context that defines this definition.
      */
     private final ContextView definingContext;
 
     /**
-     * A constructor
+     * A constructor.
      *
      * @param definingContext  a context that defines this member
      * @param includingContext a context that includes this member using grammar include
      */
-    public ContextMemberView(ContextView definingContext,
-                             ContextView includingContext) {
+    public ContextMemberView(final ContextView definingContext,
+                             final ContextView includingContext) {
         super();
         this.definingContext = definingContext;
         this.includingContext = includingContext;
@@ -56,15 +56,15 @@ public abstract class ContextMemberView {
     /**
      * @return Returns the definingContext.
      */
-    public ContextView definingContext() {
+    public final ContextView definingContext() {
         return definingContext;
     }
 
     /**
      * @return including context is a context that contains definition because
-     *         of grammar include.
+     * of grammar include.
      */
-    public ContextView includingContext() {
+    public final ContextView includingContext() {
         return includingContext;
     }
 }

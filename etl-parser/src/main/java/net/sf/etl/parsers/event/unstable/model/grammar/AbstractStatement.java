@@ -24,6 +24,8 @@
  */
 package net.sf.etl.parsers.event.unstable.model.grammar;
 
+import java.util.List;
+
 /**
  * The AbstractStatement node class. This class is a part of the lightweight
  * grammar model.
@@ -32,7 +34,14 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
  */
 public abstract class AbstractStatement extends Element {
     /**
-     * documentation
+     * documentation.
      */
-    public final java.util.LinkedList<DocumentationLine> documentation = new java.util.LinkedList<DocumentationLine>();
+    private final List<DocumentationLine> documentation = new java.util.LinkedList<DocumentationLine>();
+
+    /**
+     * @return documentation
+     */
+    public final List<DocumentationLine> getDocumentation() {
+        return documentation;
+    }
 }

@@ -30,5 +30,5 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
  *
  * @author const
  */
-public class IntegerOp extends NumberOp {
+public final class IntegerOp extends NumberOp {
 }

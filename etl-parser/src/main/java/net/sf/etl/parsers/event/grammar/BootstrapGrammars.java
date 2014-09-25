@@ -53,36 +53,44 @@ import java.nio.charset.Charset;
  * <p>The grammars loaded using this class are marked as having no dependencies, and this is so
  * because, no other resources are used to load them.</p>
  */
-public class BootstrapGrammars {
+public final class BootstrapGrammars {
     /**
-     * The UTF-8 encoding
+     * The UTF-8 encoding.
+     * TODO put all UTF-8 to one place (characters package?)
      */
     public static final Charset UTF8 = Charset.forName("UTF-8");
     /**
-     * The lock that controls compilation of the grammars
+     * The lock that controls compilation of the grammars.
      */
-    private static final Object grammarLock = new Object();
+    private static final Object GRAMMAR_LOCK = new Object();
     /**
-     * The doctype grammar
+     * The doctype grammar.
      */
     private static CompiledGrammar doctypeGrammar;
     /**
-     * The doctype grammar
+     * The doctype grammar.
      */
     private static CompiledGrammar defaultGrammar;
     /**
-     * The doctype grammar
+     * The doctype grammar.
      */
     private static CompiledGrammar grammarGrammar;
 
     /**
-     * Compile or get doctype grammar
+     * Private constructor for utility class.
+     */
+    private BootstrapGrammars() {
+        // do nothing
+    }
+
+    /**
+     * Compile or get doctype grammar.
      *
      * @return load doctype grammar singleton,
      * @throws ParserIOException if grammar fails to load or to parse - an exception is thrown
      */
     public static CompiledGrammar doctypeGrammar() {
-        synchronized (grammarLock) {
+        synchronized (GRAMMAR_LOCK) {
             if (doctypeGrammar == null) {
                 doctypeGrammar = getCompiledBootstrapGrammar(StandardGrammars.DOCTYPE_GRAMMAR_SYSTEM_ID);
             }
@@ -91,13 +99,13 @@ public class BootstrapGrammars {
     }
 
     /**
-     * Compile or get default grammar
+     * Compile or get default grammar.
      *
      * @return load default grammar singleton,
      * @throws ParserIOException if grammar fails to load or to parse - an exception is thrown
      */
     public static CompiledGrammar defaultGrammar() {
-        synchronized (grammarLock) {
+        synchronized (GRAMMAR_LOCK) {
             if (defaultGrammar == null) {
                 defaultGrammar = getCompiledBootstrapGrammar(StandardGrammars.DEFAULT_GRAMMAR_SYSTEM_ID);
             }
@@ -106,13 +114,13 @@ public class BootstrapGrammars {
     }
 
     /**
-     * Compile or get grammar for grammars
+     * Compile or get grammar for grammars.
      *
      * @return load default grammar singleton,
      * @throws ParserIOException if grammar fails to load or to parse - an exception is thrown
      */
     public static CompiledGrammar grammarGrammar() {
-        synchronized (grammarLock) {
+        synchronized (GRAMMAR_LOCK) {
             if (grammarGrammar == null) {
                 grammarGrammar = getCompiledBootstrapGrammar(StandardGrammars.ETL_GRAMMAR_SYSTEM_ID);
             }
@@ -121,14 +129,14 @@ public class BootstrapGrammars {
     }
 
     /**
-     * Compile grammar using bootstrap parser
+     * Compile grammar using bootstrap parser.
      *
      * @param grammarSystemId the grammar system id
      * @return the compiled grammar
      */
-    private static CompiledGrammar getCompiledBootstrapGrammar(String grammarSystemId) {
-        GrammarCompilerEngine compiler = new GrammarAssemblyBuilder();
-        ResourceRequest resourceRequest = new ResourceRequest(
+    private static CompiledGrammar getCompiledBootstrapGrammar(final String grammarSystemId) {
+        final GrammarCompilerEngine compiler = new GrammarAssemblyBuilder();
+        final ResourceRequest resourceRequest = new ResourceRequest(
                 new ResourceReference(grammarSystemId, null),
                 StandardGrammars.GRAMMAR_REQUEST_TYPE);
         compiler.start(resourceRequest);
@@ -141,8 +149,8 @@ public class BootstrapGrammars {
                     for (ResourceRequest request : compiler.requests()) {
                         try {
                             final String systemId = request.getReference().getSystemId();
-                            URL url = new URL(systemId);
-                            InputStream input = url.openStream();
+                            final URL url = new URL(systemId);
+                            final InputStream input = url.openStream();
                             try {
                                 BootstrapETLParserLite parser = new BootstrapETLParserLite(
                                         new PhraseParserReader(
@@ -165,6 +173,8 @@ public class BootstrapGrammars {
                 case EOF:
                 case INPUT_NEEDED:
                     throw new RuntimeException("Invalid compiler state: " + state);
+                default:
+                    throw new RuntimeException("Unknown state: " + state);
             }
         }
     }

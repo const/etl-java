@@ -24,17 +24,63 @@
  */
 package net.sf.etl.parsers.event.impl.bootstrap;
 
-import net.sf.etl.parsers.*;
+import net.sf.etl.parsers.PhraseToken;
+import net.sf.etl.parsers.PhraseTokens;
+import net.sf.etl.parsers.SourceLocation;
+import net.sf.etl.parsers.TextPos;
+import net.sf.etl.parsers.Token;
+import net.sf.etl.parsers.Tokens;
 import net.sf.etl.parsers.event.impl.util.ListStack;
-import net.sf.etl.parsers.event.unstable.model.grammar.*;
+import net.sf.etl.parsers.event.tree.SimpleObjectFactory.Property;
+import net.sf.etl.parsers.event.unstable.model.grammar.Attributes;
+import net.sf.etl.parsers.event.unstable.model.grammar.BlockRef;
+import net.sf.etl.parsers.event.unstable.model.grammar.ChoiceOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.CompositeSyntax;
+import net.sf.etl.parsers.event.unstable.model.grammar.Context;
+import net.sf.etl.parsers.event.unstable.model.grammar.ContextImport;
+import net.sf.etl.parsers.event.unstable.model.grammar.ContextInclude;
+import net.sf.etl.parsers.event.unstable.model.grammar.ContextOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.ContextRef;
+import net.sf.etl.parsers.event.unstable.model.grammar.Def;
+import net.sf.etl.parsers.event.unstable.model.grammar.DoclinesOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.DocumentationSyntax;
+import net.sf.etl.parsers.event.unstable.model.grammar.EObject;
+import net.sf.etl.parsers.event.unstable.model.grammar.Element;
+import net.sf.etl.parsers.event.unstable.model.grammar.ExpressionRef;
+import net.sf.etl.parsers.event.unstable.model.grammar.ExpressionStatement;
+import net.sf.etl.parsers.event.unstable.model.grammar.FirstChoiceOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.FloatOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.Grammar;
+import net.sf.etl.parsers.event.unstable.model.grammar.GrammarLiteObjectFactory;
+import net.sf.etl.parsers.event.unstable.model.grammar.IdentifierOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.IntegerOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.KeywordStatement;
+import net.sf.etl.parsers.event.unstable.model.grammar.Let;
+import net.sf.etl.parsers.event.unstable.model.grammar.ListOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.Modifier;
+import net.sf.etl.parsers.event.unstable.model.grammar.ModifierOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.ModifiersOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.Namespace;
+import net.sf.etl.parsers.event.unstable.model.grammar.NumberOp;
 import net.sf.etl.parsers.event.unstable.model.grammar.ObjectName;
-import net.sf.etl.parsers.literals.LiteralUtils;
+import net.sf.etl.parsers.event.unstable.model.grammar.ObjectOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.OneOrMoreOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.OperandOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.OperatorDefinition;
+import net.sf.etl.parsers.event.unstable.model.grammar.OptionalOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.RefOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.RepeatOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.Sequence;
+import net.sf.etl.parsers.event.unstable.model.grammar.Statement;
+import net.sf.etl.parsers.event.unstable.model.grammar.StringOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.SyntaxDefinition;
+import net.sf.etl.parsers.event.unstable.model.grammar.TokenOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.TokenRefOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.Wrapper;
+import net.sf.etl.parsers.event.unstable.model.grammar.ZeroOrMoreOp;
 import net.sf.etl.parsers.streams.PhraseParserReader;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.*;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -63,60 +109,62 @@ import java.util.logging.Logger;
  * There are the following method types in the source:
  * </p>
  * <dl>
- * <dt>try*</dt>
+ * <dt>try*
  * <dd>These methods examine stream and if head matches specified, they consume
- * and returns true. Otherwise they do nothing with stream and return false.</dd>
- * <dt>start*</dt>
+ * and returns true. Otherwise they do nothing with stream and return false.
+ * <dt>start*
  * <dd>These methods unconditionally start parsing what is specified. And if
- * stream content does not match expected tokens, the parser fails.</dd>
- * <dt>end*</dt>
+ * stream content does not match expected tokens, the parser fails.
+ * <dt>end*
  * <dd>These methods unconditionally start parsing what is specified. And if
- * stream content does not match expected tokens, the parser fails.</dd>
- * <dt>match*</dt>
+ * stream content does not match expected tokens, the parser fails.
+ * <dt>match*
  * <dd>These method match current lexer and if token matches specified, return
- * true of false.</dd>
- * <dt></dt>
- * <dd></dd>
+ * true of false.
  * </dl>
  *
  * @author const
  */
 // NOTE POST 0.3 Implement better error checking and make this parser to reject
 // non matching grammars.
-public class BootstrapETLParserLite {
+public final class BootstrapETLParserLite {
     /**
-     * a logger used by this class to log the problems
+     * a logger used by this class to log the problems.
      */
-    private static final Logger log = Logger.getLogger(BootstrapETLParserLite.class.getName());
+    private static final Logger LOG = Logger.getLogger(BootstrapETLParserLite.class.getName());
 
     /**
-     * stack of properties
+     * stack of properties.
      */
-    final private ListStack<Field> propertyStack = new ListStack<Field>();
+    private final ListStack<Property> propertyStack = new ListStack<Property>();
     /**
-     * stack of objects
+     * stack of objects.
      */
-    final private ListStack<Element> objectStack = new ListStack<Element>();
+    private final ListStack<Element> objectStack = new ListStack<Element>();
     /**
-     * stack of objects
+     * stack of objects.
      */
-    final private ListStack<TextPos> objectStartStack = new ListStack<TextPos>();
+    private final ListStack<TextPos> objectStartStack = new ListStack<TextPos>();
     /**
-     * a phrase parser used by bootstrap parser
+     * a phrase parser used by bootstrap parser.
      */
     private final PhraseParserReader parser;
+    /**
+     * The object factory.
+     */
+    private final GrammarLiteObjectFactory factory = new GrammarLiteObjectFactory();
 
     /**
-     * Result of parsing
+     * Result of parsing.
      */
     private Grammar result;
 
     /**
-     * A constructor from phrase parser
+     * A constructor from phrase parser.
      *
      * @param parser a parser to use
      */
-    public BootstrapETLParserLite(PhraseParserReader parser) {
+    public BootstrapETLParserLite(final PhraseParserReader parser) {
         this.parser = parser;
         parser.advance();
         skipIgnorable();
@@ -133,11 +181,7 @@ public class BootstrapETLParserLite {
             while (trySegment()) {
                 if (tryGrammar()) {
                     return result;
-                } else if (tryDoctype()) {
-                    // do nothing
-                } else if (match(PhraseTokens.STATEMENT_END)) {
-                    // do nothing it is a blank statement
-                } else {
+                } else if (!tryDoctype() && !match(PhraseTokens.STATEMENT_END)) {
                     fail();
                 }
                 endSegment();
@@ -145,8 +189,8 @@ public class BootstrapETLParserLite {
             return null;
         } finally {
             final long end = System.currentTimeMillis();
-            if (log.isLoggable(Level.FINE)) {
-                log.fine("Bootstrap parser finished, worked for "
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Bootstrap parser finished, worked for "
                         + (end - start) + "ms.");
             }
         }
@@ -166,7 +210,7 @@ public class BootstrapETLParserLite {
     }
 
     /**
-     * stop parsing segment
+     * stop parsing segment.
      */
     private void endSegment() {
         consume(PhraseTokens.STATEMENT_END);
@@ -180,15 +224,17 @@ public class BootstrapETLParserLite {
     }
 
     /**
+     * Check if phrase token kind matches.
+     *
      * @param tk a token kind to match
      * @return true if matched.
      */
-    private boolean match(PhraseTokens tk) {
+    private boolean match(final PhraseTokens tk) {
         return parser.current().kind() == tk;
     }
 
     /**
-     * Fail parsing with exception
+     * Fail parsing with exception.
      */
     private void fail() {
         throw new IllegalStateException("Some problem at token: "
@@ -196,7 +242,7 @@ public class BootstrapETLParserLite {
     }
 
     /**
-     * Parse grammar
+     * Parse grammar.
      *
      * @return true if it were indeed an grammar.
      */
@@ -207,19 +253,15 @@ public class BootstrapETLParserLite {
         startObject(new Grammar());
         advance();
         do {
-            value(field(Grammar.class, "name"));
+            value(property(Grammar.class, "name"));
         } while (tryToken("."));
         if (match(Tokens.STRING)) {
-            value(field(Grammar.class, "version"));
+            value(property(Grammar.class, "version"));
         }
         startBlock();
-        startProperty(field(Grammar.class, "content"));
+        startProperty(property(Grammar.class, "content"));
         while (trySegment()) {
-            if (tryNamespace()) {
-                // do nothing
-            } else if (tryContext()) {
-                // do nothing
-            } else {
+            if (!tryNamespace() && !tryContext()) {
                 // note that other constructs are not supported
                 // because they are not needed by ETL grammar
                 fail();
@@ -235,7 +277,7 @@ public class BootstrapETLParserLite {
 
     /**
      * @return true if context statement is matched and parsed, false if
-     *         statement is not matched.
+     * statement is not matched.
      */
     private boolean tryContext() {
         if (!match("context")) {
@@ -245,33 +287,25 @@ public class BootstrapETLParserLite {
         advance();
         while (true) {
             if (match("default")) {
-                modifier(field(Context.class, "defaultModifier"));
+                modifier(property(Context.class, "defaultModifier"));
             } else if (match("abstract")) {
-                modifier(field(Context.class, "abstractModifier"));
+                modifier(property(Context.class, "abstractModifier"));
             } else {
                 break;
             }
         }
-        value(field(Context.class, "name"));
+        value(property(Context.class, "name"));
 
         startBlock();
-        startProperty(field(Context.class, "content"));
+        startProperty(property(Context.class, "content"));
         while (trySegment()) {
-            if (tryDef()) {
-                // do nothing
-            } else if (tryStatement()) {
-                // do nothing
-            } else if (tryDocumentation()) {
-                // do nothing
-            } else if (tryContextImport()) {
-                // do nothing
-            } else if (tryContextInclude()) {
-                // do nothing
-            } else if (tryOp()) {
-                // do nothing
-            } else if (tryAttributes()) {
-                // do nothing
-            } else {
+            if (!tryDef()
+                    && !tryStatement()
+                    && !tryDocumentation()
+                    && !tryContextImport()
+                    && !tryContextInclude()
+                    && !tryOp()
+                    && !tryAttributes()) {
                 fail();
             }
             endSegment();
@@ -284,26 +318,26 @@ public class BootstrapETLParserLite {
 
     /**
      * @return true if simple operator statement is matched and parsed, false if
-     *         statement is not matched.
+     * statement is not matched.
      */
     private boolean tryOp() {
         if (!tryToken("op", OperatorDefinition.class)) {
             return false;
         }
         if (match("composite")) {
-            modifier(field(OperatorDefinition.class, "isComposite"));
+            modifier(property(OperatorDefinition.class, "compositeModifier"));
         }
-        value(field(SyntaxDefinition.class, "name"));
+        value(property(SyntaxDefinition.class, "name"));
         consume("(");
-        value(field(OperatorDefinition.class, "associativity"));
+        value(property(OperatorDefinition.class, "associativity"));
         if (tryToken(",")) {
-            value(field(OperatorDefinition.class, "precedence"));
+            value(property(OperatorDefinition.class, "precedence"));
         }
         if (tryToken(",")) {
-            final Field textField = field(OperatorDefinition.class, "text");
-            value(textField);
+            final Property textProperty = property(OperatorDefinition.class, "text");
+            value(textProperty);
             while (tryToken("|")) {
-                value(textField);
+                value(textProperty);
             }
         }
         consume(")");
@@ -314,7 +348,7 @@ public class BootstrapETLParserLite {
 
     /**
      * @return true if context "import" statement is matched and parsed, false
-     *         if statement is not matched.
+     * if statement is not matched.
      */
     private boolean tryContextImport() {
         if (!match("import")) {
@@ -322,16 +356,16 @@ public class BootstrapETLParserLite {
         }
         startObject(new ContextImport());
         advance();
-        value(field(ContextImport.class, "localName"));
+        value(property(ContextImport.class, "localName"));
         consume("=");
-        value(field(ContextRef.class, "contextName"));
+        value(property(ContextRef.class, "contextName"));
         endObject();
         return true;
     }
 
     /**
      * @return true if context "import" statement is matched and parsed, false
-     *         if statement is not matched.
+     * if statement is not matched.
      */
     private boolean tryContextInclude() {
         if (!match("include")) {
@@ -339,9 +373,9 @@ public class BootstrapETLParserLite {
         }
         startObject(new ContextInclude());
         advance();
-        value(field(ContextRef.class, "contextName"));
+        value(property(ContextRef.class, "contextName"));
         if (tryToken("wrapper")) {
-            startProperty(field(ContextInclude.class, "wrappers"));
+            startProperty(property(ContextInclude.class, "wrappers"));
             parseWrapperObject();
             while (tryToken("/")) {
                 parseWrapperObject();
@@ -354,7 +388,7 @@ public class BootstrapETLParserLite {
 
     /**
      * @return true if "statement" statement is matched and parsed, false if
-     *         statement is not matched.
+     * statement is not matched.
      */
     private boolean tryStatement() {
         if (!match("statement")) {
@@ -362,7 +396,7 @@ public class BootstrapETLParserLite {
         }
         startObject(new Statement());
         advance();
-        value(field(SyntaxDefinition.class, "name"));
+        value(property(SyntaxDefinition.class, "name"));
         parseDefSyntax();
         endObject();
         return true;
@@ -370,7 +404,7 @@ public class BootstrapETLParserLite {
 
     /**
      * @return true if documentation statement is matched and parsed, false if
-     *         statement is not matched.
+     * statement is not matched.
      */
     private boolean tryDocumentation() {
         if (!match("documentation")) {
@@ -378,7 +412,7 @@ public class BootstrapETLParserLite {
         }
         startObject(new DocumentationSyntax());
         advance();
-        value(field(SyntaxDefinition.class, "name"));
+        value(property(SyntaxDefinition.class, "name"));
         parseDefSyntax();
         endObject();
         return true;
@@ -386,7 +420,7 @@ public class BootstrapETLParserLite {
 
     /**
      * @return true if attributes statement is matched and parsed, false if
-     *         statement is not matched.
+     * statement is not matched.
      */
     private boolean tryAttributes() {
         if (!match("attributes")) {
@@ -394,7 +428,7 @@ public class BootstrapETLParserLite {
         }
         startObject(new Attributes());
         advance();
-        value(field(SyntaxDefinition.class, "name"));
+        value(property(SyntaxDefinition.class, "name"));
         parseDefSyntax();
         endObject();
         return true;
@@ -402,7 +436,7 @@ public class BootstrapETLParserLite {
 
     /**
      * @return true if context statement is matched and parsed, false if
-     *         statement is not matched.
+     * statement is not matched.
      */
     private boolean tryDef() {
         if (!match("def")) {
@@ -410,7 +444,7 @@ public class BootstrapETLParserLite {
         }
         startObject(new Def());
         advance();
-        value(field(SyntaxDefinition.class, "name"));
+        value(property(SyntaxDefinition.class, "name"));
         parseDefSyntax();
         endObject();
         return true;
@@ -420,7 +454,7 @@ public class BootstrapETLParserLite {
      *
      */
     private void parseDefSyntax() {
-        startProperty(field(SyntaxDefinition.class, "syntax"));
+        startProperty(property(SyntaxDefinition.class, "syntax"));
         parseSyntaxBlock();
         endProperty();
     }
@@ -431,9 +465,7 @@ public class BootstrapETLParserLite {
     private void parseSyntaxBlock() {
         startBlock();
         while (trySegment()) {
-            if (tryLet()) {
-                // do nothing
-            } else {
+            if (!tryLet()) {
                 parseSyntaxExpressionStatement();
             }
             endSegment();
@@ -442,11 +474,11 @@ public class BootstrapETLParserLite {
     }
 
     /**
-     * parse expression syntax statement
+     * parse expression syntax statement.
      */
     private void parseSyntaxExpressionStatement() {
         startObject(new ExpressionStatement());
-        startProperty(field(ExpressionStatement.class, "syntax"));
+        startProperty(property(ExpressionStatement.class, "syntax"));
         syntax();
         endProperty();
         endObject();
@@ -454,7 +486,7 @@ public class BootstrapETLParserLite {
 
     /**
      * @return true if let statement is matched and parsed, false if statement
-     *         is not matched.
+     * is not matched.
      */
     private boolean tryLet() {
         if (!match("@")) {
@@ -462,9 +494,9 @@ public class BootstrapETLParserLite {
         }
         startObject(new Let());
         advance();
-        value(field(Let.class, "name"));
-        value(field(Let.class, "operator"));
-        startProperty(field(Let.class, "expression"));
+        value(property(Let.class, "name"));
+        value(property(Let.class, "operator"));
+        startProperty(property(Let.class, "expression"));
         syntax();
         endProperty();
         endObject();
@@ -479,15 +511,14 @@ public class BootstrapETLParserLite {
         parseChoiceLevel();
     }
 
-
     /**
-     * parse choice level operators
+     * parse choice level operators.
      */
     private void parseFirstChoiceLevel() {
         parseRepeatLevel();
         while (tryToken("/")) {
-            wrapTopObject(new FirstChoiceOp(), field(FirstChoiceOp.class, "first"));
-            startProperty(field(FirstChoiceOp.class, "second"));
+            wrapTopObject(new FirstChoiceOp(), property(FirstChoiceOp.class, "first"));
+            startProperty(property(FirstChoiceOp.class, "second"));
             parseRepeatLevel();
             endProperty();
             endObject();
@@ -495,13 +526,13 @@ public class BootstrapETLParserLite {
     }
 
     /**
-     * parse choice level operators
+     * parse choice level operators.
      */
     private void parseChoiceLevel() {
         parseFirstChoiceLevel();
         while (tryToken("|")) {
-            wrapTopObject(new ChoiceOp(), field(ChoiceOp.class, "options"));
-            startProperty(field(ChoiceOp.class, "options"));
+            wrapTopObject(new ChoiceOp(), property(ChoiceOp.class, "options"));
+            startProperty(property(ChoiceOp.class, "options"));
             parseFirstChoiceLevel();
             endProperty();
             endObject();
@@ -509,21 +540,21 @@ public class BootstrapETLParserLite {
     }
 
     /**
-     * parse operators at repeat level
+     * parse operators at repeat level.
      */
     private void parseRepeatLevel() {
         parsePrimaryLevel();
         while (true) {
             if (tryToken("?")) {
-                wrapTopObject(new OptionalOp(), field(RepeatOp.class, "syntax"));
+                wrapTopObject(new OptionalOp(), property(RepeatOp.class, "syntax"));
                 endObject();
             } else if (tryToken("*")) {
-                wrapTopObject(new ZeroOrMoreOp(), field(RepeatOp.class,
+                wrapTopObject(new ZeroOrMoreOp(), property(RepeatOp.class,
                         "syntax"));
                 endObject();
             } else if (tryToken("+")) {
                 wrapTopObject(new OneOrMoreOp(),
-                        field(RepeatOp.class, "syntax"));
+                        property(RepeatOp.class, "syntax"));
                 endObject();
             } else {
                 break;
@@ -532,37 +563,37 @@ public class BootstrapETLParserLite {
     }
 
     /**
-     * parse primary level
+     * parse primary level.
      */
     private void parsePrimaryLevel() {
         if (tryToken("^", ObjectOp.class)) {
-            startProperty(field(ObjectOp.class, "name"));
+            startProperty(property(ObjectOp.class, "name"));
             parseObjectName();
             endProperty();
-            startProperty(field(CompositeSyntax.class, "syntax"));
+            startProperty(property(CompositeSyntax.class, "syntax"));
             parseSequence();
             endProperty();
             endObject();
         } else if (match("left") || match("right")) {
             startObject(new OperandOp());
-            value(field(OperandOp.class, "position"));
+            value(property(OperandOp.class, "position"));
             endObject();
         } else if (tryToken("identifier", IdentifierOp.class)) {
             parseTokenWrapper();
             endObject();
         } else if (tryToken("modifier", ModifierOp.class)) {
-            value(field(ModifierOp.class, "value"));
+            value(property(ModifierOp.class, "value"));
             parseTokenWrapper();
             endObject();
         } else if (tryToken("modifiers", ModifiersOp.class)) {
-            parseWrapper(field(ModifiersOp.class, "wrapper"));
-            startProperty(field(ModifiersOp.class, "modifiers"));
+            parseWrapper(property(ModifiersOp.class, "wrapper"));
+            startProperty(property(ModifiersOp.class, "modifiers"));
             parseSyntaxBlock();
             endProperty();
             endObject();
         } else if (tryToken("token", TokenOp.class)) {
             if (tryToken("(")) {
-                value(field(TokenOp.class, "value"));
+                value(property(TokenOp.class, "value"));
                 consume(")");
             }
             parseTokenWrapper();
@@ -577,7 +608,7 @@ public class BootstrapETLParserLite {
             consume("(");
             consume("quote");
             consume("=");
-            value(field(StringOp.class, "quote"));
+            value(property(StringOp.class, "quote"));
             consume(")");
             parseTokenWrapper();
             endObject();
@@ -586,41 +617,41 @@ public class BootstrapETLParserLite {
             endObject();
         } else if (tryToken("ref", RefOp.class)) {
             if (tryToken("(")) {
-                value(field(RefOp.class, "name"));
+                value(property(RefOp.class, "name"));
                 consume(")");
             }
             endObject();
         } else if (tryToken("block", BlockRef.class)) {
             if (tryToken("(")) {
-                value(field(ContextOp.class, "context"));
+                value(property(ContextOp.class, "context"));
                 consume(")");
             }
             endObject();
         } else if (tryToken("expression", ExpressionRef.class)) {
             if (tryToken("(")) {
-                value(field(ContextOp.class, "context"));
+                value(property(ContextOp.class, "context"));
                 if (tryToken(",")) {
                     consume("precedence");
                     consume("=");
-                    value(field(ExpressionRef.class, "precedence"));
+                    value(property(ExpressionRef.class, "precedence"));
                 }
                 consume(")");
             }
             endObject();
         } else if (tryToken("list", ListOp.class)) {
             if (!match(PhraseTokens.START_BLOCK)) {
-                value(field(ListOp.class, "separator"));
+                value(property(ListOp.class, "separator"));
             }
-            startProperty(field(CompositeSyntax.class, "syntax"));
+            startProperty(property(CompositeSyntax.class, "syntax"));
             parseSequence();
             endProperty();
             endObject();
         } else if (match(PhraseTokens.START_BLOCK) || match("%")) {
             startObject(new Sequence());
-            startProperty(field(Sequence.class, "syntax"));
+            startProperty(property(Sequence.class, "syntax"));
             while (true) {
                 if (tryToken("%", KeywordStatement.class)) {
-                    value(field(KeywordStatement.class, "text"));
+                    value(property(KeywordStatement.class, "text"));
                     endObject();
                 } else if (match(PhraseTokens.START_BLOCK)) {
                     parseSyntaxBlock();
@@ -636,31 +667,31 @@ public class BootstrapETLParserLite {
     }
 
     /**
-     * parse number declaration
+     * parse number declaration.
      */
     private void parseNumber() {
         if (tryToken("(")) {
             consume("suffix");
             consume("=");
-            value(field(NumberOp.class, "suffix"));
+            value(property(NumberOp.class, "suffix"));
             consume(")");
         }
         parseTokenWrapper();
     }
 
     /**
-     * parse token wrapper
+     * parse token wrapper.
      */
     private void parseTokenWrapper() {
-        parseWrapper(field(TokenRefOp.class, "wrapper"));
+        parseWrapper(property(TokenRefOp.class, "wrapper"));
     }
 
     /**
-     * parser wrapper part
+     * parser wrapper part.
      *
      * @param property a property to assign the wrapper
      */
-    private void parseWrapper(Field property) {
+    private void parseWrapper(final Property property) {
         if (tryToken("wrapper")) {
             startProperty(property);
             parseWrapperObject();
@@ -669,24 +700,24 @@ public class BootstrapETLParserLite {
     }
 
     /**
-     * parse wrapper object
+     * parse wrapper object.
      */
     private void parseWrapperObject() {
         startObject(new Wrapper());
-        startProperty(field(Wrapper.class, "object"));
+        startProperty(property(Wrapper.class, "object"));
         parseObjectName();
         endProperty();
         consume(".");
-        value(field(Wrapper.class, "property"));
+        value(property(Wrapper.class, "property"));
         endObject();
     }
 
     /**
-     * parse sequence object using next block
+     * parse sequence object using next block.
      */
     private void parseSequence() {
         startObject(new Sequence());
-        startProperty(field(Sequence.class, "syntax"));
+        startProperty(property(Sequence.class, "syntax"));
         parseSyntaxBlock();
         endProperty();
         endObject();
@@ -697,9 +728,9 @@ public class BootstrapETLParserLite {
      */
     private void parseObjectName() {
         startObject(new ObjectName());
-        value(field(ObjectName.class, "prefix"));
+        value(property(ObjectName.class, "prefix"));
         consume(":");
-        value(field(ObjectName.class, "name"));
+        value(property(ObjectName.class, "name"));
         endObject();
     }
 
@@ -711,43 +742,45 @@ public class BootstrapETLParserLite {
      * @param property a property of new object to which current top will be put.
      */
     @SuppressWarnings("unchecked")
-    private void wrapTopObject(Element object, Field property) {
+    private void wrapTopObject(final Element object, final Property property) {
         try {
             final Element po = topObject();
-            final Field pp = topProperty();
+            final Property pp = topProperty();
             Element v;
-            if (pp.getType() == ArrayList.class) {
-                final java.util.ArrayList<?> l = (java.util.ArrayList<?>) pp.get(po);
+            if (pp.isList()) {
+                final List<?> l = (List<?>) pp.get(po);
                 v = (Element) l.remove(l.size() - 1);
             } else {
                 v = (Element) pp.get(po);
                 pp.set(po, null);
             }
-            if (property.getType() == ArrayList.class) {
-                ((java.util.ArrayList<Object>) property.get(object)).add(v);
+            if (property.isList()) {
+                ((List<Object>) property.get(object)).add(v);
             } else {
                 property.set(object, v);
             }
-            object.ownerObject = v.ownerObject;
-            object.ownerFeature = v.ownerFeature;
-            v.ownerObject = object;
-            v.ownerFeature = property;
+            object.setOwnerObject(v.getOwnerObject());
+            object.setOwnerFeature(v.getOwnerFeature());
+            v.setOwnerObject(object);
+            v.setOwnerFeature(property.getName());
             objectStartStack.push(objectStartStack.peek());
             pushObject(object);
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new RuntimeException("Field cannot be updated", e);
+            throw new RuntimeException("Property cannot be updated", e);
         }
     }
 
     /**
+     * Try parsing the specific token.
+     *
      * @param c      object of this class will be started if token matches
      * @param string a string to match.
      * @return true if token was detected and consumed, false if token did not
-     *         match.
+     * match.
      */
-    private boolean tryToken(String string, Class<?> c) {
+    private boolean tryToken(final String string, final Class<?> c) {
         if (match(string)) {
             try {
                 startObject((Element) c.newInstance());
@@ -762,11 +795,13 @@ public class BootstrapETLParserLite {
     }
 
     /**
+     * Try token.
+     *
      * @param string a string to match.
      * @return true if token was detected and consumed, false if token did not
-     *         match.
+     * match.
      */
-    private boolean tryToken(String string) {
+    private boolean tryToken(final String string) {
         if (match(string)) {
             advance();
             return true;
@@ -775,21 +810,21 @@ public class BootstrapETLParserLite {
     }
 
     /**
-     * Read modifier
+     * Read modifier.
      *
      * @param modifierProperty a property where modifier should be put
      */
-    private void modifier(Field modifierProperty) {
+    private void modifier(final Property modifierProperty) {
         startProperty(modifierProperty);
         startObject(new Modifier());
-        value(field(Modifier.class, "value"));
+        value(property(Modifier.class, "value"));
         endObject();
         endProperty();
     }
 
     /**
      * @return true if namespace statement is matched, false if statement is not
-     *         matched.
+     * matched.
      */
     private boolean tryNamespace() {
         if (!match("namespace")) {
@@ -798,21 +833,21 @@ public class BootstrapETLParserLite {
         startObject(new Namespace());
         advance();
         if (match("default")) {
-            modifier(field(Namespace.class, "defaultModifier"));
+            modifier(property(Namespace.class, "defaultModifier"));
         }
-        value(field(Namespace.class, "prefix"));
+        value(property(Namespace.class, "prefix"));
         consume("=");
-        value(field(Namespace.class, "uri"));
+        value(property(Namespace.class, "uri"));
         endObject();
         return true;
     }
 
     /**
-     * Consume token that matches string or fail parsing
+     * Consume token that matches string or fail parsing.
      *
      * @param string a string to match
      */
-    private void consume(String string) {
+    private void consume(final String string) {
         if (match(string)) {
             advance();
         } else {
@@ -821,7 +856,7 @@ public class BootstrapETLParserLite {
     }
 
     /**
-     * End property scope
+     * End property scope.
      */
     private void endProperty() {
         propertyStack.pop();
@@ -833,30 +868,30 @@ public class BootstrapETLParserLite {
      *
      * @param property a property to start
      */
-    private void startProperty(Field property) {
+    private void startProperty(final Property property) {
         propertyStack.push(property);
     }
 
     /**
-     * end block
+     * end block.
      */
     private void endBlock() {
         consume(PhraseTokens.END_BLOCK);
     }
 
     /**
-     * start parsing block unconditionally
+     * start parsing block unconditionally.
      */
     private void startBlock() {
         consume(PhraseTokens.START_BLOCK);
     }
 
     /**
-     * consume phrase token of specified type and advance
+     * consume phrase token of specified type and advance.
      *
      * @param token a token to consume
      */
-    private void consume(PhraseTokens token) {
+    private void consume(final PhraseTokens token) {
         if (match(token)) {
             advance();
         } else {
@@ -870,83 +905,41 @@ public class BootstrapETLParserLite {
     private Element endObject() {
         final Element object = objectStack.pop();
         final TextPos start = objectStartStack.pop();
-        object.location = new SourceLocation(start, parser.current().start(), parser.getSystemId());
+        object.setLocation(new SourceLocation(start, parser.current().start(), parser.getSystemId()));
         return object;
     }
 
     /**
-     * Consume value and put it to property
+     * Consume value and put it to property.
      *
      * @param featureId a filed to put consumed value
      */
     @SuppressWarnings("unchecked")
-    private void value(Field featureId) {
+    private void value(final Property featureId) {
         try {
-            final Class type = featureId.getType();
-            final EObject top = topObject();
-            if (type.isEnum()) {
-                final String text = text();
-                Enum value = null;
-                for (final Object o : type.getEnumConstants()) {
-                    final Enum e = (Enum) o;
-                    // note that line below works only for single-word enums
-                    if (text.equalsIgnoreCase(e.name())) {
-                        value = e;
-                        break;
-                    }
-                }
-                if (value == null) {
-                    throw new RuntimeException("No constant with name "
-                            + text() + " in enum " + type.getCanonicalName());
-                }
-                featureId.set(top, value);
-            } else if (type == String.class) {
-                featureId.set(top, text());
-            } else if (type == Token.class) {
-                featureId.set(top, token());
-            } else if (type == Integer.class || type == int.class) {
-                featureId.set(top, LiteralUtils.parseInt(text()));
-            } else if (type == ArrayList.class || type == LinkedList.class) {
-                Type gType = featureId.getGenericType();
-                if (gType instanceof ParameterizedType) {
-                    ParameterizedType pt = (ParameterizedType) gType;
-                    if (pt.getActualTypeArguments()[0] == Token.class) {
-                        ((List<Token>) featureId.get(top)).add(token());
-                    } else if (pt.getActualTypeArguments()[0] == String.class) {
-                        ((List<String>) featureId.get(top)).add(text());
-                    } else {
-                        throw new RuntimeException("Unsupported argument type:"
-                                + featureId);
-                    }
-                } else {
-                    throw new RuntimeException("Unsupported argument type:"
-                            + featureId);
-                }
+            final Element top = topObject();
+            if (featureId.isList()) {
+                factory.addValueToFeature(top, featureId, (List<Object>) featureId.get(top), token());
             } else {
-                throw new RuntimeException("Unsupported field type:"
-                        + featureId);
+                factory.setValueToFeature(top, featureId, token());
             }
             advance();
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new RuntimeException(
-                    "Field cannot be accessed: " + featureId, e);
+            throw new RuntimeException("Property cannot be accessed: " + featureId, e);
         }
     }
 
     /**
-     * @return text of current token
+     * @return the current token (expects it to exist)
      */
-    private String text() {
-        return token().text();
-    }
-
     private Token token() {
-        if (!parser.current().hasToken()) {
+        final PhraseToken current = parser.current();
+        if (!current.hasToken()) {
             fail();
         }
-        return parser.current().token();
+        return current.token();
     }
 
     /**
@@ -959,26 +952,25 @@ public class BootstrapETLParserLite {
     /**
      * @param object object to start
      */
-    private void startObject(Element object) {
+    private void startObject(final Element object) {
         pushObject(object);
         objectStartStack.push(parser.current().start());
     }
 
     /**
-     * Push object
+     * Push object.
      *
      * @param object the object to push
      */
     @SuppressWarnings("unchecked")
-    private void pushObject(Element object) {
-        final Field sf = topProperty();
+    private void pushObject(final Element object) {
+        final Property sf = topProperty();
         try {
             if (sf != null) {
                 final Element top = topObject();
-                object.ownerObject = top;
-                object.ownerFeature = sf;
-                Class<?> type = sf.getType();
-                if (type == ArrayList.class || type == LinkedList.class) {
+                object.setOwnerObject(top);
+                object.setOwnerFeature(sf.getName());
+                if (sf.isList()) {
                     ((List<EObject>) sf.get(top)).add(object);
                 } else {
                     sf.set(top, object);
@@ -988,24 +980,24 @@ public class BootstrapETLParserLite {
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new RuntimeException("Field cannot be accessed: " + sf, e);
+            throw new RuntimeException("Property cannot be accessed: " + sf, e);
         }
     }
 
     /**
      * @return currently top property on the stack or null if stack is empty
      */
-    private Field topProperty() {
+    private Property topProperty() {
         return propertyStack.size() > 0 ? propertyStack.peek() : null;
     }
 
     /**
-     * Try to match text
+     * Try to match text.
      *
      * @param text a text to match
      * @return true if text matches
      */
-    private boolean match(String text) {
+    private boolean match(final String text) {
         return parser.current().hasToken()
                 && text.equals(parser.current().token().text());
     }
@@ -1025,7 +1017,7 @@ public class BootstrapETLParserLite {
     }
 
     /**
-     * skip ignorable and control tokens
+     * skip ignorable and control tokens.
      */
     private void skipIgnorable() {
         ignoreLoop:
@@ -1049,12 +1041,12 @@ public class BootstrapETLParserLite {
     }
 
     /**
-     * Tries to match token to specific kind
+     * Tries to match token to specific kind.
      *
      * @param kind a kind to match
      * @return true if matched.
      */
-    private boolean match(Tokens kind) {
+    private boolean match(final Tokens kind) {
         return parser.current().hasToken()
                 && parser.current().token().kind() == kind;
     }
@@ -1067,35 +1059,13 @@ public class BootstrapETLParserLite {
     }
 
     /**
-     * a cache of fields. note that strings are interned in this class, so it
-     * does not make sense to use plain hash map here.
-     */
-    HashMap<Class<?>, IdentityHashMap<String, Field>> fieldCache = new HashMap<Class<?>, IdentityHashMap<String, Field>>();
-
-    /**
-     * Get a field from class
+     * Get a Property from class.
      *
      * @param c    class to example
      * @param name a name to get
-     * @return the field
+     * @return the Property
      */
-    private Field field(Class<?> c, String name) {
-        try {
-            IdentityHashMap<String, Field> classFields = fieldCache.get(c);
-            if (classFields == null) {
-                classFields = new IdentityHashMap<String, Field>();
-                fieldCache.put(c, classFields);
-            }
-            Field rc = classFields.get(name);
-            if (rc == null) {
-                rc = c.getField(name);
-                classFields.put(name, rc);
-            }
-            return rc;
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to find field " + name
-                    + " in class " + c.getCanonicalName(), e);
-        }
+    private Property property(final Class<?> c, final String name) {
+        return factory.getPropertyMetaObject(null, c, name);
     }
-
 }

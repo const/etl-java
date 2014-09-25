@@ -25,11 +25,27 @@
 
 package net.sf.etl.parsers.event.impl.term;
 
-import net.sf.etl.parsers.*;
+import net.sf.etl.parsers.DefinitionContext;
+import net.sf.etl.parsers.ErrorInfo;
+import net.sf.etl.parsers.LoadedGrammarInfo;
+import net.sf.etl.parsers.ParserException;
+import net.sf.etl.parsers.PhraseToken;
+import net.sf.etl.parsers.SourceLocation;
+import net.sf.etl.parsers.StandardGrammars;
+import net.sf.etl.parsers.TermToken;
+import net.sf.etl.parsers.Terms;
+import net.sf.etl.parsers.TextPos;
+import net.sf.etl.parsers.Token;
 import net.sf.etl.parsers.event.Cell;
 import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.TermParser;
-import net.sf.etl.parsers.event.grammar.*;
+import net.sf.etl.parsers.event.grammar.BootstrapGrammars;
+import net.sf.etl.parsers.event.grammar.CompiledGrammar;
+import net.sf.etl.parsers.event.grammar.Keyword;
+import net.sf.etl.parsers.event.grammar.KeywordContext;
+import net.sf.etl.parsers.event.grammar.TermParserContext;
+import net.sf.etl.parsers.event.grammar.TermParserState;
+import net.sf.etl.parsers.event.grammar.TermParserStateFactory;
 import net.sf.etl.parsers.event.impl.util.ListStack;
 import net.sf.etl.parsers.event.unstable.model.doctype.Doctype;
 import net.sf.etl.parsers.literals.StringInfo;
@@ -45,120 +61,121 @@ import java.util.Collections;
 /**
  * Core implementation of term parser that delegates to other term parsers.
  */
-public class TermParserImpl implements TermParser {
+public final class TermParserImpl implements TermParser {
     /**
-     * The compiled grammar
-     */
-    private CompiledGrammar grammar;
-    /**
-     * The system id of the source
-     */
-    private String systemId;
-    /**
-     * The initial definition context
-     */
-    private DefinitionContext initialContext;
-    /**
-     * The term parser context
+     * The term parser context.
      */
     private final TermParserContext context = new TermParserContextImpl();
     /**
-     * Current token cell (set by parse method)
-     */
-    private Cell<PhraseToken> tokenCell;
-    /**
-     * The token queue
+     * The token queue.
      */
     private final MarkedQueue<TermToken> queue = new MarkedQueue<TermToken>();
     /**
-     * If true, the grammar is in script mode
-     */
-    private Boolean scriptMode;
-    /**
-     * The state stack
-     */
-    private TermParserState stateStack;
-    /**
-     * If true, advance is needed
-     */
-    private boolean advanceNeeded;
-    /**
-     * Stack for soft ends
+     * Stack for soft ends.
      */
     private final ArrayList<Integer> softEndStack = new ArrayList<Integer>();
     /**
-     * The count for disabled soft ends
+     * The compiled grammar.
+     */
+    private CompiledGrammar grammar;
+    /**
+     * The system id of the source.
+     */
+    private String systemId;
+    /**
+     * The initial definition context.
+     */
+    private DefinitionContext initialContext;
+    /**
+     * Current token cell (set by parse method).
+     */
+    private Cell<PhraseToken> tokenCell;
+    /**
+     * If true, the grammar is in script mode.
+     */
+    private Boolean scriptMode;
+    /**
+     * The state stack.
+     */
+    private TermParserState stateStack;
+    /**
+     * If true, advance is needed.
+     */
+    private boolean advanceNeeded;
+    /**
+     * The count for disabled soft ends.
      */
     private int disabledSoftEndCount = 0;
     /**
-     * The classified keyword
+     * The classified keyword.
      */
     private Keyword classifiedKeyword;
     /**
-     * True if keyword is actually classified
+     * True if keyword is actually classified.
      */
     private boolean isKeywordClassified;
     /**
-     * The list stack
+     * The list stack.
      */
     private ListStack<KeywordContext> keywords = new ListStack<KeywordContext>();
     /**
      * The token listener to handle some special conditions (currently only parsing and gathering
-     * information from document type)
+     * information from document type).
      */
     private TermTokenListener termTokenListener;
     /**
-     * The grammar request
+     * The grammar request.
      */
     private ResourceRequest grammarRequest;
     /**
-     * Errors detected during construction of grammar request from doctype (assuming that doctype parsed correctly)
+     * Errors detected during construction of grammar request from doctype (assuming that doctype parsed correctly).
      */
     private ErrorInfo grammarRequestErrors;
     /**
-     * The initial context name
+     * The initial context name.
      */
     private String initialContextName;
     /**
-     * The document type object
+     * The document type object.
      */
     private Doctype doctype;
     /**
-     * The current position
+     * The current position.
      */
     private TextPos currentPos;
     /**
-     * The default public id
+     * The default public id.
      */
     private String defaultPublicId;
     /**
-     * The default system id
+     * The default system id.
      */
     private String defaultSystemId;
     /**
-     * The default context
+     * The default context.
      */
     private String defaultContext;
     /**
-     * The default script mode
+     * The default script mode.
      */
     private Boolean defaultScriptMode;
 
     @Override
-    public void forceGrammar(CompiledGrammar grammar, boolean scriptMode) {
-        this.scriptMode = scriptMode;
+    public void forceGrammar(final CompiledGrammar forcedGrammar, final boolean forcedGrammarScriptMode) {
+        this.scriptMode = forcedGrammarScriptMode;
         if (this.grammar != null) {
             throw new IllegalStateException("The grammar is already provided");
         }
-        this.grammar = grammar;
+        this.grammar = forcedGrammar;
     }
 
     @Override
-    public void setDefaultGrammar(String publicId, String systemId, String context, Boolean isScriptMode) {
-        defaultPublicId = publicId;
-        defaultSystemId = systemId;
-        defaultContext = context;
-        defaultScriptMode = isScriptMode;
+    public void setDefaultGrammar(final String userPublicId, final String userSystemId,
+                                  final String userContextName, final Boolean userScriptMode) {
+        this.defaultPublicId = userPublicId;
+        this.defaultSystemId = userSystemId;
+        defaultContext = userContextName;
+        defaultScriptMode = userScriptMode;
     }
 
     @Override
@@ -177,8 +194,8 @@ public class TermParserImpl implements TermParser {
     }
 
     @Override
-    public void start(String systemId) {
-        this.systemId = systemId;
+    public void start(final String grammarSystemId) {
+        this.systemId = grammarSystemId;
         this.stateStack = SourceStateFactory.INSTANCE.start(context, null);
     }
 
@@ -188,17 +205,20 @@ public class TermParserImpl implements TermParser {
     }
 
     @Override
-    public void provideGrammar(ResolvedObject<CompiledGrammar> resolvedGrammar, ErrorInfo resolutionErrors) {
+    public void provideGrammar(final ResolvedObject<CompiledGrammar> resolvedGrammar,
+                               final ErrorInfo resolutionErrors) {
         if (this.grammar != null) {
             throw new IllegalStateException("Grammar is already provided");
         }
         if (!resolvedGrammar.getRequest().equals(grammarRequest)) {
-            throw new IllegalStateException("The grammar request " + resolvedGrammar.getRequest() +
-                    " do not match original " + grammarRequest);
+            throw new IllegalStateException("The grammar request " + resolvedGrammar.getRequest()
+                    + " do not match original " + grammarRequest);
         }
-        final DefinitionContext defaultContext = resolvedGrammar.getObject().getDefaultContext();
-        final TextPos contextStart = doctype == null || doctype.context == null ? currentPos : doctype.context.start();
-        final TextPos contextEnd = doctype == null || doctype.context == null ? currentPos : doctype.context.end();
+        final DefinitionContext initialContextCandidate = resolvedGrammar.getObject().getDefaultContext();
+        final TextPos contextStart = doctype == null || doctype.getContext() == null
+                ? currentPos : doctype.getContext().start();
+        final TextPos contextEnd = doctype == null || doctype.getContext() == null
+                ? currentPos : doctype.getContext().end();
         if (initialContextName != null) {
             for (DefinitionContext definitionContext : resolvedGrammar.getObject().getStatementContexts()) {
                 if (definitionContext.context().equals(initialContextName)) {
@@ -207,10 +227,10 @@ public class TermParserImpl implements TermParser {
                 }
             }
             if (initialContext == null) {
-                if (defaultContext != null) {
-                    initialContext = defaultContext;
+                if (initialContextCandidate != null) {
+                    initialContext = initialContextCandidate;
                     grammarRequestErrors = new ErrorInfo("syntax.InitialContextMissingDefault", new Object[]{
-                            initialContextName, defaultContext.context()
+                            initialContextName, initialContextCandidate.context()
                     }, contextStart, contextEnd, systemId, grammarRequestErrors);
                 } else {
                     grammarRequestErrors = new ErrorInfo("syntax.InitialContextMissing", new Object[]{
@@ -219,11 +239,10 @@ public class TermParserImpl implements TermParser {
                 }
             }
         } else {
-            initialContext = defaultContext;
+            initialContext = initialContextCandidate;
             if (initialContext == null) {
-                grammarRequestErrors = new ErrorInfo("syntax.NoDefaultContext", new Object[]{
-                        initialContextName
-                }, contextStart, contextEnd, systemId, grammarRequestErrors);
+                grammarRequestErrors = new ErrorInfo("syntax.NoDefaultContext", ErrorInfo.NO_ARGS,
+                        contextStart, contextEnd, systemId, grammarRequestErrors);
             }
         }
         if (initialContext == null) {
@@ -232,7 +251,8 @@ public class TermParserImpl implements TermParser {
         } else {
             this.grammar = resolvedGrammar.getObject();
         }
-        ErrorInfo merged = ErrorInfo.merge(grammarRequestErrors, resolvedGrammar.getObject().getErrors(), resolutionErrors);
+        final ErrorInfo merged = ErrorInfo.merge(grammarRequestErrors, resolvedGrammar.getObject().getErrors(),
+                resolutionErrors);
         if (scriptMode == null) {
             scriptMode = grammar.isScript();
         }
@@ -254,7 +274,7 @@ public class TermParserImpl implements TermParser {
     }
 
     @Override
-    public ParserState parse(Cell<PhraseToken> token) {
+    public ParserState parse(final Cell<PhraseToken> token) {
         tokenCell = token;
         if (tokenCell.hasElement()) {
             currentPos = tokenCell.peek().start();
@@ -286,34 +306,34 @@ public class TermParserImpl implements TermParser {
     }
 
     /**
-     * Add listener for tokens
+     * Add listener for tokens.
      *
-     * @param termTokenListener the listener
+     * @param listener the listener
      */
-    public void addListener(TermTokenListener termTokenListener) {
+    public void addListener(final TermTokenListener listener) {
         if (this.termTokenListener != null) {
             throw new IllegalStateException("The listener is already installed");
         }
-        this.termTokenListener = termTokenListener;
+        this.termTokenListener = listener;
     }
 
     /**
-     * Remove listener for term tokens
+     * Remove listener for term tokens.
      *
-     * @param termTokenListener the listener
+     * @param listener the listener
      */
-    public void removeListener(TermTokenListener termTokenListener) {
-        if (this.termTokenListener == termTokenListener) {
+    public void removeListener(final TermTokenListener listener) {
+        if (this.termTokenListener == listener) {
             this.termTokenListener = null;
         }
     }
 
     /**
-     * Set parsed doctype to the sequence
+     * Set parsed doctype to the sequence.
      *
      * @param doctype the parsed doctype
      */
-    void setDoctype(Doctype doctype) {
+    void setDoctype(final Doctype doctype) {
         this.doctype = doctype;
         if (grammar != null) {
             throw new IllegalStateException("Grammar is already available");
@@ -329,11 +349,11 @@ public class TermParserImpl implements TermParser {
             initialContextName = defaultContext;
             scriptMode = defaultScriptMode;
         } else {
-            refPublicId = parseDoctypeString(doctype.publicId, "syntax.MalformedDoctypePublicId");
-            refSystemId = parseDoctypeString(doctype.systemId, "syntax.MalformedDoctypeSystemId");
-            initialContextName = doctype.context == null ? null : doctype.context.text();
-            if (doctype.type != null) {
-                scriptMode = "script".equals(doctype.type.text());
+            refPublicId = parseDoctypeString(doctype.getPublicId(), "syntax.MalformedDoctypePublicId");
+            refSystemId = parseDoctypeString(doctype.getSystemId(), "syntax.MalformedDoctypeSystemId");
+            initialContextName = doctype.getContext() == null ? null : doctype.getContext().text();
+            if (doctype.getType() != null) {
+                scriptMode = "script".equals(doctype.getType().text());
             }
         }
         // attempt to parse system id relatively
@@ -345,34 +365,276 @@ public class TermParserImpl implements TermParser {
                         new Object[]{
                                 refSystemId, t.toString()
                         },
-                        doctype == null ? currentPos : doctype.systemId.start(),
-                        doctype == null ? currentPos : doctype.systemId.end(), systemId, grammarRequestErrors);
+                        doctype == null ? currentPos : doctype.getSystemId().start(),
+                        doctype == null ? currentPos : doctype.getSystemId().end(), systemId, grammarRequestErrors);
             }
         }
         grammarRequest = new ResourceRequest(new ResourceReference(refSystemId, refPublicId),
                 StandardGrammars.GRAMMAR_REQUEST_TYPE);
     }
 
-    private String parseDoctypeString(Token stringToken, String errorId) {
+    /**
+     * Parse doctype token.
+     *
+     * @param stringToken the token
+     * @param errorId     the error if string is invalid.
+     * @return the string
+     */
+    private String parseDoctypeString(final Token stringToken, final String errorId) {
         String rc;
         if (stringToken == null) {
             rc = null;
         } else {
             StringInfo parsed = new StringParser(stringToken.text(), stringToken.start(), systemId).parse();
-            if (parsed.text == null || parsed.text.length() == 0 || parsed.errors != null) {
+            if (parsed.getText() == null || parsed.getText().length() == 0 || parsed.getErrors() != null) {
                 grammarRequestErrors = new ErrorInfo(errorId,
                         Collections.<Object>singletonList(stringToken.text()),
                         new SourceLocation(stringToken.start(), stringToken.end(), systemId),
                         grammarRequestErrors);
                 rc = null;
             } else {
-                rc = parsed.text;
+                rc = parsed.getText();
             }
         }
         return rc;
     }
 
-    private class TermParserContextImpl implements TermParserContext {
+    /**
+     * This class represents a queue of tokens that have a possibility of
+     * position and inserting new tokens just after mark. The functionality is
+     * separated into own class just for convenience.
+     */
+    private static final class MarkedQueue<T> {
+        // NOTE POST 0.2: introduce single item optimization.
+        /**
+         * A stack of marks.
+         */
+        private final ArrayList<Link<T>> markStack = new ArrayList<Link<T>>();
+        /**
+         * amount of committed marks.
+         */
+        private int committedMarks;
+
+        /**
+         * the first link or null if queue is empty.
+         */
+        private Link<T> first;
+
+        /**
+         * the last link or null if queue is empty.
+         */
+        private Link<T> last;
+
+        /**
+         * Create new mark at the end of queue.
+         */
+        void pushMark() {
+            markStack.add(last);
+        }
+
+        /**
+         * commit mark.
+         *
+         * @return true if some tokens become available and control should be
+         * returned to the parser
+         */
+        public boolean commitMark() {
+            if (committedMarks == markStack.size() - 1) {
+                committedMarks++;
+                return first != null;
+            }
+            return false;
+        }
+
+        /**
+         * Pop the mark.
+         *
+         * @return true if there are no more marks and queue is not empty
+         */
+        boolean popMark() {
+            assert markStack.size() > 0 : "[BUG] Mark stack is empty";
+            final int size = markStack.size();
+            markStack.remove(size - 1);
+            if (size == committedMarks) {
+                committedMarks--;
+            }
+            return !hasMark() && first != null;
+        }
+
+        /**
+         * @return true if there is at least one mark on the stack
+         */
+        boolean hasMark() {
+            return markStack.size() > committedMarks;
+        }
+
+        /**
+         * Insert object after mark.
+         *
+         * @param value a value to insert
+         */
+        void insertAtMark(final T value) {
+            assert hasMark() : "[BUG] Mark stack is empty";
+            final Link<T> mark = peekMark();
+            final Link<T> l = new Link<T>(value);
+            l.previous = mark;
+            if (mark == null) {
+                l.next = first;
+                first = l;
+            } else {
+                l.next = mark.next;
+                mark.next = l;
+            }
+            if (l.next == null) {
+                last = l;
+            } else {
+                l.next.previous = l;
+            }
+        }
+
+        /**
+         * @return a current mark
+         */
+        private Link<T> peekMark() {
+            assert hasMark() : "[BUG] Mark stack is empty";
+            return markStack.get(markStack.size() - 1);
+        }
+
+        /**
+         * Append value at end of the queue.
+         *
+         * @param value a value
+         */
+        void append(final T value) {
+            final Link<T> l = new Link<T>(value);
+            if (last == null) {
+                first = l;
+                last = l;
+            } else {
+                last.next = l;
+                l.previous = last;
+                last = l;
+            }
+        }
+
+        /**
+         * @return peek object after mark or null if there are no objects after
+         * mark.
+         */
+        T peekObjectAfterMark() {
+            final Link<T> mark = peekMark();
+            final Link<T> afterMark = (mark == null ? first : mark.next);
+            return afterMark == null ? null : afterMark.value;
+        }
+
+
+        /**
+         * @return check if queue has element to return to the user
+         */
+        boolean hasElement() {
+            return !hasMark() && !isEmpty();
+        }
+
+        /**
+         * Get and remove item from queue.
+         *
+         * @return first item of queue or null.
+         */
+        T get() {
+            assert !hasMark() : "[BUG]Clients are not supposed to poll "
+                    + "the queue while marks are active.";
+            if (first == null) {
+                return null;
+            } else {
+                final T rc = first.value;
+                if (first.next == null) {
+                    last = null;
+                    first = null;
+                } else {
+                    first = first.next;
+                    first.previous = null;
+                }
+                return rc;
+            }
+        }
+
+        /**
+         * @return true if the queue is empty
+         */
+        public boolean isEmpty() {
+            return first == null;
+        }
+
+        /**
+         * Insert value before mark. This used to report statement start.
+         *
+         * @param value a value to insert.
+         */
+        void insertBeforeMark(final T value) {
+            final Link<T> link = new Link<T>(value);
+            markStack.set(0, link);
+            link.next = first;
+            if (first != null) {
+                first.previous = link;
+            } else {
+                last = link;
+            }
+            first = link;
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder rc = new StringBuilder();
+            rc.append('[');
+            Link c = first;
+            while (c != null) {
+                if (c.previous != null) {
+                    rc.append(", ");
+                }
+                rc.append(c.value);
+                c = c.next;
+            }
+            rc.append(']');
+            return rc.toString();
+        }
+
+        /**
+         * Queue link.
+         */
+        private static final class Link<T> {
+            /**
+             * value.
+             */
+            private final T value;
+            /**
+             * next link.
+             */
+            private Link<T> next;
+            /**
+             * previous link.
+             */
+            private Link<T> previous;
+
+            /**
+             * A constructor.
+             *
+             * @param value a value that is held by link
+             */
+            public Link(final T value) {
+                if (value == null) {
+                    // This is an artificial limitation. However get() interface
+                    // should be changed to lift it.
+                    throw new IllegalArgumentException("Value cannot be null");
+                }
+                this.value = value;
+            }
+        }
+    }
+
+    /**
+     * The parser context.
+     */
+    private final class TermParserContextImpl implements TermParserContext {
 
 
         @Override
@@ -386,6 +648,9 @@ public class TermParserImpl implements TermParser {
             return tokenCell.peek();
         }
 
+        /**
+         * Ensure that token cell is not empty.
+         */
         private void ensureTokenCellNonEmpty() {
             if (tokenCell == null || tokenCell.isEmpty()) {
                 throw new IllegalStateException("The token cell is empty");
@@ -401,19 +666,19 @@ public class TermParserImpl implements TermParser {
         }
 
         @Override
-        public boolean produce(TermToken token) {
+        public boolean produce(final TermToken token) {
             queue.append(token);
             return queue.hasMark();
         }
 
         @Override
-        public boolean produceAfterMark(TermToken token) {
+        public boolean produceAfterMark(final TermToken token) {
             queue.insertAtMark(token);
             return queue.hasMark();
         }
 
         @Override
-        public void produceBeforeMark(TermToken termToken) {
+        public void produceBeforeMark(final TermToken termToken) {
             queue.insertBeforeMark(termToken);
         }
 
@@ -433,8 +698,8 @@ public class TermParserImpl implements TermParser {
         }
 
         @Override
-        public void pushKeywordContext(KeywordContext context) {
-            keywords.push(context);
+        public void pushKeywordContext(final KeywordContext keywordContext) {
+            keywords.push(keywordContext);
             isKeywordClassified = false;
         }
 
@@ -453,18 +718,18 @@ public class TermParserImpl implements TermParser {
         }
 
         @Override
-        public void popKeywordContext(KeywordContext context) {
+        public void popKeywordContext(final KeywordContext keywordContext) {
             isKeywordClassified = false;
             keywords.pop();
         }
 
         @Override
-        public void call(TermParserStateFactory stateFactory) {
+        public void call(final TermParserStateFactory stateFactory) {
             stateStack = stateFactory.start(this, stateStack);
         }
 
         @Override
-        public void exit(TermParserState state, boolean success) {
+        public void exit(final TermParserState state, final boolean success) {
             if (state != stateStack) {
                 throw new IllegalArgumentException("Exiting wrong state");
             }
@@ -507,8 +772,8 @@ public class TermParserImpl implements TermParser {
 
         @Override
         public void endSoftEndContext() {
-            assert disabledSoftEndCount == 0 : "Disabled soft end count should be zero at the end of the context" +
-                    disabledSoftEndCount;
+            assert disabledSoftEndCount == 0 : "Disabled soft end count should be zero at the end of the context"
+                    + disabledSoftEndCount;
             disabledSoftEndCount = softEndStack.remove(softEndStack.size() - 1);
         }
 
@@ -520,238 +785,6 @@ public class TermParserImpl implements TermParser {
         @Override
         public TermToken peekObjectAtMark() {
             return queue.peekObjectAfterMark();
-        }
-    }
-
-    /**
-     * This class represents a queue of tokens that have a possibility of
-     * position and inserting new tokens just after mark. The functionality is
-     * separated into own class just for convenience.
-     */
-    private final static class MarkedQueue<T> {
-        // NOTE POST 0.2: introduce single item optimization.
-        /**
-         * A stack of marks
-         */
-        private final ArrayList<Link<T>> markStack = new ArrayList<Link<T>>();
-        /**
-         * amount of committed marks
-         */
-        private int committedMarks;
-
-        /**
-         * the first link or null if queue is empty
-         */
-        private Link<T> first;
-
-        /**
-         * the last link or null if queue is empty.
-         */
-        private Link<T> last;
-
-        /**
-         * Create new mark at the end of queue
-         */
-        void pushMark() {
-            markStack.add(last);
-        }
-
-        /**
-         * commit mark.
-         *
-         * @return true if some tokens become available and control should be
-         *         returned to the parser
-         */
-        public boolean commitMark() {
-            if (committedMarks == markStack.size() - 1) {
-                committedMarks++;
-                return first != null;
-            }
-            return false;
-        }
-
-        /**
-         * Pop the mark
-         *
-         * @return true if there are no more marks and queue is not empty
-         */
-        boolean popMark() {
-            assert markStack.size() > 0 : "[BUG] Mark stack is empty";
-            final int size = markStack.size();
-            markStack.remove(size - 1);
-            if (size == committedMarks) {
-                committedMarks--;
-            }
-            return !hasMark() && first != null;
-        }
-
-        /**
-         * @return true if there is at least one mark on the stack
-         */
-        boolean hasMark() {
-            return markStack.size() > committedMarks;
-        }
-
-        /**
-         * Insert object after mark
-         *
-         * @param value a value to insert
-         */
-        void insertAtMark(T value) {
-            assert hasMark() : "[BUG] Mark stack is empty";
-            final Link<T> mark = peekMark();
-            final Link<T> l = new Link<T>(value);
-            l.previous = mark;
-            if (mark == null) {
-                l.next = first;
-                first = l;
-            } else {
-                l.next = mark.next;
-                mark.next = l;
-            }
-            if (l.next == null) {
-                last = l;
-            } else {
-                l.next.previous = l;
-            }
-        }
-
-        /**
-         * @return a current mark
-         */
-        private Link<T> peekMark() {
-            assert hasMark() : "[BUG] Mark stack is empty";
-            return markStack.get(markStack.size() - 1);
-        }
-
-        /**
-         * Append value at end of the queue
-         *
-         * @param value a value
-         */
-        void append(T value) {
-            final Link<T> l = new Link<T>(value);
-            if (last == null) {
-                first = last = l;
-            } else {
-                last.next = l;
-                l.previous = last;
-                last = l;
-            }
-        }
-
-        /**
-         * @return peek object after mark or null if there are no objects after
-         *         mark.
-         */
-        T peekObjectAfterMark() {
-            final Link<T> mark = peekMark();
-            final Link<T> afterMark = (mark == null ? first : mark.next);
-            return afterMark == null ? null : afterMark.value;
-        }
-
-
-        /**
-         * @return check if queue has element to return to the user
-         */
-        boolean hasElement() {
-            return !hasMark() && !isEmpty();
-        }
-
-        /**
-         * Get and remove item from queue.
-         *
-         * @return first item of queue or null.
-         */
-        T get() {
-            assert !hasMark() : "[BUG]Clients are not supposed to poll "
-                    + "the queue while marks are active.";
-            if (first == null) {
-                return null;
-            } else {
-                final T rc = first.value;
-                if (first.next == null) {
-                    last = first = null;
-                } else {
-                    first = first.next;
-                    first.previous = null;
-                }
-                return rc;
-            }
-        }
-
-        /**
-         * @return true if the queue is empty
-         */
-        public boolean isEmpty() {
-            return first == null;
-        }
-
-        /**
-         * Queue link
-         */
-        private final static class Link<T> {
-            /**
-             * next link
-             */
-            private Link<T> next;
-
-            /**
-             * previous link
-             */
-            private Link<T> previous;
-
-            /**
-             * value
-             */
-            private final T value;
-
-            /**
-             * A constructor
-             *
-             * @param value a value that is held by link
-             */
-            public Link(T value) {
-                if (value == null) {
-                    // This is an artificial limitation. However get() interface
-                    // should be changed to lift it.
-                    throw new IllegalArgumentException("Value cannot be null");
-                }
-                this.value = value;
-            }
-        }
-
-        /**
-         * Insert value before mark. This used to report statement start.
-         *
-         * @param value a value to insert.
-         */
-        void insertBeforeMark(T value) {
-            final Link<T> link = new Link<T>(value);
-            markStack.set(0, link);
-            link.next = first;
-            if (first != null) {
-                first.previous = link;
-            } else {
-                last = link;
-            }
-            first = link;
-        }
-
-        @Override
-        public String toString() {
-            final StringBuilder rc = new StringBuilder();
-            rc.append('[');
-            Link c = first;
-            while (c != null) {
-                if (c.previous != null) {
-                    rc.append(", ");
-                }
-                rc.append(c.value);
-                c = c.next;
-            }
-            rc.append(']');
-            return rc.toString();
         }
     }
 }

@@ -36,24 +36,31 @@ import net.sf.etl.parsers.event.grammar.TermParserContext;
  */
 public abstract class Action {
     /**
-     * The source of action
+     * The source of action.
      */
-    public final SourceLocation source;
+    private final SourceLocation source;
 
     /**
-     * The action
+     * The action.
      *
      * @param source the source location in the grammar that caused this node creation
      */
-    protected Action(SourceLocation source) {
+    protected Action(final SourceLocation source) {
         this.source = source;
     }
 
     /**
-     * Parse more elements
+     * Parse more elements.
      *
      * @param context the context of the parser
      * @param state   the context state
      */
     public abstract void parseMore(TermParserContext context, ActionState state);
+
+    /**
+     * @return the source.
+     */
+    public final SourceLocation getSource() {
+        return source;
+    }
 }

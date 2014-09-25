@@ -32,37 +32,32 @@ import net.sf.etl.parsers.event.unstable.model.grammar.ChoiceCaseDef;
  *
  * @author const
  */
-public class ChoiceCaseDefView extends DefinitionView {
+public final class ChoiceCaseDefView extends DefinitionView {
     /**
-     * The constructor
+     * The constructor.
      *
      * @param context    the original context
      * @param definition the definition
      */
-    public ChoiceCaseDefView(ContextView context, ChoiceCaseDef definition) {
+    public ChoiceCaseDefView(final ContextView context, final ChoiceCaseDef definition) {
         super(context, definition);
     }
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param context    the including context
      * @param definition the included view
      */
-    public ChoiceCaseDefView(ContextView context, ChoiceCaseDefView definition) {
+    public ChoiceCaseDefView(final ContextView context, final ChoiceCaseDefView definition) {
         super(context, definition);
-    }
-
-    @Override
-    public ChoiceCaseDef definition() {
-        return (ChoiceCaseDef) super.definition();
     }
 
     /**
      * @return the name of choice this case contributes to
      */
     public String choiceName() {
-        final Token choiceName = definition().choiceName;
+        final Token choiceName = ((ChoiceCaseDef) definition()).getChoiceName();
         if (choiceName == null) {
             return null;
         } else {

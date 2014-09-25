@@ -25,6 +25,7 @@
 package net.sf.etl.parsers.event.grammar.impl.nodes;
 
 import net.sf.etl.parsers.ObjectName;
+import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.impl.ActionBuilder;
 import net.sf.etl.parsers.event.grammar.impl.flattened.WrapperLink;
 import net.sf.etl.parsers.event.impl.term.action.Action;
@@ -37,33 +38,36 @@ import net.sf.etl.parsers.event.impl.term.action.CommitMarkAction;
  *
  * @author const
  */
-public class FallbackObjectNode extends ScopeNode {
+public final class FallbackObjectNode extends ScopeNode {
     /**
      * The name of object to be created.
      */
-    ObjectName name;
+    private ObjectName name;
     /**
-     * The include wrappers for this object
+     * The include wrappers for this object.
      */
-    WrapperLink wrappers;
+    private WrapperLink wrappers;
 
     /**
-     * Set object that should be used for fallback
+     * Set object that should be used for fallback.
      *
-     * @param name     the name of an object to be created
-     * @param wrappers the include wrappers for this object
+     * @param newName     the name of an object to be created
+     * @param newWrappers the include wrappers for this object
      */
-    public void setFallbackObject(ObjectName name, WrapperLink wrappers) {
-        this.name = name;
-        this.wrappers = wrappers;
+    public void setFallbackObject(final ObjectName newName, final WrapperLink newWrappers) {
+        this.name = newName;
+        this.wrappers = newWrappers;
     }
 
     @Override
-    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit, Action recoveryTest) {
+    public Action buildActions(final ActionBuilder b, final Action normalExit, final Action errorExit,
+                               final Action recoveryTest) {
         assert name != null : "Fallback scope should have been initialized";
-        errorExit = ActionUtil.endObject(source, errorExit, name, wrappers);
-        errorExit = new CommitMarkAction(source, errorExit);
-        errorExit = ActionUtil.startObject(source, errorExit, name, wrappers, true);
-        return innerNode().buildActions(b, normalExit, errorExit, recoveryTest);
+        final SourceLocation source = getSource();
+        Action last = errorExit;
+        last = ActionUtil.endObject(source, last, name, wrappers);
+        last = new CommitMarkAction(source, last);
+        last = ActionUtil.startObject(source, last, name, wrappers, true);
+        return innerNode().buildActions(b, normalExit, last, recoveryTest);
     }
 }

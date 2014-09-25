@@ -32,25 +32,25 @@ import java.util.Iterator;
  */
 public abstract class TermParserState {
     /**
-     * The context for term parser
+     * The context for term parser.
      */
-    protected final TermParserContext context;
+    private final TermParserContext context;
     /**
-     * The previous state
+     * The previous state.
      */
     private final TermParserState previous;
     /**
-     * The call status
+     * The call status.
      */
     private CallStatus callStatus = CallStatus.NONE;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param context  context
      * @param previous previous state on the stack
      */
-    protected TermParserState(TermParserContext context, TermParserState previous) {
+    protected TermParserState(final TermParserContext context, final TermParserState previous) {
         this.context = context;
         this.previous = previous;
     }
@@ -58,19 +58,19 @@ public abstract class TermParserState {
     /**
      * @return the previous state
      */
-    public TermParserState getPreviousState() {
+    public final TermParserState getPreviousState() {
         return previous;
     }
 
     /**
      * @return previous states for iterator
      */
-    public Iterable<TermParserState> previousStates() {
+    public final Iterable<TermParserState> previousStates() {
         return new Iterable<TermParserState>() {
             @Override
             public Iterator<TermParserState> iterator() {
                 return new Iterator<TermParserState>() {
-                    TermParserState state = previous;
+                    private TermParserState state = previous;
 
                     @Override
                     public boolean hasNext() {
@@ -94,7 +94,7 @@ public abstract class TermParserState {
     }
 
     /**
-     * Attempt the recovery
+     * Attempt the recovery.
      *
      * @return true if this state can recover basing on the current token.
      */
@@ -104,7 +104,8 @@ public abstract class TermParserState {
      * If this state has returned false from {@link #canRecover()}, and some method returned true from recover,
      * the context is forcibly finished. It is up to implementation of the state, what should be done in this case.
      * Usually, the context will close all open objects/properties and exit. After this call, invocation of
-     * {@link #parseMore()} should not call {@link net.sf.etl.parsers.event.grammar.TermParserContext#consumePhraseToken()}
+     * {@link #parseMore()} should not call
+     * {@link net.sf.etl.parsers.event.grammar.TermParserContext#consumePhraseToken()}
      */
     public abstract void forceFinish();
 
@@ -121,73 +122,80 @@ public abstract class TermParserState {
     public abstract void parseMore();
 
     /**
-     * Exit for this state, so the previous state will be in control
+     * Exit for this state, so the previous state will be in control.
      */
-    protected void exit() {
+    protected final void exit() {
         context.exit(this, true);
     }
 
     /**
-     * Set call status from the call
+     * @return the context
+     */
+    public final TermParserContext getContext() {
+        return context;
+    }
+
+    /**
+     * Set call status from the call.
      *
      * @param callStatus the call status
      */
-    public void setCallStatus(boolean callStatus) {
+    public final void setCallStatus(final boolean callStatus) {
         setCallStatus(callStatus ? CallStatus.SUCCESS : CallStatus.FAILURE);
     }
 
     /**
-     * Set the call status
+     * Set the call status.
      *
      * @param callStatus the call status
      */
-    private void setCallStatus(CallStatus callStatus) {
+    private void setCallStatus(final CallStatus callStatus) {
         this.callStatus = callStatus;
     }
 
     /**
-     * Get call status and set it none
+     * Get call status and set it none.
      *
      * @return the consumed call status
      */
-    public CallStatus consumeCallStatus() {
+    public final CallStatus consumeCallStatus() {
         final CallStatus status = callStatus;
         callStatus = CallStatus.NONE;
         return status;
     }
 
     /**
-     * The call status
+     * The call status.
      */
     public static enum CallStatus {
         /**
-         * No was made
+         * No was made.
          */
         NONE,
         /**
-         * The call was successful
+         * The call was successful.
          */
         SUCCESS,
         /**
-         * The call failed
+         * The call failed.
          */
         FAILURE
     }
 
     /**
-     * The recoverable status
+     * The recoverable status.
      */
     public static enum RecoverableStatus {
         /**
-         * This state could not recover at the moment
+         * This state could not recover at the moment.
          */
         UNKNOWN,
         /**
-         * This state can recover here
+         * This state can recover here.
          */
         RECOVER,
         /**
-         * The current token or block should be skipped
+         * The current token or block should be skipped.
          */
         SKIP,
     }

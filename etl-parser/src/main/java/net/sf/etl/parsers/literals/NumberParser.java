@@ -33,41 +33,47 @@ import net.sf.etl.parsers.characters.Numbers;
 /**
  * A parser of number. It is loosely based on lexer code.
  */
-class NumberParser extends BaseLiteralParser {
+final class NumberParser extends BaseLiteralParser {
     /**
-     * the number base
+     * The default base.
      */
-    int base = 10;
+    public static final int DEFAULT_BASE = 10;
     /**
-     * The sign of the number, 0 - unspecified
+     * the number base.
      */
-    int sign = 0;
+    private int base = DEFAULT_BASE;
     /**
-     * THe exponent
+     * The sign of the number, 0 - unspecified.
      */
-    int exponent = 0;
+    private int sign = 0;
     /**
-     * The suffix attached to number
+     * THe exponent.
      */
-    String suffix;
+    private int exponent = 0;
     /**
-     * digits of the number without dot and underscore
+     * The suffix attached to number.
      */
-    String text;
+    private String suffix;
+    /**
+     * digits of the number without dot and underscore.
+     */
+    private String text;
 
     /**
-     * The constructor for parser
+     * The constructor for parser.
      *
      * @param inputText the input text
+     * @param start     the start position
+     * @param systemId  the system id
      */
-    NumberParser(String inputText, TextPos start, String systemId) {
+    public NumberParser(final String inputText, final TextPos start, final String systemId) {
         super(inputText, start, systemId);
     }
 
     /**
      * @return the parsed number
      */
-    NumberInfo parse() {
+    public NumberInfo parse() {
         Tokens kind = Tokens.INTEGER;
         int beforeDot = -1;
         // parsing integer of decimal, or floating point number
@@ -85,7 +91,7 @@ class NumberParser extends BaseLiteralParser {
         if (Numbers.isBasedNumberChar(ch)) {
             // based number
             try {
-                base = Integer.parseInt(buffer.toString());
+                base = Integer.parseInt(buffer().toString());
             } catch (final Exception ex) {
                 error("lexical.NumberBaseIsOutOfRange");
                 base = Character.MAX_RADIX;
@@ -94,13 +100,13 @@ class NumberParser extends BaseLiteralParser {
                 error("lexical.NumberBaseIsOutOfRange");
                 base = Character.MAX_RADIX;
             }
-            buffer.setLength(0);
+            buffer().setLength(0);
             ch = next(false); // '\#'
             while (true) {
                 if (Identifiers.isConnectorChar(ch)) {
                     ch = next(false);
                 } else if (Numbers.isDecimalDot(ch)) {
-                    beforeDot = buffer.length();
+                    beforeDot = buffer().length();
                     if (kind == Tokens.FLOAT) {
                         error("lexical.FloatTooManyDots");
                     }
@@ -113,12 +119,12 @@ class NumberParser extends BaseLiteralParser {
                     ch = next(true);
                 } else if (Numbers.isBasedNumberChar(ch)) {
                     ch = next(false);
-                    text = buffer.toString();
-                    buffer.setLength(0);
+                    text = buffer().toString();
+                    buffer().setLength(0);
                     break;
                 } else {
                     error("lexical.UnterminatedBasedNumber");
-                    return new NumberInfo(inputText, kind, sign, base, text, exponent, suffix, errors);
+                    return new NumberInfo(inputText(), kind, sign, base, text, exponent, suffix, errors());
                 }
             } // end while
         } else {
@@ -126,15 +132,15 @@ class NumberParser extends BaseLiteralParser {
             if (Numbers.isDecimalDot(ch) && Numbers.isDecimal(la(1))) {
                 // floating point number
                 kind = Tokens.FLOAT;
-                beforeDot = buffer.length();
+                beforeDot = buffer().length();
                 consume(false); // '.'
                 ch = next(true);
                 while (Numbers.isDecimal(ch) || Identifiers.isConnectorChar(ch)) {
                     ch = next(!Identifiers.isConnectorChar(ch)); // '0'
                 }
             }
-            text = buffer.toString();
-            buffer.setLength(0);
+            text = buffer().toString();
+            buffer().setLength(0);
         }
         if (Numbers.isExponentChar(ch)) {
             kind = Tokens.FLOAT;
@@ -144,15 +150,15 @@ class NumberParser extends BaseLiteralParser {
             }
             if (!Numbers.isDecimal(ch)) {
                 error("lexical.UnterminatedNumberExponent");
-                return new NumberInfo(inputText, kind, sign, base, text, exponent, suffix, errors);
+                return new NumberInfo(inputText(), kind, sign, base, text, exponent, suffix, errors());
             } else {
                 ch = next(true);
                 while (Numbers.isDecimal(ch) || Identifiers.isConnectorChar(ch)) {
                     ch = next(!Identifiers.isConnectorChar(ch)); // '0'
                 }
             }
-            exponent = Integer.parseInt(buffer.toString());
-            buffer.setLength(0);
+            exponent = Integer.parseInt(buffer().toString());
+            buffer().setLength(0);
         }
         exponent -= beforeDot == -1 ? 0 : text.length() - beforeDot;
         if (Identifiers.isIdentifierStart(ch) && !Numbers.isExponentChar(ch)) {
@@ -164,12 +170,13 @@ class NumberParser extends BaseLiteralParser {
             do {
                 ch = next(true);
             } while (Identifiers.isIdentifierPart(ch));
-            suffix = buffer.toString();
-            buffer.setLength(0);
+            suffix = buffer().toString();
+            buffer().setLength(0);
         }
-        if (pos != inputText.length()) {
+        if (position() != inputText().length()) {
             error("lexical.TooManyCharactersInToken");
         }
-        return new NumberInfo(inputText, kind, sign, base, text, exponent, suffix, errors);
+        return new NumberInfo(inputText(), kind, sign, base, text, exponent, suffix, errors());
     }
+
 }

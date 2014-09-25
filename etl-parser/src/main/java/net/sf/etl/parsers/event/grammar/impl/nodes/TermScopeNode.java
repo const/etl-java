@@ -25,22 +25,22 @@
 package net.sf.etl.parsers.event.grammar.impl.nodes;
 
 /**
- * Abstract scope node for term events that support marks
+ * Abstract scope node for term events that support marks.
  *
  * @author const
  */
 public abstract class TermScopeNode extends CleanupScopeNode {
     /**
-     * "at mark" flag
+     * "at mark" flag.
      */
     private final boolean isAtMark;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param isAtMark if true term scope will be started at mark rather than locally
      */
-    public TermScopeNode(boolean isAtMark) {
+    public TermScopeNode(final boolean isAtMark) {
         super();
         this.isAtMark = isAtMark;
     }
@@ -48,7 +48,7 @@ public abstract class TermScopeNode extends CleanupScopeNode {
     /**
      * @return true if term should be started at mark.
      */
-    public boolean isAtMark() {
+    public final boolean isAtMark() {
         return isAtMark;
     }
 

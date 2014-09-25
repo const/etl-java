@@ -2,7 +2,7 @@
  * Reference ETL Parser for Java
  * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
- * Permission is hereby granted, free of charge, to any person 
+ * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
@@ -25,26 +25,46 @@
 package net.sf.etl.parsers.event.unstable.model.grammar;
 
 import net.sf.etl.parsers.ErrorInfo;
-import net.sf.etl.parsers.LoadedGrammarInfo;
+import net.sf.etl.parsers.TermToken;
+import net.sf.etl.parsers.event.tree.TokenCollector;
 import net.sf.etl.parsers.streams.TermParserReader;
 import net.sf.etl.parsers.streams.TreeParserReader;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * An AST parser that is used by lightweight grammar model
+ * The AST parser that is used by lightweight grammar model.
  *
  * @author const
  */
-public class GrammarLiteTermParser extends TreeParserReader<Element> {
+public final class GrammarLiteTermParser extends TreeParserReader<Element> {
+    /**
+     * The errors.
+     */
+    private final ArrayList<ErrorInfo> errors = new ArrayList<ErrorInfo>();
 
     /**
-     * A constructor
+     * The constructor.
      *
      * @param parser an underlying parser
      */
-    public GrammarLiteTermParser(TermParserReader parser) {
+    public GrammarLiteTermParser(final TermParserReader parser) {
         super(parser, new GrammarLiteObjectFactory());
+        setErrorTokenHandler(new TokenCollector() {
+            @Override
+            public void collect(final TermToken errorToken) {
+                if (errorToken.hasErrors()) {
+                    errors.add(errorToken.errorInfo());
+                }
+                if (errorToken.hasPhraseToken() && errorToken.token().hasErrors()) {
+                    errors.add(errorToken.token().errorInfo());
+                }
+                if (errorToken.hasLexicalToken() && errorToken.token().token().hasErrors()) {
+                    errors.add(errorToken.token().token().errorInfo());
+                }
+            }
+        });
     }
 
 
@@ -52,19 +72,6 @@ public class GrammarLiteTermParser extends TreeParserReader<Element> {
      * @return all errors gathered during parsing
      */
     public Collection<ErrorInfo> errors() {
-        return getObjectFactory().errors();
+        return errors;
     }
-
-    @Override
-    public GrammarLiteObjectFactory getObjectFactory() {
-        return (GrammarLiteObjectFactory) super.getObjectFactory();
-    }
-
-    /**
-     * @return the loaded grammar
-     */
-    public LoadedGrammarInfo getLoadedGrammar() {
-        return getObjectFactory().getLoadedGrammar();
-    }
-
 }

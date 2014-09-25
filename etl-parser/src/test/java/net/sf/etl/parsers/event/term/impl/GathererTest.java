@@ -30,9 +30,15 @@ import net.sf.etl.parsers.event.grammar.impl.flattened.DirectedAcyclicGraph.Impo
 import net.sf.etl.parsers.event.grammar.impl.flattened.DirectedAcyclicGraph.Node;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for gatherer algorithm
@@ -222,6 +228,14 @@ public class GathererTest {
         final Map<String, ImportDefinition> imports = new HashMap<String, ImportDefinition>();
 
         /**
+         * @param graph a graph to which this holder belongs
+         */
+        public Holder(DirectedAcyclicGraph<Holder> graph) {
+            super();
+            this.node = graph.getNode(this);
+        }
+
+        /**
          * get definition
          *
          * @param key a key
@@ -266,14 +280,6 @@ public class GathererTest {
             return rc;
         }
 
-        /**
-         * @param graph a graph to which this holder belongs
-         */
-        public Holder(DirectedAcyclicGraph<Holder> graph) {
-            super();
-            this.node = graph.getNode(this);
-        }
-
     }
 
     /**
@@ -284,6 +290,11 @@ public class GathererTest {
          * duplicate nodes
          */
         final HashMap<Object, DuplicateInfo> duplicates = new HashMap<Object, DuplicateInfo>();
+
+        @Override
+        protected Definition includingDefinition(final Holder sourceHolder, final Definition object) {
+            return object;
+        }
 
         @Override
         protected void reportDuplicates(Holder sourceHolder, String key,
@@ -365,11 +376,6 @@ public class GathererTest {
         @Override
         protected ImportDefinition includingDefinition(Holder sourceHolder, ImportDefinition object) {
             return new ImportDefinition(sourceHolder, object);
-        }
-
-        @Override
-        protected ImportDefinition originalDefinition(ImportDefinition def) {
-            return def.original;
         }
 
     }

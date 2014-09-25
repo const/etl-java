@@ -2,7 +2,7 @@
  * Reference ETL Parser for Java
  * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
- * Permission is hereby granted, free of charge, to any person 
+ * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
@@ -33,7 +33,10 @@ import java.io.StringReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 /**
  * Base class for structural term test case
@@ -44,7 +47,7 @@ public abstract class TermStructureTestCase {
     /**
      * a logger
      */
-    private static final Logger log = Logger.getLogger(TermStructureTestCase.class.getName());
+    private static final Logger LOG = Logger.getLogger(TermStructureTestCase.class.getName());
 
     /**
      * a parser
@@ -116,11 +119,11 @@ public abstract class TermStructureTestCase {
         // if (errorExit) {
         // try {
         // while (parser.current().kind() != Terms.EOF) {
-        // log.fine("POST ERROR: " + parser);
+        // LOG.fine("POST ERROR: " + parser);
         // parser.advance();
         // }
         // } catch (Throwable ex) {
-        // log.log(java.util.logging.Level.SEVERE, "error during parsing",
+        // LOG.LOG(java.util.logging.Level.SEVERE, "error during parsing",
         // ex);
         // }
         // }
@@ -220,8 +223,8 @@ public abstract class TermStructureTestCase {
      */
     protected void skipIgnorable() {
         while (true) {
-            if (log.isLoggable(java.util.logging.Level.FINEST)) {
-                log.fine("processing " + parser.current());
+            if (LOG.isLoggable(java.util.logging.Level.FINEST)) {
+                LOG.fine("processing " + parser.current());
             }
             switch (parser.current().kind()) {
                 case OBJECT_START:
@@ -359,8 +362,8 @@ public abstract class TermStructureTestCase {
                 parser.advance();
             }
             final long end = System.currentTimeMillis();
-            if (log.isLoggable(Level.FINE)) {
-                log.fine("STATISTICS: " + resource + "," + (grammar - start)
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("STATISTICS: " + resource + "," + (grammar - start)
                         + "," + (end - start) + "," + count + ","
                         + countAfterGrammar);
             }

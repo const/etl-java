@@ -30,26 +30,26 @@ package net.sf.etl.parsers;
  */
 public final class DefinitionInfo {
     /**
-     * The context for the definition
+     * The context for the definition.
      */
     private final DefinitionContext context;
     /**
-     * The definition name withing context
+     * The definition name withing context.
      */
     private final String name;
     /**
-     * The source location
+     * The source location.
      */
     private final SourceLocation location;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param context  definition context
      * @param name     the definition name
      * @param location the definition location
      */
-    public DefinitionInfo(DefinitionContext context, String name, SourceLocation location) {
+    public DefinitionInfo(final DefinitionContext context, final String name, final SourceLocation location) {
         this.context = context;
         this.name = name;
         this.location = location;
@@ -77,7 +77,8 @@ public final class DefinitionInfo {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
+        // CHECKSTYLE:OFF
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -89,13 +90,16 @@ public final class DefinitionInfo {
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
 
         return true;
+        // CHECKSTYLE:ON
     }
 
     @Override
     public int hashCode() {
+        // CHECKSTYLE:OFF
         int result = context != null ? context.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (location != null ? location.hashCode() : 0);
         return result;
+        // CHECKSTYLE:ON
     }
 }

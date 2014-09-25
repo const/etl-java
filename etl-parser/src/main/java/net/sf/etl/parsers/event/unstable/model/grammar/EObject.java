@@ -27,28 +27,76 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
 import net.sf.etl.parsers.SourceLocation;
 
 /**
- * Base class for lightweight grammar objects
+ * Base class for lightweight grammar objects.
  *
  * @author const
  */
 public abstract class EObject {
     /**
-     * owner of the element
+     * The owner.
      */
-    public EObject ownerObject;
+    private EObject ownerObject;
     /**
-     * feature of the owner that has this element
+     * The owner feature.
      */
-    public java.lang.reflect.Field ownerFeature;
+    private String ownerFeature;
     /**
-     * The source location
+     * The location.
      */
-    public SourceLocation location;
+    private SourceLocation location;
 
     /**
      * @return source location for object
      */
-    public SourceLocation sourceLocation() {
+    public final SourceLocation getSourceLocation() {
         return location;
+    }
+
+    /**
+     * @return owner of the element
+     */
+    public final EObject getOwnerObject() {
+        return ownerObject;
+    }
+
+    /**
+     * Set owner.
+     *
+     * @param ownerObject the owner
+     */
+    public final void setOwnerObject(final EObject ownerObject) {
+        this.ownerObject = ownerObject;
+    }
+
+    /**
+     * @return feature of the owner that has this element
+     */
+    public final String getOwnerFeature() {
+        return ownerFeature;
+    }
+
+    /**
+     * Set owner feature.
+     *
+     * @param ownerFeature the feature
+     */
+    public final void setOwnerFeature(final String ownerFeature) {
+        this.ownerFeature = ownerFeature;
+    }
+
+    /**
+     * @return The source location
+     */
+    public final SourceLocation getLocation() {
+        return location;
+    }
+
+    /**
+     * Set location.
+     *
+     * @param location the location
+     */
+    public final void setLocation(final SourceLocation location) {
+        this.location = location;
     }
 }

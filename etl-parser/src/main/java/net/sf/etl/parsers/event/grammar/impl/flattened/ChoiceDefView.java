@@ -31,24 +31,24 @@ import net.sf.etl.parsers.event.unstable.model.grammar.ChoiceDef;
  *
  * @author const
  */
-public class ChoiceDefView extends DefinitionView {
+public final class ChoiceDefView extends DefinitionView {
     /**
-     * The constructor
+     * The constructor.
      *
      * @param context    the original context
      * @param definition the definition
      */
-    public ChoiceDefView(ContextView context, ChoiceDef definition) {
+    public ChoiceDefView(final ContextView context, final ChoiceDef definition) {
         super(context, definition);
     }
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param context    the including context
      * @param definition the included view
      */
-    public ChoiceDefView(ContextView context, ChoiceDefView definition) {
+    public ChoiceDefView(final ContextView context, final ChoiceDefView definition) {
         super(context, definition);
     }
 }

@@ -2,7 +2,7 @@
  * Reference ETL Parser for Java
  * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
- * Permission is hereby granted, free of charge, to any person 
+ * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
@@ -25,7 +25,7 @@
 package net.sf.etl.parsers;
 
 /**
- * Syntax roles for tokens returned by parser
+ * Syntax roles for tokens returned by parser.
  *
  * @author const
  */
@@ -50,37 +50,37 @@ public enum SyntaxRole {
     PRIMARY_ANY,
 
     /**
-     * a keyword
+     * a keyword.
      */
     KEYWORD,
 
     /**
-     * opening or closing bracket
+     * opening or closing bracket.
      */
     BRACKET,
 
     /**
-     * control token
+     * control token.
      */
     CONTROL,
 
     /**
-     * an operator
+     * an operator.
      */
     OPERATOR,
 
     /**
-     * modifier token
+     * modifier token.
      */
     MODIFIER,
 
     /**
-     * ignorable token
+     * ignorable token.
      */
     IGNORABLE,
 
     /**
-     * a separator
+     * a separator.
      */
     SEPARATOR,
 
@@ -92,7 +92,7 @@ public enum SyntaxRole {
     SPECIAL,
 
     /**
-     * a documentation token
+     * a documentation token.
      */
     DOCUMENTATION,
 }

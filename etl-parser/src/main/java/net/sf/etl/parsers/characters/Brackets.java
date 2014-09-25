@@ -27,16 +27,25 @@ package net.sf.etl.parsers.characters;
 
 /**
  * The code to detect brackets. The brackets are all of the Pe and Ps categories except for quotes
- * (corner quotes could be reconsidered later). Curly braces are excluded because they are considered as block delimiters.
+ * (corner quotes could be reconsidered later). Curly braces are excluded because they are considered
+ * as block delimiters.
  */
-public class Brackets {
+public final class Brackets {
     /**
-     * Check if the codepoint is a bracket
+     * Private constructor for utility class.
+     */
+    private Brackets() {
+        // do nothing
+    }
+
+    /**
+     * Check if the codepoint is a bracket.
      *
      * @param codepoint the codepoint
      * @return true if the codepoint is a bracket
      */
-    public static boolean isBracket(int codepoint) {
+    //CHECKSTYLE:OFF
+    public static boolean isBracket(final int codepoint) {
         switch (codepoint) {
             // **** Ps characters *****
             case 0x0028: // Ps: LEFT PARENTHESIS
@@ -212,4 +221,5 @@ public class Brackets {
                 return false;
         }
     }
+    //CHECKSTYLE:ON
 }

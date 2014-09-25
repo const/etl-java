@@ -66,12 +66,15 @@ public abstract class ETL2AST extends AbstractFileConverter {
      *
      * @param p a parser to configure
      */
+    @SuppressWarnings("unchecked")
     protected void configureStandardOptions(ObjectFactory<?, ?, ?, ?> p) {
         // ignore namespace
         for (String ignoredNamespace : ignoredNamespaces) {
             p.ignoreNamespace(ignoredNamespace);
         }
         // specify text position flag
-        p.setPosPolicy(expandTextPos ? ObjectFactory.PositionPolicy.EXPANDED : ObjectFactory.PositionPolicy.POSITIONS);
+        ((ObjectFactory<Object, Object, Object, Object>) p).setPosPolicy(expandTextPos
+                ? ObjectFactory.PositionPolicyExpanded.get()
+                : ObjectFactory.PositionPolicyPositions.get());
     }
 }

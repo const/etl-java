@@ -58,8 +58,8 @@ public interface CompiledGrammar {
 
     /**
      * @return the list of errors associated with this grammar. Note that even if grammar errors present,
-     *         the parsing could be partially done by supplied parsers. Erroneous contexts will just have
-     *         default parser associated with them.
+     * the parsing could be partially done by supplied parsers. Erroneous contexts will just have
+     * default parser associated with them.
      */
     ErrorInfo getErrors();
 
@@ -75,7 +75,7 @@ public interface CompiledGrammar {
 
     /**
      * @return expression contexts (for all actually used combinations of host contexts and expression contexts,
-     *         and actually defined precedence levels)
+     * and actually defined precedence levels)
      */
     List<ExpressionContext> getExpressionContexts();
 
@@ -114,7 +114,7 @@ public interface CompiledGrammar {
     TermParserStateFactory statementParser(DefinitionContext context);
 
     /**
-     * The parser for expression context hosted within some statement context
+     * The parser for expression context hosted within some statement context.
      *
      * @param context the context
      * @return the expression parser

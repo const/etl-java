@@ -42,35 +42,35 @@ import java.util.Set;
  *
  * @author const
  */
-public class LookAheadSet {
+public final class LookAheadSet {
     /**
-     * All tokens value
-     */
-    private static final String ALL_TOKENS = null;
-    /**
-     * Sample of empty entry
+     * Sample of empty entry.
      */
     public static final EmptyEntry EMPTY_ENTRY_SAMPLE = new EmptyEntry(null);
     /**
-     * Sample any token entry
+     * Sample any token entry.
      */
     public static final AnyTokenEntry ANY_TOKEN_ENTRY_SAMPLE = new AnyTokenEntry(null);
     /**
-     * if true, the lookahead info is frozen
+     * All tokens value.
+     */
+    private static final String ALL_TOKENS = null;
+    /**
+     * if true, the lookahead info is frozen.
      */
     private boolean isFrozen;
     /**
-     * Phrase tokens
+     * Phrase tokens.
      */
     private Set<Entry> entries = new LinkedHashSet<Entry>();
 
     /**
      * This constructor creates new lookahead info by copying data from previous
-     * one
+     * one.
      *
      * @param other other lookahead info
      */
-    public LookAheadSet(LookAheadSet other) {
+    public LookAheadSet(final LookAheadSet other) {
         addAll(other);
     }
 
@@ -81,7 +81,57 @@ public class LookAheadSet {
     }
 
     /**
-     * Check if this lookahead info is still modifiable
+     * Get instance of lookahead info for phrase token.
+     *
+     * @param location the location
+     * @param token    the phrase token for lookahead
+     * @return lookahead information
+     */
+    public static LookAheadSet get(final SourceLocation location, final PhraseTokens token) {
+        final LookAheadSet rc = new LookAheadSet();
+        rc.add(location, token);
+        return rc;
+    }
+
+    /**
+     * Get LA-set only with empty value.
+     *
+     * @param location the cause location for this node
+     * @return LookAheadInfo that contains only empty value
+     */
+    public static LookAheadSet getWithEmpty(final SourceLocation location) {
+        final LookAheadSet rc = new LookAheadSet();
+        rc.addEmpty(location);
+        return rc;
+    }
+
+    /**
+     * Create look ahead set with key.
+     *
+     * @param location the cause location for this entry
+     * @param tokenKey the token kind
+     * @return get look ahead info that matches token of the specified kind
+     */
+    public static LookAheadSet get(final SourceLocation location, final TokenKey tokenKey) {
+        return getWithText(location, tokenKey, ALL_TOKENS);
+    }
+
+    /**
+     * Create a node with single text.
+     *
+     * @param location the cause location
+     * @param tokenKey the token kind
+     * @param text     the text to match
+     * @return get lookahead info that matches specific special
+     */
+    public static LookAheadSet getWithText(final SourceLocation location, final TokenKey tokenKey, final String text) {
+        final LookAheadSet rc = new LookAheadSet();
+        rc.addToken(tokenKey, text, location);
+        return rc;
+    }
+
+    /**
+     * Check if this lookahead info is still modifiable.
      */
     private void checkModifiable() {
         if (isFrozen) {
@@ -91,7 +141,7 @@ public class LookAheadSet {
     }
 
     /**
-     * Freeze the set
+     * Freeze the set.
      */
     public void freeze() {
         if (!isFrozen) {
@@ -101,25 +151,11 @@ public class LookAheadSet {
     }
 
     /**
-     * Get instance of lookahead info for phrase token
-     *
-     * @param location the location
-     * @param token    the phrase token for lookahead
-     * @return lookahead information
-     */
-    public static LookAheadSet get(SourceLocation location, PhraseTokens token) {
-        final LookAheadSet rc = new LookAheadSet();
-        rc.add(location, token);
-        return rc;
-    }
-
-    /**
      * @return true if set contains empty
      */
     public boolean containsEmpty() {
         return entries.contains(EMPTY_ENTRY_SAMPLE);
     }
-
 
     /**
      * @return true if set contains any token
@@ -129,58 +165,23 @@ public class LookAheadSet {
     }
 
     /**
-     * Add empty sequence to lookahead
+     * Add empty sequence to lookahead.
      *
      * @param location the cause location for this entry
      */
-    public void addEmpty(SourceLocation location) {
+    public void addEmpty(final SourceLocation location) {
         checkModifiable();
         entries.add(new EmptyEntry(location));
     }
 
     /**
-     * @param location the cause location for this node
-     * @return LookAheadInfo that contains only empty value
-     */
-    public static LookAheadSet getWithEmpty(SourceLocation location) {
-        final LookAheadSet rc = new LookAheadSet();
-        rc.addEmpty(location);
-        return rc;
-    }
-
-    /**
-     * Create look ahead set with key
-     *
-     * @param location the cause location for this entry
-     * @param tokenKey the token kind
-     * @return get look ahead info that matches token of the specified kind
-     */
-    public static LookAheadSet get(SourceLocation location, TokenKey tokenKey) {
-        return getWithText(location, tokenKey, ALL_TOKENS);
-    }
-
-    /**
-     * Create a node with single text
-     *
-     * @param location the cause location
-     * @param tokenKey the token kind
-     * @param text     the text to match
-     * @return get lookahead info that matches specific special
-     */
-    public static LookAheadSet getWithText(SourceLocation location, TokenKey tokenKey, String text) {
-        final LookAheadSet rc = new LookAheadSet();
-        rc.addToken(tokenKey, text, location);
-        return rc;
-    }
-
-    /**
-     * Add token to match
+     * Add token to match.
      *
      * @param tokenKey the token kind to match
      * @param text     the text to match
      * @param location the location that needs this token
      */
-    private void addToken(TokenKey tokenKey, String text, SourceLocation location) {
+    private void addToken(final TokenKey tokenKey, final String text, final SourceLocation location) {
         checkModifiable();
         if (text != null) {
             entries.add(new KeywordEntry(location, Keyword.forText(text, tokenKey)));
@@ -192,11 +193,11 @@ public class LookAheadSet {
     }
 
     /**
-     * Add all values from additional lookahead info
+     * Add all values from additional lookahead info.
      *
      * @param other other lookahead info
      */
-    public void addAll(LookAheadSet other) {
+    public void addAll(final LookAheadSet other) {
         checkModifiable();
         entries.addAll(other.entries);
     }
@@ -207,7 +208,7 @@ public class LookAheadSet {
      * @param other info object to compare with
      * @return a string that enumerates some found problems.
      */
-    public String conflictsWith(LookAheadSet other) {
+    public String conflictsWith(final LookAheadSet other) {
         // Compare phrase tokens. There should be no intersections.
         final HashSet<Entry> phraseTokensTmp = new HashSet<Entry>(this.entries);
         phraseTokensTmp.retainAll(other.entries);
@@ -220,18 +221,18 @@ public class LookAheadSet {
 
 
     /**
-     * Add phrase token
+     * Add phrase token.
      *
      * @param location the location that needs this token
      * @param token    the token to add
      */
-    public void add(SourceLocation location, PhraseTokens token) {
+    public void add(final SourceLocation location, final PhraseTokens token) {
         checkModifiable();
         entries.add(new PhraseEntry(location, token));
     }
 
     /**
-     * Remove empty from set
+     * Remove empty from set.
      *
      * @return this set
      */
@@ -242,12 +243,12 @@ public class LookAheadSet {
     }
 
     /**
-     * Check if set contains phrase token
+     * Check if set contains phrase token.
      *
      * @param token a token to check
      * @return true if look ahead contains token
      */
-    public boolean contains(PhraseTokens token) {
+    public boolean contains(final PhraseTokens token) {
         return entries.contains(new PhraseEntry(null, token));
     }
 
@@ -275,49 +276,51 @@ public class LookAheadSet {
     }
 
     /**
-     * The entry in look ahead set
+     * The entry in look ahead set.
      */
     public abstract static class Entry {
         /**
-         * The source location
+         * The source location.
          */
-        public final SourceLocation location;
+        private final SourceLocation location;
 
         /**
-         * The source location
+         * The source location.
          *
          * @param location the location
          */
-        protected Entry(SourceLocation location) {
+        protected Entry(final SourceLocation location) {
             this.location = location;
         }
     }
 
     /**
-     * The empty entry
+     * The empty entry.
      */
     public static final class EmptyEntry extends Entry {
         /**
-         * The hash code to use for all instances of this entry
+         * The hash code to use for all instances of this entry.
          */
         private static final int HASH = 2222;
 
         /**
-         * The location that caused empty entry
+         * The location that caused empty entry.
          *
          * @param location the location
          */
-        public EmptyEntry(SourceLocation location) {
+        public EmptyEntry(final SourceLocation location) {
             super(location);
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(final Object o) {
+            //CHECKSTYLE:OFF
             if (this == o) return true;
             //noinspection RedundantIfStatement
             if (o == null || getClass() != o.getClass()) return false;
 
             return true;
+            //CHECKSTYLE:ON
         }
 
         @Override
@@ -332,30 +335,32 @@ public class LookAheadSet {
     }
 
     /**
-     * The entry that matches any token whether it is keyword or not
+     * The entry that matches any token whether it is keyword or not.
      */
     public static final class AnyTokenEntry extends Entry {
         /**
-         * The hash code to use for all instances of this entry
+         * The hash code to use for all instances of this entry.
          */
         private static final int HASH = 3333;
 
         /**
-         * The constructor from location
+         * The constructor from location.
          *
          * @param location the location
          */
-        public AnyTokenEntry(SourceLocation location) {
+        public AnyTokenEntry(final SourceLocation location) {
             super(location);
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(final Object o) {
+            //CHECKSTYLE:OFF
             if (this == o) return true;
             //noinspection RedundantIfStatement
             if (o == null || getClass() != o.getClass()) return false;
 
             return true;
+            //CHECKSTYLE:ON
         }
 
         @Override
@@ -370,21 +375,21 @@ public class LookAheadSet {
     }
 
     /**
-     * The entry that matches token that correspond to selected token key
+     * The entry that matches token that correspond to selected token key.
      */
     public static final class TokenKeyEntry extends Entry {
         /**
-         * The token key
+         * The token key.
          */
-        public final TokenKey key;
+        private final TokenKey key;
 
         /**
-         * The constructor
+         * The constructor.
          *
          * @param location the location
          * @param key      the token key
          */
-        public TokenKeyEntry(SourceLocation location, TokenKey key) {
+        public TokenKeyEntry(final SourceLocation location, final TokenKey key) {
             super(location);
             if (key == null) {
                 throw new IllegalArgumentException("Key cannot be null");
@@ -392,8 +397,16 @@ public class LookAheadSet {
             this.key = key;
         }
 
+        /**
+         * @return the token key
+         */
+        public TokenKey getKey() {
+            return key;
+        }
+
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(final Object o) {
+            //CHECKSTYLE:OFF
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
@@ -403,6 +416,7 @@ public class LookAheadSet {
             if (!key.equals(that.key)) return false;
 
             return true;
+            //CHECKSTYLE:ON
         }
 
         @Override
@@ -436,21 +450,21 @@ public class LookAheadSet {
     }
 
     /**
-     * Phrase token entry
+     * Phrase token entry.
      */
     public static final class PhraseEntry extends Entry {
         /**
-         * The token kind
+         * The token kind.
          */
-        public final PhraseTokens kind;
+        private final PhraseTokens kind;
 
         /**
-         * The constructor
+         * The constructor.
          *
          * @param location the location that caused this entry to appear
          * @param kind     the token kind
          */
-        public PhraseEntry(SourceLocation location, PhraseTokens kind) {
+        public PhraseEntry(final SourceLocation location, final PhraseTokens kind) {
             super(location);
             if (kind == null) {
                 throw new IllegalArgumentException("Kind must not be null");
@@ -458,8 +472,16 @@ public class LookAheadSet {
             this.kind = kind;
         }
 
+        /**
+         * @return the phrase kind
+         */
+        public PhraseTokens getKind() {
+            return kind;
+        }
+
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(final Object o) {
+            //CHECKSTYLE:OFF
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
@@ -469,6 +491,7 @@ public class LookAheadSet {
             if (kind != that.kind) return false;
 
             return true;
+            //CHECKSTYLE:ON
         }
 
         @Override
@@ -483,21 +506,21 @@ public class LookAheadSet {
     }
 
     /**
-     * Keyword entry
+     * Keyword entry.
      */
     public static final class KeywordEntry extends Entry {
         /**
-         * The keyword element
+         * The keyword element.
          */
-        public final Keyword keyword;
+        private final Keyword keyword;
 
         /**
-         * The constructor
+         * The constructor.
          *
          * @param location the location that caused this entry to appear
          * @param keyword  the keyword
          */
-        public KeywordEntry(SourceLocation location, Keyword keyword) {
+        public KeywordEntry(final SourceLocation location, final Keyword keyword) {
             super(location);
             if (keyword == null) {
                 throw new IllegalArgumentException("Keyword must not be null");
@@ -505,8 +528,16 @@ public class LookAheadSet {
             this.keyword = keyword;
         }
 
+        /**
+         * @return the keyword
+         */
+        public Keyword getKeyword() {
+            return keyword;
+        }
+
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(final Object o) {
+            //CHECKSTYLE:OFF
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
@@ -516,6 +547,7 @@ public class LookAheadSet {
             if (!keyword.equals(that.keyword)) return false;
 
             return true;
+            //CHECKSTYLE:ON
         }
 
         @Override

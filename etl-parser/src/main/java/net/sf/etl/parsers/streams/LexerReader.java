@@ -22,10 +22,14 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package net.sf.etl.parsers.streams;
 
-import net.sf.etl.parsers.*;
+import net.sf.etl.parsers.DefaultTermParserConfiguration;
+import net.sf.etl.parsers.ParserException;
+import net.sf.etl.parsers.ParserIOException;
+import net.sf.etl.parsers.TermParserConfiguration;
+import net.sf.etl.parsers.TextPos;
+import net.sf.etl.parsers.Token;
 import net.sf.etl.parsers.event.Lexer;
 import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.impl.LexerImpl;
@@ -37,55 +41,56 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 
 /**
- * The reader for the lexer
+ * The reader for the lexer.
  */
-public class LexerReader extends AbstractReaderImpl<Token> {
+public final class LexerReader extends AbstractReaderImpl<Token> {
     /**
-     * The UTF8 charset
+     * The UTF8 charset.
      */
     public static final Charset UTF8 = Charset.forName("UTF-8");
     /**
-     * Reader
+     * Reader.
      */
-    final Reader input;
+    private final Reader input;
     /**
-     * System id
+     * The lexer.
+     */
+    private final Lexer lexer;
+    /**
+     * The buffer to use for IO.
+     */
+    private final CharBuffer buffer = CharBuffer.allocate(1024);
+    /**
+     * System id.
      */
     private final String systemId;
     /**
-     * The lexer
+     * True if EOF has been read.
      */
-    final Lexer lexer;
-    /**
-     * The buffer to use for IO
-     */
-    final CharBuffer buffer = CharBuffer.allocate(1024);
-    /**
-     * True if EOF has been read
-     */
-    boolean eofRead = false;
+    private boolean eofRead = false;
 
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param input    the input
      * @param systemId the system id
      * @param start    the start position for the lexer
      */
-    public LexerReader(Reader input, String systemId, TextPos start) {
+    public LexerReader(final Reader input, final String systemId, final TextPos start) {
         this(DefaultTermParserConfiguration.INSTANCE, input, systemId, start);
     }
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param configuration the configuration
      * @param input         the input
      * @param systemId      the system id
      * @param start         the start position for the lexer
      */
-    public LexerReader(TermParserConfiguration configuration, Reader input, String systemId, TextPos start) {
+    public LexerReader(final TermParserConfiguration configuration, final Reader input, final String systemId,
+                       final TextPos start) {
         this.input = input;
         this.systemId = systemId;
         lexer = new LexerImpl(configuration);
@@ -99,7 +104,7 @@ public class LexerReader extends AbstractReaderImpl<Token> {
      * @param configuration the configuration
      * @param url           the url of resource
      */
-    public LexerReader(TermParserConfiguration configuration, URL url) {
+    public LexerReader(final TermParserConfiguration configuration, final URL url) {
         this(createReader(configuration, url), url.toString(), TextPos.START);
     }
 
@@ -108,17 +113,18 @@ public class LexerReader extends AbstractReaderImpl<Token> {
      *
      * @param url the url of resource
      */
-    public LexerReader(URL url) {
+    public LexerReader(final URL url) {
         this(DefaultTermParserConfiguration.INSTANCE, url);
     }
 
     /**
-     * Open reader by URL
+     * Open reader by URL.
      *
-     * @param url the URL to open
+     * @param configuration the configuration
+     * @param url           the URL to open
      * @return the corresponding reader
      */
-    private static Reader createReader(TermParserConfiguration configuration, URL url) {
+    private static Reader createReader(final TermParserConfiguration configuration, final URL url) {
         try {
             return configuration.openReader(url.toString());
         } catch (IOException ex) {
@@ -129,20 +135,21 @@ public class LexerReader extends AbstractReaderImpl<Token> {
 
     @Override
     protected boolean doAdvance() {
-        current = null;
+        setCurrent(null);
         while (true) {
-            ParserState state = lexer.parse(buffer, eofRead);
+            final ParserState state = lexer.parse(buffer, eofRead);
             switch (state) {
                 case OUTPUT_AVAILABLE:
-                    current = lexer.read();
+                    setCurrent(lexer.read());
                     return true;
                 case EOF:
                     return false;
                 case INPUT_NEEDED:
                     buffer.compact();
-                    int n;
+                    final int n;
                     try {
-                        n = input.read(buffer.array(), buffer.arrayOffset() + buffer.position(), buffer.limit() - buffer.position());
+                        n = input.read(buffer.array(), buffer.arrayOffset() + buffer.position(),
+                                buffer.limit() - buffer.position());
                     } catch (IOException e) {
                         throw new ParserIOException(e);
                     }

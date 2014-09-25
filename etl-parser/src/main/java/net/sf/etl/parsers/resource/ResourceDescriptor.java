@@ -26,38 +26,44 @@
 package net.sf.etl.parsers.resource;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * The resource descriptor.
  */
-public class ResourceDescriptor implements Serializable {
+public final class ResourceDescriptor implements Serializable {
     /**
-     * The systemId that uniquely identifies the resource in the system
+     * The systemId that uniquely identifies the resource in the system.
      */
     private final String systemId;
     /**
-     * Resolved resource type
+     * Resolved resource type.
      */
     private final String type;
     /**
-     * The resolved version
+     * The resolved version.
      */
     private final String version;
     /**
-     * Resource usages
+     * Resource usages.
      */
     private final List<ResourceUsage> usedResources;
 
     /**
-     * The base constructor
+     * The base constructor.
      *
      * @param systemId      the base system id
      * @param type          the resource type
      * @param version       the resource version
      * @param usedResources the resource constructor
      */
-    public ResourceDescriptor(String systemId, String type, String version, Collection<ResourceUsage> usedResources) {
+    public ResourceDescriptor(final String systemId, final String type, final String version,
+                              final Collection<ResourceUsage> usedResources) {
         if (systemId == null) {
             throw new IllegalArgumentException("The null is not allowed for the systemId");
         }
@@ -73,58 +79,59 @@ public class ResourceDescriptor implements Serializable {
                 }
             }
         }
-        this.usedResources = newUsages.isEmpty() ?
-                Collections.<ResourceUsage>emptyList() :
-                Collections.unmodifiableList(Arrays.asList(newUsages.keySet().toArray(new ResourceUsage[newUsages.size()])));
+        this.usedResources = newUsages.isEmpty()
+                ? Collections.<ResourceUsage>emptyList()
+                : Collections.unmodifiableList(Arrays.asList(newUsages.keySet().toArray(
+                new ResourceUsage[newUsages.size()])));
     }
 
     /**
-     * The utility construct
+     * The utility constructor.
      *
      * @param systemId the base system id
      * @param type     the resource type
      * @param version  the resource version
      */
-    public ResourceDescriptor(String systemId, String type, String version) {
+    public ResourceDescriptor(final String systemId, final String type, final String version) {
         this(systemId, type, version, null);
     }
 
     /**
-     * The utility construct
+     * The utility constructor.
      *
      * @param systemId the base system id
      */
-    public ResourceDescriptor(String systemId) {
+    public ResourceDescriptor(final String systemId) {
         this(systemId, null, null);
     }
 
     /**
-     * Create copy of the descriptor with the specified type
+     * Create copy of the descriptor with the specified type.
      *
-     * @param type the new resource type
+     * @param newType the new resource type
      * @return the new instance of resource descriptor
      */
-    public ResourceDescriptor withType(String type) {
-        return new ResourceDescriptor(systemId, type, version, usedResources);
+    public ResourceDescriptor withType(final String newType) {
+        return new ResourceDescriptor(systemId, newType, version, usedResources);
     }
 
     /**
-     * Create copy of the descriptor with the specified version
+     * Create copy of the descriptor with the specified version.
      *
-     * @param version the new resource version
+     * @param newVersion the new resource version
      * @return the new instance of resource descriptor
      */
-    public ResourceDescriptor withVersion(String version) {
-        return new ResourceDescriptor(systemId, type, version, usedResources);
+    public ResourceDescriptor withVersion(final String newVersion) {
+        return new ResourceDescriptor(systemId, type, newVersion, usedResources);
     }
 
     /**
-     * Add more resource usages for the descriptor
+     * Add more resource usages for the descriptor.
      *
      * @param additionalResources additional resources to add
      * @return the resource descriptor with more resources
      */
-    public ResourceDescriptor withAdditionalResources(Collection<ResourceUsage> additionalResources) {
+    public ResourceDescriptor withAdditionalResources(final Collection<ResourceUsage> additionalResources) {
         if (additionalResources == null || additionalResources.isEmpty()) {
             return this;
         }
@@ -146,13 +153,13 @@ public class ResourceDescriptor implements Serializable {
      * Filter resource usage so it does not contain additional references from resource with
      * the same system id as a root system id.
      *
-     * @param systemId      the system id to filter out
-     * @param resourceUsage the resource usage
+     * @param filteredSystemId the system id to filter out
+     * @param resourceUsage    the resource usage
      * @return the filtered out resource usage
      */
-    private ResourceUsage filter(String systemId, ResourceUsage resourceUsage) {
+    private ResourceUsage filter(final String filteredSystemId, final ResourceUsage resourceUsage) {
         final ResourceDescriptor descriptor = resourceUsage.getDescriptor();
-        if (descriptor.getSystemId().equals(systemId)) {
+        if (descriptor.getSystemId().equals(filteredSystemId)) {
             // the descriptor without additional usages
             return new ResourceUsage(resourceUsage.getReference(),
                     new ResourceDescriptor(descriptor.getSystemId(),
@@ -164,7 +171,7 @@ public class ResourceDescriptor implements Serializable {
         ResourceUsage changedResource = null;
         final List<ResourceUsage> resources = descriptor.getUsedResources();
         for (ResourceUsage used : resources) {
-            changedResource = filter(systemId, used);
+            changedResource = filter(filteredSystemId, used);
             if (changedResource != used) {
                 changed = true;
                 break;
@@ -180,7 +187,7 @@ public class ResourceDescriptor implements Serializable {
                 newUsages.add(changedResource);
             }
             for (ResourceUsage used : resources.subList(i + 1, resources.size())) {
-                changedResource = filter(systemId, used);
+                changedResource = filter(filteredSystemId, used);
                 if (changedResource != null) {
                     newUsages.add(changedResource);
                 }
@@ -226,18 +233,13 @@ public class ResourceDescriptor implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("ResourceDescriptor");
-        sb.append("{systemId='").append(systemId).append('\'');
-        sb.append(", type='").append(type).append('\'');
-        sb.append(", version='").append(version).append('\'');
-        sb.append(", usedResources=").append(usedResources);
-        sb.append('}');
-        return sb.toString();
+        return "ResourceDescriptor{systemId='" + systemId + "', type='" + type + "', version='" + version
+                + "', usedResources=" + usedResources + '}';
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
+        //CHECKSTYLE:OFF
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -251,14 +253,17 @@ public class ResourceDescriptor implements Serializable {
         if (version != null ? !version.equals(that.version) : that.version != null) return false;
 
         return true;
+        //CHECKSTYLE:ON
     }
 
     @Override
     public int hashCode() {
+        //CHECKSTYLE:OFF
         int result = systemId.hashCode();
         result = 31 * result + (type != null ? type.hashCode() : 0);
         result = 31 * result + (version != null ? version.hashCode() : 0);
         result = 31 * result + (usedResources != null ? usedResources.hashCode() : 0);
         return result;
+        //CHECKSTYLE:ON
     }
 }

@@ -35,40 +35,41 @@ import net.sf.etl.parsers.event.grammar.TermParserStateFactory;
  * The factory is used to parse a specific text as an expressions. It does not support recovery
  * and it expects to be nested into {@link StatementSequenceStateFactory} (single statement variant)
  */
-public class ExpressionStateFactory implements TermParserStateFactory {
+public final class ExpressionStateFactory implements TermParserStateFactory {
+    // TODO make use or it.
     /**
-     * The expression factory
+     * The expression factory.
      */
     private final TermParserStateFactory expressionFactory;
     /**
-     * The keyword context
+     * The keyword context.
      */
     private final KeywordContext keywordContext;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param expressionFactory the expression factory
      * @param keywordContext    the keyword context
      */
-    public ExpressionStateFactory(TermParserStateFactory expressionFactory, KeywordContext keywordContext) {
+    public ExpressionStateFactory(final TermParserStateFactory expressionFactory, final KeywordContext keywordContext) {
         this.expressionFactory = expressionFactory;
         this.keywordContext = keywordContext;
     }
 
     @Override
-    public TermParserState start(TermParserContext context, TermParserState previous) {
+    public TermParserState start(final TermParserContext context, final TermParserState previous) {
         return new TermParserState(context, previous) {
             /**
-             * The initial state
+             * The initial state.
              */
-            private final static int STARTING = 0;
+            private static final int STARTING = 0;
             /**
-             * The after call state
+             * The after call state.
              */
-            private final static int FINISHING = 1;
+            private static final int FINISHING = 1;
             /**
-             * The current state
+             * The current state.
              */
             private int state = STARTING;
 
@@ -89,6 +90,7 @@ public class ExpressionStateFactory implements TermParserStateFactory {
 
             @Override
             public void parseMore() {
+                final TermParserContext context = getContext();
                 switch (state) {
                     case STARTING:
                         state = FINISHING;

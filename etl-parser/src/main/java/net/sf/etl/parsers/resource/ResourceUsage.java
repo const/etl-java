@@ -28,39 +28,80 @@ package net.sf.etl.parsers.resource;
 import java.io.Serializable;
 
 /**
- * Resource usage
+ * Resource usage.
  */
-public class ResourceUsage implements Serializable {
+public final class ResourceUsage implements Serializable {
     /**
-     * The reference for this usage
+     * The reference for this usage.
      */
     private final ResourceReference reference;
     /**
-     * The used resource
+     * The used resource.
      */
     private final ResourceDescriptor descriptor;
     /**
-     * The resource role
+     * The resource role.
      */
     private final String role;
 
-
-    public ResourceUsage(ResourceReference reference, ResourceDescriptor descriptor, String role) {
+    /**
+     * The constructor.
+     *
+     * @param reference  the reference
+     * @param descriptor the descriptor
+     * @param role       the role
+     */
+    public ResourceUsage(final ResourceReference reference, final ResourceDescriptor descriptor, final String role) {
         this.reference = reference;
         this.descriptor = descriptor;
         this.role = role;
     }
 
+    /**
+     * @return the original reference
+     */
     public ResourceReference getReference() {
         return reference;
     }
 
+    /**
+     * @return the descriptor
+     */
     public ResourceDescriptor getDescriptor() {
         return descriptor;
     }
 
+    /**
+     * @return the role
+     */
     public String getRole() {
         return role;
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        //CHECKSTYLE:OFF
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final ResourceUsage that = (ResourceUsage) o;
+
+        if (descriptor != null ? !descriptor.equals(that.descriptor) : that.descriptor != null) return false;
+        if (reference != null ? !reference.equals(that.reference) : that.reference != null) return false;
+        //noinspection RedundantIfStatement
+        if (role != null ? !role.equals(that.role) : that.role != null) return false;
+
+        return true;
+        //CHECKSTYLE:ON
+    }
+
+    @Override
+    public int hashCode() {
+        //CHECKSTYLE:OFF
+        int result = reference != null ? reference.hashCode() : 0;
+        result = 31 * result + (descriptor != null ? descriptor.hashCode() : 0);
+        result = 31 * result + (role != null ? role.hashCode() : 0);
+        return result;
+        //CHECKSTYLE:ON
+    }
 }

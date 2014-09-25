@@ -25,7 +25,11 @@
 
 package net.sf.etl.parsers.event.impl;
 
-import net.sf.etl.parsers.*;
+import net.sf.etl.parsers.ErrorInfo;
+import net.sf.etl.parsers.PhraseToken;
+import net.sf.etl.parsers.PhraseTokens;
+import net.sf.etl.parsers.TextPos;
+import net.sf.etl.parsers.Token;
 import net.sf.etl.parsers.event.Cell;
 import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.PhraseParser;
@@ -33,54 +37,65 @@ import net.sf.etl.parsers.event.PhraseParser;
 import java.util.ArrayList;
 
 /**
- * The phrase parser
+ * The phrase parser.
  */
-public class PhraseParserImpl implements PhraseParser {
+public final class PhraseParserImpl implements PhraseParser {
     /**
-     * The system id for phrase parser
+     * In statement sequence.
      */
-    String systemId = LexerImpl.UNKNOWN_FILE;
+    private static final int STATEMENT_SEQUENCE = 0;
     /**
-     * In statement sequence
+     * The parser state.
      */
-    static final int STATEMENT_SEQUENCE = 0;
+    private int state = STATEMENT_SEQUENCE;
     /**
-     * In the statement
+     * In the statement.
      */
-    static final int STATEMENT = 1;
+    private static final int STATEMENT = 1;
     /**
-     * In the statement just after soft statement end
+     * In the statement just after soft statement end.
      */
-    static final int STATEMENT_AFTER_SOFT = 2;
+    private static final int STATEMENT_AFTER_SOFT = 2;
     /**
-     * In the statement just after block start
+     * In the statement just after block start.
      */
-    static final int AFTER_BLOCK_START = 3;
+    private static final int AFTER_BLOCK_START = 3;
     /**
-     * In the statement before block end
+     * In the statement before block end.
      */
-    static final int BEFORE_BLOCK_END = 4;
+    private static final int BEFORE_BLOCK_END = 4;
     /**
-     * Before EOF
+     * Before EOF.
      */
-    static final int BEFORE_EOF = 5;
+    private static final int BEFORE_EOF = 5;
     /**
-     * After EOF was reported
+     * After EOF was reported.
      */
-    static final int AFTER_EOF = 6;
-
-    final ArrayList<TextPos> blockStarts = new ArrayList<TextPos>();
-    int state = STATEMENT_SEQUENCE;
-    PhraseToken output;
-    ErrorInfo errors;
+    private static final int AFTER_EOF = 6;
+    /**
+     * The stack of block positions.
+     */
+    private final ArrayList<TextPos> blockStarts = new ArrayList<TextPos>();
+    /**
+     * The system id for phrase parser.
+     */
+    private String systemId = LexerImpl.UNKNOWN_FILE;
+    /**
+     * The output.
+     */
+    private PhraseToken output;
+    /**
+     * The accumulated errors.
+     */
+    private ErrorInfo errors;
 
     @Override
-    public void start(String systemId) {
-        this.systemId = systemId;
+    public void start(final String reportedSystemId) {
+        this.systemId = reportedSystemId;
     }
 
     @Override
-    public ParserState parse(Cell<Token> token) {
+    public ParserState parse(final Cell<Token> token) {
         if (output != null) {
             return ParserState.OUTPUT_AVAILABLE;
         }
@@ -90,7 +105,7 @@ public class PhraseParserImpl implements PhraseParser {
         if (!token.hasElement()) {
             return ParserState.INPUT_NEEDED;
         }
-        Token t = token.peek();
+        final Token t = token.peek();
         while (true) {
             switch (state) {
                 case STATEMENT_SEQUENCE:
@@ -160,45 +175,99 @@ public class PhraseParserImpl implements PhraseParser {
                         error("phrase.UnterminatedBlock", startPos);
                         return before(t, PhraseTokens.END_BLOCK, STATEMENT);
                     }
+                default:
+                    throw new IllegalStateException("Unknown state: " + state);
             }
         }
     }
 
-    private ParserState before(Token token, PhraseTokens kind, int nextState) {
+    /**
+     * Report token before the current lexer token.
+     *
+     * @param token     the token
+     * @param kind      the kind
+     * @param nextState the next state
+     * @return the parser state
+     */
+    private ParserState before(final Token token, final PhraseTokens kind, final int nextState) {
         state = nextState;
         output = new PhraseToken(kind, token.start(), errors);
         errors = null;
         return ParserState.OUTPUT_AVAILABLE;
     }
 
-    private ParserState after(Cell<Token> token, PhraseTokens kind, int nextState) {
+    /**
+     * Report token after the current lexer token.
+     *
+     * @param token     the token
+     * @param kind      the kind
+     * @param nextState the next state
+     * @return the parser state
+     */
+    private ParserState after(final Cell<Token> token, final PhraseTokens kind, final int nextState) {
         state = nextState;
         output = new PhraseToken(kind, token.take().end(), errors);
         errors = null;
         return ParserState.OUTPUT_AVAILABLE;
     }
 
-    private void error(String id, TextPos s, TextPos e) {
-        errors = new ErrorInfo(id, ErrorInfo.NO_ARGS, s, e, systemId, errors);
+    /**
+     * Report new error.
+     *
+     * @param id    error id
+     * @param start the start position
+     * @param end   the end position
+     */
+    private void error(final String id, final TextPos start, final TextPos end) {
+        errors = new ErrorInfo(id, ErrorInfo.NO_ARGS, start, end, systemId, errors);
     }
 
-    private void error(String id, TextPos s) {
-        error(id, s, s);
+    /**
+     * Report new error.
+     *
+     * @param id       the error id
+     * @param position the start and end position
+     */
+    private void error(final String id, final TextPos position) {
+        error(id, position, position);
     }
 
 
-    private ParserState consume(Cell<Token> token, PhraseTokens kind, int nextState) {
+    /**
+     * Consume token from the cell, report it, and switch to the next state.
+     *
+     * @param token     the token cell
+     * @param kind      the kind
+     * @param nextState the next state
+     * @return the parser state
+     */
+    private ParserState consume(final Cell<Token> token, final PhraseTokens kind, final int nextState) {
         state = nextState;
         return consume(token, kind);
     }
 
-    private ParserState consume(Cell<Token> token, PhraseTokens kind) {
+    /**
+     * Consume token from the cell, and report it.
+     *
+     * @param token the token cell
+     * @param kind  the kind
+     * @return the parser state
+     */
+    private ParserState consume(final Cell<Token> token, final PhraseTokens kind) {
         output = new PhraseToken(kind, token.take(), errors);
         errors = null;
         return ParserState.OUTPUT_AVAILABLE;
     }
 
-    private ParserState peek(Token token, PhraseTokens kind, int nextState) {
+    /**
+     * Report current token, and switch to the new state.
+     *
+     * @param token     the token
+     * @param kind      the kind
+     * @param nextState the next state
+     * @return the parser state
+     */
+    private ParserState peek(final Token token, final PhraseTokens kind, final int nextState) {
         state = nextState;
         output = new PhraseToken(kind, token, errors);
         errors = null;
@@ -215,7 +284,7 @@ public class PhraseParserImpl implements PhraseParser {
         } else if (state == AFTER_EOF) {
             return null;
         } else {
-            throw new IllegalStateException("No output available, parse more tokens: " + output);
+            throw new IllegalStateException("No output available, parse more tokens: " + state);
         }
     }
 }

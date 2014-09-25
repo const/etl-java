@@ -33,52 +33,54 @@ import net.sf.etl.parsers.TextPos;
 import java.util.Collections;
 
 /**
- * Base parser for literal values
+ * Base parser for literal values.
  */
 public class BaseLiteralParser {
     /**
-     * Input text
+     * Input text.
      */
-    protected final String inputText;
+    private final String inputText;
     /**
-     * The start position
+     * Buffer used for consuming characters.
+     */
+    private final StringBuilder buffer = new StringBuilder();
+    /**
+     * The start position.
      */
     private final TextPos start;
     /**
-     * The system id
+     * The system id.
      */
     private final String systemId;
     /**
-     * Buffer used for consuming characters
+     * position in input text.
      */
-    protected final StringBuilder buffer = new StringBuilder();
+    private int pos = 0;
     /**
-     * position in input text
+     * The line .
      */
-    protected int pos = 0;
+    private int line;
     /**
-     * The line
+     * The column.
      */
-    protected int line;
+    private int column;
     /**
-     * The column
+     * The offset.
      */
-    protected int column;
+    private long offset;
     /**
-     * The offset
+     * The errors to use.
      */
-    protected long offset;
-    /**
-     * The errors to use
-     */
-    protected ErrorInfo errors;
+    private ErrorInfo errors;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param inputText the input text
+     * @param start     the start position
+     * @param systemId  the system id
      */
-    public BaseLiteralParser(String inputText, TextPos start, String systemId) {
+    public BaseLiteralParser(final String inputText, final TextPos start, final String systemId) {
         this.inputText = inputText;
         this.start = start;
         this.systemId = systemId;
@@ -94,7 +96,7 @@ public class BaseLiteralParser {
      * @param n position relatively to current.
      * @return -1 if end of string or character at the current position.
      */
-    protected int la(int n) {
+    protected final int la(final int n) {
         int p = pos;
         for (int i = 0; i < n; i++) {
             p = p + Character.charCount(inputText.codePointAt(p));
@@ -103,11 +105,11 @@ public class BaseLiteralParser {
     }
 
     /**
-     * Look at character
+     * Look at character.
      *
      * @return -1 if end of string or character at the current position.
      */
-    protected int la() {
+    protected final int la() {
         return pos >= inputText.length() ? -1 : inputText.codePointAt(pos);
     }
 
@@ -116,7 +118,7 @@ public class BaseLiteralParser {
      *
      * @param addToBuffer if true the character should be added to the buffer
      */
-    protected void consume(boolean addToBuffer) {
+    protected final void consume(final boolean addToBuffer) {
         if (pos >= inputText.length()) {
             throw new ParserException();
         }
@@ -131,23 +133,60 @@ public class BaseLiteralParser {
     }
 
     /**
-     * Consume current codepoint and get next codepoint
+     * @return the buffer
+     */
+    protected final StringBuilder buffer() {
+        return buffer;
+    }
+
+    /**
+     * @return the input text
+     */
+    protected final String inputText() {
+        return inputText;
+    }
+
+    /**
+     * Consume current codepoint and get next codepoint.
      *
      * @param addToBuffer the buffer to add to
      * @return the next codepoint
      */
-    protected int next(boolean addToBuffer) {
+    protected final int next(final boolean addToBuffer) {
         consume(addToBuffer);
         return la();
     }
 
     /**
-     * Create error
+     * Create error.
      *
      * @param key the error key
      */
-    protected void error(String key) {
-        errors = new ErrorInfo(key, Collections.emptyList(), new SourceLocation(start, new TextPos(line, column, offset), systemId), errors);
+    protected final void error(final String key) {
+        errors = new ErrorInfo(key, Collections.emptyList(),
+                new SourceLocation(start, new TextPos(line, column, offset), systemId), errors);
+    }
+
+    /**
+     * @return the errors.
+     */
+    protected final ErrorInfo errors() {
+        return errors;
+    }
+
+    /**
+     * @return the position
+     */
+    protected final int position() {
+        return pos;
+    }
+
+    /**
+     * Move position to the next line.
+     */
+    protected final void nextLine() {
+        line++;
+        column = TextPos.START_COLUMN;
     }
 }
 

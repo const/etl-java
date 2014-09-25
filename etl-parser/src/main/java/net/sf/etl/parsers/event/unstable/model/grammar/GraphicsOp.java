@@ -30,5 +30,5 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
  *
  * @author const
  */
-public class GraphicsOp extends TokenRefOp {
+public final class GraphicsOp extends TokenRefOp {
 }

@@ -2,7 +2,7 @@
  * Reference ETL Parser for Java
  * Copyright (c) 2000-2013 Constantine A Plotnikov
  *
- * Permission is hereby granted, free of charge, to any person 
+ * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
@@ -25,10 +25,11 @@
 
 package net.sf.etl.parsers;
 
+import net.sf.etl.parsers.characters.Whitespaces;
 import net.sf.etl.parsers.event.grammar.CompiledGrammar;
+import net.sf.etl.parsers.streams.DefaultGrammarResolver;
 import net.sf.etl.parsers.streams.GrammarResolver;
 import net.sf.etl.parsers.streams.LexerReader;
-import net.sf.etl.parsers.streams.util.DefaultGrammarResolver;
 import org.apache_extras.xml_catalog.event.Catalog;
 
 import java.io.IOException;
@@ -43,51 +44,51 @@ import java.util.HashSet;
  * The default term parser configuration (intended for command line tools), that does not distinguish
  * files and return the same value for all system ids.
  */
-public class DefaultTermParserConfiguration implements TermParserConfiguration {
+public final class DefaultTermParserConfiguration implements TermParserConfiguration {
     /**
-     * The default configuration instance
+     * The default configuration instance.
      */
     public static final DefaultTermParserConfiguration INSTANCE = new DefaultTermParserConfiguration();
     /**
-     * The property that specifies file encoding
+     * The property that specifies file encoding.
      */
     public static final String ETL_FILE_ENCODING_PROPERTY = "etl.file.encoding";
     /**
-     * The property that specifies tab size
+     * The property that specifies tab size.
      */
     public static final String ETL_TAB_SIZE_PROPERTY = "etl.tab.size";
     /**
-     * The catalog
+     * The catalog.
      */
     private final Catalog catalog;
     /**
-     * The tabulation size
+     * The tabulation size.
      */
     private final int tabSize;
     /**
-     * The charset encoding
+     * The charset encoding.
      */
     private final Charset encoding;
     /**
-     * The grammar cache
+     * The grammar cache.
      */
     private final HashMap<String, CompiledGrammar> grammarCache = new HashMap<String, CompiledGrammar>();
 
     /**
-     * The constructor from fields
+     * The constructor from fields.
      *
      * @param catalog  the catalog
      * @param tabSize  the tab size
      * @param encoding the encoding
      */
-    public DefaultTermParserConfiguration(Catalog catalog, int tabSize, Charset encoding) {
+    public DefaultTermParserConfiguration(final Catalog catalog, final int tabSize, final Charset encoding) {
         this.catalog = catalog;
         this.tabSize = tabSize;
         this.encoding = encoding;
     }
 
     /**
-     * The default constructor that takes default values from system properties
+     * The default constructor that takes default values from system properties.
      */
     public DefaultTermParserConfiguration() {
         this(getDefaultCatalog(), getDefaultTabSize(), getDefaultEncoding());
@@ -119,23 +120,23 @@ public class DefaultTermParserConfiguration implements TermParserConfiguration {
         try {
             return Integer.parseInt(System.getProperty(ETL_TAB_SIZE_PROPERTY, "8"));
         } catch (Exception ex) {
-            return 8;
+            return Whitespaces.DEFAULT_TAB_SIZE;
         }
     }
 
 
     @Override
-    public Catalog getCatalog(String systemId) {
+    public Catalog getCatalog(final String systemId) {
         return catalog;
     }
 
     @Override
-    public int getTabSize(String systemId) {
+    public int getTabSize(final String systemId) {
         return tabSize;
     }
 
     @Override
-    public Reader openReader(String systemId) throws IOException {
+    public Reader openReader(final String systemId) throws IOException {
         if (!systemId.startsWith("file:") && !systemId.startsWith("jar:file:")) {
             throw new IllegalArgumentException("Only local system ids are supported!");
         }
@@ -143,14 +144,14 @@ public class DefaultTermParserConfiguration implements TermParserConfiguration {
     }
 
     @Override
-    public CompiledGrammar getCachedGrammar(String systemId) {
+    public CompiledGrammar getCachedGrammar(final String systemId) {
         synchronized (grammarCache) {
             return grammarCache.get(systemId);
         }
     }
 
     @Override
-    public void cacheGrammar(CompiledGrammar grammar) {
+    public void cacheGrammar(final CompiledGrammar grammar) {
         synchronized (grammarCache) {
             HashSet<String> cachedGrammars = new HashSet<String>();
             cacheGrammar(cachedGrammars, grammar);
@@ -158,17 +159,17 @@ public class DefaultTermParserConfiguration implements TermParserConfiguration {
     }
 
     @Override
-    public GrammarResolver getGrammarResolver(String systemId) {
+    public GrammarResolver getGrammarResolver(final String systemId) {
         return DefaultGrammarResolver.INSTANCE;
     }
 
     /**
-     * Cache grammar and all related grammars
+     * Cache grammar and all related grammars.
      *
      * @param cachedGrammars the grammars cached in this pass
      * @param grammar        the cached grammar
      */
-    private void cacheGrammar(HashSet<String> cachedGrammars, CompiledGrammar grammar) {
+    private void cacheGrammar(final HashSet<String> cachedGrammars, final CompiledGrammar grammar) {
         final String systemId = grammar.getDescriptor().getSystemId();
         if (!cachedGrammars.add(systemId)) {
             grammarCache.put(systemId, grammar);

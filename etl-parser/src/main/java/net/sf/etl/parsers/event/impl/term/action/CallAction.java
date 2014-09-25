@@ -31,35 +31,35 @@ import net.sf.etl.parsers.event.grammar.TermParserState;
 import net.sf.etl.parsers.event.grammar.TermParserStateFactory;
 
 /**
- * The call action
+ * The call action.
  */
-public class CallAction extends Action {
+public final class CallAction extends Action {
     /**
-     * The point where to go on success
+     * The point where to go on success.
      */
-    public Action success;
+    private Action success;
     /**
-     * The point where to go on the failure of the call
+     * The point where to go on the failure of the call.
      */
-    public Action failure;
+    private Action failure;
     /**
      * The state factory to call. This state factory is usually set using
      * {@link net.sf.etl.parsers.event.impl.term.action.buildtime.ActionLinker}
      * rather than directly during construction.
      */
-    public TermParserStateFactory stateFactory;
+    private TermParserStateFactory stateFactory;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param source the source location in the grammar that caused this node creation
      */
-    public CallAction(SourceLocation source) {
+    public CallAction(final SourceLocation source) {
         super(source);
     }
 
     @Override
-    public void parseMore(TermParserContext context, ActionState state) {
+    public void parseMore(final TermParserContext context, final ActionState state) {
         final TermParserState.CallStatus status = state.consumeCallStatus();
         switch (status) {
             case NONE:
@@ -74,5 +74,32 @@ public class CallAction extends Action {
             default:
                 throw new RuntimeException("Unexpected call status: " + status);
         }
+    }
+
+    /**
+     * Set success path.
+     *
+     * @param success the success action.
+     */
+    public void setSuccess(final Action success) {
+        this.success = success;
+    }
+
+    /**
+     * Set failure path.
+     *
+     * @param failure the failure action
+     */
+    public void setFailure(final Action failure) {
+        this.failure = failure;
+    }
+
+    /**
+     * Set state factory.
+     *
+     * @param stateFactory the state factory
+     */
+    public void setStateFactory(final TermParserStateFactory stateFactory) {
+        this.stateFactory = stateFactory;
     }
 }

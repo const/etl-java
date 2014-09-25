@@ -41,7 +41,7 @@ public enum Tokens {
      */
     STRING(false, true, PhraseTokens.SIGNIFICANT),
     /**
-     * A string with alphanumeric prefix
+     * A string with alphanumeric prefix.
      */
     PREFIXED_STRING(true, true, PhraseTokens.SIGNIFICANT),
     /**
@@ -54,11 +54,11 @@ public enum Tokens {
      */
     MULTILINE_STRING(false, true, PhraseTokens.SIGNIFICANT),
     /**
-     * A multiline string with alphanumeric prefix
+     * A multiline string with alphanumeric prefix.
      */
     PREFIXED_MULTILINE_STRING(true, true, PhraseTokens.SIGNIFICANT),
     /**
-     * identifier token
+     * identifier token.
      */
     IDENTIFIER(false, false, PhraseTokens.SIGNIFICANT),
     /**
@@ -69,47 +69,47 @@ public enum Tokens {
      */
     GRAPHICS(false, false, PhraseTokens.SIGNIFICANT),
     /**
-     * open round bracket
+     * open round bracket.
      */
     BRACKET(false, false, PhraseTokens.SIGNIFICANT),
     /**
-     * open curly bracket
+     * open curly bracket.
      */
     OPEN_CURLY(false, false, PhraseTokens.START_BLOCK),
     /**
-     * close curly bracket
+     * close curly bracket.
      */
     CLOSE_CURLY(false, false, PhraseTokens.END_BLOCK),
     /**
-     * a semicolon
+     * a semicolon.
      */
     SEMICOLON(false, false, PhraseTokens.STATEMENT_END),
     /**
-     * a comma
+     * a comma.
      */
     COMMA(false, false, PhraseTokens.SIGNIFICANT),
     /**
-     * an integer literal
+     * an integer literal.
      */
     INTEGER(false, false, PhraseTokens.SIGNIFICANT),
     /**
-     * a floating point literal
+     * a floating point literal.
      */
     FLOAT(false, false, PhraseTokens.SIGNIFICANT),
     /**
-     * integer literal with suffix like 1L or 1ul
+     * integer literal with suffix like 1L or 1ul.
      */
     INTEGER_WITH_SUFFIX(true, false, PhraseTokens.SIGNIFICANT),
     /**
-     * floating point literal with suffix like 1.0D or 0.1f
+     * floating point literal with suffix like 1.0D or 0.1f.
      */
     FLOAT_WITH_SUFFIX(true, false, PhraseTokens.SIGNIFICANT),
     /**
-     * a line comment
+     * a line comment.
      */
     LINE_COMMENT(false, false, PhraseTokens.IGNORABLE),
     /**
-     * a doc comment
+     * a doc comment.
      */
     DOC_COMMENT(false, false, PhraseTokens.SIGNIFICANT),
     /**
@@ -122,28 +122,34 @@ public enum Tokens {
      */
     WHITESPACE(false, false, PhraseTokens.IGNORABLE),
     /**
-     * New line token. It is one of the following: "\n" "\f" "\n\r" "\r\n"
+     * New line token, see {@link net.sf.etl.parsers.characters.Whitespaces#isNewline(int)}.
      */
     NEWLINE(false, false, PhraseTokens.SOFT_STATEMENT_END),
     /**
-     * End of file token. This is the only token that has zero content
+     * End of file token. This is the only token that has zero content.
      */
     EOF(false, false, PhraseTokens.EOF);
-
     /**
-     * if true the token should have start and end quotes
+     * if true the token should have start and end quotes.
      */
     private final boolean quoted;
     /**
-     * The role in the phrase syntax
+     * The role in the phrase syntax.
      */
     private final PhraseTokens phraseRole;
     /**
-     * if true, the token should have some modifier (prefix or suffix)
+     * if true, the token should have some modifier (prefix or suffix).
      */
     private final boolean modified;
 
-    private Tokens(boolean modified, boolean quoted, PhraseTokens role) {
+    /**
+     * The constructor.
+     *
+     * @param modified true if might be modified.
+     * @param quoted   true has quote class.
+     * @param role     the role in the segment parser.
+     */
+    private Tokens(final boolean modified, final boolean quoted, final PhraseTokens role) {
         this.modified = modified;
         this.quoted = quoted;
         phraseRole = role;

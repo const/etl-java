@@ -28,27 +28,46 @@ package net.sf.etl.parsers.resource;
 import java.io.Serializable;
 
 /**
- * The resource reference
+ * The resource reference.
  */
-public class ResourceReference implements Serializable {
+public final class ResourceReference implements Serializable {
+    /**
+     * The system id.
+     */
     private final String systemId;
+    /**
+     * The public id.
+     */
     private final String publicId;
 
-    public ResourceReference(String systemId, String publicId) {
+    /**
+     * The constructor.
+     *
+     * @param systemId the public id
+     * @param publicId the system id
+     */
+    public ResourceReference(final String systemId, final String publicId) {
         this.systemId = systemId;
         this.publicId = publicId;
     }
 
+    /**
+     * @return the system id
+     */
     public String getSystemId() {
         return systemId;
     }
 
+    /**
+     * @return the public id
+     */
     public String getPublicId() {
         return publicId;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
+        //CHECKSTYLE:OFF
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -59,22 +78,20 @@ public class ResourceReference implements Serializable {
         if (systemId != null ? !systemId.equals(that.systemId) : that.systemId != null) return false;
 
         return true;
+        //CHECKSTYLE:ON
     }
 
     @Override
     public int hashCode() {
+        //CHECKSTYLE:OFF
         int result = systemId != null ? systemId.hashCode() : 0;
         result = 31 * result + (publicId != null ? publicId.hashCode() : 0);
         return result;
+        //CHECKSTYLE:ON
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("ResourceReference");
-        sb.append("{systemId='").append(systemId).append('\'');
-        sb.append(", publicId='").append(publicId).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "ResourceReference{systemId='" + systemId + "', publicId='" + publicId + "'}";
     }
 }

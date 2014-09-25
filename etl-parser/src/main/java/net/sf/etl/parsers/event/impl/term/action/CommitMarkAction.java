@@ -29,22 +29,22 @@ import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 /**
- * The action that pushes the mark
+ * The action that pushes the mark.
  */
-public class CommitMarkAction extends SimpleAction {
+public final class CommitMarkAction extends SimpleAction {
     /**
-     * The constructor
+     * The constructor.
      *
      * @param source the source location in the grammar that caused this node creation
      * @param next   the next action
      */
-    public CommitMarkAction(SourceLocation source, Action next) {
+    public CommitMarkAction(final SourceLocation source, final Action next) {
         super(source, next);
     }
 
     @Override
-    public void parseMore(TermParserContext context, ActionState state) {
+    public void parseMore(final TermParserContext context, final ActionState state) {
         context.commitMark();
-        state.nextAction(next);
+        state.nextAction(getNext());
     }
 }

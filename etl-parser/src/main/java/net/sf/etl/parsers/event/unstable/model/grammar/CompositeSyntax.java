@@ -32,8 +32,23 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
  */
 public abstract class CompositeSyntax extends Syntax {
     /**
-     * syntax
+     * syntax.
      */
-    public Sequence syntax;
+    private Sequence syntax;
 
+    /**
+     * @return syntax.
+     */
+    public final Sequence getSyntax() {
+        return syntax;
+    }
+
+    /**
+     * Set syntax.
+     *
+     * @param syntax the syntax
+     */
+    public final void setSyntax(final Sequence syntax) {
+        this.syntax = syntax;
+    }
 }

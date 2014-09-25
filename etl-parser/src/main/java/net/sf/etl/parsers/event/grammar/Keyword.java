@@ -38,33 +38,65 @@ import java.util.WeakHashMap;
  */
 public final class Keyword implements Serializable {
     /**
-     * The weak hash map for keywords
+     * The weak hash map for keywords.
      */
-    private final static WeakHashMap<String, WeakReference<Keyword>> keywords = new WeakHashMap<String, WeakReference<Keyword>>();
+    private static final WeakHashMap<String, WeakReference<Keyword>> KEYWORDS =
+            new WeakHashMap<String, WeakReference<Keyword>>();
     /**
-     * The keyword text
+     * The keyword text.
      */
     private final String text;
     /**
-     * The token key for keyword
+     * The token key for keyword.
      */
     private final TokenKey tokenKey;
 
     /**
-     * The private constructor
+     * The private constructor.
      *
-     * @param text the keyword text
+     * @param tokenKey the token key
+     * @param text     the keyword text
      */
-    private Keyword(TokenKey tokenKey, String text) {
+    private Keyword(final TokenKey tokenKey, final String text) {
         this.tokenKey = tokenKey;
-        //noinspection RedundantStringConstructorCall
-        this.text = new String(text);
+        this.text = text;
+    }
+
+    /**
+     * Get keyword for the specified token.
+     *
+     * @param token the text to use
+     * @return the keyword for the text
+     */
+    public static Keyword forToken(final Token token) {
+        return forText(token.text(), token.key());
+    }
+
+    /**
+     * Get keyword for the text. This method is synchronized and slow, but it is called only during
+     * grammar construction case. In runtime, the instances of {@link KeywordContext} are used.
+     *
+     * @param text the text
+     * @param key  the token key
+     * @return token for the text
+     */
+    public static Keyword forText(final String text, final TokenKey key) {
+        synchronized (KEYWORDS) {
+            final WeakReference<Keyword> keyword = KEYWORDS.get(text);
+            Keyword rc = keyword == null ? null : keyword.get();
+            if (rc == null) {
+                rc = new Keyword(key, text);
+                KEYWORDS.put(rc.text(), new WeakReference<Keyword>(rc));
+            }
+            return rc;
+        }
     }
 
     /**
      * @return resolve object from serialization
      */
     private Object readResolve() {
+        // TODO resolve token key as well (for non-modified tokens)
         return forText(text, tokenKey);
     }
 
@@ -78,35 +110,5 @@ public final class Keyword implements Serializable {
     @Override
     public String toString() {
         return text;
-    }
-
-    /**
-     * Get keyword for the specified token
-     *
-     * @param token the text to use
-     * @return the keyword for the text
-     */
-    public static Keyword forToken(Token token) {
-        return forText(token.text(), token.key());
-    }
-
-    /**
-     * Get keyword for the text. This method is synchronized and slow, but it is called only during
-     * grammar construction case. In runtime, the instances of {@link KeywordContext} are used.
-     *
-     * @param text the text
-     * @param key  the token key
-     * @return token for the text
-     */
-    public static Keyword forText(String text, TokenKey key) {
-        synchronized (keywords) {
-            final WeakReference<Keyword> keyword = keywords.get(text);
-            Keyword rc = keyword == null ? null : keyword.get();
-            if (rc == null) {
-                rc = new Keyword(key, text);
-                keywords.put(rc.text(), new WeakReference<Keyword>(rc));
-            }
-            return rc;
-        }
     }
 }

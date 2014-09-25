@@ -29,82 +29,96 @@ import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.impl.flattened.DirectedAcyclicGraph.DefinitionGatherer;
 import net.sf.etl.parsers.event.grammar.impl.flattened.DirectedAcyclicGraph.ImportDefinitionGatherer;
 import net.sf.etl.parsers.event.grammar.impl.flattened.DirectedAcyclicGraph.Node;
-import net.sf.etl.parsers.event.unstable.model.grammar.*;
+import net.sf.etl.parsers.event.unstable.model.grammar.Associativity;
+import net.sf.etl.parsers.event.unstable.model.grammar.Context;
+import net.sf.etl.parsers.event.unstable.model.grammar.ContextImport;
+import net.sf.etl.parsers.event.unstable.model.grammar.ContextInclude;
+import net.sf.etl.parsers.event.unstable.model.grammar.ContextMember;
+import net.sf.etl.parsers.event.unstable.model.grammar.Element;
+import net.sf.etl.parsers.event.unstable.model.grammar.RefOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.SyntaxDefinition;
+import net.sf.etl.parsers.event.unstable.model.grammar.Wrapper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 /**
- * This is a view of context belonging to grammar
+ * This is a view of context belonging to grammar.
  *
  * @author const
  */
-public class ContextView {
+public final class ContextView {
     /**
-     * this is gather of imports by grammar include direction
+     * this is gather of imports by grammar include direction.
      */
-    private static final IncludeGathererByGrammarInclude INCLUDE_GATHERER_BY_GRAMMAR_INCLUDE = new IncludeGathererByGrammarInclude();
+    private static final IncludeGathererByGrammarInclude INCLUDE_GATHERER_BY_GRAMMAR_INCLUDE
+            = new IncludeGathererByGrammarInclude();
     /**
-     * this is gather of imports by grammar include direction
+     * this is gather of imports by grammar include direction.
      */
-    private static final IncludeGathererByContextInclude INCLUDE_GATHERER_BY_CONTEXT_INCLUDE = new IncludeGathererByContextInclude();
+    private static final IncludeGathererByContextInclude INCLUDE_GATHERER_BY_CONTEXT_INCLUDE
+            = new IncludeGathererByContextInclude();
     /**
-     * this is gather of imports by grammar include direction
+     * this is gather of imports by grammar include direction.
      */
-    private static final ImportGathererByGrammarInclude IMPORT_GATHERER_BY_GRAMMAR_INCLUDE = new ImportGathererByGrammarInclude();
+    private static final ImportGathererByGrammarInclude IMPORT_GATHERER_BY_GRAMMAR_INCLUDE
+            = new ImportGathererByGrammarInclude();
     /**
-     * this is gather of definitions by grammar include direction
+     * this is gather of definitions by grammar include direction.
      */
-    private static final DefinitionGathererByGrammarInclude DEFINITION_GATHERER_BY_GRAMMAR_INCLUDE = new DefinitionGathererByGrammarInclude();
+    private static final DefinitionGathererByGrammarInclude DEFINITION_GATHERER_BY_GRAMMAR_INCLUDE
+            = new DefinitionGathererByGrammarInclude();
     /**
-     * this is gather of imports by grammar include direction
+     * this is gather of imports by grammar include direction.
      */
-    private static final ImportGathererByContextInclude IMPORT_GATHERER_BY_CONTEXT_INCLUDE = new ImportGathererByContextInclude();
+    private static final ImportGathererByContextInclude IMPORT_GATHERER_BY_CONTEXT_INCLUDE
+            = new ImportGathererByContextInclude();
     /**
-     * this is gather of definitions by grammar include direction
+     * this is gather of definitions by grammar include direction.
      */
-    private static final DefinitionGathererByContextInclude DEFINITION_GATHERER_BY_CONTEXT_INCLUDE = new DefinitionGathererByContextInclude();
+    private static final DefinitionGathererByContextInclude DEFINITION_GATHERER_BY_CONTEXT_INCLUDE
+            = new DefinitionGathererByContextInclude();
     /**
-     * The tree map from precedence to level view object
+     * The tree map from precedence to level view object.
      */
     private final TreeMap<Integer, OpLevel> operatorLevels = new TreeMap<Integer, OpLevel>();
     /**
-     * The attributes specification for context
-     */
-    private AttributesView attributes;
-    /**
-     * The documentation specification for context
-     */
-    private DocumentationView documentation;
-    /**
-     * The statements defined in the context
+     * The statements defined in the context.
      */
     private final HashSet<StatementView> statements = new HashSet<StatementView>();
     /**
-     * The map from name to definition
+     * The map from name to definition.
      */
     private final HashMap<String, DefView> defs = new HashMap<String, DefView>();
     /**
-     * The map for choice definitions
+     * The map for choice definitions.
      */
     private final HashMap<String, ChoiceDefView> choiceDefs = new HashMap<String, ChoiceDefView>();
     /**
-     * The map for choice cases definitions
+     * The map for choice cases definitions.
      */
-    private final HashMap<String, List<ChoiceCaseDefView>> choiceCaseDefs = new HashMap<String, List<ChoiceCaseDefView>>();
+    private final HashMap<String, List<ChoiceCaseDefView>> choiceCaseDefs =
+            new HashMap<String, List<ChoiceCaseDefView>>();
     /**
-     * DAG node in context include hierarchy
+     * DAG node in context include hierarchy.
      */
     private final Node<ContextView> contextIncludesNode;
     /**
-     * The map from included context name to context include views
+     * The map from included context name to context include views.
      */
     private final Map<String, ContextIncludeView> contextIncludes = new HashMap<String, ContextIncludeView>();
     /**
-     * The DAG node in context include along with grammar include hierarchy
+     * The DAG node in context include along with grammar include hierarchy.
      */
     private final Node<ContextView> grammarIncludesNode;
     /**
-     * The map that contains imports. key is local name of context
+     * The map that contains imports. key is local name of context.
      */
     private final Map<String, ContextImportView> imports = new HashMap<String, ContextImportView>();
     /**
@@ -112,11 +126,11 @@ public class ContextView {
      */
     private final Map<String, DefinitionView> definitions = new HashMap<String, DefinitionView>();
     /**
-     * The context name
+     * The context name.
      */
     private final String name;
     /**
-     * The grammar view for this context view
+     * The grammar view for this context view.
      */
     private final GrammarView grammar;
     /**
@@ -130,12 +144,20 @@ public class ContextView {
      */
     private final Element reportingContext;
     /**
-     * The definition context
+     * The definition context.
      */
     private final DefinitionContext definitionContext;
+    /**
+     * The attributes specification for context.
+     */
+    private AttributesView attributes;
+    /**
+     * The documentation specification for context.
+     */
+    private DocumentationView documentation;
 
     /**
-     * A constructor for view
+     * A constructor for view.
      *
      * @param context                the context that is wrapped by this view. It may be null in case
      *                               if grammar does not have a view defined.
@@ -144,9 +166,9 @@ public class ContextView {
      * @param contextGrammarIncludes the context grammar include graph
      * @param contextContextIncludes the context content include graph
      */
-    public ContextView(GrammarView grammar, String name, Context context,
-                       DirectedAcyclicGraph<ContextView> contextGrammarIncludes,
-                       DirectedAcyclicGraph<ContextView> contextContextIncludes) {
+    public ContextView(final GrammarView grammar, final String name, final Context context,
+                       final DirectedAcyclicGraph<ContextView> contextGrammarIncludes,
+                       final DirectedAcyclicGraph<ContextView> contextContextIncludes) {
         super();
         this.context = context;
         this.grammar = grammar;
@@ -162,79 +184,82 @@ public class ContextView {
     }
 
     /**
-     * Gather content from context
+     * Gather content from context.
      */
     private void loadContent() {
         assert context != null;
-        for (final ContextMember m : context.content) {
+        for (final ContextMember m : context.getContent()) {
             if (m instanceof ContextInclude) {
                 final ContextInclude ci = (ContextInclude) m;
-                final ContextView referencedContext = grammar.context(ci.contextName);
+                final ContextView referencedContext = grammar.context(ci.getContextName());
                 if (referencedContext == null) {
-                    error(ci, "grammar.Context.ContextInclude.missingContext", ci.contextName);
+                    error(ci, "grammar.Context.ContextInclude.missingContext", ci.getContextName());
                     continue;
                 }
                 // check if duplicate include
                 if (contextIncludes.containsKey(referencedContext.name())) {
-                    error(ci, "grammar.Context.ContextInclude.duplicateInclude", ci.contextName);
+                    error(ci, "grammar.Context.ContextInclude.duplicateInclude", ci.getContextName());
                     continue;
                 }
                 // create wrapper link
                 WrapperLink wrapperLink = null;
-                for (final ListIterator<Wrapper> j = ci.wrappers.listIterator(ci.wrappers.size()); j.hasPrevious(); ) {
+                final ListIterator<Wrapper> j = ci.getWrappers().listIterator(ci.getWrappers().size());
+                while (j.hasPrevious()) {
                     final Wrapper w = j.previous();
-                    if (w.object != null && w.object.name != null && w.object.prefix != null && w.property != null) {
-                        final String name = w.object.name.text();
-                        final String prefix = w.object.prefix.text();
-                        final String property = w.property.text();
+                    if (w.getObject() != null && w.getObject().getName() != null && w.getObject().getPrefix() != null
+                            && w.getProperty() != null) {
+                        // otherwise there were syntax error
+                        final String objectName = w.getObject().getName().text();
+                        final String prefix = w.getObject().getPrefix().text();
+                        final String property = w.getProperty().text();
                         final String namespace = grammar.namespace(prefix);
                         if (namespace == null) {
                             error(w, "grammar.Wrapper.undefinedWrapperPrefix", prefix);
                         } else {
-                            wrapperLink = new WrapperLink(wrapperLink, namespace, name, property,
-                                    w.object.sourceLocation(),
-                                    new SourceLocation(w.property.start(), w.property.end(), w.location.systemId()));
+                            wrapperLink = new WrapperLink(wrapperLink, namespace, objectName, property,
+                                    w.getObject().getSourceLocation(),
+                                    new SourceLocation(w.getProperty().start(), w.getProperty().end(),
+                                            w.getLocation().systemId()));
                         }
-                    } else {
-                        // there were syntax error
                     }
                 }
-                contextIncludes.put(referencedContext.name(), new ContextIncludeView(ci, this, referencedContext, wrapperLink));
+                contextIncludes.put(referencedContext.name(), new ContextIncludeView(ci, this, referencedContext,
+                        wrapperLink));
             } else if (m instanceof ContextImport) {
                 final ContextImport ci = (ContextImport) m;
                 final GrammarView referencedGrammar;
-                if (ci.grammarName == null) {
+                if (ci.getGrammarName() == null) {
                     referencedGrammar = grammar;
                 } else {
-                    referencedGrammar = grammar.getImportedGrammar(ci.grammarName);
+                    referencedGrammar = grammar.getImportedGrammar(ci.getGrammarName());
                     if (referencedGrammar == null) {
-                        error(ci, "grammar.Context.ContextImport.missingGrammarImport", ci.grammarName);
+                        error(ci, "grammar.Context.ContextImport.missingGrammarImport", ci.getGrammarName());
                         continue;
                     }
                 }
-                final ContextView referencedContext = referencedGrammar.context(ci.contextName);
+                final ContextView referencedContext = referencedGrammar.context(ci.getContextName());
                 if (referencedContext == null) {
                     if (referencedGrammar == grammar) {
-                        error(ci, "grammar.Context.ContextImport.missingContext", ci.contextName);
+                        error(ci, "grammar.Context.ContextImport.missingContext", ci.getContextName());
                     } else {
                         error(ci, "grammar.Context.ContextImport.missingContextInGrammar",
-                                ci.contextName, referencedGrammar.getSystemId());
+                                ci.getContextName(), referencedGrammar.getSystemId());
                     }
                     continue;
                 }
-                if (imports.containsKey(ci.localName)) {
-                    error(ci, "grammar.Context.ContextImport.duplicateImport", ci.contextName);
+                if (imports.containsKey(ci.getLocalName())) {
+                    error(ci, "grammar.Context.ContextImport.duplicateImport", ci.getContextName());
                     continue;
                 }
                 final ContextImportView view = new ContextImportView(ci, this, referencedContext);
                 imports.put(view.localName(), view);
             } else if (m instanceof SyntaxDefinition) {
                 final SyntaxDefinition def = (SyntaxDefinition) m;
-                if (definitions.containsKey(def.name.text())) {
-                    error(def, "grammar.Context.Definition.duplicateDefinition", def.name);
+                if (definitions.containsKey(def.getName().text())) {
+                    error(def, "grammar.Context.Definition.duplicateDefinition", def.getName());
                     continue;
                 }
-                definitions.put(def.name.text(), DefinitionView.get(this, def));
+                definitions.put(def.getName().text(), DefinitionView.get(this, def));
             } else {
                 assert false : "Unknown type of context content" + m.getClass().getCanonicalName();
             }
@@ -249,11 +274,11 @@ public class ContextView {
     }
 
     /**
-     * Associate this context with context from parent grammar
+     * Associate this context with context from parent grammar.
      *
      * @param pgc the context from parent grammar
      */
-    public void processGrammarInclude(ContextView pgc) {
+    public void processGrammarInclude(final ContextView pgc) {
         // add parent along with grammar include path
         final boolean rc = grammarIncludesNode.addParentNode(pgc.grammarIncludesNode);
         assert rc : "It is assumed that adding parent will never fail "
@@ -262,12 +287,12 @@ public class ContextView {
     }
 
     /**
-     * Report non fatal grammar error
+     * Report non fatal grammar error.
      *
      * @param errorId the error identifier
      * @param args    the error arguments
      */
-    public void error(String errorId, Object... args) {
+    public void error(final String errorId, final Object... args) {
         error(reportingContext, errorId, args);
     }
 
@@ -280,28 +305,28 @@ public class ContextView {
 
 
     /**
-     * Report non fatal grammar error
+     * Report non fatal grammar error.
      *
      * @param e       the element in error
      * @param errorId the error identifier
      * @param args    the error arguments
      */
-    public void error(Element e, String errorId, Object... args) {
+    public void error(final Element e, final String errorId, final Object... args) {
         grammar.error(e, errorId, args);
     }
 
     /**
-     * Report non fatal grammar error
+     * Report non fatal grammar error.
      *
      * @param e       the element in error
      * @param errorId the error identifier
      */
-    public void error(Element e, String errorId) {
+    public void error(final Element e, final String errorId) {
         grammar.error(e, errorId);
     }
 
     /**
-     * Gather content according to grammar include hierarchy
+     * Gather content according to grammar include hierarchy.
      */
     public void implementGrammarInclude() {
         if (context != null) {
@@ -330,7 +355,7 @@ public class ContextView {
     }
 
     /**
-     * implement context include
+     * implement context include.
      */
     public void implementContextInclude() {
         INCLUDE_GATHERER_BY_CONTEXT_INCLUDE.gatherDefinitions(this);
@@ -349,11 +374,11 @@ public class ContextView {
      * @return true if wrapped context is abstract
      */
     public boolean isDefault() {
-        return context != null && context.defaultModifier != null;
+        return context != null && context.getDefaultModifier() != null;
     }
 
     /**
-     * Sorts definitions by categories
+     * Sorts definitions by categories.
      */
     public void sortDefinitionsByCategories() {
         assert !isAbstract() : "This method should not be called for abstract contexts";
@@ -362,8 +387,8 @@ public class ContextView {
                 if (v.definingContext() == this) {
                     error(v.definition(), "grammar.Context.ContextImport.nonAbstractContextImportsAbstractContext",
                             v.localName(), v.referencedContext().grammar()
-                            .getSystemId(), v.referencedContext()
-                            .name());
+                                    .getSystemId(), v.referencedContext()
+                                    .name());
                 } else {
                     error("grammar.Context.ContextImport.includedImportsAbstractContext",
                             name(),
@@ -388,41 +413,41 @@ public class ContextView {
                 OpLevel level = operatorLevels.get(precedence);
                 if (level == null) {
                     level = new OpLevel();
-                    level.precedence = precedence;
+                    level.setPrecedence(precedence);
                     operatorLevels.put(precedence, level);
                 }
                 if (Associativity.F != associativity && 0 == precedence) {
-                    error(op.definition(), "grammar.Context.OperatorDefinition.wrongPrecedenceAssociativity",
+                    error(op.operator(), "grammar.Context.OperatorDefinition.wrongPrecedenceAssociativity",
                             precedence, associativity);
                     continue;
                 }
                 switch (associativity) {
                     case F:
-                        level.f.add(op);
+                        level.getF().add(op);
                         break;
                     case FX:
-                        level.fx.add(op);
+                        level.getFX().add(op);
                         break;
                     case FY:
-                        level.fy.add(op);
+                        level.getFY().add(op);
                         break;
                     case YF:
-                        level.yf.add(op);
+                        level.getYF().add(op);
                         break;
                     case YFX:
-                        level.yfx.add(op);
+                        level.getYFX().add(op);
                         break;
                     case XF:
-                        level.xf.add(op);
+                        level.getXF().add(op);
                         break;
                     case XFX:
-                        level.xfx.add(op);
+                        level.getXFX().add(op);
                         break;
                     case XFY:
-                        level.xfy.add(op);
+                        level.getXFY().add(op);
                         break;
                     case YFY:
-                        level.yfy.add(op);
+                        level.getYFY().add(op);
                         break;
                     default:
                         throw new RuntimeException("[BUG] Unsupported precedence level: " + associativity);
@@ -433,7 +458,7 @@ public class ContextView {
                     attributes = view;
                 } else {
                     error("grammar.Context.multipleAttributesSpecifications",
-                            attributes.definition().name, view.definition().name);
+                            attributes.definition().getName(), view.definition().getName());
                 }
             } else if (m instanceof DocumentationView) {
                 final DocumentationView view = (DocumentationView) m;
@@ -441,26 +466,26 @@ public class ContextView {
                     documentation = view;
                 } else {
                     error("grammar.Context.multipleDocumentationSpecifications",
-                            documentation.definition().name, view.definition().name);
+                            documentation.definition().getName(), view.definition().getName());
                 }
             } else if (m instanceof StatementView) {
                 final StatementView view = (StatementView) m;
                 statements.add(view);
             } else if (m instanceof DefView) {
                 final DefView view = (DefView) m;
-                defs.put(view.definition().name.text(), view);
+                defs.put(view.definition().getName().text(), view);
             } else if (m instanceof ChoiceDefView) {
                 final ChoiceDefView view = (ChoiceDefView) m;
                 choiceDefs.put(view.name(), view);
             } else if (m instanceof ChoiceCaseDefView) {
                 final ChoiceCaseDefView view = (ChoiceCaseDefView) m;
-                final String name = view.choiceName();
-                if (name != null) {
+                final String choiceName = view.choiceName();
+                if (choiceName != null) {
                     // the name == null only in the case of syntax error, so it was reported earlier
-                    List<ChoiceCaseDefView> choice = choiceCaseDefs.get(name);
+                    List<ChoiceCaseDefView> choice = choiceCaseDefs.get(choiceName);
                     if (choice == null) {
                         choice = new ArrayList<ChoiceCaseDefView>();
-                        choiceCaseDefs.put(name, choice);
+                        choiceCaseDefs.put(choiceName, choice);
                     }
                     choice.add(view);
                 }
@@ -473,14 +498,14 @@ public class ContextView {
             for (String choiceName : choiceDefs.keySet()) {
                 if (!choiceCaseDefs.containsKey(choiceName)) {
                     error(reportingContext, "grammar.Context.missingCaseForChoice", name(), choiceName,
-                            choiceDefs.get(choiceName).definition().location.toShortString());
+                            choiceDefs.get(choiceName).definition().getLocation().toShortString());
                 }
             }
             for (Map.Entry<String, List<ChoiceCaseDefView>> entry : choiceCaseDefs.entrySet()) {
                 if (!choiceDefs.containsKey(entry.getKey())) {
                     error(reportingContext, "grammar.Context.missingChoiceForCase", name(),
                             entry.getKey(), entry.getValue().size(), entry.getValue().get(0).name(),
-                            entry.getValue().get(0).definition().location.toShortString());
+                            entry.getValue().get(0).definition().getLocation().toShortString());
                 }
             }
         }
@@ -488,9 +513,9 @@ public class ContextView {
             // Establish links between operator levels
             OpLevel previous = null;
             for (final OpLevel current : operatorLevels.values()) {
-                current.previousLevel = previous;
+                current.setPreviousLevel(previous);
                 if (previous != null) {
-                    previous.nextLevel = current;
+                    previous.setNextLevel(current);
                 }
                 previous = current;
             }
@@ -504,7 +529,7 @@ public class ContextView {
 
     /**
      * @return documentation specification for this context or null if no
-     *         documentation is specified
+     * documentation is specified
      */
     public DocumentationView documentation() {
         return documentation;
@@ -512,30 +537,30 @@ public class ContextView {
 
     /**
      * @return attributes specification for this context or null if no
-     *         attributes specification is specified
+     * attributes specification is specified
      */
     public AttributesView attributes() {
         return attributes;
     }
 
     /**
-     * Get definition for name
+     * Get definition for name.
      *
-     * @param name a name of definition
+     * @param defName a name of definition
      * @return a definition or null if definition is not found
      */
-    public DefView def(String name) {
-        return defs.get(name);
+    public DefView def(final String defName) {
+        return defs.get(defName);
     }
 
     /**
-     * Get choice def view
+     * Get choice def view.
      *
-     * @param name the name of the choice
+     * @param choiceName the name of the choice
      * @return the choice
      */
-    public List<ChoiceCaseDefView> choice(String name) {
-        return choiceCaseDefs.get(name);
+    public List<ChoiceCaseDefView> choice(final String choiceName) {
+        return choiceCaseDefs.get(choiceName);
     }
 
     /**
@@ -547,7 +572,7 @@ public class ContextView {
 
     /**
      * @return operator level for all expressions or null if expressions are not
-     *         allowed in this context
+     * allowed in this context
      */
     public OpLevel allExpressionsLevel() {
         if (operatorLevels.isEmpty()) {
@@ -563,10 +588,10 @@ public class ContextView {
      * @param s a reference to resolve
      * @return a DefView or null if reference cannot be resolved.
      */
-    public DefView def(DefinitionView d, RefOp s) {
-        final DefView rc = defs.get(s.name.text());
-        if (rc == null && !choiceCaseDefs.containsKey(s.name.text())) {
-            d.definingContext().error(s, "grammar.Ref.danglingRef", s.name);
+    public DefView def(final DefinitionView d, final RefOp s) {
+        final DefView rc = defs.get(s.getName().text());
+        if (rc == null && !choiceCaseDefs.containsKey(s.getName().text())) {
+            d.definingContext().error(s, "grammar.Ref.danglingRef", s.getName());
         }
         return rc;
     }
@@ -578,21 +603,21 @@ public class ContextView {
      * @param s a reference to resolve
      * @return a DefView or null if reference cannot be resolved.
      */
-    public List<ChoiceCaseDefView> choices(DefinitionView d, RefOp s) {
-        final List<ChoiceCaseDefView> rc = choiceCaseDefs.get(s.name.text());
-        if (rc == null && !defs.containsKey(s.name.text())) {
-            d.definingContext().error(s, "grammar.Ref.danglingRef", s.name);
+    public List<ChoiceCaseDefView> choices(final DefinitionView d, final RefOp s) {
+        final List<ChoiceCaseDefView> rc = choiceCaseDefs.get(s.getName().text());
+        if (rc == null && !defs.containsKey(s.getName().text())) {
+            d.definingContext().error(s, "grammar.Ref.danglingRef", s.getName());
         }
         return rc;
     }
 
     /**
-     * Get a chain of wrapper links for including context
+     * Get a chain of wrapper links for including context.
      *
      * @param ci a included context
      * @return a chain of wrappers
      */
-    public WrapperLink includeWrappers(ContextView ci) {
+    public WrapperLink includeWrappers(final ContextView ci) {
         if (ci == this) {
             return null;
         }
@@ -601,31 +626,33 @@ public class ContextView {
     }
 
     /**
+     * Get context include.
+     *
      * @param ci a context view
      * @return context include
      */
-    public ContextIncludeView contextInclude(ContextView ci) {
+    public ContextIncludeView contextInclude(final ContextView ci) {
         return contextIncludes.get(ci.name());
     }
 
     /**
-     * Get context import view by name
+     * Get context import view by name.
      *
      * @param ci a context import name
      * @return a context import view
      */
-    public ContextImportView contextImport(String ci) {
+    public ContextImportView contextImport(final String ci) {
         return imports.get(ci);
     }
 
     /**
-     * Get definition by name. Used for testing
+     * Get definition by name. Used for testing.
      *
-     * @param name a name of definition
+     * @param definitionName a name of definition
      * @return a definition for specified name or null.
      */
-    public DefinitionView definition(String name) {
-        return definitions.get(name);
+    public DefinitionView definition(final String definitionName) {
+        return definitions.get(definitionName);
     }
 
     /**
@@ -640,13 +667,12 @@ public class ContextView {
      */
     public boolean isAbstract() {
         if (context != null) {
-            return context.abstractModifier != null;
+            return context.getAbstractModifier() != null;
         } else {
             // If context is included from parent grammar and at least one of
             // immediate parents is abstract, treat this context as abstract
             // too.
-            for (final Iterator<ContextView> i = grammarIncludesNode.immediateParentsIterator(); i.hasNext(); ) {
-                final ContextView v = i.next();
+            for (final ContextView v : grammarIncludesNode.immediateParents()) {
                 if (v.isAbstract()) {
                     return true;
                 }
@@ -656,7 +682,7 @@ public class ContextView {
     }
 
     /**
-     * Abstract class for context import gatherers
+     * Abstract class for context import gatherers.
      */
     private abstract static class ContextImportGatherer extends
             ImportDefinitionGatherer<ContextView, String, ContextImportView, ContextView> {
@@ -667,17 +693,17 @@ public class ContextView {
         protected abstract String duplicateErrorId();
 
         @Override
-        protected void reportDuplicateImportError(ContextView sourceHolder, String key) {
+        protected void reportDuplicateImportError(final ContextView sourceHolder, final String key) {
             sourceHolder.error(duplicateErrorId(), key);
         }
 
         @Override
-        protected ContextView importedObject(ContextImportView importDefinition) {
+        protected ContextView importedObject(final ContextImportView importDefinition) {
             return importDefinition.referencedContext();
         }
 
         @Override
-        protected String definitionKey(ContextImportView definition) {
+        protected String definitionKey(final ContextImportView definition) {
             return definition.localName();
         }
     }
@@ -685,37 +711,38 @@ public class ContextView {
     /**
      * Gatherer of definitions by grammar include.
      */
-    private static abstract class ContextDefinitionGatherer extends
+    private abstract static class ContextDefinitionGatherer extends
             DefinitionGatherer<ContextView, String, DefinitionView> {
         /**
-         * Error id
+         * Error id.
          */
-        final String errorId;
+        private final String errorId;
 
         /**
-         * The constructor
+         * The constructor.
          *
          * @param id id of duplicate definitions error
          */
-        public ContextDefinitionGatherer(String id) {
+        public ContextDefinitionGatherer(final String id) {
             this.errorId = id;
         }
 
 
         @Override
-        protected void reportDuplicates(ContextView sourceHolder, String key, HashSet<DefinitionView> duplicateNodes) {
+        protected void reportDuplicates(final ContextView sourceHolder, final String key,
+                                        final HashSet<DefinitionView> duplicateNodes) {
             sourceHolder.error(errorId, key);
         }
 
 
         @Override
-        protected String definitionKey(DefinitionView definition) {
+        protected String definitionKey(final DefinitionView definition) {
             return definition.name();
         }
 
 
         @Override
-        protected Map<String, DefinitionView> definitionMap(ContextView holder) {
+        protected Map<String, DefinitionView> definitionMap(final ContextView holder) {
             return holder.definitions;
         }
     }
@@ -726,29 +753,24 @@ public class ContextView {
     private static class DefinitionGathererByGrammarInclude extends ContextDefinitionGatherer {
 
         /**
-         * The constructor
+         * The constructor.
          */
         public DefinitionGathererByGrammarInclude() {
             super("grammar.Context.Definition.duplicateDefinitionByGrammarInclude");
         }
 
         @Override
-        protected Node<ContextView> getHolderNode(ContextView definitionHolder) {
+        protected Node<ContextView> getHolderNode(final ContextView definitionHolder) {
             return definitionHolder.grammarIncludesNode;
         }
 
         @Override
-        protected Node<ContextView> definitionNode(DefinitionView definition) {
+        protected Node<ContextView> definitionNode(final DefinitionView definition) {
             return definition.originalDefinition().definingContext().grammarIncludesNode;
         }
 
         @Override
-        protected DefinitionView originalDefinition(DefinitionView def) {
-            return def.originalDefinition();
-        }
-
-        @Override
-        protected DefinitionView includingDefinition(ContextView sourceHolder, DefinitionView object) {
+        protected DefinitionView includingDefinition(final ContextView sourceHolder, final DefinitionView object) {
             return DefinitionView.get(sourceHolder, object);
         }
     }
@@ -759,51 +781,51 @@ public class ContextView {
     private static class DefinitionGathererByContextInclude extends ContextDefinitionGatherer {
 
         /**
-         * The constructor
+         * The constructor.
          */
         public DefinitionGathererByContextInclude() {
             super("grammar.Context.Definition.duplicateDefinitionByContextInclude");
         }
 
         @Override
-        protected Node<ContextView> getHolderNode(ContextView definitionHolder) {
+        protected DefinitionView includingDefinition(final ContextView sourceHolder, final DefinitionView object) {
+            return object;
+        }
+
+        @Override
+        protected Node<ContextView> getHolderNode(final ContextView definitionHolder) {
             return definitionHolder.contextIncludesNode;
         }
 
         @Override
-        protected Node<ContextView> definitionNode(DefinitionView definition) {
+        protected Node<ContextView> definitionNode(final DefinitionView definition) {
             return definition.includingContext().contextIncludesNode;
         }
     }
 
     /**
-     * Gatherer imports by grammar include hierarchy
+     * Gatherer imports by grammar include hierarchy.
      */
     private static class ImportGathererByGrammarInclude extends ContextImportGatherer {
 
         @Override
-        protected ContextImportView originalDefinition(ContextImportView def) {
-            return (def).originalDefinition();
-        }
-
-        @Override
-        protected ContextImportView includingDefinition(ContextView sourceHolder, ContextImportView object) {
+        protected ContextImportView includingDefinition(final ContextView sourceHolder,
+                                                        final ContextImportView object) {
             return new ContextImportView(sourceHolder, object);
         }
 
         @Override
-        protected Node<ContextView> getHolderNode(ContextView definitionHolder) {
+        protected Node<ContextView> getHolderNode(final ContextView definitionHolder) {
             return definitionHolder.grammarIncludesNode;
         }
 
         @Override
-        protected Node<ContextView> definitionNode(ContextImportView definition) {
+        protected Node<ContextView> definitionNode(final ContextImportView definition) {
             return definition.originalDefinition().definingContext().grammarIncludesNode;
         }
 
         @Override
-        protected Map<String, ContextImportView> definitionMap(
-                ContextView sourceHolder) {
+        protected Map<String, ContextImportView> definitionMap(final ContextView sourceHolder) {
             return sourceHolder.imports;
         }
 
@@ -814,22 +836,28 @@ public class ContextView {
     }
 
     /**
-     * Gatherer imports by grammar include hierarchy
+     * Gatherer imports by grammar include hierarchy.
      */
     private static class ImportGathererByContextInclude extends
             ContextImportGatherer {
         @Override
-        protected Node<ContextView> getHolderNode(ContextView definitionHolder) {
+        protected ContextImportView includingDefinition(final ContextView sourceHolder,
+                                                        final ContextImportView object) {
+            return object;
+        }
+
+        @Override
+        protected Node<ContextView> getHolderNode(final ContextView definitionHolder) {
             return definitionHolder.contextIncludesNode;
         }
 
         @Override
-        protected Node<ContextView> definitionNode(ContextImportView definition) {
+        protected Node<ContextView> definitionNode(final ContextImportView definition) {
             return definition.includingContext().contextIncludesNode;
         }
 
         @Override
-        protected Map<String, ContextImportView> definitionMap(ContextView sourceHolder) {
+        protected Map<String, ContextImportView> definitionMap(final ContextView sourceHolder) {
             return sourceHolder.imports;
         }
 
@@ -840,24 +868,25 @@ public class ContextView {
     }
 
     /**
-     * Gatherer of include definitions by grammar include
+     * Gatherer of include definitions by grammar include.
      *
      * @author const
      */
-    private static abstract class ContextIncludeGatherer extends
+    private abstract static class ContextIncludeGatherer extends
             DefinitionGatherer<ContextView, String, ContextIncludeView> {
         @Override
-        protected String definitionKey(ContextIncludeView definition) {
+        protected String definitionKey(final ContextIncludeView definition) {
             return definition.referencedContext().name();
         }
 
         @Override
-        protected Map<String, ContextIncludeView> definitionMap(ContextView holder) {
+        protected Map<String, ContextIncludeView> definitionMap(final ContextView holder) {
             return holder.contextIncludes;
         }
 
         @Override
-        protected void reportDuplicates(ContextView holder, String key, HashSet<ContextIncludeView> duplicateNodes) {
+        protected void reportDuplicates(final ContextView holder, final String key,
+                                        final HashSet<ContextIncludeView> duplicateNodes) {
             final HashSet<WrapperLink> wrappers = new HashSet<WrapperLink>();
             boolean isFirst = true;
             WrapperLink firstWrapper = null;
@@ -884,19 +913,15 @@ public class ContextView {
     }
 
     /**
-     * Gatherer of include definitions by grammar include
+     * Gatherer of include definitions by grammar include.
      *
      * @author const
      */
     private static class IncludeGathererByGrammarInclude extends ContextIncludeGatherer {
         @Override
-        protected ContextIncludeView includingDefinition(ContextView holder, ContextIncludeView definition) {
+        protected ContextIncludeView includingDefinition(final ContextView holder,
+                                                         final ContextIncludeView definition) {
             return new ContextIncludeView(holder, definition);
-        }
-
-        @Override
-        protected ContextIncludeView originalDefinition(ContextIncludeView definition) {
-            return definition.originalDefinition();
         }
 
         @Override
@@ -905,32 +930,28 @@ public class ContextView {
         }
 
         @Override
-        protected Node<ContextView> getHolderNode(ContextView holder) {
+        protected Node<ContextView> getHolderNode(final ContextView holder) {
             return holder.grammarIncludesNode;
         }
 
         @Override
-        protected Node<ContextView> definitionNode(ContextIncludeView definition) {
+        protected Node<ContextView> definitionNode(final ContextIncludeView definition) {
             return definition.originalDefinition().definingContext().grammarIncludesNode;
         }
     }
 
     /**
-     * A gatherer of include definitions by grammar include
+     * A gatherer of include definitions by grammar include.
      *
      * @author const
      */
     private static class IncludeGathererByContextInclude extends ContextIncludeGatherer {
         @Override
-        protected ContextIncludeView includingDefinition(ContextView holder, ContextIncludeView definition) {
+        protected ContextIncludeView includingDefinition(final ContextView holder,
+                                                         final ContextIncludeView definition) {
             final ContextIncludeView wrappingInclude = holder.contextIncludes.get(definition.includingContext().name());
             assert wrappingInclude != null : "that is immediately included context";
             return new ContextIncludeView(wrappingInclude, definition);
-        }
-
-        @Override
-        protected ContextIncludeView originalDefinition(ContextIncludeView definition) {
-            return definition.wrappedDefinition();
         }
 
         @Override
@@ -939,12 +960,12 @@ public class ContextView {
         }
 
         @Override
-        protected Node<ContextView> getHolderNode(ContextView holder) {
+        protected Node<ContextView> getHolderNode(final ContextView holder) {
             return holder.contextIncludesNode;
         }
 
         @Override
-        protected Node<ContextView> definitionNode(ContextIncludeView definition) {
+        protected Node<ContextView> definitionNode(final ContextIncludeView definition) {
             return definition.wrappedDefinition().includingContext().contextIncludesNode;
         }
     }

@@ -46,32 +46,32 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 /**
- * The grammar compiler
+ * The grammar compiler.
  */
-public class GrammarAssemblyBuilder implements GrammarCompilerEngine {
+public final class GrammarAssemblyBuilder implements GrammarCompilerEngine {
     /**
-     * The collection of grammar views
+     * The collection of grammar views.
      */
     private final GrammarAssembly assembly = new GrammarAssembly();
     /**
-     * The map from grammar view to builders
+     * The map from grammar view to builders.
      */
     private final HashMap<GrammarView, GrammarBuilder> viewToBuilder = new HashMap<GrammarView, GrammarBuilder>();
     /**
-     * The root grammar request
+     * The root grammar request.
      */
     private ResourceRequest rootGrammarRequest;
     /**
-     * The root compiled grammar
+     * The root compiled grammar.
      */
     private ResolvedObject<CompiledGrammar> rootGrammar;
     /**
-     * The linker
+     * The linker.
      */
     private ActionLinker linker = new ActionLinker();
 
     @Override
-    public void start(ResourceRequest reference) {
+    public void start(final ResourceRequest reference) {
         rootGrammarRequest = reference;
         assembly.start(reference);
     }
@@ -140,7 +140,9 @@ public class GrammarAssemblyBuilder implements GrammarCompilerEngine {
     }
 
     /**
-     * Build the grammar that failed the compilation
+     * Build the grammar that failed the compilation.
+     *
+     * @return the new parser state
      */
     private ParserState buildFailedGrammar() {
         final ResolvedObject<GrammarView> grammarView = assembly.resolveGrammar(rootGrammarRequest.getReference());
@@ -154,10 +156,11 @@ public class GrammarAssemblyBuilder implements GrammarCompilerEngine {
             return ParserState.OUTPUT_AVAILABLE;
         } else {
             final GrammarAssembly.FailedGrammar failedGrammar = assembly.getFailedGrammar(rootGrammarRequest);
-            final ResourceDescriptor unresolved = new ResourceDescriptor("unresolved:grammar", StandardGrammars.GRAMMAR_NATURE, null);
+            final ResourceDescriptor unresolved = new ResourceDescriptor("unresolved:grammar",
+                    StandardGrammars.GRAMMAR_NATURE, null);
             rootGrammar = new ResolvedObject<CompiledGrammar>(
                     rootGrammarRequest,
-                    failedGrammar.usedResources,
+                    failedGrammar.getUsedResources(),
                     unresolved,
                     new DelegateCompiledGrammar(
                             BootstrapGrammars.defaultGrammar(),
@@ -174,17 +177,18 @@ public class GrammarAssemblyBuilder implements GrammarCompilerEngine {
     }
 
     @Override
-    public void provide(ResolvedObject<Grammar> grammar, ErrorInfo errors) {
+    public void provide(final ResolvedObject<Grammar> grammar, final ErrorInfo errors) {
         assembly.provide(grammar, errors);
     }
 
     @Override
-    public void fail(ResourceRequest request, Collection<ResourceUsage> resourceUsages, ErrorInfo errors) {
+    public void fail(final ResourceRequest request, final Collection<ResourceUsage> resourceUsages,
+                     final ErrorInfo errors) {
         assembly.fail(request, resourceUsages, errors);
     }
 
     @Override
-    public ResolvedObject<Grammar> getProvided(String systemId) {
+    public ResolvedObject<Grammar> getProvided(final String systemId) {
         return assembly.resolvedGrammar(systemId);
     }
 
@@ -198,19 +202,25 @@ public class GrammarAssemblyBuilder implements GrammarCompilerEngine {
     }
 
     /**
-     * The builder for grammar
+     * The builder for grammar.
      *
      * @param grammar the grammar view
      * @return the grammar builder
      */
-    public GrammarBuilder grammarBuilder(GrammarView grammar) {
+    public GrammarBuilder grammarBuilder(final GrammarView grammar) {
         return viewToBuilder.get(grammar);
     }
 
+    /**
+     * @return the linker
+     */
     public ActionLinker geLinker() {
         return linker;
     }
 
+    /**
+     * @return the collected errors.
+     */
     public ErrorInfo getErrors() {
         return assembly.getErrors();
     }

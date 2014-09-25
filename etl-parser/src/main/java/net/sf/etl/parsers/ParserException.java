@@ -25,38 +25,38 @@
 package net.sf.etl.parsers;
 
 /**
- * Base class for all parser exceptions
+ * Base class for all parser exceptions.
  *
  * @author const
  */
 public class ParserException extends RuntimeException {
     /**
-     * serial version id to make compiler happy
+     * serial version id to make compiler happy.
      */
     private static final long serialVersionUID = 3834306233053427507L;
 
     /**
-     * Constructor for the ParserException object
+     * Constructor for the ParserException object.
      */
     public ParserException() {
     }
 
     /**
-     * Constructor for the ParserException object
+     * Constructor for the ParserException object.
      *
      * @param msg message for exception
      */
-    public ParserException(String msg) {
+    public ParserException(final String msg) {
         super(msg);
     }
 
     /**
-     * Constructor for the ParserException object
+     * Constructor for the ParserException object.
      *
      * @param msg message for exception
      * @param ex  exception
      */
-    public ParserException(String msg, Throwable ex) {
+    public ParserException(final String msg, final Throwable ex) {
         super(msg, ex);
     }
 }

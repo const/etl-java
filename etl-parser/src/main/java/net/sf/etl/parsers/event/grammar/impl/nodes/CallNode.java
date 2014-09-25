@@ -39,32 +39,33 @@ import java.util.Set;
  *
  * @author const
  */
-public class CallNode extends Node {
+public final class CallNode extends Node {
     /**
-     * The builder for the factory
+     * The builder for the factory.
      */
     private final ActionBuilder factoryBuilder;
 
     /**
-     * The constructor for call node
+     * The constructor for call node.
      *
      * @param factoryBuilder the builder for invoked state factory
      */
-    public CallNode(ActionBuilder factoryBuilder) {
+    public CallNode(final ActionBuilder factoryBuilder) {
         this.factoryBuilder = factoryBuilder;
     }
 
     @Override
-    public void collectKeywords(Set<Keyword> keywords, Set<ActionBuilder> visited) {
+    public void collectKeywords(final Set<Keyword> keywords, final Set<ActionBuilder> visited) {
         factoryBuilder.collectKeywords(keywords, visited);
     }
 
     @Override
-    public Action buildActions(ActionBuilder b, Action normalExit, Action errorExit, Action recoveryTest) {
-        final CallAction callAction = new CallAction(source);
+    public Action buildActions(final ActionBuilder b, final Action normalExit, final Action errorExit,
+                               final Action recoveryTest) {
+        final CallAction callAction = new CallAction(getSource());
         factoryBuilder.link(callAction);
-        callAction.success = normalExit;
-        callAction.failure = errorExit;
+        callAction.setSuccess(normalExit);
+        callAction.setFailure(errorExit);
         return callAction;
     }
 
@@ -76,7 +77,7 @@ public class CallNode extends Node {
     }
 
     @Override
-    protected LookAheadSet createLookAhead(Set<ActionBuilder> visitedBuilders) {
+    protected LookAheadSet createLookAhead(final Set<ActionBuilder> visitedBuilders) {
         return factoryBuilder.buildLookAhead(visitedBuilders);
     }
 }

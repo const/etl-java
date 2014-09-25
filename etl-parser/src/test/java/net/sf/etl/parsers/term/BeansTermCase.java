@@ -24,12 +24,15 @@
  */
 package net.sf.etl.parsers.term;
 
+import net.sf.etl.parsers.TermToken;
 import net.sf.etl.parsers.event.tree.BeansObjectFactory;
+import net.sf.etl.parsers.event.tree.TokenCollector;
 import net.sf.etl.parsers.streams.TermParserReader;
 import net.sf.etl.parsers.streams.TreeParserReader;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 /**
  * An base for tests based on beans term parser
@@ -66,6 +69,12 @@ public abstract class BeansTermCase {
         termParser = new TermParserReader(in);
         termParser.advance();
         parser = new TreeParserReader<Object>(termParser, createBeansTermParser());
+        parser.setErrorTokenHandler(new TokenCollector() {
+            @Override
+            public void collect(final TermToken token) {
+                fail("Errors from parser are not expected: " + token);
+            }
+        });
     }
 
     /**
@@ -84,7 +93,7 @@ public abstract class BeansTermCase {
      */
     protected void endParsing(boolean errorExit) {
         if (!errorExit) {
-            assertFalse(parser.getObjectFactory().hadErrors());
+            assertFalse(parser.hadErrors());
         }
         termParser.close();
     }

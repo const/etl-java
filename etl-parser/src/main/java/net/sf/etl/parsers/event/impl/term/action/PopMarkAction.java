@@ -29,22 +29,22 @@ import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.TermParserContext;
 
 /**
- * The action that pops the mark
+ * The action that pops the mark.
  */
-public class PopMarkAction extends SimpleAction {
+public final class PopMarkAction extends SimpleAction {
     /**
-     * The constructor
+     * The constructor.
      *
      * @param source the source location in the grammar that caused this node creation
      * @param next   the next action
      */
-    public PopMarkAction(SourceLocation source, Action next) {
+    public PopMarkAction(final SourceLocation source, final Action next) {
         super(source, next);
     }
 
     @Override
-    public void parseMore(TermParserContext context, ActionState state) {
+    public void parseMore(final TermParserContext context, final ActionState state) {
         context.popMark();
-        state.nextAction(next);
+        state.nextAction(getNext());
     }
 }

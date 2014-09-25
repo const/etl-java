@@ -30,40 +30,41 @@ import net.sf.etl.parsers.event.grammar.TermParserContext;
 import net.sf.etl.parsers.event.impl.term.TermParserContextUtil;
 
 /**
- * The action that advances to the next significant token skipping whitespaces and comments
+ * The action that advances to the next significant token skipping whitespaces and comments.
  */
-public class AdvanceAction extends SimpleAction {
+public final class AdvanceAction extends SimpleAction {
     /**
-     * If true, doc comments are skipped
+     * If true, doc comments are skipped.
      */
-    boolean skipDocumentation;
+    private final boolean skipDocumentation;
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param source            the source location in the grammar that caused this node creation
      * @param next              the next action
      * @param skipDocumentation if true doc comments are skipped
      */
-    public AdvanceAction(SourceLocation source, Action next, boolean skipDocumentation) {
+    public AdvanceAction(final SourceLocation source, final Action next, final boolean skipDocumentation) {
         super(source, next);
         this.skipDocumentation = skipDocumentation;
     }
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param source the source location in the grammar that caused this node creation
      * @param next   the next action
      */
-    public AdvanceAction(SourceLocation source, Action next) {
+    public AdvanceAction(final SourceLocation source, final Action next) {
         this(source, next, true);
     }
 
     @Override
-    public void parseMore(TermParserContext context, ActionState state) {
-        if (TermParserContextUtil.skipIgnorable(source, context, skipDocumentation)) return;
-        state.nextAction(next);
+    public void parseMore(final TermParserContext context, final ActionState state) {
+        if (!TermParserContextUtil.skipIgnorable(getSource(), context, skipDocumentation)) {
+            state.nextAction(getNext());
+        }
     }
 
 }

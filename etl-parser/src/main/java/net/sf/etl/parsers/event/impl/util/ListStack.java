@@ -28,13 +28,15 @@ package net.sf.etl.parsers.event.impl.util;
 import java.util.ArrayList;
 
 /**
- * The simple stack semantics
+ * The simple stack semantics.
+ *
+ * @param <E> the element type
  */
-public class ListStack<E> extends ArrayList<E> {
+public final class ListStack<E> extends ArrayList<E> {
     /**
-     * The cached stack head
+     * The cached stack head.
      */
-    public E head;
+    private E head;
 
     /**
      * @return peek item on the stack
@@ -56,11 +58,11 @@ public class ListStack<E> extends ArrayList<E> {
     }
 
     /**
-     * Push item on the stack
+     * Push item on the stack.
      *
      * @param item the item
      */
-    public void push(E item) {
+    public void push(final E item) {
         head = item;
         add(item);
     }

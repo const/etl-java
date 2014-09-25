@@ -37,48 +37,48 @@ import net.sf.etl.parsers.event.impl.PhraseParserImpl;
 import java.net.URL;
 
 /**
- * The reader for the phrase parser
+ * The reader for the phrase parser.
  */
-public class PhraseParserReader extends AbstractReaderImpl<PhraseToken> {
+public final class PhraseParserReader extends AbstractReaderImpl<PhraseToken> {
     /**
-     * The underlying lexer
+     * The underlying lexer.
      */
-    final Cell<Token> tokenCell = new Cell<Token>();
+    private final Cell<Token> tokenCell = new Cell<Token>();
     /**
-     * The lexer
+     * The lexer.
      */
-    final LexerReader lexer;
+    private final LexerReader lexer;
     /**
-     * The phrase parser
+     * The phrase parser.
      */
-    final PhraseParser phraseParser = new PhraseParserImpl();
+    private final PhraseParser phraseParser = new PhraseParserImpl();
 
     /**
-     * The constructor from lexer
+     * The constructor from lexer.
      *
      * @param lexer the base lexer
      */
-    public PhraseParserReader(LexerReader lexer) {
+    public PhraseParserReader(final LexerReader lexer) {
         this.lexer = lexer;
         this.phraseParser.start(lexer.getSystemId());
     }
 
     /**
-     * The constructor from URL
+     * The constructor from URL.
      *
      * @param url the url to use
      */
-    public PhraseParserReader(URL url) {
+    public PhraseParserReader(final URL url) {
         this(new LexerReader(url));
     }
 
     /**
-     * The constructor from URL
+     * The constructor from URL.
      *
      * @param configuration the configuration
      * @param url           the url to use
      */
-    public PhraseParserReader(TermParserConfiguration configuration, URL url) {
+    public PhraseParserReader(final TermParserConfiguration configuration, final URL url) {
         this(new LexerReader(configuration, url));
     }
 
@@ -97,7 +97,7 @@ public class PhraseParserReader extends AbstractReaderImpl<PhraseToken> {
                 case EOF:
                     return false;
                 case OUTPUT_AVAILABLE:
-                    current = phraseParser.read();
+                    setCurrent(phraseParser.read());
                     return true;
                 default:
                     throw new ParserException("Invalid state from the phrase parser: " + state);

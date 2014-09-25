@@ -34,8 +34,23 @@ import net.sf.etl.parsers.Token;
  */
 public abstract class ContextOp extends Syntax {
     /**
-     * context
+     * the context.
      */
-    public Token context;
+    private Token context;
 
+    /**
+     * @return the context
+     */
+    public final Token getContext() {
+        return context;
+    }
+
+    /**
+     * Set the context.
+     *
+     * @param context the context name
+     */
+    public final void setContext(final Token context) {
+        this.context = context;
+    }
 }

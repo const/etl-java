@@ -34,69 +34,72 @@ import net.sf.etl.parsers.event.grammar.TermParserState;
 import net.sf.etl.parsers.event.grammar.TermParserStateFactory;
 
 /**
- * The state factory for statement sequence
+ * The state factory for statement sequence.
  */
-public class StatementSequenceStateFactory implements TermParserStateFactory {
+public final class StatementSequenceStateFactory implements TermParserStateFactory {
     /**
-     * The factory for the statement
+     * The factory for the statement.
      */
     private final TermParserStateFactory statementStateFactory;
     /**
-     * The single statement mode
+     * The single statement mode.
      */
     private final boolean singleStatement;
 
     /**
-     * The state factory
+     * The state factory.
      *
      * @param statementStateFactory the statement state factory
      */
-    public StatementSequenceStateFactory(TermParserStateFactory statementStateFactory) {
+    public StatementSequenceStateFactory(final TermParserStateFactory statementStateFactory) {
         this(statementStateFactory, false);
     }
 
     /**
-     * The state factory
+     * The state factory.
      *
      * @param statementStateFactory the statement state factory
      * @param singleStatement       if true, the parser is in single statement mode
      */
-    public StatementSequenceStateFactory(TermParserStateFactory statementStateFactory, boolean singleStatement) {
+    public StatementSequenceStateFactory(final TermParserStateFactory statementStateFactory,
+                                         final boolean singleStatement) {
         this.statementStateFactory = statementStateFactory;
         this.singleStatement = singleStatement;
     }
 
     @Override
-    public TermParserState start(TermParserContext context, TermParserState previous) {
+    public TermParserState start(final TermParserContext context, final TermParserState previous) {
         return new StatementSequenceState(context, previous, statementStateFactory, singleStatement);
     }
 
     /**
-     * The statement sequence state
+     * The statement sequence state.
      */
     private static class StatementSequenceState extends TermParserState {
         /**
-         * Statement state factory
+         * Statement state factory.
          */
         private final TermParserStateFactory statementStateFactory;
         /**
-         * If true, the factory is working in single statement mode
+         * If true, the factory is working in single statement mode.
          */
         private final boolean singleStatement;
         /**
-         * If true, the factory just called statement factory and have not yet processed the result
+         * If true, the factory just called statement factory and have not yet processed the result.
          */
         private boolean afterCall;
 
         /**
-         * The constructor
+         * The constructor.
          *
          * @param context               the context
          * @param previous              the previous state on the stack
          * @param statementStateFactory the constructor
          * @param singleStatement       the single statement indicator
          */
-        public StatementSequenceState(TermParserContext context, TermParserState previous, TermParserStateFactory statementStateFactory, boolean singleStatement) {
+        public StatementSequenceState(final TermParserContext context, final TermParserState previous,
+                                      final TermParserStateFactory statementStateFactory,
+                                      final boolean singleStatement) {
             super(context, previous);
             this.statementStateFactory = statementStateFactory;
             this.singleStatement = singleStatement;
@@ -105,7 +108,7 @@ public class StatementSequenceStateFactory implements TermParserStateFactory {
 
         @Override
         public RecoverableStatus canRecover() {
-            PhraseToken t = context.current();
+            PhraseToken t = getContext().current();
             switch (t.kind()) {
                 case END_BLOCK:
                 case EOF:
@@ -130,6 +133,7 @@ public class StatementSequenceStateFactory implements TermParserStateFactory {
 
         @Override
         public void parseMore() {
+            final TermParserContext context = getContext();
             PhraseToken t = context.current();
             switch (t.kind()) {
                 case STATEMENT_END:
@@ -168,6 +172,8 @@ public class StatementSequenceStateFactory implements TermParserStateFactory {
                 case EOF:
                     exit();
                     break;
+                default:
+                    throw new IllegalStateException("Unknown token kind: " + t.kind());
             }
         }
     }

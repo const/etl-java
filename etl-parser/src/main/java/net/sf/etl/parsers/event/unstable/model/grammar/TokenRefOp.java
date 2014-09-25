@@ -32,8 +32,23 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
  */
 public abstract class TokenRefOp extends Syntax {
     /**
-     * wrapper
+     * the wrapper.
      */
-    public Wrapper wrapper;
+    private Wrapper wrapper;
 
+    /**
+     * @return the wrapper.
+     */
+    public final Wrapper getWrapper() {
+        return wrapper;
+    }
+
+    /**
+     * Set the wrapper.
+     *
+     * @param wrapper the wrapper
+     */
+    public final void setWrapper(final Wrapper wrapper) {
+        this.wrapper = wrapper;
+    }
 }

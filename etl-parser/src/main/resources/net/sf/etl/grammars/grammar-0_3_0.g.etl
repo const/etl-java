@@ -565,7 +565,7 @@ grammar net.sf.etl.grammars.Grammar "0.3.0" {
 		statement OperatorDefinition {
 			% op;
 			modifiers wrapper g:Modifier.Value {
-				@ IsComposite = modifier composite;
+				@ CompositeModifier = modifier composite;
 			};
 			@ Name = ref(Name);
 			% ( {

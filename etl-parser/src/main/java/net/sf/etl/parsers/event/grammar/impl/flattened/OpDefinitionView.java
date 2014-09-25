@@ -24,39 +24,52 @@
  */
 package net.sf.etl.parsers.event.grammar.impl.flattened;
 
-import net.sf.etl.parsers.event.unstable.model.grammar.*;
+import net.sf.etl.parsers.event.unstable.model.grammar.Associativity;
+import net.sf.etl.parsers.event.unstable.model.grammar.BlankSyntaxStatement;
+import net.sf.etl.parsers.event.unstable.model.grammar.Element;
+import net.sf.etl.parsers.event.unstable.model.grammar.ExpressionStatement;
+import net.sf.etl.parsers.event.unstable.model.grammar.Let;
+import net.sf.etl.parsers.event.unstable.model.grammar.ObjectOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.OperandOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.OperatorDefinition;
+import net.sf.etl.parsers.event.unstable.model.grammar.RefOp;
+import net.sf.etl.parsers.event.unstable.model.grammar.SyntaxStatement;
 import net.sf.etl.parsers.literals.LiteralUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * A view for operator definitions.
  *
  * @author const
  */
-public class OpDefinitionView extends ObjectDefinitionView {
+public final class OpDefinitionView extends ObjectDefinitionView {
     /**
-     * The map from context to operator information
+     * The map from context to operator information.
      */
-    private HashMap<ContextView, OpInfo> opInfos = new HashMap<ContextView, OpInfo>();
+    private HashMap<ContextView, OpInfo> opInfo = new HashMap<ContextView, OpInfo>();
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param context    the context of view
      * @param definition the wrapped definition
      */
-    public OpDefinitionView(ContextView context, OperatorDefinition definition) {
+    public OpDefinitionView(final ContextView context, final OperatorDefinition definition) {
         super(context, definition);
     }
 
     /**
-     * The constructor
+     * The constructor.
      *
      * @param context    the context of view
      * @param definition the referenced definition
      */
-    public OpDefinitionView(ContextView context, OpDefinitionView definition) {
+    public OpDefinitionView(final ContextView context, final OpDefinitionView definition) {
         super(context, definition);
     }
 
@@ -64,15 +77,15 @@ public class OpDefinitionView extends ObjectDefinitionView {
      * @return the precedence of the operator
      */
     public Integer precedence() {
-        final Integer rc = definition().precedence == null ? null : LiteralUtils.parseInt(definition().precedence.text());
+        final Integer rc = operator().getPrecedence() == null ? null
+                : LiteralUtils.parseInt(operator().getPrecedence().text());
         return rc == null ? 0 : rc;
     }
 
     /**
      * @return the definition from grammar.
      */
-    @Override
-    public OperatorDefinition definition() {
+    public OperatorDefinition operator() {
         return (OperatorDefinition) super.definition();
     }
 
@@ -80,15 +93,15 @@ public class OpDefinitionView extends ObjectDefinitionView {
      * @return the operator associativity
      */
     public Associativity associativity() {
-        final OperatorDefinition od = definition();
-        return od.associativity == null ? null : Associativity.valueOf(od.associativity.text().toUpperCase());
+        final OperatorDefinition od = operator();
+        return od.getAssociativity() == null ? null : Associativity.valueOf(od.getAssociativity().text().toUpperCase());
     }
 
     /**
      * @param context the grammar context
      * @return the right argument property or null if it is not defined
      */
-    public PropertyInfo getRightArgProperty(ContextView context) {
+    public PropertyInfo getRightArgProperty(final ContextView context) {
         OpInfo op = parseDefinition(context);
         return op.rightProperty;
     }
@@ -97,47 +110,47 @@ public class OpDefinitionView extends ObjectDefinitionView {
      * @param context the grammar context
      * @return the left argument property or null if it is not defined
      */
-    public PropertyInfo getLeftArgProperty(ContextView context) {
+    public PropertyInfo getLeftArgProperty(final ContextView context) {
         OpInfo op = parseDefinition(context);
         return op.leftProperty;
     }
 
     /**
-     * Find top object and properties in operator definition
+     * Find top object and properties in operator definition.
      *
      * @param context the grammar context
      * @return the operator information for the specified context
      */
-    private OpInfo parseDefinition(ContextView context) {
-        OpInfo rc = opInfos.get(context);
+    private OpInfo parseDefinition(final ContextView context) {
+        OpInfo rc = opInfo.get(context);
         if (rc != null) {
             return rc;
         }
         rc = new OpInfo();
-        opInfos.put(context, rc);
+        opInfo.put(context, rc);
         // NOTE POST 0.2: make definition parsing more flexible. Remove
         // artificial restrictions on refs.
-        OperatorDefinition od = definition();
+        OperatorDefinition od = operator();
         if (isComposite()) {
             // ensure that text is not defined, and precedence is defined unless
             // operator is of F kind
-            if (!od.text.isEmpty()) {
+            if (!od.getText().isEmpty()) {
                 error(this, od, "grammar.OperatorDefinition.composite.operatorTextPresent");
             }
         } else {
             // ensure that text, and precedence are defined
-            if (od.text.isEmpty()) {
+            if (od.getText().isEmpty()) {
                 error(this, od, "grammar.OperatorDefinition.simple.operatorTextMissed");
             }
         }
         rc.rootObject = topObject(context);
-        LinkedList<SyntaxStatement> syntax = rc.rootObject.syntax.syntax;
+        final List<SyntaxStatement> syntax = rc.rootObject.getSyntax().getSyntax();
         parseSyntaxContent(new HashSet<DefinitionView>(), context, this, rc, syntax);
         return rc;
     }
 
     /**
-     * Parse content of the root object, visiting corresponding definitions
+     * Parse content of the root object, visiting corresponding definitions.
      *
      * @param visited visited definitions
      * @param context the current context
@@ -145,19 +158,21 @@ public class OpDefinitionView extends ObjectDefinitionView {
      * @param rc      the object info to update
      * @param syntax  the syntax statements to parse
      */
-    private void parseSyntaxContent(Set<DefinitionView> visited,
-                                    ContextView context, DefinitionView current, OpInfo rc,
-                                    List<SyntaxStatement> syntax) {
+    private void parseSyntaxContent(final Set<DefinitionView> visited,
+                                    final ContextView context, final DefinitionView current, final OpInfo rc,
+                                    final List<SyntaxStatement> syntax) {
         for (final Object element : syntax) {
             if (element instanceof BlankSyntaxStatement) {
                 // do nothing
-            } else if (element instanceof Let) {
+                continue;
+            }
+            if (element instanceof Let) {
                 final Let let = (Let) element;
-                if (let.expression instanceof OperandOp) {
-                    final boolean isList = "+=".equals(let.operator.text());
-                    final OperandOp operand = (OperandOp) let.expression;
+                if (let.getExpression() instanceof OperandOp) {
+                    final boolean isList = "+=".equals(let.getOperator().text());
+                    final OperandOp operand = (OperandOp) let.getExpression();
                     final Associativity associativity = associativity();
-                    if ("left".equals(operand.position)) {
+                    if ("left".equals(operand.getPosition())) {
                         // check if operator has left argument
                         switch (associativity) {
                             case XF:
@@ -167,7 +182,7 @@ public class OpDefinitionView extends ObjectDefinitionView {
                             case YFX:
                             case YFY:
                                 if (rc.leftProperty == null) {
-                                    rc.leftProperty = new PropertyInfo(let, let.name.text(), isList);
+                                    rc.leftProperty = new PropertyInfo(let, let.getName().text(), isList);
                                 } else {
                                     // Only one left operand is
                                     // allowed.
@@ -177,7 +192,7 @@ public class OpDefinitionView extends ObjectDefinitionView {
                             default:
                                 error(this, operand, "grammar.Operand.leftNotAllowed", associativity.name());
                         }
-                    } else if ("right".equals(operand.position)) {
+                    } else if ("right".equals(operand.getPosition())) {
                         switch (associativity) {
                             case FX:
                             case FY:
@@ -186,7 +201,7 @@ public class OpDefinitionView extends ObjectDefinitionView {
                             case YFX:
                             case YFY:
                                 if (rc.rightProperty == null) {
-                                    rc.rightProperty = new PropertyInfo(let, let.name.text(), isList);
+                                    rc.rightProperty = new PropertyInfo(let, let.getName().text(), isList);
                                 } else {
                                     // Only one right operand is
                                     // allowed.
@@ -202,14 +217,14 @@ public class OpDefinitionView extends ObjectDefinitionView {
                 }
             } else if (element instanceof ExpressionStatement) {
                 ExpressionStatement es = (ExpressionStatement) element;
-                if (es.syntax instanceof RefOp) {
-                    RefOp r = (RefOp) es.syntax;
-                    DefView d = context.def(r.name.text());
+                if (es.getSyntax() instanceof RefOp) {
+                    RefOp r = (RefOp) es.getSyntax();
+                    DefView d = context.def(r.getName().text());
                     if (d == null) {
-                        if (context.choice(r.name.text()) != null) {
+                        if (context.choice(r.getName().text()) != null) {
                             processCompositeStatement(rc, es);
                         } else {
-                            error(current, r, "grammar.Ref.danglingRef", r.name.text());
+                            error(current, r, "grammar.Ref.danglingRef", r.getName().text());
                         }
                     } else {
                         if (!enterDefContext(visited, d)) {
@@ -229,12 +244,12 @@ public class OpDefinitionView extends ObjectDefinitionView {
     }
 
     /**
-     * Process composite statement
+     * Process composite statement.
      *
      * @param rc   object information object to handle
      * @param stmt the statement to process
      */
-    private void processCompositeStatement(OpInfo rc, final SyntaxStatement stmt) {
+    private void processCompositeStatement(final OpInfo rc, final SyntaxStatement stmt) {
         if (isComposite()) {
             rc.operatorStatements.add(stmt);
         } else {
@@ -246,14 +261,14 @@ public class OpDefinitionView extends ObjectDefinitionView {
      * @return true if current operation is composite
      */
     public boolean isComposite() {
-        return definition().isComposite != null;
+        return operator().getCompositeModifier() != null;
     }
 
     /**
      * @param context the grammar context
      * @return operator statements
      */
-    public List<SyntaxStatement> operatorStatements(ContextView context) {
+    public List<SyntaxStatement> operatorStatements(final ContextView context) {
         OpInfo op = parseDefinition(context);
         return op.operatorStatements;
     }
@@ -262,61 +277,39 @@ public class OpDefinitionView extends ObjectDefinitionView {
      * @param context the grammar context
      * @return root object of the definition
      */
-    public ObjectOp rootObject(ContextView context) {
+    public ObjectOp rootObject(final ContextView context) {
         OpInfo op = parseDefinition(context);
         return op.rootObject;
     }
 
     /**
-     * A context specific operator information
+     * Property information.
      */
-    private class OpInfo {
-        /**
-         * root object for operator
-         */
-        private ObjectOp rootObject;
-        /**
-         * left property or null
-         */
-        private PropertyInfo leftProperty;
-        /**
-         * right property or null
-         */
-        private PropertyInfo rightProperty;
-        /**
-         * List of operator statements
-         */
-        protected ArrayList<SyntaxStatement> operatorStatements = new ArrayList<SyntaxStatement>();
-    }
-
-    /**
-     * Property information
-     */
-    public static class PropertyInfo {
+    public static final class PropertyInfo {
         // NOTE POST 0.2: consider adding isList property to to PropertyName
         // class and removing this class.
 
         /**
-         * true if it is a list property
+         * true if it is a list property.
          */
         private final boolean isList;
         /**
-         * The element
+         * The element.
          */
         private final Element element;
         /**
-         * name of the property
+         * name of the property.
          */
         private final String name;
 
         /**
-         * The constructor
+         * The constructor.
          *
          * @param element the element that defines the property
          * @param name    the property name
          * @param isList  if true, this is a list property
          */
-        public PropertyInfo(Element element, String name, boolean isList) {
+        public PropertyInfo(final Element element, final String name, final boolean isList) {
             this.element = element;
             this.name = name;
             this.isList = isList;
@@ -342,5 +335,27 @@ public class OpDefinitionView extends ObjectDefinitionView {
         public Element element() {
             return element;
         }
+    }
+
+    /**
+     * A context specific operator information.
+     */
+    private class OpInfo {
+        /**
+         * List of operator statements.
+         */
+        private ArrayList<SyntaxStatement> operatorStatements = new ArrayList<SyntaxStatement>();
+        /**
+         * root object for operator.
+         */
+        private ObjectOp rootObject;
+        /**
+         * left property or null.
+         */
+        private PropertyInfo leftProperty;
+        /**
+         * right property or null.
+         */
+        private PropertyInfo rightProperty;
     }
 }

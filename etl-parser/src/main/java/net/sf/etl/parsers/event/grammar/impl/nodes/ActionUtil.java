@@ -40,7 +40,7 @@ import net.sf.etl.parsers.event.impl.term.action.StructuralTokenAction;
  *
  * @author const
  */
-class ActionUtil {
+final class ActionUtil {
     /**
      * A private constructor. The class contains only static members.
      */
@@ -49,7 +49,7 @@ class ActionUtil {
     }
 
     /**
-     * Start object states
+     * Start object states.
      *
      * @param source     the source location that defined this action
      * @param bodyStates the body states
@@ -58,28 +58,29 @@ class ActionUtil {
      * @param atMark     if true, object should be started at mark
      * @return a report object state
      */
-    static StructuralTokenAction startObject(SourceLocation source, Action bodyStates,
-                                             ObjectName name, WrapperLink wrappers,
-                                             boolean atMark) {
+    static StructuralTokenAction startObject(final SourceLocation source, final Action bodyStates,
+                                             final ObjectName name, final WrapperLink wrappers,
+                                             final boolean atMark) {
         return new StructuralTokenAction(source, startIncludeWrappers(bodyStates, wrappers),
                 Terms.OBJECT_START, name, atMark);
     }
 
     /**
-     * Start include wrappers associated with this object
+     * Start include wrappers associated with this object.
      *
      * @param bodyStates the body states
      * @param wrappers   the wrappers to process
      * @return a new begin state
      */
-    private static Action startIncludeWrappers(Action bodyStates, WrapperLink wrappers) {
+    private static Action startIncludeWrappers(final Action bodyStates, final WrapperLink wrappers) {
         if (wrappers != null) {
             final ObjectName wrapperObject = new ObjectName(wrappers.namespace(), wrappers.name());
             final PropertyName wrapperProperty = new PropertyName(wrappers.property());
             return startIncludeWrappers(
                     new StructuralTokenAction(
                             wrappers.propertyLocation(),
-                            new StructuralTokenAction(wrappers.objectLocation(), bodyStates, Terms.OBJECT_START, wrapperObject, true),
+                            new StructuralTokenAction(wrappers.objectLocation(), bodyStates,
+                                    Terms.OBJECT_START, wrapperObject, true),
                             Terms.PROPERTY_START, wrapperProperty, true),
                     wrappers.innerWrapper());
         }
@@ -87,7 +88,7 @@ class ActionUtil {
     }
 
     /**
-     * Generate end object states
+     * Generate end object states.
      *
      * @param source     the source location that defined this action
      * @param normalExit the exit state
@@ -95,32 +96,36 @@ class ActionUtil {
      * @param wrappers   the wrappers of the object
      * @return the generated state
      */
-    static StructuralTokenAction endObject(SourceLocation source, Action normalExit, ObjectName name, WrapperLink wrappers) {
-        return new StructuralTokenAction(source, endIncludeWrappers(normalExit, wrappers), Terms.OBJECT_END, name, false);
+    static StructuralTokenAction endObject(final SourceLocation source, final Action normalExit, final ObjectName name,
+                                           final WrapperLink wrappers) {
+        return new StructuralTokenAction(source, endIncludeWrappers(normalExit, wrappers),
+                Terms.OBJECT_END, name, false);
     }
 
     /**
-     * End include wrappers associated with this object
+     * End include wrappers associated with this object.
      *
      * @param next     the next states
      * @param wrappers the wrappers to process
      * @return the new begin state
      */
-    private static Action endIncludeWrappers(Action next, WrapperLink wrappers) {
+    private static Action endIncludeWrappers(final Action next, final WrapperLink wrappers) {
+        Action actualNext = next;
         if (wrappers != null) {
-            next = endIncludeWrappers(next, wrappers.innerWrapper());
+            actualNext = endIncludeWrappers(actualNext, wrappers.innerWrapper());
             final ObjectName wrapperObject = new ObjectName(wrappers.namespace(), wrappers.name());
             final PropertyName wrapperProperty = new PropertyName(wrappers.property());
             return new StructuralTokenAction(
                     wrappers.propertyLocation(),
-                    new StructuralTokenAction(wrappers.objectLocation(), next, Terms.OBJECT_END, wrapperObject, false),
+                    new StructuralTokenAction(wrappers.objectLocation(), actualNext, Terms.OBJECT_END,
+                            wrapperObject, false),
                     Terms.PROPERTY_END, wrapperProperty, false);
         }
-        return next;
+        return actualNext;
     }
 
     /**
-     * Create an action that reports an error and start recovery process
+     * Create an action that reports an error and start recovery process.
      *
      * @param source    the source to report
      * @param errorExit the error exit
@@ -128,11 +133,12 @@ class ActionUtil {
      * @param args      the arguments
      * @return the error reporting action
      */
-    public static ReportErrorAction createReportErrorAction(SourceLocation source, Action errorExit, String errorId, Object... args) {
+    public static ReportErrorAction createReportErrorAction(final SourceLocation source, final Action errorExit,
+                                                            final String errorId, final Object... args) {
         CallAction recovery = new CallAction(source);
-        recovery.stateFactory = RecoveryStateFactory.INSTANCE;
-        recovery.success = errorExit;
-        recovery.failure = errorExit;
+        recovery.setStateFactory(RecoveryStateFactory.INSTANCE);
+        recovery.setSuccess(errorExit);
+        recovery.setFailure(errorExit);
         return new ReportErrorAction(source, recovery, errorId, args);
     }
 }

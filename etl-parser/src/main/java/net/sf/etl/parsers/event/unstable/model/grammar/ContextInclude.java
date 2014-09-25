@@ -24,15 +24,24 @@
  */
 package net.sf.etl.parsers.event.unstable.model.grammar;
 
+import java.util.List;
+
 /**
  * The ContextInclude node class. This class is a part of the lightweight
  * grammar model.
  *
  * @author const
  */
-public class ContextInclude extends ContextRef {
+public final class ContextInclude extends ContextRef {
     /**
-     * wrappers
+     * wrappers.
      */
-    public final java.util.ArrayList<Wrapper> wrappers = new java.util.ArrayList<Wrapper>();
+    private final List<Wrapper> wrappers = new java.util.ArrayList<Wrapper>();
+
+    /**
+     * @return wrappers
+     */
+    public List<Wrapper> getWrappers() {
+        return wrappers;
+    }
 }
