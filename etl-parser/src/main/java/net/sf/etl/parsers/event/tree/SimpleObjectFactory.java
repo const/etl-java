@@ -26,6 +26,8 @@ package net.sf.etl.parsers.event.tree;
 
 import net.sf.etl.parsers.ObjectName;
 import net.sf.etl.parsers.PropertyName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -33,8 +35,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * <p>
@@ -71,7 +71,7 @@ public class SimpleObjectFactory<BaseObject>
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(ReflectionObjectFactoryBase.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(ReflectionObjectFactoryBase.class);
 
     /**
      * The cache of fields.
@@ -102,8 +102,8 @@ public class SimpleObjectFactory<BaseObject>
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            if (LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Instance of " + metaObject.getCanonicalName() + " cannot be created.", e);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Instance of " + metaObject.getCanonicalName() + " cannot be created.", e);
             }
             throw new RuntimeException("Instance of " + metaObject.getCanonicalName() + " cannot be created.", e);
         }
@@ -130,8 +130,8 @@ public class SimpleObjectFactory<BaseObject>
         try {
             f.set(rc, v);
         } catch (Exception e) {
-            if (LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "The property " + f + " cannot be accessed.", e);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("The property " + f + " cannot be accessed.", e);
             }
             throw new RuntimeException("The property " + f + " cannot be accessed.", e);
         }
@@ -143,21 +143,20 @@ public class SimpleObjectFactory<BaseObject>
         try {
             final List<Object> list = (List<Object>) f.get(rc);
             if (list == null) {
-                if (LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "The property " + f + " must have a collection value.");
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("The property " + f + " must have a collection value.");
                 }
                 throw new IllegalStateException("The property " + f + " must have a collection value.");
             }
             return list;
         } catch (ClassCastException e) {
-            if (LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "The property " + f + " is not of List type.", e);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("The property " + f + " is not of List type.", e);
             }
             throw e;
         } catch (Exception e) {
-            if (LOG.isLoggable(Level.SEVERE)) {
-                // TODO logging
-                LOG.log(Level.SEVERE, "The property " + f + " cannot be accessed.", e);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("The property " + f + " cannot be accessed.", e);
             }
             throw new RuntimeException("The property " + f + " cannot be accessed.", e);
         }
@@ -204,8 +203,8 @@ public class SimpleObjectFactory<BaseObject>
             }
             return rc;
         } catch (Exception e) {
-            if (LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Unable to find property " + name + " in class " + c.getCanonicalName(), e);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Unable to find property " + name + " in class " + c.getCanonicalName(), e);
             }
             throw new RuntimeException("Unable to find property " + name + " in class " + c.getCanonicalName(), e);
         }

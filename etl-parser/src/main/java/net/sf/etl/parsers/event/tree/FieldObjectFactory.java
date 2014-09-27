@@ -26,14 +26,14 @@ package net.sf.etl.parsers.event.tree;
 
 import net.sf.etl.parsers.ObjectName;
 import net.sf.etl.parsers.PropertyName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * <p>
@@ -70,7 +70,7 @@ public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(ReflectionObjectFactoryBase.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(ReflectionObjectFactoryBase.class);
 
     /**
      * The cache of fields.
@@ -101,8 +101,8 @@ public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            if (LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Instance of " + metaObject.getCanonicalName() + " cannot be created.", e);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Instance of " + metaObject.getCanonicalName() + " cannot be created.", e);
             }
             throw new RuntimeException("Instance of " + metaObject.getCanonicalName() + " cannot be created.", e);
         }
@@ -129,8 +129,8 @@ public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<
         try {
             f.set(rc, v);
         } catch (IllegalAccessException e) {
-            if (LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "The field " + f + " cannot be accessed.", e);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("The field " + f + " cannot be accessed.", e);
             }
             throw new RuntimeException("The field " + f + " cannot be accessed.", e);
         }
@@ -142,20 +142,20 @@ public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<
         try {
             final List<Object> list = (List<Object>) f.get(rc);
             if (list == null) {
-                if (LOG.isLoggable(Level.SEVERE)) {
-                    LOG.log(Level.SEVERE, "The field " + f + " must have a collection value.");
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("The field " + f + " must have a collection value.");
                 }
                 throw new IllegalStateException("The field " + f + " must have a collection value.");
             }
             return list;
         } catch (ClassCastException e) {
-            if (LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "The field " + f + " is not of List type.", e);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("The field " + f + " is not of List type.", e);
             }
             throw e;
         } catch (IllegalAccessException e) {
-            if (LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "The field " + f + " cannot be accessed.", e);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("The field " + f + " cannot be accessed.", e);
             }
             throw new RuntimeException("The field " + f + " cannot be accessed.", e);
         }
@@ -218,8 +218,8 @@ public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<
             }
             return rc;
         } catch (Exception e) {
-            if (LOG.isLoggable(Level.SEVERE)) {
-                LOG.log(Level.SEVERE, "Unable to find field " + name + " in class " + c.getCanonicalName(), e);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Unable to find field " + name + " in class " + c.getCanonicalName(), e);
             }
             throw new RuntimeException("Unable to find field " + name + " in class " + c.getCanonicalName(), e);
         }

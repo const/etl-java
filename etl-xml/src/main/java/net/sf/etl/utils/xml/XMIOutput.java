@@ -26,9 +26,10 @@ package net.sf.etl.utils.xml;
 
 import net.sf.etl.parsers.Terms;
 import net.sf.etl.parsers.TextPos;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
-import java.util.logging.Logger;
 
 /**
  * Structural XMI2-like output. XMI2 specification is available at
@@ -48,7 +49,7 @@ public class XMIOutput extends StructuralOutput {
     /**
      * a logger
      */
-    private static final Logger LOG = Logger.getLogger(XMIOutput.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(XMIOutput.class);
     /**
      * Avoid attributes property
      */
@@ -128,7 +129,7 @@ public class XMIOutput extends StructuralOutput {
             checkErrors();
             switch (parser.current().kind()) {
                 case OBJECT_START:
-                    LOG.severe("Unexpected Object Start Event in "
+                    LOG.error("Unexpected Object Start Event in "
                             + parser.getSystemId() + " (Grammar BUG): "
                             + parser.current());
                     extraStarts++;
@@ -201,7 +202,7 @@ public class XMIOutput extends StructuralOutput {
             switch (parser.current().kind()) {
                 case PROPERTY_START:
                 case LIST_PROPERTY_START:
-                    LOG.severe("Unexpected Property Start Event in "
+                    LOG.error("Unexpected Property Start Event in "
                             + parser.getSystemId() + " (Grammar BUG): "
                             + parser.current());
                     extraStarts++;

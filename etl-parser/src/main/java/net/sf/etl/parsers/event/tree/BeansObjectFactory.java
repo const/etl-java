@@ -27,6 +27,8 @@ package net.sf.etl.parsers.event.tree;
 import net.sf.etl.parsers.ObjectName;
 import net.sf.etl.parsers.ParserException;
 import net.sf.etl.parsers.PropertyName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -36,8 +38,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * <p>
@@ -71,7 +71,7 @@ public class BeansObjectFactory extends ReflectionObjectFactoryBase<Object, Prop
     /**
      * a logger.
      */
-    private static final Logger LOG = Logger.getLogger(BeansObjectFactory.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(BeansObjectFactory.class);
 
     /**
      * A constructor for term parser.
@@ -94,8 +94,8 @@ public class BeansObjectFactory extends ReflectionObjectFactoryBase<Object, Prop
         try {
             return beanClass.newInstance();
         } catch (final Exception e) {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "Object cannot be created: " + beanClass.getName());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Object cannot be created: " + beanClass.getName());
             }
             throw new ParserException("Object cannot be created: " + beanClass.getName(), e);
         }
@@ -112,8 +112,8 @@ public class BeansObjectFactory extends ReflectionObjectFactoryBase<Object, Prop
         try {
             return Introspector.getBeanInfo(beanClass);
         } catch (final IntrospectionException e) {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "BeanInfo has not been found for class: " + beanClass.getName());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("BeanInfo has not been found for class: " + beanClass.getName());
             }
             throw new ParserException("BeanInfo not found for object name " + beanClass.getName(), e);
         }

@@ -26,10 +26,10 @@ package net.sf.etl.parsers.event.tree;
 
 import net.sf.etl.parsers.ObjectName;
 import net.sf.etl.parsers.ParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class provide facilities for mapping class names.
@@ -45,7 +45,7 @@ public abstract class ReflectionObjectFactoryBase<BaseObjectType, FeatureType, M
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(ReflectionObjectFactoryBase.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(ReflectionObjectFactoryBase.class);
     /**
      * The class loader that should be used to load classes.
      */
@@ -85,8 +85,8 @@ public abstract class ReflectionObjectFactoryBase<BaseObjectType, FeatureType, M
         try {
             factoryClassLoader = Thread.currentThread().getContextClassLoader();
         } catch (final Exception ex) {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.log(Level.FINE, "There is a security problem with getting classLoader", ex);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("There is a security problem with getting classLoader", ex);
             }
         }
         if (factoryClassLoader == null) {
@@ -149,8 +149,8 @@ public abstract class ReflectionObjectFactoryBase<BaseObjectType, FeatureType, M
                 }
                 return rc;
             } catch (final ClassNotFoundException ex) {
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.log(Level.FINE, "Class has not been found for name: " + name);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Class has not been found for name: " + name, ex);
                 }
             }
         }

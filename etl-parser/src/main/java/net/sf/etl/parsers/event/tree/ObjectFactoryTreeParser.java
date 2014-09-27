@@ -32,10 +32,10 @@ import net.sf.etl.parsers.Terms;
 import net.sf.etl.parsers.Token;
 import net.sf.etl.parsers.event.Cell;
 import net.sf.etl.parsers.event.ParserState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This is a TreeParser that uses {@link ObjectFactory} to create a tree of AST objects.
@@ -51,7 +51,7 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
     /**
      * The logger.
      */
-    private static final Logger LOG = Logger.getLogger(ObjectFactoryTreeParser.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(ObjectFactoryTreeParser.class);
     /**
      * The object factory.
      */
@@ -86,7 +86,7 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
     private TokenCollector errorTokenHandler = new TokenCollector() {
         @Override
         public void collect(final TermToken token) {
-            LOG.severe("ERROR: " + getSystemId() + " Error detected: " + token);
+            LOG.error("ERROR: " + getSystemId() + " Error detected: " + token);
         }
     };
     /**
@@ -213,7 +213,7 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
             try {
                 c.collect(tk);
             } catch (Exception ex) {
-                LOG.log(Level.SEVERE, "Error while notifying listener", ex);
+                LOG.error("Error while notifying listener", ex);
             }
         }
     }

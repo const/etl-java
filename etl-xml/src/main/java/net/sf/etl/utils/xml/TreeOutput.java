@@ -29,6 +29,8 @@ import net.sf.etl.parsers.TermToken;
 import net.sf.etl.parsers.Terms;
 import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.Token;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -47,7 +49,7 @@ public class TreeOutput extends StructuralOutput {
     /**
      * a logger
      */
-    private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(TreeOutput.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(TreeOutput.class);
     /**
      * the current indentation level
      */
@@ -99,12 +101,12 @@ public class TreeOutput extends StructuralOutput {
             checkErrors();
             switch (parser.current().kind()) {
                 case OBJECT_START:
-                    LOG.severe("Unexpected Object Start Event in " + parser.getSystemId() + " (Grammar BUG): " + parser.current());
+                    LOG.error("Unexpected Object Start Event in " + parser.getSystemId() + " (Grammar BUG): " + parser.current());
                     extraStarts++;
                     parser.advance();
                     break;
                 case VALUE:
-                    LOG.severe("Unexpected Value Event in " + parser.getSystemId() + " (Grammar BUG): " + parser.current());
+                    LOG.error("Unexpected Value Event in " + parser.getSystemId() + " (Grammar BUG): " + parser.current());
                     parser.advance();
                     break;
                 case EOF:
@@ -150,14 +152,14 @@ public class TreeOutput extends StructuralOutput {
             switch (parser.current().kind()) {
                 case PROPERTY_START:
                 case LIST_PROPERTY_START:
-                    LOG.severe("Unexpected Property Start Event in "
+                    LOG.error("Unexpected Property Start Event in "
                             + parser.getSystemId() + " (Grammar BUG): "
                             + parser.current());
                     extraStarts++;
                     parser.advance();
                     break;
                 case EOF:
-                    LOG.severe("Unexpected EOF Event in " + parser.getSystemId()
+                    LOG.error("Unexpected EOF Event in " + parser.getSystemId()
                             + " (Grammar BUG): " + parser.current());
                     return;
                 case OBJECT_START:

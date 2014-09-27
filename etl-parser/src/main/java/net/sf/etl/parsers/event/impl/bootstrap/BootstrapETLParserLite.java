@@ -79,11 +79,10 @@ import net.sf.etl.parsers.event.unstable.model.grammar.TokenRefOp;
 import net.sf.etl.parsers.event.unstable.model.grammar.Wrapper;
 import net.sf.etl.parsers.event.unstable.model.grammar.ZeroOrMoreOp;
 import net.sf.etl.parsers.streams.PhraseParserReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 
 /**
  * <p>
@@ -131,7 +130,7 @@ public final class BootstrapETLParserLite {
     /**
      * a logger used by this class to log the problems.
      */
-    private static final Logger LOG = Logger.getLogger(BootstrapETLParserLite.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(BootstrapETLParserLite.class);
 
     /**
      * stack of properties.
@@ -189,9 +188,8 @@ public final class BootstrapETLParserLite {
             return null;
         } finally {
             final long end = System.currentTimeMillis();
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Bootstrap parser finished, worked for "
-                        + (end - start) + "ms.");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Bootstrap parser finished, worked for " + (end - start) + "ms.");
             }
         }
     }

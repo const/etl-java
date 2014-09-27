@@ -29,10 +29,10 @@ import net.sf.etl.parsers.StandardGrammars;
 import net.sf.etl.parsers.Terms;
 import net.sf.etl.parsers.streams.DefaultTermReaderConfiguration;
 import net.sf.etl.parsers.streams.TermParserReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringReader;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -48,7 +48,7 @@ public abstract class TermStructureTestCase {
     /**
      * a logger
      */
-    private static final Logger LOG = Logger.getLogger(TermStructureTestCase.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(TermStructureTestCase.class);
 
     /**
      * a parser
@@ -224,8 +224,8 @@ public abstract class TermStructureTestCase {
      */
     protected void skipIgnorable() {
         while (true) {
-            if (LOG.isLoggable(java.util.logging.Level.FINEST)) {
-                LOG.fine("processing " + parser.current());
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("processing " + parser.current());
             }
             switch (parser.current().kind()) {
                 case OBJECT_START:
@@ -363,8 +363,8 @@ public abstract class TermStructureTestCase {
                 parser.advance();
             }
             final long end = System.currentTimeMillis();
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("STATISTICS: " + resource + "," + (grammar - start)
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("STATISTICS: " + resource + "," + (grammar - start)
                         + "," + (end - start) + "," + count + ","
                         + countAfterGrammar);
             }
