@@ -29,7 +29,6 @@ import net.sf.etl.parsers.ErrorInfo;
 import net.sf.etl.parsers.LoadedGrammarInfo;
 import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.StandardGrammars;
-import net.sf.etl.parsers.TermParserConfiguration;
 import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.TermParser;
@@ -61,7 +60,7 @@ import java.util.Set;
 /**
  * The common customizable asynchronous grammar resolution process that uses catalog.
  */
-public final class BlockingCatalogSession {
+final class BlockingCatalogSession {
     /**
      * The catalog to use.
      */
@@ -77,7 +76,7 @@ public final class BlockingCatalogSession {
     /**
      * The configuration for term parser.
      */
-    private final TermParserConfiguration configuration;
+    private final TermReaderCatalogConfiguration configuration;
     /**
      * The set of grammars which loading is already started. This is done in order
      * to prevent the case, when document type for the grammar is not the same
@@ -95,7 +94,7 @@ public final class BlockingCatalogSession {
      * @param loadedGrammars the grammars that has been already loaded (to prevent cyclic loading of grammars
      *                       for grammars)
      */
-    public BlockingCatalogSession(final TermParserConfiguration configuration, final BlockingCatalog catalog,
+    public BlockingCatalogSession(final TermReaderCatalogConfiguration configuration, final BlockingCatalog catalog,
                                   final TermParser parser,
                                   final Set<String> loadedGrammars) {
         this.loadedGrammars = loadedGrammars;
@@ -127,7 +126,7 @@ public final class BlockingCatalogSession {
             switch (state) {
                 case OUTPUT_AVAILABLE:
                     final ResolvedObject<CompiledGrammar> read = grammarCompilerEngine.read();
-                    configuration.cacheGrammar(read.getObject());
+                    configuration.getParserConfiguration().cacheGrammar(read.getObject());
                     finish(read);
                     return;
                 case RESOURCE_NEEDED:
@@ -159,7 +158,8 @@ public final class BlockingCatalogSession {
             return false;
         }
         if (result.getResolution() != null) {
-            final CompiledGrammar cachedGrammar = configuration.getCachedGrammar(result.getResolution());
+            final CompiledGrammar cachedGrammar =
+                    configuration.getParserConfiguration().getCachedGrammar(result.getResolution());
             if (cachedGrammar != null) {
                 finish(new ResolvedObject<CompiledGrammar>(resourceRequest,
                         resolutionHistory,

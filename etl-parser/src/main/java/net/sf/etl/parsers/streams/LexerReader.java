@@ -24,10 +24,8 @@
  */
 package net.sf.etl.parsers.streams;
 
-import net.sf.etl.parsers.DefaultTermParserConfiguration;
 import net.sf.etl.parsers.ParserException;
 import net.sf.etl.parsers.ParserIOException;
-import net.sf.etl.parsers.TermParserConfiguration;
 import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.Token;
 import net.sf.etl.parsers.event.Lexer;
@@ -78,7 +76,7 @@ public final class LexerReader extends AbstractReaderImpl<Token> {
      * @param start    the start position for the lexer
      */
     public LexerReader(final Reader input, final String systemId, final TextPos start) {
-        this(DefaultTermParserConfiguration.INSTANCE, input, systemId, start);
+        this(DefaultTermReaderConfiguration.INSTANCE, input, systemId, start);
     }
 
     /**
@@ -89,11 +87,11 @@ public final class LexerReader extends AbstractReaderImpl<Token> {
      * @param systemId      the system id
      * @param start         the start position for the lexer
      */
-    public LexerReader(final TermParserConfiguration configuration, final Reader input, final String systemId,
+    public LexerReader(final TermReaderConfiguration configuration, final Reader input, final String systemId,
                        final TextPos start) {
         this.input = input;
         this.systemId = systemId;
-        lexer = new LexerImpl(configuration);
+        lexer = new LexerImpl(configuration.getParserConfiguration());
         lexer.start(systemId, start);
         buffer.position(0).limit(0);
     }
@@ -104,7 +102,7 @@ public final class LexerReader extends AbstractReaderImpl<Token> {
      * @param configuration the configuration
      * @param url           the url of resource
      */
-    public LexerReader(final TermParserConfiguration configuration, final URL url) {
+    public LexerReader(final TermReaderConfiguration configuration, final URL url) {
         this(createReader(configuration, url), url.toString(), TextPos.START);
     }
 
@@ -114,7 +112,7 @@ public final class LexerReader extends AbstractReaderImpl<Token> {
      * @param url the url of resource
      */
     public LexerReader(final URL url) {
-        this(DefaultTermParserConfiguration.INSTANCE, url);
+        this(DefaultTermReaderConfiguration.INSTANCE, url);
     }
 
     /**
@@ -124,7 +122,7 @@ public final class LexerReader extends AbstractReaderImpl<Token> {
      * @param url           the URL to open
      * @return the corresponding reader
      */
-    private static Reader createReader(final TermParserConfiguration configuration, final URL url) {
+    private static Reader createReader(final TermReaderConfiguration configuration, final URL url) {
         try {
             return configuration.openReader(url.toString());
         } catch (IOException ex) {

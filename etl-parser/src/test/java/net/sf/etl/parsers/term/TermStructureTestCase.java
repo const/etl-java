@@ -100,7 +100,7 @@ public abstract class TermStructureTestCase {
                                                     String defaultContext) {
         parser = new TermParserReader(new StringReader(text), "none:test");
         parser.setDefaultGrammar(grammarPublicId, grammarSystemId, defaultContext, false);
-        assertEquals(parser.getConfiguration().getTabSize(parser.getSystemId()),
+        assertEquals(parser.getConfiguration().getParserConfiguration().getTabSize(parser.getSystemId()),
                 Integer.getInteger(DefaultTermParserConfiguration.ETL_TAB_SIZE_PROPERTY, 8).intValue());
         parser.advance();
     }

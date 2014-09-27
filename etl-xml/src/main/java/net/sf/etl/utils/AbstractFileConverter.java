@@ -24,12 +24,12 @@
  */
 package net.sf.etl.utils;
 
-import net.sf.etl.parsers.DefaultTermParserConfiguration;
-import net.sf.etl.parsers.TermParserConfiguration;
 import net.sf.etl.parsers.TextPos;
+import net.sf.etl.parsers.streams.DefaultTermReaderConfiguration;
 import net.sf.etl.parsers.streams.LexerReader;
 import net.sf.etl.parsers.streams.PhraseParserReader;
 import net.sf.etl.parsers.streams.TermParserReader;
+import net.sf.etl.parsers.streams.TermReaderCatalogConfiguration;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -60,9 +60,9 @@ public abstract class AbstractFileConverter {
      */
     protected TreeMap<String, String> sourceFiles = new TreeMap<String, String>();
     /**
-     * The configuration
+     * The configuration.
      */
-    protected TermParserConfiguration configuration = DefaultTermParserConfiguration.INSTANCE;
+    protected TermReaderCatalogConfiguration configuration = DefaultTermReaderConfiguration.INSTANCE;
 
     /**
      * Parse custom option in argument list
@@ -175,19 +175,13 @@ public abstract class AbstractFileConverter {
                 final String files[] = inDir.list();
                 final int inPrefixSize = inPrefix.length();
                 final int inSuffixSize = inSuffix.length();
-                final int outPrefixSize = outPrefix.length();
-                final int outSuffixSize = outSuffix.length();
                 for (final String file : files) {
                     if (file.startsWith(inPrefix) && file.endsWith(inSuffix)) {
                         final int fileNameLength = file.length();
-                        final StringBuilder outName = new StringBuilder(
-                                fileNameLength - inPrefixSize - inSuffixSize + outPrefixSize + outSuffixSize);
-                        outName.append(outPrefix);
-                        outName.append(file.substring(inPrefixSize, fileNameLength - inSuffixSize));
-                        outName.append(outSuffix);
+                        final String outputName = outPrefix
+                                + file.substring(inPrefixSize, fileNameLength - inSuffixSize) + outSuffix;
                         sourceFiles.put(new File(inDir, file).getAbsoluteFile()
-                                .toURI().toString(), new File(outDir, outName
-                                .toString()).toString());
+                                .toURI().toString(), new File(outDir, outputName).toString());
                     }
                 }
             } else {

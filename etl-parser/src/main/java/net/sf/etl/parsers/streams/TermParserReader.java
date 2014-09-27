@@ -25,9 +25,7 @@
 
 package net.sf.etl.parsers.streams;
 
-import net.sf.etl.parsers.DefaultTermParserConfiguration;
 import net.sf.etl.parsers.PhraseToken;
-import net.sf.etl.parsers.TermParserConfiguration;
 import net.sf.etl.parsers.TermToken;
 import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.event.Cell;
@@ -46,7 +44,7 @@ public final class TermParserReader extends AbstractReaderImpl<TermToken> {
     /**
      * The parser configuration.
      */
-    private final TermParserConfiguration configuration;
+    private final TermReaderConfiguration configuration;
     /**
      * The reader.
      */
@@ -72,7 +70,7 @@ public final class TermParserReader extends AbstractReaderImpl<TermToken> {
      * @param termParser         the term parser
      * @param resolver           the resolver
      */
-    public TermParserReader(final TermParserConfiguration configuration, final PhraseParserReader phraseParserReader,
+    public TermParserReader(final TermReaderConfiguration configuration, final PhraseParserReader phraseParserReader,
                             final TermParser termParser, final GrammarResolver resolver) {
         this.configuration = configuration;
         this.phraseParserReader = phraseParserReader;
@@ -89,7 +87,7 @@ public final class TermParserReader extends AbstractReaderImpl<TermToken> {
      */
     public TermParserReader(final PhraseParserReader phraseParserReader, final CompiledGrammar forcedGrammar,
                             final boolean scriptMode) {
-        this(DefaultTermParserConfiguration.INSTANCE, phraseParserReader, forcedGrammar, scriptMode);
+        this(DefaultTermReaderConfiguration.INSTANCE, phraseParserReader, forcedGrammar, scriptMode);
     }
 
     /**
@@ -100,7 +98,7 @@ public final class TermParserReader extends AbstractReaderImpl<TermToken> {
      * @param forcedGrammar      the grammar that is forced for the parser
      * @param scriptMode         if true, the grammar is used in script mode
      */
-    public TermParserReader(final TermParserConfiguration configuration, final PhraseParserReader phraseParserReader,
+    public TermParserReader(final TermReaderConfiguration configuration, final PhraseParserReader phraseParserReader,
                             final CompiledGrammar forcedGrammar, final boolean scriptMode) {
         this(configuration, phraseParserReader, new TermParserImpl(),
                 configuration.getGrammarResolver(phraseParserReader.getSystemId()));
@@ -114,7 +112,7 @@ public final class TermParserReader extends AbstractReaderImpl<TermToken> {
      * @param phraseParserReader the phrase parser reader
      */
     public TermParserReader(final PhraseParserReader phraseParserReader) {
-        this(DefaultTermParserConfiguration.INSTANCE, phraseParserReader);
+        this(DefaultTermReaderConfiguration.INSTANCE, phraseParserReader);
     }
 
     /**
@@ -123,7 +121,7 @@ public final class TermParserReader extends AbstractReaderImpl<TermToken> {
      * @param configuration      the configuration
      * @param phraseParserReader the phrase parser reader
      */
-    public TermParserReader(final TermParserConfiguration configuration, final PhraseParserReader phraseParserReader) {
+    public TermParserReader(final TermReaderConfiguration configuration, final PhraseParserReader phraseParserReader) {
         this(configuration, phraseParserReader, new TermParserImpl(),
                 configuration.getGrammarResolver(phraseParserReader.getSystemId()));
         this.termParser.start(phraseParserReader.getSystemId());
@@ -135,7 +133,7 @@ public final class TermParserReader extends AbstractReaderImpl<TermToken> {
      * @param url the url to use
      */
     public TermParserReader(final URL url) {
-        this(DefaultTermParserConfiguration.INSTANCE, url);
+        this(DefaultTermReaderConfiguration.INSTANCE, url);
     }
 
     /**
@@ -144,7 +142,7 @@ public final class TermParserReader extends AbstractReaderImpl<TermToken> {
      * @param configuration the configuration
      * @param url           the url to use
      */
-    public TermParserReader(final TermParserConfiguration configuration, final URL url) {
+    public TermParserReader(final TermReaderConfiguration configuration, final URL url) {
         this(configuration, new PhraseParserReader(configuration, url));
     }
 
@@ -208,7 +206,7 @@ public final class TermParserReader extends AbstractReaderImpl<TermToken> {
     /**
      * @return the current parser configuration
      */
-    public TermParserConfiguration getConfiguration() {
+    public TermReaderConfiguration getConfiguration() {
         return configuration;
     }
 

@@ -23,46 +23,19 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers;
+package net.sf.etl.parsers.streams;
 
-import net.sf.etl.parsers.event.grammar.CompiledGrammar;
-
-import java.nio.charset.Charset;
+import org.apache_extras.xml_catalog.blocking.BlockingCatalog;
 
 /**
- * The configuration for the term parser, there is a default configuration,
- * but it is expected, that IDE will provide other configuration.
+ * The catalog based configuration.
  */
-public interface TermParserConfiguration {
+public interface TermReaderCatalogConfiguration extends TermReaderConfiguration {
     /**
-     * Get tab size for the specified system id.
+     * Get catalog for the specified system id.
      *
      * @param systemId the system id to check
-     * @return the tabulation size
+     * @return get catalog for the parser, it is used to resolve grammars for the file
      */
-    int getTabSize(String systemId);
-
-
-    /**
-     * Get cached grammar.
-     *
-     * @param systemId the system of compiled grammar
-     * @return the cached grammar
-     */
-    CompiledGrammar getCachedGrammar(String systemId);
-
-    /**
-     * Cache compiled grammar.
-     *
-     * @param grammar the grammar to cache
-     */
-    void cacheGrammar(CompiledGrammar grammar);
-
-    /**
-     * Get encoding by system id.
-     *
-     * @param systemId the system id
-     * @return the charset
-     */
-    Charset getEncoding(String systemId);
+    BlockingCatalog getCatalog(String systemId);
 }

@@ -25,8 +25,6 @@
 
 package net.sf.etl.parsers.streams;
 
-import net.sf.etl.parsers.DefaultTermParserConfiguration;
-import net.sf.etl.parsers.TermParserConfiguration;
 import net.sf.etl.parsers.event.TermParser;
 
 import java.util.Collections;
@@ -43,7 +41,7 @@ public final class DefaultGrammarResolver implements GrammarResolver {
     /**
      * The configuration.
      */
-    private final TermParserConfiguration configuration;
+    private final TermReaderCatalogConfiguration configuration;
     /**
      * The grammars that are already loaded.
      */
@@ -53,7 +51,7 @@ public final class DefaultGrammarResolver implements GrammarResolver {
      * The constructor from default configuration.
      */
     public DefaultGrammarResolver() {
-        this(DefaultTermParserConfiguration.INSTANCE, Collections.<String>emptySet());
+        this(DefaultTermReaderConfiguration.INSTANCE, Collections.<String>emptySet());
     }
 
     /**
@@ -62,7 +60,7 @@ public final class DefaultGrammarResolver implements GrammarResolver {
      * @param configuration  the configuration
      * @param loadedGrammars the loaded grammars
      */
-    public DefaultGrammarResolver(final TermParserConfiguration configuration,
+    public DefaultGrammarResolver(final TermReaderCatalogConfiguration configuration,
                                   final Set<String> loadedGrammars) {
         this.configuration = configuration;
         this.loadedGrammars = loadedGrammars;

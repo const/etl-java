@@ -27,15 +27,8 @@ package net.sf.etl.parsers;
 
 import net.sf.etl.parsers.characters.Whitespaces;
 import net.sf.etl.parsers.event.grammar.CompiledGrammar;
-import net.sf.etl.parsers.streams.DefaultGrammarResolver;
-import net.sf.etl.parsers.streams.GrammarResolver;
 import net.sf.etl.parsers.streams.LexerReader;
-import org.apache_extras.xml_catalog.blocking.BlockingCatalog;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,10 +51,6 @@ public final class DefaultTermParserConfiguration implements TermParserConfigura
      */
     public static final String ETL_TAB_SIZE_PROPERTY = "etl.tab.size";
     /**
-     * The catalog.
-     */
-    private final BlockingCatalog catalog;
-    /**
      * The tabulation size.
      */
     private final int tabSize;
@@ -77,12 +66,10 @@ public final class DefaultTermParserConfiguration implements TermParserConfigura
     /**
      * The constructor from fields.
      *
-     * @param catalog  the catalog
      * @param tabSize  the tab size
      * @param encoding the encoding
      */
-    public DefaultTermParserConfiguration(final BlockingCatalog catalog, final int tabSize, final Charset encoding) {
-        this.catalog = catalog;
+    public DefaultTermParserConfiguration(final int tabSize, final Charset encoding) {
         this.tabSize = tabSize;
         this.encoding = encoding;
     }
@@ -91,15 +78,9 @@ public final class DefaultTermParserConfiguration implements TermParserConfigura
      * The default constructor that takes default values from system properties.
      */
     public DefaultTermParserConfiguration() {
-        this(getDefaultCatalog(), getDefaultTabSize(), getDefaultEncoding());
+        this(getDefaultTabSize(), getDefaultEncoding());
     }
 
-    /**
-     * @return the default catalog
-     */
-    private static BlockingCatalog getDefaultCatalog() {
-        return BlockingCatalog.getDefaultCatalog(DefaultTermParserConfiguration.class);
-    }
 
     /**
      * @return the default encoding
@@ -126,22 +107,10 @@ public final class DefaultTermParserConfiguration implements TermParserConfigura
 
 
     @Override
-    public BlockingCatalog getCatalog(final String systemId) {
-        return catalog;
-    }
-
-    @Override
     public int getTabSize(final String systemId) {
         return tabSize;
     }
 
-    @Override
-    public Reader openReader(final String systemId) throws IOException {
-        if (!systemId.startsWith("file:") && !systemId.startsWith("jar:file:")) {
-            throw new IllegalArgumentException("Only local system ids are supported!");
-        }
-        return new InputStreamReader(new URL(systemId).openStream(), encoding);
-    }
 
     @Override
     public CompiledGrammar getCachedGrammar(final String systemId) {
@@ -158,10 +127,6 @@ public final class DefaultTermParserConfiguration implements TermParserConfigura
         }
     }
 
-    @Override
-    public GrammarResolver getGrammarResolver(final String systemId) {
-        return DefaultGrammarResolver.INSTANCE;
-    }
 
     /**
      * Cache grammar and all related grammars.
@@ -177,5 +142,10 @@ public final class DefaultTermParserConfiguration implements TermParserConfigura
                 cacheGrammar(cachedGrammars, other);
             }
         }
+    }
+
+    @Override
+    public Charset getEncoding(String systemId) {
+        return encoding;
     }
 }

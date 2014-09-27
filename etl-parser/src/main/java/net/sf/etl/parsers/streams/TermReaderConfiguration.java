@@ -23,46 +23,37 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers;
+package net.sf.etl.parsers.streams;
 
-import net.sf.etl.parsers.event.grammar.CompiledGrammar;
+import net.sf.etl.parsers.TermParserConfiguration;
 
-import java.nio.charset.Charset;
+import java.io.IOException;
+import java.io.Reader;
 
 /**
- * The configuration for the term parser, there is a default configuration,
- * but it is expected, that IDE will provide other configuration.
+ * The configuration for the blocking parsers.
  */
-public interface TermParserConfiguration {
+public interface TermReaderConfiguration {
     /**
-     * Get tab size for the specified system id.
-     *
-     * @param systemId the system id to check
-     * @return the tabulation size
+     * @return the generic parser configuration
      */
-    int getTabSize(String systemId);
-
+    TermParserConfiguration getParserConfiguration();
 
     /**
-     * Get cached grammar.
+     * Identify default grammar resolver for the source.
      *
-     * @param systemId the system of compiled grammar
-     * @return the cached grammar
+     * @param systemId the system id of source being parsed
+     * @return get default synchronous grammar resolver for the term reader
      */
-    CompiledGrammar getCachedGrammar(String systemId);
+    GrammarResolver getGrammarResolver(String systemId);
 
     /**
-     * Cache compiled grammar.
-     *
-     * @param grammar the grammar to cache
-     */
-    void cacheGrammar(CompiledGrammar grammar);
-
-    /**
-     * Get encoding by system id.
+     * Get the appropriate reader for the specified system id. The reader is configured with needed encoding.
+     * Many IDE allow specify a particular encoding for the file, so it needs to be checked for each file separately.
      *
      * @param systemId the system id
-     * @return the charset
+     * @return the reader for the specified system id
+     * @throws java.io.IOException in case if opening failed.
      */
-    Charset getEncoding(String systemId);
+    Reader openReader(String systemId) throws IOException;
 }
