@@ -160,12 +160,11 @@ public class BeansObjectFactory extends ReflectionObjectFactoryBase<Object, Prop
     public final void endListCollection(final Object rc, final BeanInfo metaObject,
                                         final PropertyDescriptor f, final List<Object> holder) {
         try {
-            final ArrayList<Object> list = (ArrayList<Object>) holder;
             final Method m = f.getWriteMethod();
-            final int n = list.size();
+            final int n = holder.size();
             final Object array = Array.newInstance(f.getPropertyType().getComponentType(), n);
             for (int i = 0; i < n; i++) {
-                Array.set(array, i, list.get(i));
+                Array.set(array, i, holder.get(i));
             }
             m.invoke(rc, array);
         } catch (final Exception e) {

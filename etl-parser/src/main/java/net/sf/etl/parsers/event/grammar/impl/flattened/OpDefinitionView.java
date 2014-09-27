@@ -79,7 +79,7 @@ public final class OpDefinitionView extends ObjectDefinitionView {
     public Integer precedence() {
         final Integer rc = operator().getPrecedence() == null ? null
                 : LiteralUtils.parseInt(operator().getPrecedence().text());
-        return rc == null ? 0 : rc;
+        return rc == null ? Integer.valueOf(0) : rc;
     }
 
     /**
@@ -340,7 +340,7 @@ public final class OpDefinitionView extends ObjectDefinitionView {
     /**
      * A context specific operator information.
      */
-    private class OpInfo {
+    private static class OpInfo {
         /**
          * List of operator statements.
          */

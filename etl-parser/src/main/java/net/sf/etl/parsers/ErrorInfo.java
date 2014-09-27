@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
 
 /**
@@ -259,6 +260,9 @@ public final class ErrorInfo implements Iterable<ErrorInfo> {
             @Override
             public ErrorInfo next() {
                 ErrorInfo rc = current;
+                if (rc == null) {
+                    throw new NoSuchElementException();
+                }
                 current = current.nextError;
                 return rc;
             }

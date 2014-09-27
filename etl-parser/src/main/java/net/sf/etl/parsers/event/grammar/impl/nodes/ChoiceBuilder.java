@@ -134,7 +134,7 @@ public final class ChoiceBuilder {
     /**
      * The choice options.
      */
-    private final class ChoiceOption {
+    private static final class ChoiceOption {
         /**
          * The look ahead set.
          */

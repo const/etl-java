@@ -84,9 +84,6 @@ public final class PhraseToken extends AbstractToken {
         if (kind == null) {
             throw new NullPointerException("Kind must not be null");
         }
-        if (position == null) {
-            throw new NullPointerException("Position must not be null");
-        }
         switch (kind) {
             case END_BLOCK:
             case SOFT_STATEMENT_END:

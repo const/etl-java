@@ -26,6 +26,7 @@ package net.sf.etl.parsers;
 
 import net.sf.etl.parsers.characters.QuoteClass;
 
+import java.io.Serializable;
 import java.util.EnumMap;
 
 /**
@@ -34,7 +35,7 @@ import java.util.EnumMap;
  *
  * @author const
  */
-public final class TokenKey {
+public final class TokenKey implements Serializable {
     /**
      * Map for tokens without modifiers.
      */
@@ -268,6 +269,16 @@ public final class TokenKey {
      */
     public QuoteClass quoteClass() {
         return quoteClass;
+    }
+
+    private Object readResolve() {
+        if (quoteClass != null) {
+            return quoted(kind, modifier, quoteClass);
+        }
+        if (modifier != null) {
+            return modified(kind, modifier);
+        }
+        return simple(kind);
     }
 
     @Override
