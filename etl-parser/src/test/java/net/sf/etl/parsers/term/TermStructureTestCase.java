@@ -27,6 +27,7 @@ package net.sf.etl.parsers.term;
 import net.sf.etl.parsers.DefaultTermParserConfiguration;
 import net.sf.etl.parsers.StandardGrammars;
 import net.sf.etl.parsers.Terms;
+import net.sf.etl.parsers.streams.DefaultTermReaderConfiguration;
 import net.sf.etl.parsers.streams.TermParserReader;
 
 import java.io.StringReader;
@@ -98,7 +99,7 @@ public abstract class TermStructureTestCase {
     protected void startWithStringAndDefaultGrammar(String text,
                                                     String grammarSystemId, String grammarPublicId,
                                                     String defaultContext) {
-        parser = new TermParserReader(new StringReader(text), "none:test");
+        parser = new TermParserReader(DefaultTermReaderConfiguration.INSTANCE, new StringReader(text), "none:test");
         parser.setDefaultGrammar(grammarPublicId, grammarSystemId, defaultContext, false);
         assertEquals(parser.getConfiguration().getParserConfiguration().getTabSize(parser.getSystemId()),
                 Integer.getInteger(DefaultTermParserConfiguration.ETL_TAB_SIZE_PROPERTY, 8).intValue());

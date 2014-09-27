@@ -29,6 +29,7 @@ import net.sf.etl.parsers.TermToken;
 import net.sf.etl.parsers.Terms;
 import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.event.grammar.CompiledGrammar;
+import net.sf.etl.parsers.streams.DefaultTermReaderConfiguration;
 import net.sf.etl.parsers.streams.LexerReader;
 import net.sf.etl.parsers.streams.PhraseParserReader;
 import net.sf.etl.parsers.streams.TermParserReader;
@@ -38,7 +39,10 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Basic test case for term parsing
@@ -116,7 +120,8 @@ public class BasicTermTestCase {
      * @param text    the text to parse
      */
     protected void startCompiledGrammar(CompiledGrammar grammar, String text) {
-        start(new TermParserReader(new PhraseParserReader(new LexerReader(new StringReader(text), "t", TextPos.START)), grammar, false));
+        start(new TermParserReader(new PhraseParserReader(new LexerReader(DefaultTermReaderConfiguration.INSTANCE,
+                new StringReader(text), "t", TextPos.START)), grammar, false));
     }
 
     /**

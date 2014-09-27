@@ -65,15 +65,6 @@ public final class PhraseParserReader extends AbstractReaderImpl<PhraseToken> {
     /**
      * The constructor from URL.
      *
-     * @param url the url to use
-     */
-    public PhraseParserReader(final URL url) {
-        this(new LexerReader(url));
-    }
-
-    /**
-     * The constructor from URL.
-     *
      * @param configuration the configuration
      * @param url           the url to use
      */

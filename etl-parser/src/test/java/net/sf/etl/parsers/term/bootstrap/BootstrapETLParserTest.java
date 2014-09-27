@@ -27,6 +27,7 @@ package net.sf.etl.parsers.term.bootstrap;
 import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.event.impl.bootstrap.BootstrapETLParserLite;
 import net.sf.etl.parsers.event.unstable.model.grammar.Grammar;
+import net.sf.etl.parsers.streams.DefaultTermReaderConfiguration;
 import net.sf.etl.parsers.streams.LexerReader;
 import net.sf.etl.parsers.streams.PhraseParserReader;
 import org.junit.Test;
@@ -52,6 +53,7 @@ public class BootstrapETLParserTest {
     private Grammar parseResource(String resourceName) {
         try {
             PhraseParserReader phraseParser = new PhraseParserReader(new LexerReader(
+                    DefaultTermReaderConfiguration.INSTANCE,
                     new InputStreamReader(BootstrapETLParserTest.class.getResourceAsStream(resourceName), "UTF-8"),
                     BootstrapETLParserTest.class.getResource(resourceName).toString(),
                     TextPos.START

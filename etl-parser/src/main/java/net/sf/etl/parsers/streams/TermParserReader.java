@@ -147,24 +147,14 @@ public final class TermParserReader extends AbstractReaderImpl<TermToken> {
     }
 
     /**
-     * Start from reader.
+     * The constructor from reader and system id.
      *
-     * @param reader   the reader
-     * @param systemId the system id
-     * @param start    the start position
+     * @param configuration the configuration
+     * @param reader        the reader
+     * @param systemId      the system id
      */
-    public TermParserReader(final Reader reader, final String systemId, final TextPos start) {
-        this(new PhraseParserReader(new LexerReader(reader, systemId, start)));
-    }
-
-    /**
-     * Start from reader.
-     *
-     * @param reader   the reader
-     * @param systemId the system id
-     */
-    public TermParserReader(final Reader reader, final String systemId) {
-        this(reader, systemId, TextPos.START);
+    public TermParserReader(final TermReaderConfiguration configuration, final Reader reader, final String systemId) {
+        this(configuration, new PhraseParserReader(new LexerReader(configuration, reader, systemId, TextPos.START)));
     }
 
     @Override

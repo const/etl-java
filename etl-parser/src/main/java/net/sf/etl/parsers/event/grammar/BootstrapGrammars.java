@@ -36,6 +36,7 @@ import net.sf.etl.parsers.resource.ResolvedObject;
 import net.sf.etl.parsers.resource.ResourceDescriptor;
 import net.sf.etl.parsers.resource.ResourceReference;
 import net.sf.etl.parsers.resource.ResourceRequest;
+import net.sf.etl.parsers.streams.DefaultTermReaderConfiguration;
 import net.sf.etl.parsers.streams.LexerReader;
 import net.sf.etl.parsers.streams.PhraseParserReader;
 
@@ -154,7 +155,7 @@ public final class BootstrapGrammars {
                             try {
                                 BootstrapETLParserLite parser = new BootstrapETLParserLite(
                                         new PhraseParserReader(
-                                                new LexerReader(
+                                                new LexerReader(DefaultTermReaderConfiguration.INSTANCE,
                                                         new InputStreamReader(input, UTF8),
                                                         systemId, TextPos.START)));
                                 final Grammar grammar = parser.parse();

@@ -71,17 +71,6 @@ public final class LexerReader extends AbstractReaderImpl<Token> {
     /**
      * The constructor.
      *
-     * @param input    the input
-     * @param systemId the system id
-     * @param start    the start position for the lexer
-     */
-    public LexerReader(final Reader input, final String systemId, final TextPos start) {
-        this(DefaultTermReaderConfiguration.INSTANCE, input, systemId, start);
-    }
-
-    /**
-     * The constructor.
-     *
      * @param configuration the configuration
      * @param input         the input
      * @param systemId      the system id
@@ -103,16 +92,7 @@ public final class LexerReader extends AbstractReaderImpl<Token> {
      * @param url           the url of resource
      */
     public LexerReader(final TermReaderConfiguration configuration, final URL url) {
-        this(createReader(configuration, url), url.toString(), TextPos.START);
-    }
-
-    /**
-     * The constructor from url, it opens resource and starts reading its content. The assumed encoding is UTF-8.
-     *
-     * @param url the url of resource
-     */
-    public LexerReader(final URL url) {
-        this(DefaultTermReaderConfiguration.INSTANCE, url);
+        this(configuration, createReader(configuration, url), url.toString(), TextPos.START);
     }
 
     /**
