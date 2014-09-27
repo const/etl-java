@@ -27,7 +27,7 @@ package net.sf.etl.parsers;
 
 import net.sf.etl.parsers.event.grammar.CompiledGrammar;
 import net.sf.etl.parsers.streams.GrammarResolver;
-import org.apache_extras.xml_catalog.event.Catalog;
+import org.apache_extras.xml_catalog.blocking.BlockingCatalog;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -38,23 +38,24 @@ import java.io.Reader;
  */
 public interface TermParserConfiguration {
     // TODO expose other interface (there should be no dependency on this level)
+
     /**
      * Get catalog for the specified system id.
      *
      * @param systemId the system id to check
      * @return get catalog for the parser, it is used to resolve grammars for the file
      */
-    Catalog getCatalog(String systemId);
+    BlockingCatalog getCatalog(String systemId);
 
     /**
-     * Get tab size for the specified system id.
+     * Identify default grammar resolver for the source.
      *
-     * @param systemId the system id to check
-     * @return the tabulation size
+     * @param systemId the system id of source being parsed
+     * @return get default synchronous grammar resolver for the term reader
      */
-    int getTabSize(String systemId);
-
+    GrammarResolver getGrammarResolver(String systemId);
     // TODO move part of this this interface to streams package (reader, resolver).
+
     /**
      * Get the appropriate reader for the specified system id. The reader is configured with needed encoding.
      * Many IDE allow specify a particular encoding for the file, so it needs to be checked for each file separately.
@@ -64,6 +65,16 @@ public interface TermParserConfiguration {
      * @throws IOException in case if opening failed.
      */
     Reader openReader(String systemId) throws IOException;
+    // CHARSET: operstion
+
+    /**
+     * Get tab size for the specified system id.
+     *
+     * @param systemId the system id to check
+     * @return the tabulation size
+     */
+    int getTabSize(String systemId);
+
 
     /**
      * Get cached grammar.
@@ -79,13 +90,4 @@ public interface TermParserConfiguration {
      * @param grammar the grammar to cache
      */
     void cacheGrammar(CompiledGrammar grammar);
-    // TODO void expireGrammar(String systemId)?
-
-    /**
-     * Identify default grammar resolver for the source.
-     *
-     * @param systemId the system id of source being parsed
-     * @return get default synchronous grammar resolver for the term reader
-     */
-    GrammarResolver getGrammarResolver(String systemId);
 }

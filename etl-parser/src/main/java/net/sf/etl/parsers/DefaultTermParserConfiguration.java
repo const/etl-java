@@ -30,7 +30,7 @@ import net.sf.etl.parsers.event.grammar.CompiledGrammar;
 import net.sf.etl.parsers.streams.DefaultGrammarResolver;
 import net.sf.etl.parsers.streams.GrammarResolver;
 import net.sf.etl.parsers.streams.LexerReader;
-import org.apache_extras.xml_catalog.event.Catalog;
+import org.apache_extras.xml_catalog.blocking.BlockingCatalog;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -60,7 +60,7 @@ public final class DefaultTermParserConfiguration implements TermParserConfigura
     /**
      * The catalog.
      */
-    private final Catalog catalog;
+    private final BlockingCatalog catalog;
     /**
      * The tabulation size.
      */
@@ -81,7 +81,7 @@ public final class DefaultTermParserConfiguration implements TermParserConfigura
      * @param tabSize  the tab size
      * @param encoding the encoding
      */
-    public DefaultTermParserConfiguration(final Catalog catalog, final int tabSize, final Charset encoding) {
+    public DefaultTermParserConfiguration(final BlockingCatalog catalog, final int tabSize, final Charset encoding) {
         this.catalog = catalog;
         this.tabSize = tabSize;
         this.encoding = encoding;
@@ -97,8 +97,8 @@ public final class DefaultTermParserConfiguration implements TermParserConfigura
     /**
      * @return the default catalog
      */
-    private static Catalog getDefaultCatalog() {
-        return Catalog.getDefaultCatalog(DefaultTermParserConfiguration.class);
+    private static BlockingCatalog getDefaultCatalog() {
+        return BlockingCatalog.getDefaultCatalog(DefaultTermParserConfiguration.class);
     }
 
     /**
@@ -126,7 +126,7 @@ public final class DefaultTermParserConfiguration implements TermParserConfigura
 
 
     @Override
-    public Catalog getCatalog(final String systemId) {
+    public BlockingCatalog getCatalog(final String systemId) {
         return catalog;
     }
 

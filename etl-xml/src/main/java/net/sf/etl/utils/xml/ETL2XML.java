@@ -26,8 +26,7 @@ package net.sf.etl.utils.xml;
 
 import net.sf.etl.parsers.streams.TermParserReader;
 import net.sf.etl.utils.AbstractFileConverter;
-import org.apache_extras.xml_catalog.resolvers.BlockingCatalog;
-import org.apache_extras.xml_catalog.resolvers.CatalogResolver;
+import org.apache_extras.xml_catalog.blocking.CatalogResolver;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
@@ -87,6 +86,14 @@ public class ETL2XML extends AbstractFileConverter {
         }
     }
 
+    /**
+     * application entry point
+     *
+     * @param args program arguments.
+     */
+    public static void main(String[] args) {
+        new ETL2XML(args);
+    }
 
     @Override
     protected void processContent(OutputStream outStream, TermParserReader p) throws Exception {
@@ -103,7 +110,7 @@ public class ETL2XML extends AbstractFileConverter {
             out.process(p, sw);
             // resolve stylesheets for the resolver
             if (templates == null) {
-                final CatalogResolver resolver = new CatalogResolver(new BlockingCatalog(configuration.getCatalog(styleFileName)));
+                final CatalogResolver resolver = new CatalogResolver(configuration.getCatalog(styleFileName));
                 String transform;
                 if (styleFileName == null) {
                     // TODO resolve by extension
@@ -158,15 +165,5 @@ public class ETL2XML extends AbstractFileConverter {
             return super.handleCustomOption(args, i);
         }
         return i;
-    }
-
-
-    /**
-     * application entry point
-     *
-     * @param args program arguments.
-     */
-    public static void main(String[] args) {
-        new ETL2XML(args);
     }
 }

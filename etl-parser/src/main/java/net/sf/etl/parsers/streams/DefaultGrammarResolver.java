@@ -26,16 +26,11 @@
 package net.sf.etl.parsers.streams;
 
 import net.sf.etl.parsers.DefaultTermParserConfiguration;
-import net.sf.etl.parsers.ParserException;
 import net.sf.etl.parsers.TermParserConfiguration;
 import net.sf.etl.parsers.event.TermParser;
-import net.sf.etl.parsers.event.grammar.GrammarCompilerSession;
 
 import java.util.Collections;
 import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * The caching grammar resolver, it is based on system ids.
@@ -80,33 +75,11 @@ public final class DefaultGrammarResolver implements GrammarResolver {
      */
     @Override
     public void resolve(final TermParser termParser) {
-        final AtomicBoolean finished = new AtomicBoolean(false);
-        final LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>();
-        new GrammarCompilerSession(
+        new BlockingCatalogSession(
                 configuration,
                 configuration.getCatalog(termParser.getSystemId()),
                 termParser,
-                new Executor() {
-                    @Override
-                    public void execute(final Runnable command) {
-                        queue.add(command);
-                    }
-                },
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        finished.set(true);
-                    }
-                },
                 loadedGrammars
-        );
-        while (!finished.get()) {
-            try {
-                queue.take().run();
-            } catch (Exception e) {
-                throw new ParserException("The grammar resolution process for "
-                        + termParser.getSystemId() + " is interrupted", e);
-            }
-        }
+        ).resolve();
     }
 }
