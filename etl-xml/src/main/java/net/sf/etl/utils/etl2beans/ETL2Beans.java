@@ -29,36 +29,56 @@ import net.sf.etl.parsers.event.tree.BeansObjectFactory;
 import net.sf.etl.parsers.streams.TermParserReader;
 import net.sf.etl.parsers.streams.TreeParserReader;
 import net.sf.etl.utils.ETL2AST;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.DefaultPersistenceDelegate;
 import java.beans.XMLEncoder;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * This class converts ETL source to serialized JavaBeans
+ * This class converts ETL source to serialized JavaBeans.
  *
  * @author const
  */
-public class ETL2Beans extends ETL2AST {
+public final class ETL2Beans extends ETL2AST {
     /**
-     * map from namespace to package
+     * The logger.
      */
-    final HashMap<String, String> packageMap = new HashMap<String, String>();
+    private static final Logger LOG = LoggerFactory.getLogger(ETL2Beans.class);
+    /**
+     * The map from namespace to package.
+     */
+    private final Map<String, String> packageMap = new HashMap<String, String>(); // NOPMD
+
+    /**
+     * Application entry point.
+     *
+     * @param args application arguments
+     */
+    public static void main(final String[] args) {
+        try {
+            new ETL2Beans().start(args);
+        } catch (final Exception ex) { // NOPMD
+            LOG.error("Execution failed", ex);
+        }
+    }
 
     @Override
-    protected void processContent(OutputStream outStream, TermParserReader p)
+    protected void processContent(final OutputStream stream, final TermParserReader p)
             throws Exception {
         final BeansObjectFactory bp = new BeansObjectFactory(ETL2Beans.class.getClassLoader());
         configureStandardOptions(bp);
         for (final Entry<String, String> e : packageMap.entrySet()) {
             bp.mapNamespaceToPackage(e.getKey(), e.getValue());
         }
-        final XMLEncoder en = new XMLEncoder(outStream);
+        final XMLEncoder en = new XMLEncoder(stream);
         en.setPersistenceDelegate(TextPos.class,
                 new DefaultPersistenceDelegate(new String[]{"line", "column", "offset"}));
-        TreeParserReader<Object> parser = new TreeParserReader<Object>(p, bp);
+        final TreeParserReader<Object> parser = new TreeParserReader<Object>(p, bp);
         while (parser.advance()) {
             en.writeObject(parser.current());
         }
@@ -66,7 +86,8 @@ public class ETL2Beans extends ETL2AST {
     }
 
     @Override
-    protected int handleCustomOption(String[] args, int i) throws Exception {
+    protected int handleCustomOption(final String[] args, final int start) throws Exception {
+        int i = start;
         if ("-map".equals(args[i])) {
             final String namespace = args[i + 1];
             final String packageName = args[i + 2];
@@ -76,18 +97,5 @@ public class ETL2Beans extends ETL2AST {
             return super.handleCustomOption(args, i);
         }
         return i;
-    }
-
-    /**
-     * Application entry point
-     *
-     * @param args application arguments
-     */
-    public static void main(String args[]) {
-        try {
-            new ETL2Beans().start(args);
-        } catch (final Exception ex) {
-            ex.printStackTrace();
-        }
     }
 }

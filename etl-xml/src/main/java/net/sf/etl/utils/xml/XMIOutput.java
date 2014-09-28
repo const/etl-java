@@ -37,34 +37,34 @@ import javax.xml.stream.XMLStreamException;
  *
  * @author const
  */
-public class XMIOutput extends StructuralOutput {
+public final class XMIOutput extends StructuralOutput {
     /**
-     * XMI namespace
+     * The XMI namespace.
      */
-    final static String XMI_NS = "http://www.omg.org/XMI";
+    private static final String XMI_NS = "http://www.omg.org/XMI";
     /**
-     * schema instance namespace
+     * The schema instance namespace.
      */
-    final static String XSI_NS = "http://www.w3.org/2001/XMLSchema-instance";
+    private static final String XSI_NS = "http://www.w3.org/2001/XMLSchema-instance";
     /**
-     * a logger
+     * The logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(XMIOutput.class);
     /**
-     * Avoid attributes property
+     * Avoid attributes property.
      */
-    final boolean avoidAttributes;
+    private final boolean avoidAttributes;
     /**
-     * True if the first object is yet to be written
+     * True if the first object is yet to be written.
      */
-    boolean firstObject = true;
+    private boolean firstObject = true;
 
     /**
-     * a constructor
+     * The constructor.
      *
-     * @param avoidAttributes if true attributes are avoided
+     * @param avoidAttributes if true, attributes are avoided
      */
-    public XMIOutput(boolean avoidAttributes) {
+    public XMIOutput(final boolean avoidAttributes) {
         super();
         this.avoidAttributes = avoidAttributes;
     }
@@ -80,11 +80,11 @@ public class XMIOutput extends StructuralOutput {
         startElement(XMI_NS, "xmi");
         getPrefixForAuxiliaryNamespace(XSI_NS);
         attribute(XMI_NS, "version", "2.0");
-        parser.advance();
+        parser().advance();
         loop:
         while (true) {
             checkErrors();
-            switch (parser.current().kind()) {
+            switch (parser().current().kind()) {
                 case OBJECT_START:
                     processObject(null);
                     break;
@@ -95,51 +95,51 @@ public class XMIOutput extends StructuralOutput {
             }
         }
         endElement();
-        out.flush();
+        out().flush();
     }
 
     /**
-     * process object
+     * The process object.
      *
-     * @param property current property
+     * @param property the current property
      * @throws Exception in case of IO problem
      */
-    void processObject(String property) throws Exception {
+    private void processObject(final String property) throws Exception {
         if (property == null) {
             if (firstObject) {
-                getPrefixForAuxiliaryNamespace(parser.current().objectName().namespace());
+                getPrefixForAuxiliaryNamespace(parser().current().objectName().namespace());
                 firstObject = false;
             }
-            startElement(parser.current().objectName().namespace(), parser.current().objectName().name());
+            startElement(parser().current().objectName().namespace(), parser().current().objectName().name());
         } else {
             startElement(property);
-            final String pfx = getPrefixForAuxiliaryNamespace(parser.current().objectName().namespace());
-            attribute(XSI_NS, "type", pfx + ":" + parser.current().objectName().name());
+            final String pfx = getPrefixForAuxiliaryNamespace(parser().current().objectName().namespace());
+            attribute(XSI_NS, "type", pfx + ":" + parser().current().objectName().name());
         }
         boolean hadObjects = avoidAttributes;
-        final TextPos start = parser.current().start();
+        final TextPos start = parser().current().start();
         value(hadObjects, "startLine", Integer.toString(start.line()));
         value(hadObjects, "startColumn", Integer.toString(start.column()));
         value(hadObjects, "startOffset", Long.toString(start.offset()));
         // write content
-        parser.advance();
+        parser().advance();
         int extraStarts = 0;
         loop:
         while (true) {
             checkErrors();
-            switch (parser.current().kind()) {
+            switch (parser().current().kind()) {
                 case OBJECT_START:
                     LOG.error("Unexpected Object Start Event in "
-                            + parser.getSystemId() + " (Grammar BUG): "
-                            + parser.current());
+                            + parser().getSystemId() + " (Grammar BUG): "
+                            + parser().current());
                     extraStarts++;
-                    parser.advance();
+                    parser().advance();
                     break;
                 case EOF:
                     return;
                 case OBJECT_END:
                     if (extraStarts > 0) {
-                        parser.advance();
+                        parser().advance();
                         extraStarts--;
                         break;
                     } else {
@@ -153,60 +153,61 @@ public class XMIOutput extends StructuralOutput {
                     otherToken();
             }
         }
-        final TextPos end = parser.current().end();
+        final TextPos end = parser().current().end();
         value(hadObjects, "endLine", Integer.toString(end.line()));
         value(hadObjects, "endColumn", Integer.toString(end.column()));
         value(hadObjects, "endOffset", Long.toString(end.offset()));
         // end content
         endElement();
-        parser.advance();
+        parser().advance();
     }
 
     /**
-     * Crate value or element depending on whether there were objects
+     * Crate value or element depending on whether there were objects.
      *
      * @param hadObjects objects flag
      * @param name       the name
      * @param value      the value
      * @throws XMLStreamException if there is a problem with writing stream
      */
-    private void value(boolean hadObjects, String name, String value)
+    private void value(final boolean hadObjects, final String name, final String value)
             throws XMLStreamException {
         if (!hadObjects) {
             attribute(name, value);
         } else {
             startElement(name);
-            out.writeCharacters(value);
+            out().writeCharacters(value);
             endElement();
         }
     }
 
     /**
-     * process property of the object
+     * The process property of the object.
      *
-     * @param hadElements if true, there had been already elements output for the
-     *                    current object
+     * @param previousHadElements if true, there had been already elements output for the
+     *                            current object
      * @return true if property had been output as element rather then xml
      * attribute.
      * @throws Exception in case of IO problem
      */
-    boolean processProperty(boolean hadElements) throws Exception {
-        final String prop = parser.current().propertyName().name();
-        final boolean isList = parser.current().kind() == Terms.LIST_PROPERTY_START;
+    private boolean processProperty(final boolean previousHadElements) throws Exception {
+        boolean hadElements = previousHadElements;
+        final String prop = parser().current().propertyName().name();
+        final boolean isList = parser().current().kind() == Terms.LIST_PROPERTY_START;
         // write content
-        parser.advance();
+        parser().advance();
         int extraStarts = 0;
         loop:
         while (true) {
             checkErrors();
-            switch (parser.current().kind()) {
+            switch (parser().current().kind()) {
                 case PROPERTY_START:
                 case LIST_PROPERTY_START:
                     LOG.error("Unexpected Property Start Event in "
-                            + parser.getSystemId() + " (Grammar BUG): "
-                            + parser.current());
+                            + parser().getSystemId() + " (Grammar BUG): "
+                            + parser().current());
                     extraStarts++;
-                    parser.advance();
+                    parser().advance();
                     break;
 
                 case EOF:
@@ -219,14 +220,14 @@ public class XMIOutput extends StructuralOutput {
                     if (isList) {
                         hadElements = true;
                     }
-                    value(hadElements, prop, parser.current().token().token().text());
-                    parser.advance();
+                    value(hadElements, prop, parser().current().token().token().text());
+                    parser().advance();
                     break;
                 case PROPERTY_END:
                 case LIST_PROPERTY_END:
                     if (extraStarts > 0) {
                         extraStarts--;
-                        parser.advance();
+                        parser().advance();
                         break;
                     } else {
                         break loop;
@@ -236,7 +237,7 @@ public class XMIOutput extends StructuralOutput {
             }
         }
         // end content
-        parser.advance();
+        parser().advance();
         return hadElements;
     }
 }

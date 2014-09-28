@@ -24,8 +24,8 @@
   ~ SOFTWARE.
   -->
 
-<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" xmlns:rddl="http://www.rddl.org/" prefer="public">
-    <nextCatalog xml:base="../.." catalog="net/sf/etl/parsers/catalog.xml"/>
+<catalog xmlns:rddl="http://www.rddl.org/" xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="public">
+    <!-- nextCatalog xml:base="../.." catalog="net/sf/etl/parsers/catalog.xml"/ -->
     <uriSuffix xml:base="../.."
                uriSuffix=".i.etl"
                rddl:nature="http://etl.sf.net/etl/grammar-definition"

@@ -30,6 +30,8 @@ import net.sf.etl.parsers.streams.LexerReader;
 import net.sf.etl.parsers.streams.PhraseParserReader;
 import net.sf.etl.parsers.streams.TermParserReader;
 import net.sf.etl.parsers.streams.TermReaderCatalogConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -38,61 +40,69 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.TreeMap;
 
 /**
- * Abstract class for utilities that convert one set of sources to another
+ * Abstract class for utilities that convert one set of sources to another.
  *
  * @author const
  */
 public abstract class AbstractFileConverter {
     /**
-     * base directory
+     * The logger.
      */
-    protected String inFiles;
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractFileConverter.class);
     /**
-     * output directory
+     * The parser configuration.
      */
-    protected String outFiles;
+    private final TermReaderCatalogConfiguration configuration = DefaultTermReaderConfiguration.INSTANCE;
     /**
      * Map from source to destinations. Null key means stdin. Null value means
      * stdout.
      */
-    protected TreeMap<String, String> sourceFiles = new TreeMap<String, String>();
+    private final NavigableMap<String, String> sourceFiles = new TreeMap<String, String>();
     /**
-     * The configuration.
+     * the base directory.
      */
-    protected TermReaderCatalogConfiguration configuration = DefaultTermReaderConfiguration.INSTANCE;
+    private String inFiles;
+    /**
+     * the output directory.
+     */
+    private String outFiles;
 
     /**
-     * Parse custom option in argument list
+     * Parse custom option in argument list.
      *
-     * @param args argument list
-     * @param i    offset in args array
+     * @param args the argument list
+     * @param i    the offset in args array
      * @return new offset in args array
      * @throws Exception if there is a problem with handling option
      */
-    protected int handleCustomOption(String[] args, int i) throws Exception {
-        System.err.println("unknown option at " + i + ": " + args[i]);
+    // CHECKSTYLE:OFF
+    protected int handleCustomOption(final String[] args, final int i) throws Exception {
+        // TODO migrate to some library for handling command-line
+        LOG.error("unknown option at " + i + ": " + args[i]);
         return i;
     }
+    // CHECKSTYLE:ON
 
     /**
-     * Process content and write it on output stream
+     * Process content and write it on output stream.
      *
-     * @param outStream a output stream
-     * @param p         a term parser
+     * @param stream the output stream
+     * @param p      the term parser
      * @throws Exception an exception that is thrown in case of problem
      */
-    protected abstract void processContent(OutputStream outStream, TermParserReader p) throws Exception;
+    protected abstract void processContent(final OutputStream stream, final TermParserReader p) throws Exception;
 
     /**
-     * parser program arguments
+     * parser program arguments.
      *
-     * @param args arguments to parse
+     * @param args the arguments to parse
      * @throws Exception if there is a problem
      */
-    protected void parseArgs(String[] args) throws Exception {
+    protected final void parseArgs(final String[] args) throws Exception { // NOPMD
         // TODO handle catalog options as well
         for (int i = 0; i < args.length; i++) {
             if ("-in".equals(args[i])) {
@@ -100,7 +110,7 @@ public abstract class AbstractFileConverter {
                     this.inFiles = args[i + 1];
                     i++;
                 } else {
-                    System.err.println(args[i] + " option ignored because there is already input file " + inFiles);
+                    LOG.error(args[i] + " option ignored because there is already input file " + inFiles);
                     i++;
                 }
             } else if ("-out".equals(args[i])) {
@@ -108,7 +118,7 @@ public abstract class AbstractFileConverter {
                     this.outFiles = args[i + 1];
                     i++;
                 } else {
-                    System.err.println(args[i] + " option ignored because there is already output file " + outFiles);
+                    LOG.error(args[i] + " option ignored because there is already output file " + outFiles);
                     i++;
                 }
             } else {
@@ -120,23 +130,23 @@ public abstract class AbstractFileConverter {
     }
 
     /**
-     * Prepare file mapping
+     * Prepare file mapping.
      *
      * @throws MalformedURLException if there file name error
      */
-    protected void prepareFileMapping() throws MalformedURLException {
+    protected final void prepareFileMapping() throws MalformedURLException { // NOPMD
         if (inFiles == null) {
             if (outFiles != null && outFiles.indexOf('*') != -1) {
-                System.err.println("wildcard is allowed only if there is input file specified: " + outFiles);
-                System.exit(1);
+                throw new IllegalArgumentException(
+                        "wildcard is allowed only if there is input file specified: " + outFiles);
             }
             sourceFiles.put(null, null);
         }
         if (outFiles == null) {
             if (inFiles != null) {
                 if (inFiles.indexOf('*') != -1) {
-                    System.err.println("wildcard is allowed only if there is output file specified: " + inFiles);
-                    System.exit(1);
+                    throw new IllegalArgumentException(
+                            "wildcard is allowed only if there is output file specified: " + inFiles);
                 }
                 sourceFiles.put(new File(inFiles).getAbsoluteFile().toURI().toString(), null);
             }
@@ -144,35 +154,34 @@ public abstract class AbstractFileConverter {
             if (inFiles.indexOf('*') != -1) {
                 // wildcard
                 final File in = new File(inFiles).getAbsoluteFile();
-                final File out = new File(outFiles).getAbsoluteFile();
+                final File out = new File(outFiles).getAbsoluteFile(); // NOPMD
                 final int starPos = in.getName().indexOf('*');
                 if (starPos == -1) {
-                    System.err.println("wildcard is specified in wrong place: " + inFiles);
-                    System.exit(1);
+                    throw new IllegalArgumentException("wildcard is specified in wrong place: " + inFiles);
                 }
-                final String inPrefix = in.getName().substring(0, starPos);
+                final String inPrefix = in.getName().substring(0, starPos); // NOPMD
                 final String inSuffix = in.getName().substring(starPos + 1);
                 if (inSuffix.indexOf('*') != -1) {
-                    System.err.println("Only single wildcard is allowed in input: " + inFiles);
-                    System.exit(1);
+                    // TODO replace with some commandline exception that is logged specially
+                    throw new IllegalArgumentException("Only single wildcard is allowed in input: " + inFiles);
                 }
                 final int outStarPos = in.getName().indexOf('*');
                 if (outStarPos == -1) {
-                    System.err.println("wildcard is required in output: " + outFiles);
-                    System.exit(1);
+                    throw new IllegalArgumentException("Wildcard is required in output: " + outFiles);
                 }
-                final String outPrefix = out.getName().substring(0, outStarPos);
+                final String outPrefix = out.getName().substring(0, outStarPos); // NOPMD
                 final String outSuffix = out.getName()
                         .substring(outStarPos + 1);
                 if (outSuffix.indexOf('*') != -1) {
-                    System.err.println("Only single wildcard is allowed in output: " + outFiles);
-                    System.exit(1);
+                    throw new IllegalArgumentException("Only single wildcard is allowed in output: " + outFiles);
                 }
                 final File inDir = in.getParentFile();
                 final File outDir = out.getParentFile();
-                //noinspection ResultOfMethodCallIgnored
-                outDir.mkdirs();
-                final String files[] = inDir.list();
+                final boolean mkdirs = outDir.mkdirs();
+                if (!mkdirs && !outDir.isDirectory()) {
+                    LOG.error("Failed to create directory: " + outDir);
+                }
+                final String[] files = inDir.list();
                 final int inPrefixSize = inPrefix.length();
                 final int inSuffixSize = inSuffix.length();
                 for (final String file : files) {
@@ -187,8 +196,8 @@ public abstract class AbstractFileConverter {
             } else {
                 // normal
                 if (outFiles.indexOf('*') != -1) {
-                    System.err.println("wildcard only allowed for output if it is in input: " + outFiles);
-                    System.exit(1);
+                    throw new IllegalArgumentException("wildcard only allowed for output if it is in input: "
+                            + outFiles);
                 }
                 inFiles = new File(inFiles).getAbsoluteFile().toURI().toString();
                 sourceFiles.put(inFiles, outFiles);
@@ -198,12 +207,12 @@ public abstract class AbstractFileConverter {
     }
 
     /**
-     * Application start method
+     * Application start method.
      *
-     * @param args application arguments
+     * @param args the application arguments
      * @throws Exception in case of IO problem
      */
-    public void start(String[] args) throws Exception {
+    public final void start(final String[] args) throws Exception {
         parseArgs(args);
         for (final Map.Entry<String, String> me : sourceFiles.entrySet()) {
             FileOutputStream fout = null;
@@ -212,11 +221,14 @@ public abstract class AbstractFileConverter {
             }
             final OutputStream outStream = fout != null ? fout : System.out;
             try {
+                // TODO refactor try catch
                 TermParserReader p = null;
                 try {
                     if (me.getKey() == null) {
                         p = new TermParserReader(configuration, new PhraseParserReader(
-                                new LexerReader(configuration, new InputStreamReader(System.in),
+                                new LexerReader(configuration,
+                                        new InputStreamReader(System.in,
+                                                configuration.getParserConfiguration().getEncoding("urn:system:in")),
                                         "urn:system:in", TextPos.START)));
                     } else {
                         p = new TermParserReader(configuration, new URL(me.getKey()));
@@ -232,14 +244,20 @@ public abstract class AbstractFileConverter {
                 if (fout != null) {
                     try {
                         fout.close();
-                    } catch (final Exception ex) {
-                        // ignore exception. The stream is likely has been
-                        // closed.
+                    } catch (final Exception ex) { // NOPMD
+                        LOG.warn("Problem with closing stream", ex);
                     }
                 } else {
                     System.out.flush();
                 }
             }
         }
+    }
+
+    /**
+     * @return the parser configuration.
+     */
+    public final TermReaderCatalogConfiguration getConfiguration() {
+        return configuration;
     }
 }

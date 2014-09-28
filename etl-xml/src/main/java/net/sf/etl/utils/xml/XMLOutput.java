@@ -25,6 +25,8 @@
 package net.sf.etl.utils.xml;
 
 import net.sf.etl.parsers.streams.TermParserReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -35,13 +37,19 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * base class for different kinds of outputs supported by application
+ * Base class for different kinds of outputs supported by application.
  *
  * @author const
  */
 public abstract class XMLOutput {
+    /**
+     * The logger.
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(XMLOutput.class);
     /**
      * <p>
      * Tested StAX parsers are hopelessly broken in situation when root element
@@ -65,82 +73,77 @@ public abstract class XMLOutput {
      * context</li>
      * </ul>
      */
-    private final ArrayList<ArrayList<String>> contextStack = new ArrayList<ArrayList<String>>();
+    private final List<ArrayList<String>> contextStack = new ArrayList<ArrayList<String>>();
     /**
-     * A current mapping from prefix to namespace
+     * The current mapping from prefix to namespace.
      */
-    private final HashMap<String, String> prefixToNamespaceMap = new HashMap<String, String>();
+    private final Map<String, String> prefixToNamespaceMap = new HashMap<String, String>(); // NOPMD
     /**
-     * A current mapping namespace to prefix
+     * The current mapping namespace to prefix.
      */
-    private final HashMap<String, String> namespaceToPrefixMap = new HashMap<String, String>();
+    private final Map<String, String> namespaceToPrefixMap = new HashMap<String, String>(); // NOPMD
+    /**
+     * The parser.
+     */
+    private TermParserReader parser;
+    /**
+     * The output writer.
+     */
+    private XMLStreamWriter out;
+    /**
+     * The map from namespace to prefix name.
+     */
+    private Map<String, String> prefixes = new HashMap<String, String>(); // NOPMD
 
     /**
-     * a parser
-     */
-    TermParserReader parser;
-
-    /**
-     * a output writer
-     */
-    XMLStreamWriter out;
-
-    /**
-     * Map from namespace to prefix name
-     */
-    HashMap<String, String> prefixes = new HashMap<String, String>();
-
-    /**
-     * a constructor
-     */
-    public XMLOutput() {
-        super();
-    }
-
-    /**
-     * start processing input and generating output
+     * Start processing input and generating output.
      *
-     * @param parser parser to use
-     * @param output stream for output file
+     * @param newParser the parser to use
+     * @param output    the stream for output file
      * @throws IOException if there is an IO problem
      */
-    public void process(TermParserReader parser, OutputStream output) throws IOException {
+    public final void process(final TermParserReader newParser, final OutputStream output) throws IOException {
+        // TODO refactor to use constructors
         try {
-            this.parser = parser;
+            this.parser = newParser;
             final XMLOutputFactory factory = XMLOutputFactory.newInstance();
-            Writer w = new OutputStreamWriter(output, "UTF-8");
-            this.out = factory.createXMLStreamWriter(w);
-            process();
-        } catch (final Exception ex) {
-            ex.printStackTrace();
+            final Writer w = new OutputStreamWriter(output, "UTF-8");
+            try {
+                this.out = factory.createXMLStreamWriter(w);
+                process();
+            } finally {
+                w.close();
+            }
+        } catch (final Exception ex) { // NOPMD
+            LOG.error("Processing failed: " + parser.getSystemId(), ex);
         }
     }
 
     /**
-     * start processing input and generating output
+     * Start processing input and generating output.
      *
-     * @param parser parser to use
-     * @param writer writer for output file
+     * @param newParser parser to use
+     * @param writer    writer for output file
      * @throws IOException if there is an IO problem
      */
-    public void process(TermParserReader parser, Writer writer) throws IOException {
+    public final void process(final TermParserReader newParser, final Writer writer) throws IOException {
         try {
-            this.parser = parser;
+            this.parser = newParser;
             final XMLOutputFactory factory = XMLOutputFactory.newInstance();
             this.out = factory.createXMLStreamWriter(writer);
             process();
-        } catch (final Exception ex) {
-            ex.printStackTrace();
+        } catch (final Exception ex) { // NOPMD
+            LOG.error("Processing failed: " + parser.getSystemId(), ex);
         }
     }
 
     /**
-     * Generate prefix by namespace
+     * Generate prefix by namespace.
      *
-     * @param ns a namespace to use
-     * @return a prefix for that namespace
+     * @param ns the namespace to use
+     * @return the prefix for that namespace
      */
-    protected String generatePrefix(String ns) {
+    protected final String generatePrefix(final String ns) {
         String rc = prefixes.get(ns);
         if (rc == null) {
             rc = "n" + prefixes.size();
@@ -150,21 +153,20 @@ public abstract class XMLOutput {
     }
 
     /**
-     * process file
+     * Process file.
      *
-     * @throws IOException if there is an IO problem
-     * @throws Exception
+     * @throws Exception the exception
      */
     protected abstract void process() throws Exception;
 
     /**
      * Start element in default namespace that might contain an auxiliary
-     * namespace declaration
+     * namespace declaration.
      *
-     * @param element an element to start
+     * @param element the element to start
      * @throws XMLStreamException in case of problem with xml output
      */
-    protected void startElement(String element) throws XMLStreamException {
+    protected final void startElement(final String element) throws XMLStreamException {
         contextStack.add(null);
         out.writeStartElement(element);
     }
@@ -173,25 +175,23 @@ public abstract class XMLOutput {
      * This method suggests some prefix to outputter. Suggestions starting with
      * letter "n" are ignored.
      *
-     * @param prefix    a prefix to suggest
+     * @param prefix    the prefix to suggest
      * @param namespace a namespace for that prefix
      */
-    protected void suggestPrefix(String prefix, String namespace) {
-        if (prefix.startsWith("n")) {
-            // ignore suggestion
-        } else {
+    protected final void suggestPrefix(final String prefix, final String namespace) {
+        if (!prefix.startsWith("n")) { // NOPMD
             prefixes.put(namespace, prefix);
         }
     }
 
     /**
-     * Start element with specified namespace and name
+     * Start element with specified namespace and name.
      *
-     * @param namespace a namespace
-     * @param element   a local name of element
+     * @param namespace the namespace
+     * @param element   the local name of element
      * @throws XMLStreamException in case of problem with writer
      */
-    protected void startElement(String namespace, String element)
+    protected final void startElement(final String namespace, final String element)
             throws XMLStreamException {
         String prefix = namespaceToPrefixMap.get(namespace);
         boolean needNsDeclaration;
@@ -209,26 +209,26 @@ public abstract class XMLOutput {
     }
 
     /**
-     * Write attribute
+     * Write the attribute.
      *
-     * @param name  a name of attribute
-     * @param value a value
-     * @throws XMLStreamException
+     * @param name  the name of attribute
+     * @param value the value
+     * @throws XMLStreamException in case of writer problem
      */
-    protected void attribute(String name, String value)
+    protected final void attribute(final String name, final String value)
             throws XMLStreamException {
         out.writeAttribute(name, value);
     }
 
     /**
-     * Write attribute for namespace and value
+     * Write attribute for namespace and value.
      *
-     * @param namespace a namespace of attribute
-     * @param name      a name of attribute
-     * @param value     a value
-     * @throws XMLStreamException
+     * @param namespace the namespace of attribute
+     * @param name      the name of attribute
+     * @param value     the value
+     * @throws XMLStreamException in case of writer problem
      */
-    protected void attribute(String namespace, String name, String value)
+    protected final void attribute(final String namespace, final String name, final String value)
             throws XMLStreamException {
         final String prefix = getPrefixForAuxiliaryNamespace(namespace);
         out.writeAttribute(prefix, namespace, name, value);
@@ -237,11 +237,11 @@ public abstract class XMLOutput {
     /**
      * Get prefix for auxiliary namespace, one that is used in attribute value.
      *
-     * @param namespace a namespace for which prefix is needed
+     * @param namespace the namespace for which prefix is needed
      * @return a prefix for auxiliary namespace
      * @throws XMLStreamException in case of writer problem
      */
-    protected String getPrefixForAuxiliaryNamespace(String namespace)
+    protected final String getPrefixForAuxiliaryNamespace(final String namespace)
             throws XMLStreamException {
         String prefix = namespaceToPrefixMap.get(namespace);
         if (prefix == null) {
@@ -252,12 +252,12 @@ public abstract class XMLOutput {
     }
 
     /**
-     * Registers new prefix for namespace
+     * Registers new prefix for namespace.
      *
-     * @param namespace a namespace
+     * @param namespace the namespace
      * @return a new prefix for namespace
      */
-    private String registerNewPrefix(String namespace) {
+    private String registerNewPrefix(final String namespace) {
         final String prefix = generatePrefix(namespace);
         final int stackTop = contextStack.size() - 1;
         final ArrayList<String> previousTop = contextStack.get(stackTop);
@@ -274,16 +274,14 @@ public abstract class XMLOutput {
     }
 
     /**
-     * Write end element and clean a context stack
+     * Write end element and clean a context stack.
      *
      * @throws XMLStreamException in case of writer problem
      */
-    protected void endElement() throws XMLStreamException {
+    protected final void endElement() throws XMLStreamException {
         final int stackTop = contextStack.size() - 1;
         final ArrayList<String> top = contextStack.get(stackTop);
-        if (top == null) {
-            // do nothing
-        } else {
+        if (top != null) {
             for (final String p : top) {
                 final String ns = prefixToNamespaceMap.remove(p);
                 namespaceToPrefixMap.remove(ns);
@@ -291,5 +289,19 @@ public abstract class XMLOutput {
         }
         contextStack.remove(stackTop);
         out.writeEndElement();
+    }
+
+    /**
+     * @return the parser.
+     */
+    protected final TermParserReader parser() {
+        return parser;
+    }
+
+    /**
+     * @return the output writer.
+     */
+    public final XMLStreamWriter out() {
+        return out;
     }
 }

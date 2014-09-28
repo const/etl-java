@@ -38,54 +38,54 @@ import java.util.List;
  *
  * @author const
  */
-public class PresentationOutput extends XMLOutput {
+public final class PresentationOutput extends XMLOutput {
     /**
-     * namespace of stylesheet
+     * The namespace of stylesheet.
      */
-    static final String pns = "http://etl.sf.net/2006/etl/presentation";
+    private static final String PNS = "http://etl.sf.net/2006/etl/presentation";
 
     /**
-     * style file name
+     * The style file name.
      */
-    String styleFile;
+    private final String styleFile;
 
     /**
-     * type of stylesheet
+     * The type of stylesheet.
      */
-    String styleType;
+    private final String styleType;
     /**
-     * The last token for which errors were written
+     * The last token for which errors were written.
      */
-    TermToken lastErrorToken;
+    private TermToken lastErrorToken;
 
     /**
-     * a constructor
+     * The constructor.
      *
-     * @param sf style file
-     * @param st style type
+     * @param sf the style file.
+     * @param st the style type.
      */
-    public PresentationOutput(String sf, String st) {
+    public PresentationOutput(final String sf, final String st) {
         super();
         this.styleFile = sf;
         this.styleType = st;
     }
 
     @Override
-    protected void process() throws Exception {
+    protected void process() throws Exception { // NOPMD
         if (styleFile != null) {
-            out.writeProcessingInstruction("xml-stylesheet href=\"" + styleFile + "\" type=\"" + styleType + "\"");
+            out().writeProcessingInstruction("xml-stylesheet href=\"" + styleFile + "\" type=\"" + styleType + "\"");
         }
-        suggestPrefix("p", pns);
+        suggestPrefix("p", PNS);
         try {
-            startElement(pns, "source");
+            startElement(PNS, "source");
             attribute("xml:space", "preserve");
             do {
-                TermToken tk = parser.current();
+                final TermToken tk = parser().current();
                 checkErrors(tk);
-                Terms kind = tk.kind();
+                final Terms kind = tk.kind();
                 switch (kind) {
                     case GRAMMAR_IS_LOADED:
-                        startElement(pns, "grammarIsLoaded");
+                        startElement(PNS, "grammarIsLoaded");
                         attribute("grammarURI", tk.loadedGrammar().getUsedGrammar().getDescriptor().getSystemId());
                         attribute("initialContext", tk.loadedGrammar().getUsedContext().context());
                         endElement();
@@ -98,14 +98,14 @@ public class PresentationOutput extends XMLOutput {
                         endElement();
                         break;
                     case ATTRIBUTES_START:
-                        startElement(pns, "attributes");
+                        startElement(PNS, "attributes");
                         attribute("context", tk.definitionInfo().getContext().context());
                         break;
                     case ATTRIBUTES_END:
                         endElement();
                         break;
                     case DOC_COMMENT_START:
-                        startElement(pns, "documentation");
+                        startElement(PNS, "documentation");
                         attribute("context", tk.definitionInfo().getContext().context());
                         break;
                     case DOC_COMMENT_END:
@@ -121,34 +121,34 @@ public class PresentationOutput extends XMLOutput {
                         endElement();
                         break;
                     case VALUE:
-                        startElement(pns, "value");
+                        startElement(PNS, "value");
                         writeTokenData();
                         endElement();
                         break;
                     case CONTROL:
-                        startElement(pns, "control");
+                        startElement(PNS, "control");
                         writeTokenData();
                         endElement();
                         break;
                     case IGNORABLE:
-                        startElement(pns, "ignorable");
+                        startElement(PNS, "ignorable");
                         writeTokenData();
                         endElement();
                         break;
                     case STRUCTURAL:
-                        startElement(pns, "structural");
+                        startElement(PNS, "structural");
                         writeTokenData();
                         endElement();
                         break;
                     case EXPRESSION_START:
-                        startElement(pns, "expression");
+                        startElement(PNS, "expression");
                         attribute("context", tk.expressionContext().context());
                         break;
                     case EXPRESSION_END:
                         endElement();
                         break;
                     case MODIFIERS_START:
-                        startElement(pns, "modifiers");
+                        startElement(PNS, "modifiers");
                         break;
                     case MODIFIERS_END:
                         endElement();
@@ -156,14 +156,14 @@ public class PresentationOutput extends XMLOutput {
                     case EOF:
                         break;
                     case STATEMENT_START:
-                        startElement(pns, "statement");
+                        startElement(PNS, "statement");
                         attribute("context", tk.definitionInfo().getContext().context());
                         break;
                     case STATEMENT_END:
                         endElement();
                         break;
                     case BLOCK_START:
-                        startElement(pns, "block");
+                        startElement(PNS, "block");
                         attribute("context", tk.statementContext().context());
                         break;
                     case BLOCK_END:
@@ -172,25 +172,26 @@ public class PresentationOutput extends XMLOutput {
                     default:
                         throw new IllegalArgumentException("Unknown termKind: " + kind);
                 }
-            } while (parser.advance());
+            } while (parser().advance());
             endElement();
         } finally {
-            out.flush();
+            out().flush();
         }
     }
 
     /**
-     * Check errors for the token wne write them
+     * Check errors for the token wne write them.
      *
      * @param tk the token to check
+     * @throws XMLStreamException in case of XML problem
      */
-    private void checkErrors(TermToken tk) throws XMLStreamException {
-        if (tk != lastErrorToken) {
+    private void checkErrors(final TermToken tk) throws XMLStreamException {
+        if (tk != lastErrorToken) { // NOPMD
             lastErrorToken = tk;
             writeError(tk.errorInfo());
             if (tk.hasPhraseToken()) {
                 writeError(tk.token().errorInfo());
-                if (tk.hasLexicalToken()) {
+                if (tk.hasLexicalToken()) { // NOPMD
                     writeError(tk.token().token().errorInfo());
                 }
             }
@@ -198,14 +199,15 @@ public class PresentationOutput extends XMLOutput {
     }
 
     /**
-     * Write information about error
+     * Write information about error.
      *
-     * @param error the error to write about (might be null)
+     * @param startError the error to write about (might be null)
      * @throws XMLStreamException if there is IO problem
      */
-    private void writeError(ErrorInfo error) throws XMLStreamException {
+    private void writeError(final ErrorInfo startError) throws XMLStreamException {
+        ErrorInfo error = startError;
         while (error != null) {
-            startElement(pns, "error");
+            startElement(PNS, "error");
             attribute("errorId", error.errorId());
             attribute("file", error.location().systemId());
             attribute("message", error.message());
@@ -214,9 +216,9 @@ public class PresentationOutput extends XMLOutput {
             attribute("startColumn", Integer.toString(error.location().start().column()));
             attribute("endLine", Integer.toString(error.location().end().line()));
             attribute("endColumn", Integer.toString(error.location().end().column()));
-            for (Object o : error.errorArgs()) {
-                startElement(pns, "arg");
-                attribute("value", "" + o);
+            for (final Object o : error.errorArgs()) {
+                startElement(PNS, "arg");
+                attribute("value", String.valueOf(o));
                 endElement();
             }
             endElement();
@@ -226,26 +228,26 @@ public class PresentationOutput extends XMLOutput {
 
 
     /**
-     * Write token data
+     * Write token data.
      *
      * @throws XMLStreamException if there is IO problem
      */
     private void writeTokenData() throws XMLStreamException {
-        final TermToken current = parser.current();
+        final TermToken current = parser().current();
         attribute("role", current.role().name());
         attribute("control", current.token().kind().name());
         if (current.hasLexicalToken()) {
             attribute("token", current.token().token().kind().name());
             final List<String> lines = Whitespaces.splitNewLines(current.token().token().text());
             for (int i = 0; i < lines.size(); i++) {
-                String line = lines.get(i);
+                final String line = lines.get(i);
                 if (i > 0) {
-                    startElement(pns, "newline");
+                    startElement(PNS, "newline");
                     attribute("newline", Integer.toString(current.start().line() + i + 1));
-                    out.writeCharacters("\n");
+                    out().writeCharacters("\n");
                     endElement();
                 }
-                out.writeCharacters(line);
+                out().writeCharacters(line);
             }
         }
     }

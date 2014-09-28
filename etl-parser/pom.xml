@@ -90,7 +90,7 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>2.12.1</version>
                 <configuration>
-                    <configLocation>src/config/checks/checkstyle-checker.xml</configLocation>
+                    <configLocation>${project.basedir}/../src/config/checks/checkstyle-checker.xml</configLocation>
                     <logViolationsToConsole>true</logViolationsToConsole>
                 </configuration>
                 <executions>
@@ -123,7 +123,7 @@
                     <detail>true</detail>
                     <printFailingErrors>true</printFailingErrors>
                     <rulesets>
-                        <ruleset>${project.basedir}/src/config/checks/pmd-rules.xml</ruleset>
+                        <ruleset>${project.basedir}/../src/config/checks/pmd-rules.xml</ruleset>
                     </rulesets>
                 </configuration>
                 <executions>

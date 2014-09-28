@@ -41,33 +41,33 @@ import javax.xml.stream.XMLStreamException;
  *
  * @author const
  */
-public class TreeOutput extends StructuralOutput {
+public final class TreeOutput extends StructuralOutput {
     /**
-     * Tree output namespace
+     * Tree output namespace.
      */
-    final static String TREE_NS = "http://etl.sf.net/2008/xml/tree";
+    private static final String TREE_NS = "http://etl.sf.net/2008/xml/tree";
     /**
-     * a logger
+     * The logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(TreeOutput.class);
     /**
-     * the current indentation level
+     * The current indentation string.
      */
-    int indentationLevel;
+    private static final String INDENTATION_STRING = "  ";
     /**
-     * the current indentation string
+     * the current indentation level.
      */
-    String indentationString = "  ";
+    private int indentationLevel;
 
     @Override
     protected void process() throws Exception {
         suggestPrefix("t", TREE_NS);
         startStructElement(TREE_NS, "source", null);
-        parser.advance();
+        parser().advance();
         loop:
         while (true) {
             checkErrors();
-            switch (parser.current().kind()) {
+            switch (parser().current().kind()) {
                 case OBJECT_START:
                     processObject(null);
                     break;
@@ -78,42 +78,44 @@ public class TreeOutput extends StructuralOutput {
             }
         }
         endStructElement();
-        out.flush();
+        out().flush();
     }
 
     /**
-     * Process object
+     * Process object.
      *
      * @param parent the parent context
      * @throws XMLStreamException in case of IO problem
      */
-    private void processObject(Context parent) throws XMLStreamException {
+    private void processObject(final Context parent) throws XMLStreamException {
         changeProperty(parent);
-        TermToken current = parser.current();
-        ObjectName name = current.objectName();
+        final TermToken current = parser().current();
+        final ObjectName name = current.objectName();
         startStructElement(name.namespace(), name.name(), "object");
         writePositionElement("start", current.start());
-        Context context = new Context();
-        parser.advance();
+        final Context context = new Context();
+        parser().advance();
         int extraStarts = 0;
         loop:
         while (true) {
             checkErrors();
-            switch (parser.current().kind()) {
+            switch (parser().current().kind()) {
                 case OBJECT_START:
-                    LOG.error("Unexpected Object Start Event in " + parser.getSystemId() + " (Grammar BUG): " + parser.current());
+                    LOG.error("Unexpected Object Start Event in " + parser().getSystemId()
+                            + " (Grammar BUG): " + parser().current());
                     extraStarts++;
-                    parser.advance();
+                    parser().advance();
                     break;
                 case VALUE:
-                    LOG.error("Unexpected Value Event in " + parser.getSystemId() + " (Grammar BUG): " + parser.current());
-                    parser.advance();
+                    LOG.error("Unexpected Value Event in " + parser().getSystemId()
+                            + " (Grammar BUG): " + parser().current());
+                    parser().advance();
                     break;
                 case EOF:
                     return;
                 case OBJECT_END:
                     if (extraStarts > 0) {
-                        parser.advance();
+                        parser().advance();
                         extraStarts--;
                         break;
                     } else {
@@ -131,36 +133,36 @@ public class TreeOutput extends StructuralOutput {
         changeProperty(context);
         writePositionElement("end", current.end());
         endStructElement();
-        parser.advance();
+        parser().advance();
     }
 
     /**
-     * Process property
+     * Process property.
      *
      * @param context the context to process
      * @throws XMLStreamException in case of IO problem
      */
-    private void processProperty(Context context) throws XMLStreamException {
-        context.activeProperty = parser.current().propertyName().name();
-        context.isList = parser.current().kind() == Terms.LIST_PROPERTY_START;
+    private void processProperty(final Context context) throws XMLStreamException {
+        context.activeProperty = parser().current().propertyName().name();
+        context.isList = parser().current().kind() == Terms.LIST_PROPERTY_START;
         // write content
-        parser.advance();
+        parser().advance();
         int extraStarts = 0;
         loop:
         while (true) {
             checkErrors();
-            switch (parser.current().kind()) {
+            switch (parser().current().kind()) {
                 case PROPERTY_START:
                 case LIST_PROPERTY_START:
                     LOG.error("Unexpected Property Start Event in "
-                            + parser.getSystemId() + " (Grammar BUG): "
-                            + parser.current());
+                            + parser().getSystemId() + " (Grammar BUG): "
+                            + parser().current());
                     extraStarts++;
-                    parser.advance();
+                    parser().advance();
                     break;
                 case EOF:
-                    LOG.error("Unexpected EOF Event in " + parser.getSystemId()
-                            + " (Grammar BUG): " + parser.current());
+                    LOG.error("Unexpected EOF Event in " + parser().getSystemId()
+                            + " (Grammar BUG): " + parser().current());
                     return;
                 case OBJECT_START:
                     processObject(context);
@@ -172,7 +174,7 @@ public class TreeOutput extends StructuralOutput {
                 case LIST_PROPERTY_END:
                     if (extraStarts > 0) {
                         extraStarts--;
-                        parser.advance();
+                        parser().advance();
                         break;
                     } else {
                         break loop;
@@ -182,37 +184,37 @@ public class TreeOutput extends StructuralOutput {
             }
         }
         // end content
-        parser.advance();
+        parser().advance();
     }
 
     /**
-     * Process value element
+     * Process value element.
      *
      * @param context the parent context
      * @throws XMLStreamException in case of IO problem
      */
-    private void processValue(Context context) throws XMLStreamException {
-        Token tk = parser.current().token().token();
+    private void processValue(final Context context) throws XMLStreamException {
+        final Token tk = parser().current().token().token();
         changeProperty(context);
         startValueElement(TREE_NS, "value");
         attribute("kind", tk.kind().toString());
-        out.writeCharacters(tk.text());
+        out().writeCharacters(tk.text());
         endValueElement();
-        parser.advance();
+        parser().advance();
     }
 
     /**
-     * Change property so the active property actually becomes active one
+     * Change property so the active property actually becomes active one.
      *
      * @param parent the parent context
      * @throws XMLStreamException if the is IO problem
      */
-    private void changeProperty(Context parent) throws XMLStreamException {
+    private void changeProperty(final Context parent) throws XMLStreamException {
         if (parent == null) {
             return;
         }
-        String open = parent.openProperty;
-        String active = parent.activeProperty;
+        final String open = parent.openProperty;
+        final String active = parent.activeProperty;
         if (open == null || !open.equals(active)) {
             if (open != null) {
                 endStructElement();
@@ -225,13 +227,13 @@ public class TreeOutput extends StructuralOutput {
     }
 
     /**
-     * Write start element
+     * Write start element.
      *
      * @param elementName the element name
      * @param pos         the position
      * @throws XMLStreamException in case of IO problem
      */
-    private void writePositionElement(String elementName, final TextPos pos)
+    private void writePositionElement(final String elementName, final TextPos pos)
             throws XMLStreamException {
         startValueElement(TREE_NS, elementName);
         attribute("line", Integer.toString(pos.line()));
@@ -241,7 +243,7 @@ public class TreeOutput extends StructuralOutput {
     }
 
     /**
-     * End value element
+     * End value element.
      *
      * @throws XMLStreamException in case of IO problem
      */
@@ -251,27 +253,28 @@ public class TreeOutput extends StructuralOutput {
     }
 
     /**
-     * Start an value element
+     * Start an value element.
      *
      * @param ns          the namespace to use
      * @param elementName the element name
      * @throws XMLStreamException in case of IO problem
      */
-    private void startValueElement(String ns, String elementName)
+    private void startValueElement(final String ns, final String elementName)
             throws XMLStreamException {
         writeIdent();
         startElement(ns, elementName);
     }
 
     /**
-     * Start structural element
+     * Start structural element.
      *
-     * @param namespace a namespace
-     * @param element   an element
+     * @param namespace the namespace
+     * @param element   the element
+     * @param type      the type
      * @throws XMLStreamException in case of IO problem
      */
-    protected void startStructElement(String namespace, String element,
-                                      String type) throws XMLStreamException {
+    protected void startStructElement(final String namespace, final String element,
+                                      final String type) throws XMLStreamException {
         indent();
         startElement(namespace, element);
         if (type != null) {
@@ -281,12 +284,13 @@ public class TreeOutput extends StructuralOutput {
     }
 
     /**
-     * Start structural element
+     * Start structural element.
      *
-     * @param element an element
+     * @param element the element
+     * @param type    the type
      * @throws XMLStreamException in case of IO problem
      */
-    protected void startStructElement(String element, String type)
+    protected void startStructElement(final String element, final String type)
             throws XMLStreamException {
         indent();
         startElement(element);
@@ -297,16 +301,16 @@ public class TreeOutput extends StructuralOutput {
     }
 
     /**
-     * Print new line
+     * Print new line.
      *
      * @throws XMLStreamException in case of IO problem
      */
     private void nextLine() throws XMLStreamException {
-        out.writeCharacters("\n");
+        out().writeCharacters("\n");
     }
 
     /**
-     * Write indentation and increase indentation level
+     * Write indentation and increase indentation level.
      *
      * @throws XMLStreamException in case of IO problem
      */
@@ -316,18 +320,18 @@ public class TreeOutput extends StructuralOutput {
     }
 
     /**
-     * Write the current indentation
+     * Write the current indentation.
      *
      * @throws XMLStreamException in case of IO problem
      */
     private void writeIdent() throws XMLStreamException {
         for (int i = 0; i < indentationLevel; i++) {
-            out.writeCharacters(indentationString);
+            out().writeCharacters(INDENTATION_STRING);
         }
     }
 
     /**
-     * End structural element
+     * End structural element.
      *
      * @throws XMLStreamException in case of IO problem
      */
@@ -339,21 +343,21 @@ public class TreeOutput extends StructuralOutput {
     }
 
     /**
-     * The object specific printing context
+     * The object specific printing context.
      */
-    class Context {
+    private static final class Context {
         /**
-         * The currently open and not closed property for the object
+         * The currently open and not closed property for the object.
          */
-        String openProperty;
+        private String openProperty;
         /**
-         * The currently active property
+         * The currently active property.
          */
-        String activeProperty;
+        private String activeProperty;
         /**
-         * If true, the active property is a list property
+         * If true, the active property is a list property.
          */
-        boolean isList;
+        private boolean isList;
     }
 
 }

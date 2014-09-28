@@ -30,22 +30,23 @@ import net.sf.etl.parsers.TermToken;
 
 import javax.xml.stream.XMLStreamException;
 
+/**
+ * The structured output.
+ */
 public abstract class StructuralOutput extends XMLOutput {
     /**
-     * The last token in error
+     * The last token in error.
      */
     private TermToken lastErrors;
 
-    public StructuralOutput() {
-        super();
-    }
-
     /**
-     * Handle token that might contain errors
+     * Handle token that might contain errors.
+     *
+     * @throws XMLStreamException the write exception
      */
-    protected void checkErrors() throws XMLStreamException {
-        TermToken t = parser.current();
-        if (t != lastErrors) {
+    protected final void checkErrors() throws XMLStreamException {
+        final TermToken t = parser().current();
+        if (t != lastErrors) { // NOPMD
             lastErrors = t;
             printErrors(t.errorInfo());
             if (t.hasPhraseToken()) {
@@ -57,27 +58,27 @@ public abstract class StructuralOutput extends XMLOutput {
         }
     }
 
-    private void printErrors(ErrorInfo error) throws XMLStreamException {
+    /**
+     * Print errors.
+     *
+     * @param error the error
+     * @throws XMLStreamException the write exception
+     */
+    private void printErrors(final ErrorInfo error) throws XMLStreamException {
         for (ErrorInfo errorInfo = error; errorInfo != null; errorInfo = errorInfo.cause()) {
-            StringBuilder e = new StringBuilder();
-            e.append(errorInfo.errorId());
-            e.append(": ");
-            e.append(errorInfo.location().toShortString());
-            e.append(": ");
-            e.append(errorInfo.message());
-            out.writeComment(e.toString());
-            out.writeCharacters("\n");
+            out().writeComment(errorInfo.errorId() + ": " + errorInfo.location().toShortString()
+                    + ": " + errorInfo.message());
+            out().writeCharacters("\n");
         }
     }
 
     /**
-     * Process the token not handled by the structural output
+     * Process the token not handled by the structural output.
      *
      * @throws XMLStreamException in case of IO problem
      */
-    public void otherToken() throws XMLStreamException {
+    public final void otherToken() throws XMLStreamException {
         checkErrors();
-        parser.advance();
+        parser().advance();
     }
-
 }

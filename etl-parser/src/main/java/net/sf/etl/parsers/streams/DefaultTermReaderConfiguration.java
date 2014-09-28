@@ -28,6 +28,7 @@ package net.sf.etl.parsers.streams;
 import net.sf.etl.parsers.DefaultTermParserConfiguration;
 import net.sf.etl.parsers.TermParserConfiguration;
 import org.apache_extras.xml_catalog.blocking.BlockingCatalog;
+import org.apache_extras.xml_catalog.blocking.provider.CatalogProviders;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -68,7 +69,9 @@ public final class DefaultTermReaderConfiguration implements TermReaderCatalogCo
      * @return the default catalog
      */
     private static BlockingCatalog getDefaultCatalog() {
-        return BlockingCatalog.getDefaultCatalog(DefaultTermReaderConfiguration.class);
+        final BlockingCatalog defaultCatalog = BlockingCatalog.getDefaultCatalog(DefaultTermReaderConfiguration.class);
+        return defaultCatalog.withOtherProvider(
+                CatalogProviders.createCachedCatalog(defaultCatalog.getCatalogProvider()));
     }
 
     @Override

@@ -27,6 +27,8 @@ package net.sf.etl.utils.xml;
 import net.sf.etl.parsers.streams.TermParserReader;
 import net.sf.etl.utils.AbstractFileConverter;
 import org.apache_extras.xml_catalog.blocking.CatalogResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
@@ -44,65 +46,68 @@ import java.io.StringWriter;
  *
  * @author const
  */
-public class ETL2XML extends AbstractFileConverter {
-
+public final class ETL2XML extends AbstractFileConverter {
     /**
-     * name of style file
+     * The logger.
      */
-    protected String styleFileName;
-
+    private static final Logger LOG = LoggerFactory.getLogger(ETL2XML.class);
     /**
-     * type of style file
+     * the name of style file.
      */
-    protected String styleFileType;
+    private String styleFileName;
 
     /**
-     * kind of output
+     * the type of style file.
      */
-    protected String outputKind;
+    private String styleFileType;
 
     /**
-     * instance of transformer
+     * the kind of output.
      */
-    protected Templates templates;
+    private String outputKind;
 
     /**
-     * If true attributes are avoided
+     * the instance of transformer.
      */
-    boolean avoidAttributes;
+    private Templates templates;
+
+    /**
+     * If true attributes are avoided.
+     */
+    private boolean avoidAttributes;
 
 
     /**
-     * a constructor
+     * The constructor.
      *
-     * @param args program arguments.
+     * @param args the program arguments.
      */
-    public ETL2XML(String[] args) {
+    public ETL2XML(final String[] args) {
         super();
         try {
             start(args);
-        } catch (final Exception ex) {
-            ex.printStackTrace();
+        } catch (final Exception ex) { // NOPMD
+            LOG.error("Processing failed", ex);
         }
     }
 
     /**
-     * application entry point
+     * The application entry point.
      *
-     * @param args program arguments.
+     * @param args the program arguments.
      */
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         new ETL2XML(args);
     }
 
     @Override
-    protected void processContent(OutputStream outStream, TermParserReader p) throws Exception {
+    protected void processContent(final OutputStream stream, final TermParserReader p) throws Exception {
         if ("-tree".equals(this.outputKind)) {
             final TreeOutput out = new TreeOutput();
-            out.process(p, outStream);
+            out.process(p, stream);
         } else if ("-xmi".equals(this.outputKind)) {
             final XMLOutput out = new XMIOutput(this.avoidAttributes);
-            out.process(p, outStream);
+            out.process(p, stream);
         } else if ("-html".equals(this.outputKind)
                 || "-text".equals(this.outputKind)) {
             final StringWriter sw = new StringWriter();
@@ -110,8 +115,8 @@ public class ETL2XML extends AbstractFileConverter {
             out.process(p, sw);
             // resolve stylesheets for the resolver
             if (templates == null) {
-                final CatalogResolver resolver = new CatalogResolver(configuration.getCatalog(styleFileName));
-                String transform;
+                final CatalogResolver resolver = new CatalogResolver(getConfiguration().getCatalog(styleFileName));
+                final String transform;
                 if (styleFileName == null) {
                     // TODO resolve by extension
                     transform = getClass().getResource("/net/sf/etl/util/xslt/generic-outline.xsl").toString();
@@ -126,29 +131,30 @@ public class ETL2XML extends AbstractFileConverter {
                 templates = tf.newTemplates(source);
             }
             final Transformer t = templates.newTransformer();
-            t.transform(new StreamSource(new StringReader(sw.toString())), new StreamResult(outStream));
+            t.transform(new StreamSource(new StringReader(sw.toString())), new StreamResult(stream));
         } else {
             final XMLOutput out = new PresentationOutput(this.styleFileName, this.styleFileType);
-            out.process(p, outStream);
+            out.process(p, stream);
         }
     }
 
     @Override
-    protected int handleCustomOption(String[] args, int i) throws Exception {
+    protected int handleCustomOption(final String[] args, final int start) throws Exception { // NOPMD
+        int i = start;
         if ("-presentation".equals(args[i]) || "-text".equals(args[i])
                 || "-xmi".equals(args[i]) || "-html".equals(args[i])
                 || "-tree".equals(args[i])) {
             if (this.outputKind == null) {
                 this.outputKind = args[i];
             } else {
-                System.err.println(args[i] + " option ignored because there is already active option " + outputKind);
+                LOG.error(args[i] + " option ignored because there is already active option " + outputKind);
             }
         } else if ("-style".equals(args[i])) {
             if (this.styleFileName == null) {
                 this.styleFileName = args[i + 1];
                 i++;
             } else {
-                System.err.println(args[i] + " option ignored because there is already active style file " + styleFileName);
+                LOG.error(args[i] + " option ignored because there is already active style file " + styleFileName);
                 i++;
             }
         } else if ("-styleType".equals(args[i])) {
@@ -156,7 +162,8 @@ public class ETL2XML extends AbstractFileConverter {
                 this.styleFileType = args[i + 1];
                 i++;
             } else {
-                System.err.println(args[i] + " option ignored because there is already active style file type " + styleFileType);
+                LOG.error(args[i] + " option ignored because there is already active style file type "
+                        + styleFileType);
                 i++;
             }
         } else if ("-avoid-attributes".equals(args[i])) {

@@ -24,12 +24,21 @@
  */
 package net.sf.etl.utils;
 
-import net.sf.etl.parsers.*;
+import net.sf.etl.parsers.TermToken;
+import net.sf.etl.parsers.Terms;
+import net.sf.etl.parsers.TextPos;
+import net.sf.etl.parsers.Token;
+import net.sf.etl.parsers.Tokens;
+import net.sf.etl.parsers.characters.TextUtil;
 import net.sf.etl.parsers.streams.TermParserReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This class implements default ETL source code formatting. Formatting is very
@@ -66,47 +75,51 @@ import java.util.HashSet;
  *
  * @author const
  */
-public class FormatSource extends AbstractFileConverter {
+public final class FormatSource extends AbstractFileConverter { // NOPMD
     /**
-     * A string used to build indent sources
+     * The logger.
      */
-    String indentationString = "\t";
+    private static final Logger LOG = LoggerFactory.getLogger(FormatSource.class);
     /**
-     * current indentation level
+     * The string used to build indent sources.
      */
-    int indentLevel = 0;
+    private static final String INDENTATION_STRING = "\t";
     /**
-     * true if there already were non whitespace tokens on the current line
+     * The graphics around which space is suppressed.
      */
-    boolean wereTokens = false;
+    private final Set<String> graphicsWithSuppressedSpace = new HashSet<String>();
     /**
-     * true if the new line is needed to start next line
+     * The current indentation level.
      */
-    boolean needNewLine = false;
+    private int indentLevel;
+    /**
+     * true if there already were non whitespace tokens on the current line.
+     */
+    private boolean wereTokens;
+    /**
+     * true if the new line is needed to start next line.
+     */
+    private boolean needNewLine;
     /**
      * if true there was a new line in input between printed token and a new
-     * token
+     * token.
      */
-    boolean wasNewLine = true;
+    private boolean wasNewLine = true;
     /**
-     * if true, the next space character is suppressed
+     * if true, the next space character is suppressed.
      */
-    boolean spaceSuppressed = false;
+    private boolean spaceSuppressed;
     /**
-     * an output
+     * The output.
      */
-    PrintWriter out;
+    private PrintWriter out;
     /**
-     * last token printed
+     * The last token printed.
      */
     private Token lastPrinted;
-    /**
-     * graphics around which space is suppressed
-     */
-    private final HashSet<String> graphicsWithSuppressedSpace = new HashSet<String>();
 
     /**
-     * A constructor
+     * The constructor.
      */
     public FormatSource() {
         // FIXME make configuration. Possibly more flexible configuration is
@@ -117,38 +130,38 @@ public class FormatSource extends AbstractFileConverter {
     }
 
     /**
-     * Application entry point
+     * The application entry point.
      *
-     * @param args application arguments
+     * @param args the application arguments
      */
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         try {
             new FormatSource().start(args);
-        } catch (Throwable t) {
-            t.printStackTrace();
+        } catch (Throwable t) { // NOPMD
+            LOG.error("Processing failed", t);
             System.exit(1);
         }
     }
 
     @Override
-    protected void processContent(OutputStream out, TermParserReader p)
+    protected void processContent(final OutputStream stream, final TermParserReader p)
             throws Exception {
-        // FIXME encoding
-        this.out = new PrintWriter(out);
+        // TODO encoding
+        this.out = new PrintWriter(new OutputStreamWriter(stream, TextUtil.UTF8));
         formatBlockContent(p);
         this.out.flush();
     }
 
     /**
-     * Format content of the block or top level source
+     * Format content of the block or top level source.
      *
-     * @param p a term parser
+     * @param p the term parser
      */
-    private void formatBlockContent(TermParserReader p) {
+    private void formatBlockContent(final TermParserReader p) {
         while (p.current().kind() != Terms.EOF
                 && p.current().kind() != Terms.BLOCK_END) {
-            TermToken tt = p.current();
-            Token tk = token(tt);
+            final TermToken tt = p.current();
+            final Token tk = token(tt);
             switch (tt.kind()) {
                 case IGNORABLE:
                     processIgnorable(p, tk);
@@ -178,22 +191,22 @@ public class FormatSource extends AbstractFileConverter {
     }
 
     /**
-     * Get lexical token from term token
+     * Get lexical token from term token.
      *
-     * @param tt a term token
-     * @return a token from lexer or null
+     * @param tt the term token
+     * @return the token from lexer or null
      */
-    private Token token(TermToken tt) {
+    private Token token(final TermToken tt) {
         return tt.hasLexicalToken() ? tt.token().token() : null;
     }
 
     /**
-     * Process ignorable token
+     * Process ignorable token.
      *
-     * @param p  a parser
-     * @param tk a token
+     * @param p  the parser
+     * @param tk the token
      */
-    private void processIgnorable(TermParserReader p, Token tk) {
+    private void processIgnorable(final TermParserReader p, final Token tk) {
         switch (tk.kind()) {
             case NEWLINE:
                 wasNewLine = true;
@@ -211,22 +224,24 @@ public class FormatSource extends AbstractFileConverter {
                 startBlockContentComment(tk);
                 print(tk);
                 break;
+            default:
+                break;
         }
         // Whatever token was, advance to the next token.
         p.advance();
     }
 
     /**
-     * Format the segment
+     * Format the segment.
      *
      * @param p the parser
      */
-    private void formatSegment(TermParserReader p) {
+    private void formatSegment(final TermParserReader p) {
         startIndentedLine();
         consume(p, Terms.STATEMENT_START);
         while (p.current().kind() != Terms.STATEMENT_END) {
-            TermToken tt = p.current();
-            Token tk = token(tt);
+            final TermToken tt = p.current();
+            final Token tk = token(tt);
             switch (tt.kind()) {
                 case CONTROL:
                     p.advance();
@@ -250,16 +265,16 @@ public class FormatSource extends AbstractFileConverter {
     }
 
     /**
-     * Format attributes
+     * Format attributes.
      *
-     * @param p a parser
+     * @param p the parser
      */
-    private void formatAttributes(TermParserReader p) {
+    private void formatAttributes(final TermParserReader p) {
         consume(p, Terms.ATTRIBUTES_START);
         int objects = 0;
         while (p.current().kind() != Terms.ATTRIBUTES_END) {
-            TermToken tt = p.current();
-            Token tk = token(tt);
+            final TermToken tt = p.current();
+            final Token tk = token(tt);
             switch (tt.kind()) {
                 case CONTROL:
                     p.advance();
@@ -290,12 +305,12 @@ public class FormatSource extends AbstractFileConverter {
      * Process a token inside segment contents. The methods processes either a
      * single token or the block.
      *
-     * @param p a a parser
+     * @param p the parser
      */
-    private void formatSegmentContent(TermParserReader p) {
-        TermToken tt = p.current();
-        Token tk = token(tt);
-        switch (tt.kind()) {
+    private void formatSegmentContent(final TermParserReader p) {
+        final TermToken tt = p.current();
+        final Token tk = token(tt);
+        switch (tt.kind()) { // NOPMD
             case CONTROL:
                 p.advance();
                 break;
@@ -350,12 +365,12 @@ public class FormatSource extends AbstractFileConverter {
     }
 
     /**
-     * Consume term token of the specified kind
+     * Consume term token of the specified kind.
      *
-     * @param p    a parser
+     * @param p    the parser
      * @param kind the expected token kind
      */
-    private void consume(TermParserReader p, Terms kind) {
+    private void consume(final TermParserReader p, final Terms kind) {
         if (p.current().kind() != kind) {
             throw new IllegalStateException("The current token " + p.current()
                     + " does not match expected kind " + kind);
@@ -364,15 +379,15 @@ public class FormatSource extends AbstractFileConverter {
     }
 
     /**
-     * Format documentation comments
+     * Format documentation comments.
      *
-     * @param p a parser
+     * @param p the parser
      */
-    private void formatDocComments(TermParserReader p) {
+    private void formatDocComments(final TermParserReader p) {
         consume(p, Terms.DOC_COMMENT_START);
         while (p.current().kind() != Terms.DOC_COMMENT_END) {
-            TermToken tt = p.current();
-            Token tk = token(tt);
+            final TermToken tt = p.current();
+            final Token tk = token(tt);
             switch (tt.kind()) {
                 case IGNORABLE:
                     processIgnorable(p, tk);
@@ -395,11 +410,11 @@ public class FormatSource extends AbstractFileConverter {
     }
 
     /**
-     * Start comment inside block content
+     * Start comment inside block content.
      *
-     * @param tt a term token
+     * @param tt the term token
      */
-    private void startBlockContentComment(Token tt) {
+    private void startBlockContentComment(final Token tt) {
         if (wereTokens && !wasNewLine) {
             space();
         } else {
@@ -412,7 +427,7 @@ public class FormatSource extends AbstractFileConverter {
     }
 
     /**
-     * force new line
+     * force new line.
      */
     private void forceNewLine() {
         out.print('\n');
@@ -420,21 +435,21 @@ public class FormatSource extends AbstractFileConverter {
     }
 
     /**
-     * Print the text
+     * Print the text.
      *
-     * @param text a text to print
+     * @param text the text to print
      */
-    private void print(Token text) {
+    private void print(final Token text) {
         lastPrinted = text;
         printControl(text.text());
     }
 
     /**
-     * Print the text
+     * Print the text.
      *
-     * @param text a text to print
+     * @param text the text to print
      */
-    private void printControl(String text) {
+    private void printControl(final String text) {
         out.print(text);
         wasNewLine = false;
         spaceSuppressed = false;
@@ -442,7 +457,7 @@ public class FormatSource extends AbstractFileConverter {
     }
 
     /**
-     * print single space character
+     * print single space character.
      */
     private void space() {
         if (wereTokens && !spaceSuppressed) {
@@ -451,7 +466,7 @@ public class FormatSource extends AbstractFileConverter {
     }
 
     /**
-     * start a line
+     * start a line.
      */
     private void startLine() {
         if (needNewLine) {
@@ -464,12 +479,12 @@ public class FormatSource extends AbstractFileConverter {
     }
 
     /**
-     * print single space character
+     * print single space character.
      */
     private void startIndentedLine() {
         startLine();
         for (int i = 0; i < indentLevel; i++) {
-            out.print(indentationString);
+            out.print(INDENTATION_STRING);
         }
     }
 }

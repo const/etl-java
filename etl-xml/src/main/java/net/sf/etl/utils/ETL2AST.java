@@ -27,6 +27,7 @@ package net.sf.etl.utils;
 import net.sf.etl.parsers.event.tree.ObjectFactory;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is an abstract class that helps to implement tools that convert AST to
@@ -35,19 +36,19 @@ import java.util.ArrayList;
  * @author const
  */
 public abstract class ETL2AST extends AbstractFileConverter {
-
     /**
-     * list of loaded packages
+     * The list of loaded packages.
      */
-    protected ArrayList<String> ignoredNamespaces = new ArrayList<String>();
-
+    private final List<String> ignoredNamespaces = new ArrayList<String>();
     /**
-     * If true, text position is expanded
+     * If true, text position is expanded.
      */
-    boolean expandTextPos = true;
+    private boolean expandTextPos = true;
 
+    // CHECKSTYLE:OFF
     @Override
-    protected int handleCustomOption(String[] args, int i) throws Exception {
+    protected int handleCustomOption(final String[] args, final int start) throws Exception {
+        int i = start;
         if ("-i".equals(args[i])) {
             final String namespace = args[i + 1];
             i++;
@@ -60,16 +61,17 @@ public abstract class ETL2AST extends AbstractFileConverter {
         }
         return i;
     }
+    // CHECKSTYLE:ON
 
     /**
-     * Configure parser with standard options
+     * Configure parser with standard options.
      *
-     * @param p a parser to configure
+     * @param p the parser to configure
      */
     @SuppressWarnings("unchecked")
-    protected void configureStandardOptions(ObjectFactory<?, ?, ?, ?> p) {
+    protected final void configureStandardOptions(final ObjectFactory<?, ?, ?, ?> p) {
         // ignore namespace
-        for (String ignoredNamespace : ignoredNamespaces) {
+        for (final String ignoredNamespace : ignoredNamespaces) {
             p.ignoreNamespace(ignoredNamespace);
         }
         // specify text position flag
