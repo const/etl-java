@@ -69,7 +69,7 @@ public class LiteralUtilsTest {
         assertEquals(2, n.getExponent());
         assertEquals(Integer.MAX_VALUE * 1000.0, LiteralUtils.parseDouble(text), 0.1);
         assertEquals("qwe", n.getSuffix());
-        text = "-16#da.da#e+2";
+        text = "-0Xda.daP+8";
         n = LiteralUtils.parseNumber(text);
         assertEquals(16, n.getBase());
         assertEquals(-1, n.getSign());
@@ -84,11 +84,11 @@ public class LiteralUtilsTest {
     public void testParseInt() {
         assertEquals(Integer.MAX_VALUE, LiteralUtils.parseInt(Integer.toString(Integer.MAX_VALUE)));
         assertEquals(Integer.MIN_VALUE, LiteralUtils.parseInt(Integer.toString(Integer.MIN_VALUE)));
-        assertEquals(Integer.MAX_VALUE, LiteralUtils.parseInt("16#7FFF_FFFF#"));
-        assertEquals(-Integer.MAX_VALUE, LiteralUtils.parseInt("-16#7fff_ffff#"));
-        assertEquals(Integer.MIN_VALUE, LiteralUtils.parseInt("-16#8000_0000#"));
-        assertEquals(0, LiteralUtils.parseInt("-16#0000_0000_0000_0000#"));
-        assertEquals(10, LiteralUtils.parseInt("2#1010#"));
+        assertEquals(Integer.MAX_VALUE, LiteralUtils.parseInt("0x7FFF_FFFF"));
+        assertEquals(-Integer.MAX_VALUE, LiteralUtils.parseInt("-0x7fff_ffff"));
+        assertEquals(Integer.MIN_VALUE, LiteralUtils.parseInt("-0x8000_0000"));
+        assertEquals(0, LiteralUtils.parseInt("-0x0000_0000_0000_0000"));
+        assertEquals(10, LiteralUtils.parseInt("0b1010"));
     }
 
     /**

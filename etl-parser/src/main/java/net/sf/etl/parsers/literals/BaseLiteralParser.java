@@ -98,10 +98,18 @@ public class BaseLiteralParser {
      */
     protected final int la(final int n) {
         int p = pos;
-        for (int i = 0; i < n; i++) {
-            p = p + Character.charCount(inputText.codePointAt(p));
+        int i = 0;
+        while (true) {
+            if (p >= inputText.length()) {
+                return -1;
+            }
+            final int codePoint = inputText.codePointAt(p);
+            if (i == n) {
+                return codePoint;
+            }
+            i++;
+            p += Character.charCount(codePoint);
         }
-        return p >= inputText.length() ? -1 : inputText.codePointAt(p);
     }
 
     /**

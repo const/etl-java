@@ -61,22 +61,21 @@ public final class LexerImpl implements Lexer { // NOPMD
      */
     public static final int MAX_BASE = 36;
     /**
-     * Number: Decimal digits.
-     * // TODO refactor numbers to be java-like
+     * Number: Based.
      */
-    private static final int NUMBER_DECIMAL = 0;
+    private static final int NUMBER_START = 0;
+    /**
+     * Number: Decimal digits.
+     */
+    private static final int NUMBER_AFTER_INITIAL_ZERO = 1;
+    /**
+     * Number: Decimal digits.
+     */
+    private static final int NUMBER_DIGITS = 2;
     /**
      * Number: Decimal fraction.
      */
-    private static final int NUMBER_DECIMAL_FRACTION = 1;
-    /**
-     * Number: Based.
-     */
-    private static final int NUMBER_BASED = 2;
-    /**
-     * Number: Based fraction.
-     */
-    private static final int NUMBER_BASED_FRACTION = 3;
+    private static final int NUMBER_DIGITS_FRACTION = 3;
     /**
      * Number: Before exponent.
      */
@@ -389,7 +388,7 @@ public final class LexerImpl implements Lexer { // NOPMD
      */
     private ParserState parseNumber(final CharBuffer buffer, final boolean eof) {
         kind = Tokens.INTEGER;
-        phase = NUMBER_DECIMAL;
+        phase = NUMBER_START;
         return continueNumber(buffer, eof);
     }
 
@@ -407,30 +406,29 @@ public final class LexerImpl implements Lexer { // NOPMD
             }
             int codepoint = peek(buffer, eof);
             switch (phase) { // NOPMD
-                case NUMBER_DECIMAL:
-                    if (Numbers.isDecimal(codepoint) || Identifiers.isConnectorChar(codepoint)) {
+                case NUMBER_START:
+                    codepoint(buffer, eof);
+                    numberBase = Numbers.DECIMAL;
+                    if (Numbers.digit(codepoint) == 0) {
+                        phase = NUMBER_AFTER_INITIAL_ZERO;
+                    } else {
+                        phase = NUMBER_DIGITS;
+                    }
+                    break;
+                case NUMBER_AFTER_INITIAL_ZERO:
+                    if (Numbers.isHexIndicator(codepoint)) {
+                        numberBase = Numbers.HEX;
                         codepoint(buffer, eof);
-                    } else if (Numbers.isBasedNumberChar(codepoint)
-                            && !Identifiers.isConnectorChar(Character.codePointBefore(text, text.length()))) {
-                        if (moreDataNeededNext(buffer, eof)) {
-                            return ParserState.INPUT_NEEDED;
-                        }
-                        if (peekNext(buffer, eof) == '!') {
-                            // shebang comment next
-                            return makeToken();
-                        }
-                        try {
-                            numberBase = Integer.parseInt(text.toString());
-                        } catch (Throwable t) {
-                            numberBase = -1;
-                        }
+                    } else if (Numbers.isBinaryIndicator(codepoint)) {
+                        numberBase = Numbers.BINARY;
                         codepoint(buffer, eof);
-                        phase = NUMBER_BASED;
-                        if (numberBase < 2 || numberBase > MAX_BASE) {
-                            error("lexical.NumberBaseIsOutOfRange", start, current());
-                            numberBase = MAX_BASE; // using it for sake of parsing only
-                        }
-                    } else if (codepoint == '.') {
+                    }
+                    phase = NUMBER_DIGITS;
+                    break;
+                case NUMBER_DIGITS:
+                    if (Numbers.isValidDigit(codepoint, numberBase) || Identifiers.isConnectorChar(codepoint)) {
+                        codepoint(buffer, eof);
+                    } else if (Numbers.isDecimalDot(codepoint)) {
                         if (Identifiers.isConnectorChar(text.codePointBefore(text.length()))) {
                             return makeToken();
                         }
@@ -438,10 +436,11 @@ public final class LexerImpl implements Lexer { // NOPMD
                             return ParserState.INPUT_NEEDED;
                         }
                         codepoint = peekNext(buffer, eof);
-                        if (Numbers.isDecimal(codepoint)) {
-                            kind = Tokens.FLOAT;
-                            phase = NUMBER_DECIMAL_FRACTION;
+                        if (Numbers.isValidDigit(codepoint, numberBase)) {
                             codepoint(buffer, eof);
+                            codepoint(buffer, eof);
+                            kind = Tokens.FLOAT;
+                            phase = NUMBER_DIGITS_FRACTION;
                         } else {
                             return makeToken();
                         }
@@ -449,49 +448,26 @@ public final class LexerImpl implements Lexer { // NOPMD
                         phase = NUMBER_BEFORE_EXPONENT;
                     }
                     break;
-                case NUMBER_DECIMAL_FRACTION:
-                    if (Numbers.isDecimal(codepoint) || Identifiers.isConnectorChar(codepoint)) {
+                case NUMBER_DIGITS_FRACTION:
+                    if (Numbers.isValidDigit(codepoint, numberBase) || Identifiers.isConnectorChar(codepoint)) {
                         codepoint(buffer, eof);
                     } else {
                         phase = NUMBER_BEFORE_EXPONENT;
-                    }
-                    break;
-                case NUMBER_BASED:
-                case NUMBER_BASED_FRACTION:
-                    if (Numbers.isValidDigit(codepoint, numberBase)) {
-                        codepoint(buffer, eof);
-                    } else if (Identifiers.isConnectorChar(codepoint)) {
-                        codepoint(buffer, eof);
-                    } else if (Numbers.isBasedNumberChar(codepoint)) {
-                        phase = NUMBER_BEFORE_EXPONENT;
-                        codepoint(buffer, eof);
-                        break;
-                    } else if (codepoint == '.') {
-                        kind = Tokens.FLOAT;
-                        if (phase == NUMBER_BASED_FRACTION) {
-                            final TextPos p = current();
-                            codepoint(buffer, eof);
-                            error("lexical.FloatTooManyDots", p, current());
-                        } else {
-                            phase = NUMBER_BASED_FRACTION;
-                            codepoint(buffer, eof);
-                        }
-                    } else if (Numbers.isAnyDigit(codepoint)) {
-                        final TextPos p = current();
-                        codepoint(buffer, eof);
-                        error("lexical.SomeDigitAreOutOfBase", p, current());
-                    } else {
-                        error("lexical.UnterminatedBasedNumber", start, current());
-                        return makeToken();
                     }
                     break;
                 case NUMBER_BEFORE_EXPONENT:
-                    if (Numbers.isExponentChar(codepoint)
-                            && !Identifiers.isConnectorChar(Character.codePointBefore(text, text.length()))) {
+                    if (Identifiers.isConnectorChar(previousCodepoint())) {
+                        return makeToken();
+                    }
+                    if (Numbers.isExponentChar(codepoint, numberBase)) {
                         kind = Tokens.FLOAT;
                         codepoint(buffer, eof);
                         phase = NUMBER_AFTER_EXPONENT;
                     } else {
+                        if (kind == Tokens.FLOAT && numberBase != Numbers.DECIMAL) {
+                            error("lexical.BinaryExponentRequired", start, current());
+                            return makeToken();
+                        }
                         phase = NUMBER_BEFORE_SUFFIX;
                     }
                     break;
@@ -518,9 +494,8 @@ public final class LexerImpl implements Lexer { // NOPMD
                     }
                     break;
                 case NUMBER_BEFORE_SUFFIX:
-                    if (Identifiers.isIdentifierStart(codepoint) && !Numbers.isExponentChar(codepoint)
-                            && !Identifiers.isConnectorChar(codepoint)
-                            && !Identifiers.isConnectorChar(Character.codePointBefore(text, text.length()))) {
+                    if (Numbers.isValidNumberSuffixStart(codepoint)
+                            && !Identifiers.isConnectorChar(previousCodepoint())) {
                         phase = NUMBER_SUFFIX;
                         phaseStart = text.length();
                         codepoint(buffer, eof);
@@ -541,6 +516,13 @@ public final class LexerImpl implements Lexer { // NOPMD
                     throw new IllegalStateException("Unknown phase: " + this);
             }
         }
+    }
+
+    /**
+     * @return the previous codepoint
+     */
+    private int previousCodepoint() {
+        return Character.codePointBefore(text, text.length());
     }
 
     /**

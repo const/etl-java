@@ -22,7 +22,7 @@ grammar net.sf.etl.tests.data.imports.ExpressionGrammar {
 
 		// priority = 200 below, it here just to check if based number
 		// works.
-		op UnaryMinusOp(fy,16#C8#,-) {
+		op UnaryMinusOp(fy,0xC8,-) {
 			@ Value =right;
 		};
 

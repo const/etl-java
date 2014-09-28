@@ -38,11 +38,9 @@ public class NumberTest extends LexerTestCase {
         single("1", Tokens.INTEGER);
         single("090", Tokens.INTEGER);
         single("0_9_0QA", Tokens.INTEGER_WITH_SUFFIX);
-        single("2#101#", Tokens.INTEGER);
-        single("8#777#", Tokens.INTEGER);
-        single("16#7FFF_FFFF#", Tokens.INTEGER);
-        single("36#_a_z_#", Tokens.INTEGER);
-        single("16#7FFF_FFFF#U", Tokens.INTEGER_WITH_SUFFIX);
+        single("0b101", Tokens.INTEGER);
+        single("0x7FFF_FFFF", Tokens.INTEGER);
+        single("0x7FFF_FFFFu", Tokens.INTEGER_WITH_SUFFIX);
     }
 
     @Test
@@ -58,15 +56,13 @@ public class NumberTest extends LexerTestCase {
     @Test
     public void floats() {
         single("1.0l", TokenKey.modified(Tokens.FLOAT_WITH_SUFFIX, "l"));
-        single("16#7F.FF_FFFF#DDDD", TokenKey.modified(Tokens.FLOAT_WITH_SUFFIX, "DDDD"));
+        single("0x7F.FF_FFFFp0DDDD", TokenKey.modified(Tokens.FLOAT_WITH_SUFFIX, "DDDD"));
         single("1e1", Tokens.FLOAT);
         single("0.1e+2", Tokens.FLOAT);
         single("3.1_4", Tokens.FLOAT);
-        single("2#1.01#E+2", Tokens.FLOAT);
-        single("8#0.777#", Tokens.FLOAT);
-        single("16#7FFF_FFFF#e-4", Tokens.FLOAT);
-        single("36#_a._z_#", Tokens.FLOAT);
-        single("16#7F.FF_FFFF#DDDD", Tokens.FLOAT_WITH_SUFFIX);
+        single("0b1.01p+2", Tokens.FLOAT);
+        single("0x7FFF_FFFFp-4", Tokens.FLOAT);
+        single("0x7F.FF_FFFF\u20820DDDD", Tokens.FLOAT_WITH_SUFFIX);
     }
 
 }

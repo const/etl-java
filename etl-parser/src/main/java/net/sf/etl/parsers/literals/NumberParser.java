@@ -35,13 +35,9 @@ import net.sf.etl.parsers.characters.Numbers;
  */
 final class NumberParser extends BaseLiteralParser {
     /**
-     * The default base.
-     */
-    public static final int DEFAULT_BASE = 10;
-    /**
      * the number base.
      */
-    private int base = DEFAULT_BASE;
+    private int base = Numbers.DECIMAL;
     /**
      * The sign of the number, 0 - unspecified.
      */
@@ -74,8 +70,7 @@ final class NumberParser extends BaseLiteralParser {
      * @return the parsed number
      */
     public NumberInfo parse() { // NOPMD
-        Tokens kind = Tokens.INTEGER;
-        int beforeDot = -1;
+        Tokens kind = Tokens.INTEGER; // NOPMD
         // parsing integer of decimal, or floating point number
         int ch = la();
         if (Numbers.isPlus(la())) {
@@ -85,83 +80,60 @@ final class NumberParser extends BaseLiteralParser {
             sign = -1;
             ch = next(false);
         }
-        while (Numbers.isDecimal(ch) || Identifiers.isConnectorChar(ch)) {
-            ch = next(!Identifiers.isConnectorChar(ch)); // '0'
+        if (!Numbers.isDecimal(ch)) {
+            error("lexical.InvalidCharacter");
+            return produce(Tokens.WHITESPACE);
         }
-        if (Numbers.isBasedNumberChar(ch)) {
-            // based number
-            try {
-                base = Integer.parseInt(buffer().toString());
-            } catch (final NumberFormatException ex) {
-                error("lexical.NumberBaseIsOutOfRange");
-                base = Character.MAX_RADIX;
-            }
-            if (2 > base || base > Character.MAX_RADIX) {
-                error("lexical.NumberBaseIsOutOfRange");
-                base = Character.MAX_RADIX;
-            }
-            buffer().setLength(0);
-            ch = next(false); // '\#'
-            while (true) {
-                if (Identifiers.isConnectorChar(ch)) {
-                    ch = next(false);
-                } else if (Numbers.isDecimalDot(ch)) {
-                    beforeDot = buffer().length();
-                    if (kind == Tokens.FLOAT) {
-                        error("lexical.FloatTooManyDots");
-                    }
-                    kind = Tokens.FLOAT;
-                    ch = next(false);
-                } else if (Numbers.isValidDigit(ch, base)) {
-                    ch = next(true);
-                } else if (Numbers.isAnyDigit(ch)) {
-                    error("lexical.SomeDigitAreOutOfBase");
-                    ch = next(true);
-                } else if (Numbers.isBasedNumberChar(ch)) {
-                    ch = next(false);
-                    text = buffer().toString();
-                    buffer().setLength(0);
-                    break;
-                } else {
-                    error("lexical.UnterminatedBasedNumber");
-                    return new NumberInfo(inputText(), kind, sign, base, text, exponent, suffix, errors());
-                }
-            } // end while
-        } else {
-            // parse non based integer
-            if (Numbers.isDecimalDot(ch) && Numbers.isDecimal(la(1))) {
-                // floating point number
-                kind = Tokens.FLOAT;
-                beforeDot = buffer().length();
-                consume(false); // '.'
-                ch = next(true);
-                while (Numbers.isDecimal(ch) || Identifiers.isConnectorChar(ch)) {
-                    ch = next(!Identifiers.isConnectorChar(ch)); // '0'
-                }
-            }
-            text = buffer().toString();
-            buffer().setLength(0);
-        }
-        if (Numbers.isExponentChar(ch)) {
-            kind = Tokens.FLOAT;
-            ch = next(false); // 'e'
-            if (Numbers.isPlus(ch) || Numbers.isMinus(ch)) {
-                ch = next(Numbers.isMinus(ch));
-            }
-            if (!Numbers.isDecimal(ch)) {
-                error("lexical.UnterminatedNumberExponent");
-                return new NumberInfo(inputText(), kind, sign, base, text, exponent, suffix, errors());
+        if (Character.digit(ch, Numbers.DECIMAL) == 0) {
+            final int ch1 = la(1);
+            final int ch2 = la(2);
+            if (Numbers.isHexIndicator(ch1) && Numbers.isValidDigit(ch2, Numbers.HEX)) {
+                base = Numbers.HEX;
+                next(false);
+                ch = next(false);
+            } else if (Numbers.isBinaryIndicator(ch1) && Numbers.isValidDigit(ch2, Numbers.BINARY)) {
+                base = Numbers.BINARY;
+                next(false);
+                ch = next(false);
             } else {
                 ch = next(true);
-                while (Numbers.isDecimal(ch) || Identifiers.isConnectorChar(ch)) {
-                    ch = next(!Identifiers.isConnectorChar(ch)); // '0'
-                }
             }
-            exponent = Integer.parseInt(buffer().toString());
-            buffer().setLength(0);
         }
-        exponent -= beforeDot == -1 ? 0 : text.length() - beforeDot;
-        if (Identifiers.isIdentifierStart(ch) && !Numbers.isExponentChar(ch)) {
+        int beforeDot = -1;
+        ch = parseDigits(ch);
+        if (Numbers.isDecimalDot(ch) && Numbers.isValidDigit(la(1), base)) {
+            beforeDot = buffer().length();
+            ch = next(false);
+            kind = Tokens.FLOAT;
+            ch = parseDigits(ch);
+        }
+        text = buffer().toString();
+        buffer().setLength(0);
+        if (base == Numbers.DECIMAL) {
+            final int ch1 = la(1);
+            final int ch2 = la(2);
+            if (Numbers.isDecimalExponentChar(ch) && isExponentStart(ch1, ch2)) {
+                kind = Tokens.FLOAT;
+                ch = parseExponent();
+            }
+        } else {
+            final int ch1 = la(1);
+            final int ch2 = la(2);
+            if (Numbers.isBinaryExponentChar(ch) && isExponentStart(ch1, ch2)) {
+                kind = Tokens.FLOAT;
+                ch = parseExponent();
+            } else if (kind == Tokens.FLOAT) {
+                error("lexical.BinaryExponentRequired");
+            }
+        }
+        if (kind == Tokens.FLOAT) {
+            if (base == Numbers.DECIMAL || base == Numbers.BINARY) {
+                exponent -= beforeDot < 0 ? 0 : text.length() - beforeDot;
+            } else {
+                exponent -= beforeDot < 0 ? 0 : (text.length() - beforeDot) * 4;
+            }
+        }
+        if (Numbers.isValidNumberSuffixStart(ch)) {
             if (kind == Tokens.FLOAT) {
                 kind = Tokens.FLOAT_WITH_SUFFIX;
             } else {
@@ -176,7 +148,64 @@ final class NumberParser extends BaseLiteralParser {
         if (position() != inputText().length()) {
             error("lexical.TooManyCharactersInToken");
         }
-        return new NumberInfo(inputText(), kind, sign, base, text, exponent, suffix, errors());
+        return produce(kind);
     }
 
+    /**
+     * Parse digits.
+     *
+     * @param startChar the start character
+     * @return the digits
+     */
+    private int parseDigits(final int startChar) {
+        int ch = startChar;
+        while (Numbers.isValidDigit(ch, base) || Identifiers.isConnectorChar(ch)) {
+            ch = next(!Identifiers.isConnectorChar(ch));
+        }
+        return ch;
+    }
+
+    /**
+     * Parse exponent part.
+     *
+     * @return character after exponent
+     */
+    private int parseExponent() {
+        int ch;
+        ch = next(false);
+        if (Numbers.isMinus(ch)) {
+            buffer().append('-');
+            ch = next(false);
+        }
+        if (Numbers.isPlus(ch)) {
+            ch = next(false);
+        }
+        while (Numbers.isValidDigit(ch, Numbers.DECIMAL)) {
+            ch = next(true);
+        }
+        exponent = Integer.parseInt(buffer().toString());
+        buffer().setLength(0);
+        return ch;
+    }
+
+    /**
+     * Check characters after exponent to check if they are valid start of exponent number
+     *
+     * @param ch1 the fist character after exponent
+     * @param ch2 the second character after exponent
+     * @return true if exponent
+     */
+    private boolean isExponentStart(final int ch1, final int ch2) {
+        return Numbers.isDecimal(ch1) || Numbers.isSign(ch1) && Numbers.isDecimal(ch2);
+    }
+
+    /**
+     * Produce result
+     *
+     * @param kind the token kind
+     * @return the number information
+     */
+    private NumberInfo produce(final Tokens kind) {
+        return new NumberInfo(inputText(), kind, sign, base, text, exponent, suffix, errors());
+    }
 }

@@ -30,9 +30,17 @@ package net.sf.etl.parsers.characters;
  */
 public final class Numbers {
     /**
-     * The base for hex numbers.
+     * The hex base.
      */
-    public static final int HEX_BASE = 16;
+    public static final int HEX = 16;
+    /**
+     * The decimal base.
+     */
+    public static final int DECIMAL = 10;
+    /**
+     * The binary base.
+     */
+    public static final int BINARY = 2;
 
     /**
      * Private constructor for utility class.
@@ -42,23 +50,40 @@ public final class Numbers {
     }
 
     /**
-     * Check if the character is an exponent character.
+     * Check if the character is an decimal exponent character.
      *
      * @param codepoint the codepoint to check
      * @return true if exponent character
      */
-    public static boolean isExponentChar(final int codepoint) {
-        return codepoint == 'e' || codepoint == 'E';
+    public static boolean isDecimalExponentChar(final int codepoint) {
+        return codepoint == 'e' || codepoint == 'E' || codepoint == '\u23E8';
     }
 
     /**
-     * Based number character.
+     * Check if the character is an decimal exponent character.
      *
-     * @param codepoint the codepoint
-     * @return true if based number
+     * @param codepoint the codepoint to check
+     * @return true if exponent character
      */
-    public static boolean isBasedNumberChar(final int codepoint) {
-        return codepoint == '#';
+    public static boolean isBinaryExponentChar(final int codepoint) {
+        return codepoint == 'p' || codepoint == 'P' || codepoint == '\u2082';
+    }
+
+    /**
+     * Check if the character is a valid exponent character for the specified base.
+     *
+     * @param codepoint the codepoint to check
+     * @param base      the base
+     * @return true if exponent character
+     */
+    public static boolean isExponentChar(final int codepoint, final int base) {
+        if (base == DECIMAL) {
+            return isDecimalExponentChar(codepoint);
+        } else if (base == HEX || base == BINARY) {
+            return isBinaryExponentChar(codepoint);
+        } else {
+            throw new IllegalStateException("The base is not supported: " + base);
+        }
     }
 
     /**
@@ -68,7 +93,7 @@ public final class Numbers {
      * @return true if hex digit
      */
     public static boolean isHex(final int codepoint) {
-        return isValidDigit(codepoint, HEX_BASE);
+        return isValidDigit(codepoint, Numbers.HEX);
     }
 
     /**
@@ -89,17 +114,7 @@ public final class Numbers {
      * @return true if a digit
      */
     public static boolean isValidDigit(final int codepoint, final int base) {
-        return Character.digit(codepoint, base) != -1;
-    }
-
-    /**
-     * Check if valid digit in some base.
-     *
-     * @param codepoint codepoint to check
-     * @return true if a digit
-     */
-    public static boolean isAnyDigit(final int codepoint) {
-        return Character.digit(codepoint, Character.MAX_RADIX) != -1;
+        return digit(codepoint, base) != -1;
     }
 
     /**
@@ -112,7 +127,7 @@ public final class Numbers {
         //CHECKSTYLE:OFF
         switch (codepoint) {
             case 0x002B: // PLUS SIGN	Sm	0	ES					N
-            case 0x2796: // HEAVY MINUS SIGN	So	0	ON					N
+            case 0x2795: // HEAVY PLUS SIGN	So	0	ON					N
             case 0xFE62: // SMALL PLUS SIGN	Sm	0	ES	<small> 002B				N
             case 0xFF0B: // FULLWIDTH PLUS SIGN	Sm	0	ES	<wide> 002B				N
                 return true;
@@ -133,7 +148,7 @@ public final class Numbers {
         switch (codepoint) {
             case 0x002D: // HYPHEN-MINUS	Pd	0	ES					N
             case 0x2212: // MINUS SIGN	Sm	0	ES					N
-            case 0x2795: // HEAVY PLUS SIGN	So	0	ON					N
+            case 0x2796: // HEAVY MINUS SIGN	So	0	ON					N
             case 0xFE63: // SMALL HYPHEN-MINUS	Pd	0	ES	<small> 002D				N
             case 0xFF0D: // FULLWIDTH HYPHEN-MINUS	Pd	0	ES	<wide> 002D				N
                 return true;
@@ -144,7 +159,7 @@ public final class Numbers {
     }
 
     /**
-     * Check if codepoint is a decimal point.
+     * Check if acodepoint is a decimal point.
      *
      * @param codepoint the codepoint to check
      * @return true if codepoint represent decimal number
@@ -160,5 +175,68 @@ public final class Numbers {
                 return false;
         }
         //CHECKSTYLE:ON
+    }
+
+    /**
+     * Check if a codepoint is sign character
+     *
+     * @param codepoint the codepoint
+     * @return true if sign character (plus or minus)
+     */
+    public static boolean isSign(final int codepoint) {
+        return isPlus(codepoint) || isMinus(codepoint);
+    }
+
+    /**
+     * Get digit value in the specified radix.
+     *
+     * @param codepoint the codepoint
+     * @param radix     the radix
+     * @return the value (or -1 if it is not digit in this radix)
+     */
+    public static int digit(final int codepoint, final int radix) {
+        return Character.digit(codepoint, radix);
+    }
+
+    /**
+     * Get decimal digit value.
+     *
+     * @param codepoint the codepoint
+     * @return the value (or -1 if non-decimal)
+     */
+    public static int digit(final int codepoint) {
+        return digit(codepoint, DECIMAL);
+    }
+
+    /**
+     * Check if indicator for binary number.
+     *
+     * @param codepoint the codepoint
+     * @return the indicator
+     */
+    public static boolean isBinaryIndicator(final int codepoint) {
+        return codepoint == 'b' || codepoint == 'B';
+    }
+
+    /**
+     * Check if the hex indicator.
+     *
+     * @param codepoint the codepoint
+     * @return the indicator
+     */
+    public static boolean isHexIndicator(final int codepoint) {
+        return codepoint == 'x' || codepoint == 'X';
+    }
+
+    /**
+     * Check if codepoint is a valid start fo number suffix.
+     *
+     * @param codepoint the codepoint to check
+     * @return true if suffix start
+     */
+    public static boolean isValidNumberSuffixStart(final int codepoint) {
+        return Identifiers.isIdentifierStart(codepoint)
+                && !isDecimalExponentChar(codepoint)
+                && !Identifiers.isConnectorChar(codepoint);
     }
 }
