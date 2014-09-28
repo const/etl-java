@@ -36,16 +36,11 @@ import java.io.IOException;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.CharBuffer;
-import java.nio.charset.Charset;
 
 /**
  * The reader for the lexer.
  */
 public final class LexerReader extends AbstractReaderImpl<Token> {
-    /**
-     * The UTF8 charset.
-     */
-    public static final Charset UTF8 = Charset.forName("UTF-8");
     /**
      * Reader.
      */
@@ -86,7 +81,8 @@ public final class LexerReader extends AbstractReaderImpl<Token> {
     }
 
     /**
-     * The constructor from url, it opens resource and starts reading its content. The assumed encoding is UTF-8.
+     * The constructor from url, it opens resource and starts reading its content. The assumed encoding is taken
+     * from configuration (normally UTF-8).
      *
      * @param configuration the configuration
      * @param url           the url of resource

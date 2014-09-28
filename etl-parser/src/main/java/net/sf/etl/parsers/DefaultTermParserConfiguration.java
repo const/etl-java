@@ -25,9 +25,9 @@
 
 package net.sf.etl.parsers;
 
+import net.sf.etl.parsers.characters.TextUtil;
 import net.sf.etl.parsers.characters.Whitespaces;
 import net.sf.etl.parsers.event.grammar.CompiledGrammar;
-import net.sf.etl.parsers.streams.LexerReader;
 
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -89,10 +89,10 @@ public final class DefaultTermParserConfiguration implements TermParserConfigura
      */
     private static Charset getDefaultEncoding() {
         try {
-            final String property = System.getProperty(ETL_FILE_ENCODING_PROPERTY, "UTF-8");
+            final String property = System.getProperty(ETL_FILE_ENCODING_PROPERTY, TextUtil.UTF8.name());
             return Charset.forName(property);
         } catch (Exception ex) { // NOPMD
-            return LexerReader.UTF8;
+            return TextUtil.UTF8;
         }
     }
 

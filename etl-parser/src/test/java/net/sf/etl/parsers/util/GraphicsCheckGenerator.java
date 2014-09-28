@@ -25,6 +25,8 @@
 
 package net.sf.etl.parsers.util;
 
+import net.sf.etl.parsers.characters.TextUtil;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -47,7 +49,7 @@ public class GraphicsCheckGenerator { // NOPMD
     }
 
     public static void main(final String args[]) throws Exception { // NOPMD
-        final BufferedReader in = new BufferedReader(new InputStreamReader(GraphicsCheckGenerator.class.getResourceAsStream("/unicode/graphics.txt"), "UTF-8"));
+        final BufferedReader in = new BufferedReader(new InputStreamReader(GraphicsCheckGenerator.class.getResourceAsStream("/unicode/graphics.txt"), TextUtil.UTF8));
         try {
             int start = -1;
             int current = -1;
