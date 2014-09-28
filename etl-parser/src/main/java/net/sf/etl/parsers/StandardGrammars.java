@@ -43,15 +43,15 @@ public final class StandardGrammars {
     /**
      * Namespace of objects in ETL grammar.
      */
-    public static final String ETL_GRAMMAR_NAMESPACE = "http://etl.sf.net/etl/grammar/" + VERSION;
+    public static final String ETL_GRAMMAR_NAMESPACE = "http://etl.sf.net/etl/grammar";
     /**
      * namespace of Doctype object.
      */
-    public static final String DOCTYPE_NS = "http://etl.sf.net/etl/doctype/" + VERSION;
+    public static final String DOCTYPE_NS = "http://etl.sf.net/etl/doctype";
     /**
      * namespace of default object.
      */
-    public static final String DEFAULT_NS = "http://etl.sf.net/etl/default/" + VERSION;
+    public static final String DEFAULT_NS = "http://etl.sf.net/etl/default";
     /**
      * Current grammar version.
      */

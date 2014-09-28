@@ -70,7 +70,7 @@ doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN";
 ///
 /// @author const
 grammar net.sf.etl.grammars.Grammar "0.3.0" {
-	namespace default g = "http://etl.sf.net/etl/grammar/0.3.0";
+	namespace default g = "http://etl.sf.net/etl/grammar";
 
 	/// This abstract context contains definition used across this grammar.
 	context abstract Base {

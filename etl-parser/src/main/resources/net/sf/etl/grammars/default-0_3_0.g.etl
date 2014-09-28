@@ -36,7 +36,7 @@ doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN";
 ///
 /// <author>const</author>
 grammar net.sf.etl.grammars.DefaultGrammar "0.3.0" {
-	namespace default d = "http://etl.sf.net/etl/default/0.3.0";
+	namespace default d = "http://etl.sf.net/etl/default";
 
 	/// The only context in this grammar
 	context default DefaultContext {

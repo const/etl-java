@@ -24,7 +24,7 @@
   ~ SOFTWARE.
   -->
 
-<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" xmlns:rddl="http://www.rddl.org/" prefer="public">
+<catalog xmlns:rddl="http://www.rddl.org/" xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="public">
     <public publicId="-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN" uri="grammar-0_3_0.g.etl"/>
     <public publicId="-//IDN etl.sf.net//ETL//Doctype Declaration 0.3.0//EN" uri="doctype-0_3_0.g.etl"/>
     <public publicId="-//IDN etl.sf.net//ETL//Default Language 0.3.0//EN" uri="default-0_3_0.g.etl"/>
@@ -33,11 +33,23 @@
          rddl:nature="http://etl.sf.net/etl/grammar-definition"
          rddl:purpose="http://www.rddl.org/purposes/#definition"
          uri="default-0_3_0.etl"/>
+    <uri name="http://etl.sf.net/etl/default"
+         rddl:nature="http://etl.sf.net/etl/grammar-definition"
+         rddl:purpose="http://www.rddl.org/purposes/#definition"
+         uri="default-0_3_0.etl"/>
     <uri name="urn:x-etl:grammars:net.sf.etl.grammars.DoctypeDeclaration:0.3.0"
          rddl:nature="http://etl.sf.net/etl/grammar-definition"
          rddl:purpose="http://www.rddl.org/purposes/#definition"
          uri="doctype-0_3_0.etl"/>
+    <uri name="http://etl.sf.net/etl/doctype"
+         rddl:nature="http://etl.sf.net/etl/grammar-definition"
+         rddl:purpose="http://www.rddl.org/purposes/#definition"
+         uri="doctype-0_3_0.etl"/>
     <uri name="urn:x-etl:grammars:net.sf.etl.grammars.Grammar:0.3.0"
+         rddl:nature="http://etl.sf.net/etl/grammar-definition"
+         rddl:purpose="http://www.rddl.org/purposes/#definition"
+         uri="grammar-0_3_0.g.etl"/>
+    <uri name="http://etl.sf.net/etl/grammar"
          rddl:nature="http://etl.sf.net/etl/grammar-definition"
          rddl:purpose="http://www.rddl.org/purposes/#definition"
          uri="grammar-0_3_0.g.etl"/>
