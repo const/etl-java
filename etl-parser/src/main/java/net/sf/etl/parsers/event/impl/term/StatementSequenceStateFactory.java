@@ -108,7 +108,7 @@ public final class StatementSequenceStateFactory implements TermParserStateFacto
 
         @Override
         public RecoverableStatus canRecover() {
-            PhraseToken t = getContext().current();
+            final PhraseToken t = getContext().current();
             switch (t.kind()) {
                 case END_BLOCK:
                 case EOF:
@@ -134,7 +134,7 @@ public final class StatementSequenceStateFactory implements TermParserStateFacto
         @Override
         public void parseMore() {
             final TermParserContext context = getContext();
-            PhraseToken t = context.current();
+            final PhraseToken t = context.current();
             switch (t.kind()) {
                 case STATEMENT_END:
                 case SOFT_STATEMENT_END:

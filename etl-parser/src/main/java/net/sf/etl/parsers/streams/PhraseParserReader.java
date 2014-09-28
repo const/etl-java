@@ -75,7 +75,7 @@ public final class PhraseParserReader extends AbstractReaderImpl<PhraseToken> {
     @Override
     protected boolean doAdvance() {
         while (true) {
-            ParserState state = phraseParser.parse(tokenCell);
+            final ParserState state = phraseParser.parse(tokenCell);
             switch (state) {
                 case INPUT_NEEDED:
                     if (lexer.advance()) {

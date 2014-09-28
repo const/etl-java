@@ -61,7 +61,7 @@ public final class ReportBeforeMarkAction extends SimpleAction {
     @Override
     public void parseMore(final TermParserContext context, final ActionState state) {
         final TermToken termToken = context.peekObjectAtMark();
-        TextPos start = termToken != null ? termToken.start() : context.current().start();
+        final TextPos start = termToken != null ? termToken.start() : context.current().start();
         context.produceBeforeMark(new TermToken(kind, null, type, null, start, start, getSource(), null));
         state.nextAction(getNext());
     }

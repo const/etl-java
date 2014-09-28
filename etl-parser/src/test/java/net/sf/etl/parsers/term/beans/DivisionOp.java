@@ -37,11 +37,11 @@ public abstract class DivisionOp extends Expression {
     /**
      * dividend
      */
-    Expression dividend;
+    private Expression dividend;
     /**
      * divisor
      */
-    Expression divisor;
+    private Expression divisor;
 
     /**
      * @return Returns the dividend.
@@ -53,7 +53,7 @@ public abstract class DivisionOp extends Expression {
     /**
      * @param dividend The dividend to set.
      */
-    public void setDividend(Expression dividend) {
+    public void setDividend(final Expression dividend) {
         this.dividend = dividend;
     }
 
@@ -67,7 +67,7 @@ public abstract class DivisionOp extends Expression {
     /**
      * @param divisor The divisor to set.
      */
-    public void setDivisor(Expression divisor) {
+    public void setDivisor(final Expression divisor) {
         this.divisor = divisor;
     }
 

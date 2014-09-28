@@ -58,9 +58,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * The common customizable asynchronous grammar resolution process that uses catalog.
+ * The common grammar resolution process that uses blocking catalog.
  */
-final class BlockingCatalogSession {
+final class BlockingCatalogSession { // NOPMD
     /**
      * The catalog to use.
      */
@@ -137,9 +137,9 @@ final class BlockingCatalogSession {
                     break;
                 case EOF:
                 case INPUT_NEEDED:
-                    throw new RuntimeException("Invalid compiler state: " + state);
+                    throw new IllegalStateException("Invalid compiler state: " + state);
                 default:
-                    throw new RuntimeException("Unknown compiler state: " + state);
+                    throw new IllegalStateException("Unknown compiler state: " + state);
             }
         }
     }
@@ -218,7 +218,7 @@ final class BlockingCatalogSession {
         if (StandardGrammars.ETL_GRAMMAR_PUBLIC_ID.equals(resourceRequest.getReference().getPublicId())
                 || StandardGrammars.ETL_GRAMMAR_SYSTEM_ID.equals(resourceRequest.getReference().getSystemId())
                 || StandardGrammars.ETL_GRAMMAR_SYSTEM_ID.equals(systemId)) {
-            CompiledGrammar compiledGrammar = BootstrapGrammars.grammarGrammar();
+            final CompiledGrammar compiledGrammar = BootstrapGrammars.grammarGrammar();
             finish(new ResolvedObject<CompiledGrammar>(resourceRequest,
                     resolutionHistory,
                     compiledGrammar.getDescriptor(),
@@ -227,7 +227,7 @@ final class BlockingCatalogSession {
             return true;
         } else if (StandardGrammars.DEFAULT_GRAMMAR_SYSTEM_ID.equals(resourceRequest.getReference().getSystemId())
                 || StandardGrammars.DEFAULT_GRAMMAR_SYSTEM_ID.equals(systemId)) {
-            CompiledGrammar compiledGrammar = BootstrapGrammars.defaultGrammar();
+            final CompiledGrammar compiledGrammar = BootstrapGrammars.defaultGrammar();
             finish(new ResolvedObject<CompiledGrammar>(resourceRequest,
                     resolutionHistory,
                     compiledGrammar.getDescriptor(),
@@ -236,7 +236,7 @@ final class BlockingCatalogSession {
             return true;
         } else if (StandardGrammars.DOCTYPE_GRAMMAR_SYSTEM_ID.equals(resourceRequest.getReference().getSystemId())
                 || StandardGrammars.DOCTYPE_GRAMMAR_SYSTEM_ID.equals(systemId)) {
-            CompiledGrammar compiledGrammar = BootstrapGrammars.doctypeGrammar();
+            final CompiledGrammar compiledGrammar = BootstrapGrammars.doctypeGrammar();
             finish(new ResolvedObject<CompiledGrammar>(resourceRequest,
                     resolutionHistory,
                     compiledGrammar.getDescriptor(),
@@ -270,24 +270,24 @@ final class BlockingCatalogSession {
             if (catalogFile == null) {
                 continue;
             }
-            List<ResourceUsage> catalogResourceUsage;
+            final List<ResourceUsage> catalogResourceUsage;
             if (catalogFile.getUsedResources().isEmpty()) {
                 catalogResourceUsage = Collections.emptyList();
             } else {
-                catalogResourceUsage = new ArrayList<ResourceUsage>();
-                for (CatalogResourceUsage resourceUsage : catalogFile.getUsedResources()) {
-                    catalogResourceUsage.add(new ResourceUsage(
-                            new ResourceReference(resourceUsage.getSystemId(), null),
-                            new ResourceDescriptor(resourceUsage.getSystemId(),
+                catalogResourceUsage = new ArrayList<ResourceUsage>(); // NOPMD
+                for (final CatalogResourceUsage resourceUsage : catalogFile.getUsedResources()) {
+                    catalogResourceUsage.add(new ResourceUsage( // NOPMD
+                            new ResourceReference(resourceUsage.getSystemId(), null), // NOPMD
+                            new ResourceDescriptor(resourceUsage.getSystemId(), // NOPMD
                                     StandardGrammars.CATALOG_RESOURCE_TYPE,
                                     resourceUsage.getVersion() == null ? null : resourceUsage.getVersion().toString()),
                             resourceUsage.getRole()
                     ));
                 }
             }
-            rc.add(new ResourceUsage(
-                    new ResourceReference(trace.getCatalogRequest().getSystemId(), null),
-                    new ResourceDescriptor(
+            rc.add(new ResourceUsage( // NOPMD
+                    new ResourceReference(trace.getCatalogRequest().getSystemId(), null), // NOPMD
+                    new ResourceDescriptor( // NOPMD
                             catalogFile.getSystemId(),
                             StandardGrammars.CATALOG_TYPE,
                             catalogFile.getVersion() == null ? null : catalogFile.getVersion().toString(),
@@ -303,7 +303,7 @@ final class BlockingCatalogSession {
      * @param request the catalog request
      * @param result  the resolution
      */
-    protected void loadGrammar(final ResourceRequest request, final CatalogResult result) {
+    protected void loadGrammar(final ResourceRequest request, final CatalogResult result) { // NOPMD
         final String systemId = result.getResolution();
         final List<ResourceUsage> resolution = getResolutionHistory(result);
         try {
@@ -365,7 +365,7 @@ final class BlockingCatalogSession {
                     }
                     errors.addAll(grammarParser.errors());
                     final LoadedGrammarInfo doctype = grammarParser.getLoadedGrammar();
-                    ResourceUsage usedGrammar = doctype == null ? null
+                    final ResourceUsage usedGrammar = doctype == null ? null
                             : new ResourceUsage(doctype.resolvedGrammar().getRequest().getReference(),
                             doctype.resolvedGrammar().getDescriptor(),
                             StandardGrammars.USED_GRAMMAR_REQUEST_TYPE);

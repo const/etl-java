@@ -37,20 +37,20 @@ public class MultiplyOp extends Expression {
     /**
      * multipliers
      */
-    Expression[] multipliers;
+    private Expression[] multipliers;
 
     /**
      * @return Returns the multipliers.
      */
     public Expression[] getMultipliers() {
-        return multipliers;
+        return multipliers == null ? null : multipliers.clone(); // NOPMD
     }
 
     /**
      * @param multipliers The multipliers to set.
      */
-    public void setMultipliers(Expression[] multipliers) {
-        this.multipliers = multipliers;
+    public void setMultipliers(final Expression[] multipliers) {
+        this.multipliers = multipliers == null ? null : multipliers.clone();
     }
 
 }

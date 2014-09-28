@@ -40,6 +40,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -58,28 +59,28 @@ public final class GrammarAssembly {
     /**
      * The collection of errors.
      */
-    private final ArrayList<ErrorInfo> errors = new ArrayList<ErrorInfo>();
+    private final List<ErrorInfo> errors = new ArrayList<ErrorInfo>();
     /**
      * All resource requests.
      */
-    private final HashSet<ResourceReference> allResourceReferences = new HashSet<ResourceReference>();
+    private final Set<ResourceReference> allResourceReferences = new HashSet<ResourceReference>();
     /**
      * All unresolved resource requests.
      */
-    private final HashSet<ResourceRequest> unresolvedResourceRequests = new HashSet<ResourceRequest>();
+    private final Set<ResourceRequest> unresolvedResourceRequests = new HashSet<ResourceRequest>();
     /**
      * All loaded grammar views.
      */
-    private final HashMap<String, GrammarView> grammarViews = new HashMap<String, GrammarView>();
+    private final Map<String, GrammarView> grammarViews = new HashMap<String, GrammarView>(); // NOPMD
     /**
      * The resolutions.
      */
-    private final HashMap<ResourceReference, ResolvedObject<Grammar>> resolutions =
+    private final Map<ResourceReference, ResolvedObject<Grammar>> resolutions = // NOPMD
             new HashMap<ResourceReference, ResolvedObject<Grammar>>();
     /**
      * The failed grammars.
      */
-    private HashMap<ResourceRequest, FailedGrammar> failed = new HashMap<ResourceRequest, FailedGrammar>();
+    private final Map<ResourceRequest, FailedGrammar> failed = new HashMap<ResourceRequest, FailedGrammar>(); // NOPMD
 
 
     /**
@@ -115,8 +116,8 @@ public final class GrammarAssembly {
             final Set<ResourceReference> references = grammarView.referencedGrammars();
             references.removeAll(allResourceReferences);
             allResourceReferences.addAll(references);
-            for (ResourceReference reference : references) {
-                unresolvedResourceRequests.add(new ResourceRequest(reference,
+            for (final ResourceReference reference : references) {
+                unresolvedResourceRequests.add(new ResourceRequest(reference, // NOPMD
                         StandardGrammars.USED_GRAMMAR_REQUEST_TYPE));
             }
         }
@@ -234,7 +235,7 @@ public final class GrammarAssembly {
     /**
      * Flatten the grammars.
      */
-    public void flatten() {
+    public void flatten() { // NOPMD
         /**
          TODO make sense of check below
          if (rootGrammar.isAbstract()) {
@@ -242,7 +243,7 @@ public final class GrammarAssembly {
          source.getPublicId());
          }
          **/
-        for (GrammarView grammarView : grammarViews.values()) {
+        for (final GrammarView grammarView : grammarViews.values()) {
             grammarView.prepareContexts();
         }
         if (hadErrors()) {

@@ -147,35 +147,35 @@ public final class BootstrapGrammars {
                 case OUTPUT_AVAILABLE:
                     return compiler.read().getObject();
                 case RESOURCE_NEEDED:
-                    for (ResourceRequest request : compiler.requests()) {
+                    for (final ResourceRequest request : compiler.requests()) {
                         try {
                             final String systemId = request.getReference().getSystemId();
-                            final URL url = new URL(systemId);
+                            final URL url = new URL(systemId); // NOPMD
                             final InputStream input = url.openStream();
                             try {
-                                BootstrapETLParserLite parser = new BootstrapETLParserLite(
+                                final BootstrapETLParserLite parser = new BootstrapETLParserLite( // NOPMD
                                         new PhraseParserReader(
                                                 new LexerReader(DefaultTermReaderConfiguration.INSTANCE,
                                                         new InputStreamReader(input, UTF8),
                                                         systemId, TextPos.START)));
                                 final Grammar grammar = parser.parse();
                                 // note that exception is thrown if there was problem with parsing resource
-                                compiler.provide(new ResolvedObject<Grammar>(request, null,
-                                        new ResourceDescriptor(systemId, StandardGrammars.GRAMMAR_NATURE, null),
+                                compiler.provide(new ResolvedObject<Grammar>(request, null, // NOPMD
+                                        new ResourceDescriptor(systemId, StandardGrammars.GRAMMAR_NATURE, null), //NOPMD
                                         grammar), null);
                             } finally {
                                 input.close();
                             }
-                        } catch (Exception ex) {
+                        } catch (Exception ex) { // NOPMD
                             throw new ParserIOException("Failed to load resource: " + request, ex);
                         }
                     }
                     break;
                 case EOF:
                 case INPUT_NEEDED:
-                    throw new RuntimeException("Invalid compiler state: " + state);
+                    throw new IllegalStateException("Invalid compiler state: " + state);
                 default:
-                    throw new RuntimeException("Unknown state: " + state);
+                    throw new IllegalStateException("Unknown state: " + state);
             }
         }
     }

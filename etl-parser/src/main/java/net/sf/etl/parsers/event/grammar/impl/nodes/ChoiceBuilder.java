@@ -29,13 +29,20 @@ import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.LookAheadSet;
 import net.sf.etl.parsers.event.impl.term.action.Action;
 import net.sf.etl.parsers.event.impl.term.action.ChoiceAction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The builder for the choice node.
  */
 public final class ChoiceBuilder {
+    /**
+     * The logger.
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(ChoiceBuilder.class);
     // TODO add support for assumed options (it is used reduce choices) private final LookAheadSet assuming;
     /**
      * The source node.
@@ -44,7 +51,7 @@ public final class ChoiceBuilder {
     /**
      * The choice options.
      */
-    private final ArrayList<ChoiceOption> options = new ArrayList<ChoiceOption>();
+    private final List<ChoiceOption> options = new ArrayList<ChoiceOption>();
     /**
      * The fallback action.
      */
@@ -87,13 +94,12 @@ public final class ChoiceBuilder {
      *
      * @return the choice node
      */
-    public Action build() {
-        ChoiceAction choice = new ChoiceAction(source);
-        LookAheadSet la = new LookAheadSet();
+    public Action build() { // NOPMD
+        final LookAheadSet la = new LookAheadSet();
         // do sanity check
         Action emptyFallback = fallback;
         Action anyFallback = null;
-        for (ChoiceOption option : options) {
+        for (final ChoiceOption option : options) {
             if (option.lookAhead.containsEmpty()) {
                 emptyFallback = option.action;
             }
@@ -101,19 +107,19 @@ public final class ChoiceBuilder {
                 anyFallback = option.action;
             }
             final String test = la.conflictsWith(option.lookAhead);
-            if (test != null) {
-                // TODO report error here
-                throw new IllegalStateException("Look ahead conflict: " + test);
+            if (test != null && LOG.isTraceEnabled()) {
+                LOG.trace("Look ahead conflict: " + test + " on " + option.action.getSource());
             }
             la.addAll(option.lookAhead);
         }
         if (anyFallback == null) {
             anyFallback = emptyFallback;
         }
+        final ChoiceAction choice = new ChoiceAction(source);
         choice.setUnmatchedToken(anyFallback);
         choice.setUnmatchedPhrase(emptyFallback);
-        for (ChoiceOption option : options) {
-            for (LookAheadSet.Entry entry : option.lookAhead.entries()) {
+        for (final ChoiceOption option : options) {
+            for (final LookAheadSet.Entry entry : option.lookAhead.entries()) {
                 if (entry instanceof LookAheadSet.EmptyEntry || entry instanceof LookAheadSet.AnyTokenEntry) {
                     // to nothing, it was processed as fallback
                     continue;

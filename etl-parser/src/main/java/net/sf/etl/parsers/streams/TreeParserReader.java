@@ -74,7 +74,7 @@ public class TreeParserReader<Element> extends AbstractReaderImpl<Element> {
     @Override
     protected final boolean doAdvance() {
         while (true) {
-            ParserState state = treeParser.parse(tokenCell);
+            final ParserState state = treeParser.parse(tokenCell);
             switch (state) {
                 case INPUT_NEEDED:
                     if (termParserReader.advance()) {

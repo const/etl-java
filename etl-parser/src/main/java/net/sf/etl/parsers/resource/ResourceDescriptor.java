@@ -38,6 +38,10 @@ import java.util.List;
  */
 public final class ResourceDescriptor implements Serializable {
     /**
+     * UID.
+     */
+    private static final long serialVersionUID = -4760267073222818689L;
+    /**
      * The systemId that uniquely identifies the resource in the system.
      */
     private final String systemId;
@@ -70,9 +74,9 @@ public final class ResourceDescriptor implements Serializable {
         this.systemId = systemId;
         this.type = type;
         this.version = version;
-        LinkedHashMap<ResourceUsage, String> newUsages = new LinkedHashMap<ResourceUsage, String>();
+        final LinkedHashMap<ResourceUsage, String> newUsages = new LinkedHashMap<ResourceUsage, String>();
         if (usedResources != null) {
-            for (ResourceUsage resourceUsage : usedResources) {
+            for (final ResourceUsage resourceUsage : usedResources) {
                 final ResourceUsage filtered = filter(systemId, resourceUsage);
                 if (filtered != null) {
                     newUsages.put(filtered, "");
@@ -135,11 +139,11 @@ public final class ResourceDescriptor implements Serializable {
         if (additionalResources == null || additionalResources.isEmpty()) {
             return this;
         }
-        LinkedHashMap<ResourceUsage, String> newUsages = new LinkedHashMap<ResourceUsage, String>();
-        for (ResourceUsage resourceUsage : usedResources) {
+        final LinkedHashMap<ResourceUsage, String> newUsages = new LinkedHashMap<ResourceUsage, String>();
+        for (final ResourceUsage resourceUsage : usedResources) {
             newUsages.put(resourceUsage, "");
         }
-        for (ResourceUsage resourceUsage : additionalResources) {
+        for (final ResourceUsage resourceUsage : additionalResources) {
             newUsages.put(resourceUsage, "");
         }
         if (newUsages.size() == usedResources.size()) {
@@ -170,23 +174,23 @@ public final class ResourceDescriptor implements Serializable {
         int i = 0;
         ResourceUsage changedResource = null;
         final List<ResourceUsage> resources = descriptor.getUsedResources();
-        for (ResourceUsage used : resources) {
+        for (final ResourceUsage used : resources) {
             changedResource = filter(filteredSystemId, used);
-            if (changedResource != used) {
+            if (changedResource != used) { // NOPMD
                 changed = true;
                 break;
             }
             i++;
         }
         if (changed) {
-            ArrayList<ResourceUsage> newUsages = new ArrayList<ResourceUsage>();
+            final ArrayList<ResourceUsage> newUsages = new ArrayList<ResourceUsage>();
             if (i > 0) {
                 newUsages.addAll(resources.subList(0, i));
             }
             if (changedResource != null) {
                 newUsages.add(changedResource);
             }
-            for (ResourceUsage used : resources.subList(i + 1, resources.size())) {
+            for (final ResourceUsage used : resources.subList(i + 1, resources.size())) {
                 changedResource = filter(filteredSystemId, used);
                 if (changedResource != null) {
                     newUsages.add(changedResource);
@@ -240,17 +244,28 @@ public final class ResourceDescriptor implements Serializable {
     @Override
     public boolean equals(final Object o) {
         //CHECKSTYLE:OFF
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ResourceDescriptor that = (ResourceDescriptor) o;
-
-        if (!systemId.equals(that.systemId)) return false;
-        if (type != null ? !type.equals(that.type) : that.type != null) return false;
-        if (usedResources != null ? !usedResources.equals(that.usedResources) : that.usedResources != null)
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
+
+        final ResourceDescriptor that = (ResourceDescriptor) o;
+
+        if (!systemId.equals(that.systemId)) {
+            return false;
+        }
+        if (type != null ? !type.equals(that.type) : that.type != null) {
+            return false;
+        }
+        if (usedResources != null ? !usedResources.equals(that.usedResources) : that.usedResources != null) {
+            return false;
+        }
         //noinspection RedundantIfStatement
-        if (version != null ? !version.equals(that.version) : that.version != null) return false;
+        if (version != null ? !version.equals(that.version) : that.version != null) {
+            return false;
+        }
 
         return true;
         //CHECKSTYLE:ON

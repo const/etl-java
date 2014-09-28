@@ -27,6 +27,7 @@ package net.sf.etl.parsers.term.firstchoice;
 import net.sf.etl.parsers.Token;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Statement node
@@ -37,7 +38,7 @@ public class Statement extends BaseNode {
     /**
      * The documentation
      */
-    public final ArrayList<Token> documentation = new ArrayList<Token>();
+    public final List<Token> documentation = new ArrayList<Token>();
     /**
      * first or second node
      */

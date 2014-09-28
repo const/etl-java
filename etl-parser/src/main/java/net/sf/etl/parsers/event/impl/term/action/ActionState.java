@@ -60,7 +60,7 @@ public final class ActionState extends TermParserState {
     @Override
     public RecoverableStatus canRecover() {
         recoveryChoiceAction = null;
-        Action suspended = current;
+        final Action suspended = current;
         current = recoveryTest;
         final TermParserContext context = getContext();
         while (current != null) {
@@ -102,7 +102,7 @@ public final class ActionState extends TermParserState {
      * @param action the action
      * @return check if the current point is a recovery point
      */
-    boolean isRecoveryPoint(final RecoveryChoiceAction action) {
+    public boolean isRecoveryPoint(final RecoveryChoiceAction action) {
         return this.recoveryChoiceAction == action;
     }
 
@@ -111,7 +111,7 @@ public final class ActionState extends TermParserState {
      *
      * @param action the recovery choice point
      */
-    void setRecoveryPoint(final RecoveryChoiceAction action) {
+    public void setRecoveryPoint(final RecoveryChoiceAction action) {
         this.recoveryChoiceAction = action;
         current = null;
     }
@@ -121,7 +121,7 @@ public final class ActionState extends TermParserState {
      *
      * @param action the recovery test action (might be null, if no recovery possible)
      */
-    void setRecoveryTest(final Action action) {
+    public void setRecoveryTest(final Action action) {
         recoveryTest = action;
     }
 }

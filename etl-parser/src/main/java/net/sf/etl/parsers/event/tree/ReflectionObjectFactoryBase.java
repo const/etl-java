@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class provide facilities for mapping class names.
@@ -53,11 +54,11 @@ public abstract class ReflectionObjectFactoryBase<BaseObjectType, FeatureType, M
     /**
      * The map from namespace to java package.
      */
-    private final HashMap<String, String> namespaceMapping = new HashMap<String, String>();
+    private final Map<String, String> namespaceMapping = new HashMap<String, String>(); // NOPMD
     /**
      * The map from namespace to object to java class.
      */
-    private final HashMap<String, HashMap<String, Class<?>>> objectMapping =
+    private final Map<String, HashMap<String, Class<?>>> objectMapping = // NOPMD
             new HashMap<String, HashMap<String, Class<?>>>();
 
     /**
@@ -84,7 +85,7 @@ public abstract class ReflectionObjectFactoryBase<BaseObjectType, FeatureType, M
         ClassLoader factoryClassLoader = null;
         try {
             factoryClassLoader = Thread.currentThread().getContextClassLoader();
-        } catch (final Exception ex) {
+        } catch (final Exception ex) { // NOPMD
             if (LOG.isDebugEnabled()) {
                 LOG.debug("There is a security problem with getting classLoader", ex);
             }

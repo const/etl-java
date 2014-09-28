@@ -40,7 +40,7 @@ import static org.junit.Assert.fail;
  * @param <ObjectType> a type of objects in term parser
  * @author const
  */
-public abstract class FieldsTermCase<ObjectType> {
+public abstract class FieldsTermCase<ObjectType> { // NOPMD
     /**
      * A parser to use
      */
@@ -55,8 +55,8 @@ public abstract class FieldsTermCase<ObjectType> {
      *
      * @param resourceName a resource to parse
      */
-    protected void startWithResource(String resourceName) {
-        java.net.URL in = this.getClass().getResource(resourceName);
+    protected void startWithResource(final String resourceName) {
+        final java.net.URL in = this.getClass().getResource(resourceName);
         assertNotNull(in);
         startWithURL(in);
     }
@@ -64,10 +64,10 @@ public abstract class FieldsTermCase<ObjectType> {
     /**
      * Start parsing with URL
      *
-     * @param in an URL to parse
+     * @param url an URL to parse
      */
-    protected void startWithURL(java.net.URL in) {
-        termParser = new TermParserReader(in);
+    protected void startWithURL(final java.net.URL url) {
+        termParser = new TermParserReader(url);
         termParser.advance();
         parser = new TreeParserReader<ObjectType>(termParser, createFieldTermParser());
         parser.setErrorTokenHandler(new TokenCollector() {
@@ -93,7 +93,7 @@ public abstract class FieldsTermCase<ObjectType> {
      *
      * @param errorExit true if error exit
      */
-    protected void endParsing(boolean errorExit) {
+    protected void endParsing(final boolean errorExit) {
         if (!errorExit) {
             assertFalse(parser.hadErrors());
         }

@@ -33,6 +33,11 @@ import net.sf.etl.parsers.ParserException;
  */
 public class LiteralParseException extends ParserException {
     /**
+     * uid.
+     */
+    private static final long serialVersionUID = -6558961969795377492L;
+
+    /**
      * The exception constructor.
      *
      * @param type   the type of object
@@ -52,10 +57,10 @@ public class LiteralParseException extends ParserException {
      * @return the message for the exception
      */
     private static String message(final String type, final String text, final ErrorInfo errors) {
-        StringBuilder b = new StringBuilder();
+        final StringBuilder b = new StringBuilder(); // NOPMD
         b.append("Error parsing ").append(type).append(" '").append(text).append("':");
         for (ErrorInfo e = errors; e != null; e = e.cause()) {
-            b.append("\n  ").append(errors.message()).append(" ").append(errors.end());
+            b.append("\n  ").append(errors.message()).append(' ').append(errors.end());
         }
         return b.toString();
     }

@@ -65,7 +65,7 @@ public final class LexerReader extends AbstractReaderImpl<Token> {
     /**
      * True if EOF has been read.
      */
-    private boolean eofRead = false;
+    private boolean eofRead;
 
 
     /**

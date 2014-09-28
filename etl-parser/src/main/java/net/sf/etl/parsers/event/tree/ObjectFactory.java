@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -54,11 +55,11 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
     /**
      * This set contains namespaces ignored by parser.
      */
-    private final HashSet<String> ignoredNamespaces = new HashSet<String>();
+    private final Set<String> ignoredNamespaces = new HashSet<String>();
     /**
      * This is map from ignored object names to set of namespaces.
      */
-    private final HashMap<String, Set<String>> ignoredObjects = new HashMap<String, Set<String>>();
+    private final Map<String, Set<String>> ignoredObjects = new HashMap<String, Set<String>>(); // NOPMD
     /**
      * The value parsers.
      */
@@ -69,7 +70,7 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
      * hasNext(), hasNext returns false (meaning that no more objects are
      * expected here).
      */
-    private boolean abortOnDefault = false;
+    private boolean abortOnDefault;
     /**
      * The current position policy.
      */
@@ -154,8 +155,8 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
      */
     public final Object parseValue(final FeatureType f, final Token value) {
         final Class<?> type = getFeatureType(f);
-        for (ValueParser parser : valueParsers) {
-            Object o = parser.parse(type, value);
+        for (final ValueParser parser : valueParsers) {
+            final Object o = parser.parse(type, value);
             if (o != null) {
                 return o;
             }
@@ -433,7 +434,7 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
                     return e;
                 }
             }
-            throw new RuntimeException("No constant with name " + valueToken.text()
+            throw new ParserException("No constant with name " + valueToken.text()
                     + " in enum " + valueType.getCanonicalName());
         }
     }

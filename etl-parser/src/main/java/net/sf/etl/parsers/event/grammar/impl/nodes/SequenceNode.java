@@ -61,7 +61,7 @@ public final class SequenceNode extends GroupNode {
         while (i.hasPrevious()) {
             final Node node = i.previous();
             final LookAheadSet actualLa = node.buildLookAhead();
-            final LookAheadSet currentLa = new LookAheadSet(actualLa);
+            final LookAheadSet currentLa = new LookAheadSet(actualLa); // NOPMD
             if (currentLa.containsEmpty()) {
                 currentLa.addAll(previousLa);
                 currentLa.removeEmpty();
@@ -70,19 +70,20 @@ public final class SequenceNode extends GroupNode {
             if (currentLa.isEmpty()) {
                 head = node.buildActions(b, head, errorExit, recoveryTest);
             } else {
-                RecoveryChoiceAction recoveryChoiceAction = new RecoveryChoiceAction(node.getSource(), errorExit);
+                final RecoveryChoiceAction recoveryChoiceAction =
+                        new RecoveryChoiceAction(node.getSource(), errorExit); //NOPMD
                 errorExit = recoveryChoiceAction;
                 head = node.buildActions(b, head, errorExit, recoveryTest);
                 recoveryChoiceAction.setRecoveryPath(head);
-                recoveryTest = new ChoiceBuilder(node.getSource()).
+                recoveryTest = new ChoiceBuilder(node.getSource()). // NOPMD
                         setFallback(recoveryTest).
-                        add(currentLa, new RecoveryVoteAction(node.getSource(), recoveryChoiceAction)).
+                        add(currentLa, new RecoveryVoteAction(node.getSource(), recoveryChoiceAction)). // NOPMD
                         build();
-                head = new RecoverySetupAction(node.getSource(), head, recoveryTest);
+                head = new RecoverySetupAction(node.getSource(), head, recoveryTest); // NOPMD
             }
             if (!wasNonEmpty && !node.matchesEmpty() && i.hasPrevious()) {
                 wasNonEmpty = true;
-                head = new EnableSoftEndAction(source, head);
+                head = new EnableSoftEndAction(source, head); // NOPMD
             }
         }
         if (wasNonEmpty) {
@@ -107,7 +108,7 @@ public final class SequenceNode extends GroupNode {
             return LookAheadSet.getWithEmpty(getSource());
         }
         if (nodes().size() == 1) {
-            return (nodes().get(0)).buildLookAhead(visitedBuilders);
+            return nodes().get(0).buildLookAhead(visitedBuilders);
         }
         final LookAheadSet rc = new LookAheadSet();
         for (final Node node : nodes()) {

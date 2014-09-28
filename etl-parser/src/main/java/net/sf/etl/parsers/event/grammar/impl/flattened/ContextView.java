@@ -45,6 +45,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -53,7 +54,7 @@ import java.util.TreeMap;
  *
  * @author const
  */
-public final class ContextView {
+public final class ContextView { // NOPMD
     /**
      * this is gather of imports by grammar include direction.
      */
@@ -87,23 +88,23 @@ public final class ContextView {
     /**
      * The tree map from precedence to level view object.
      */
-    private final TreeMap<Integer, OpLevel> operatorLevels = new TreeMap<Integer, OpLevel>();
+    private final NavigableMap<Integer, OpLevel> operatorLevels = new TreeMap<Integer, OpLevel>();
     /**
      * The statements defined in the context.
      */
-    private final HashSet<StatementView> statements = new HashSet<StatementView>();
+    private final Set<StatementView> statements = new HashSet<StatementView>();
     /**
      * The map from name to definition.
      */
-    private final HashMap<String, DefView> defs = new HashMap<String, DefView>();
+    private final Map<String, DefView> defs = new HashMap<String, DefView>(); // NOPMD
     /**
      * The map for choice definitions.
      */
-    private final HashMap<String, ChoiceDefView> choiceDefs = new HashMap<String, ChoiceDefView>();
+    private final Map<String, ChoiceDefView> choiceDefs = new HashMap<String, ChoiceDefView>(); // NOPMD
     /**
      * The map for choice cases definitions.
      */
-    private final HashMap<String, List<ChoiceCaseDefView>> choiceCaseDefs =
+    private final Map<String, List<ChoiceCaseDefView>> choiceCaseDefs = // NOPMD
             new HashMap<String, List<ChoiceCaseDefView>>();
     /**
      * DAG node in context include hierarchy.
@@ -112,7 +113,7 @@ public final class ContextView {
     /**
      * The map from included context name to context include views.
      */
-    private final Map<String, ContextIncludeView> contextIncludes = new HashMap<String, ContextIncludeView>();
+    private final Map<String, ContextIncludeView> contextIncludes = new HashMap<String, ContextIncludeView>(); // NOPMD
     /**
      * The DAG node in context include along with grammar include hierarchy.
      */
@@ -120,11 +121,11 @@ public final class ContextView {
     /**
      * The map that contains imports. key is local name of context.
      */
-    private final Map<String, ContextImportView> imports = new HashMap<String, ContextImportView>();
+    private final Map<String, ContextImportView> imports = new HashMap<String, ContextImportView>(); // NOPMD
     /**
      * The map that definitions. key is name of definition.
      */
-    private final Map<String, DefinitionView> definitions = new HashMap<String, DefinitionView>();
+    private final Map<String, DefinitionView> definitions = new HashMap<String, DefinitionView>(); // NOPMD
     /**
      * The context name.
      */
@@ -216,15 +217,15 @@ public final class ContextView {
                         if (namespace == null) {
                             error(w, "grammar.Wrapper.undefinedWrapperPrefix", prefix);
                         } else {
-                            wrapperLink = new WrapperLink(wrapperLink, namespace, objectName, property,
+                            wrapperLink = new WrapperLink(wrapperLink, namespace, objectName, property, // NOPMD
                                     w.getObject().getSourceLocation(),
-                                    new SourceLocation(w.getProperty().start(), w.getProperty().end(),
+                                    new SourceLocation(w.getProperty().start(), w.getProperty().end(), // NOPMD
                                             w.getLocation().systemId()));
                         }
                     }
                 }
-                contextIncludes.put(referencedContext.name(), new ContextIncludeView(ci, this, referencedContext,
-                        wrapperLink));
+                contextIncludes.put(referencedContext.name(),
+                        new ContextIncludeView(ci, this, referencedContext, wrapperLink)); // NOPMD
             } else if (m instanceof ContextImport) {
                 final ContextImport ci = (ContextImport) m;
                 final GrammarView referencedGrammar;
@@ -239,7 +240,7 @@ public final class ContextView {
                 }
                 final ContextView referencedContext = referencedGrammar.context(ci.getContextName());
                 if (referencedContext == null) {
-                    if (referencedGrammar == grammar) {
+                    if (referencedGrammar == grammar) { // NOPMD
                         error(ci, "grammar.Context.ContextImport.missingContext", ci.getContextName());
                     } else {
                         error(ci, "grammar.Context.ContextImport.missingContextInGrammar",
@@ -251,7 +252,7 @@ public final class ContextView {
                     error(ci, "grammar.Context.ContextImport.duplicateImport", ci.getContextName());
                     continue;
                 }
-                final ContextImportView view = new ContextImportView(ci, this, referencedContext);
+                final ContextImportView view = new ContextImportView(ci, this, referencedContext); // NOPMD
                 imports.put(view.localName(), view);
             } else if (m instanceof SyntaxDefinition) {
                 final SyntaxDefinition def = (SyntaxDefinition) m;
@@ -380,7 +381,7 @@ public final class ContextView {
     /**
      * Sorts definitions by categories.
      */
-    public void sortDefinitionsByCategories() {
+    public void sortDefinitionsByCategories() { // NOPMD
         assert !isAbstract() : "This method should not be called for abstract contexts";
         for (final ContextImportView v : imports.values()) {
             if (v.referencedContext().isAbstract()) {
@@ -412,7 +413,7 @@ public final class ContextView {
                 final Integer precedence = op.precedence();
                 OpLevel level = operatorLevels.get(precedence);
                 if (level == null) {
-                    level = new OpLevel();
+                    level = new OpLevel(); // NOPMD
                     level.setPrecedence(precedence);
                     operatorLevels.put(precedence, level);
                 }
@@ -450,7 +451,7 @@ public final class ContextView {
                         level.getYFY().add(op);
                         break;
                     default:
-                        throw new RuntimeException("[BUG] Unsupported precedence level: " + associativity);
+                        throw new IllegalStateException("[BUG] Unsupported precedence level: " + associativity);
                 }
             } else if (m instanceof AttributesView) {
                 final AttributesView view = (AttributesView) m;
@@ -484,24 +485,24 @@ public final class ContextView {
                     // the name == null only in the case of syntax error, so it was reported earlier
                     List<ChoiceCaseDefView> choice = choiceCaseDefs.get(choiceName);
                     if (choice == null) {
-                        choice = new ArrayList<ChoiceCaseDefView>();
+                        choice = new ArrayList<ChoiceCaseDefView>(); // NOPMD
                         choiceCaseDefs.put(choiceName, choice);
                     }
                     choice.add(view);
                 }
             } else {
-                throw new RuntimeException("[BUG] Unsupported definition kind: " + m.getClass().getName());
+                throw new IllegalStateException("[BUG] Unsupported definition kind: " + m.getClass().getName());
             }
         }
         // validate choices
         if (!isAbstract()) {
-            for (String choiceName : choiceDefs.keySet()) {
+            for (final String choiceName : choiceDefs.keySet()) {
                 if (!choiceCaseDefs.containsKey(choiceName)) {
                     error(reportingContext, "grammar.Context.missingCaseForChoice", name(), choiceName,
                             choiceDefs.get(choiceName).definition().getLocation().toShortString());
                 }
             }
-            for (Map.Entry<String, List<ChoiceCaseDefView>> entry : choiceCaseDefs.entrySet()) {
+            for (final Map.Entry<String, List<ChoiceCaseDefView>> entry : choiceCaseDefs.entrySet()) {
                 if (!choiceDefs.containsKey(entry.getKey())) {
                     error(reportingContext, "grammar.Context.missingChoiceForCase", name(),
                             entry.getKey(), entry.getValue().size(), entry.getValue().get(0).name(),
@@ -730,7 +731,7 @@ public final class ContextView {
 
         @Override
         protected void reportDuplicates(final ContextView sourceHolder, final String key,
-                                        final HashSet<DefinitionView> duplicateNodes) {
+                                        final Set<DefinitionView> duplicateNodes) {
             sourceHolder.error(errorId, key);
         }
 
@@ -886,7 +887,7 @@ public final class ContextView {
 
         @Override
         protected void reportDuplicates(final ContextView holder, final String key,
-                                        final HashSet<ContextIncludeView> duplicateNodes) {
+                                        final Set<ContextIncludeView> duplicateNodes) {
             final HashSet<WrapperLink> wrappers = new HashSet<WrapperLink>();
             boolean isFirst = true;
             WrapperLink firstWrapper = null;

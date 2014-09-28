@@ -47,7 +47,7 @@ import java.nio.CharBuffer;
 /**
  * The lexer implementation.
  */
-public final class LexerImpl implements Lexer {
+public final class LexerImpl implements Lexer { // NOPMD
     /**
      * The unknown file URL.
      */
@@ -184,7 +184,7 @@ public final class LexerImpl implements Lexer {
     /**
      * null or buffer with current data for the token.
      */
-    private StringBuilder text;
+    private StringBuilder text; // NOPMD
     /**
      * The key for the token.
      */
@@ -285,7 +285,7 @@ public final class LexerImpl implements Lexer {
     }
 
     @Override
-    public ParserState parse(final CharBuffer buffer, final boolean eof) {
+    public ParserState parse(final CharBuffer buffer, final boolean eof) { // NOPMD
         if (!started) {
             throw new IllegalStateException("The parser is not yet started!");
         }
@@ -302,7 +302,7 @@ public final class LexerImpl implements Lexer {
                 return makeToken();
             }
             // handle one lines
-            int c = peek(buffer, eof);
+            final int c = peek(buffer, eof);
             // CHECKSTYLE:OFF
             switch (c) {
                 case 0x007B: // Ps: LEFT CURLY BRACKET
@@ -311,6 +311,8 @@ public final class LexerImpl implements Lexer {
                 case 0x007D: // Pe: RIGHT CURLY BRACKET
                 case 0xFF5D: // Pe: FULLWIDTH RIGHT CURLY BRACKET
                     return single(buffer, eof, Tokens.CLOSE_CURLY);
+                default:
+                    // continue
             }
             // CHECKSTYLE:ON
             if (Whitespaces.isSpace(c)) {
@@ -373,7 +375,7 @@ public final class LexerImpl implements Lexer {
                 case PREFIXED_MULTILINE_STRING:
                     return continueString(buffer, eof);
                 default:
-                    throw new RuntimeException("Unsupported branch: " + kind);
+                    throw new IllegalStateException("[BUG] Unsupported branch: " + kind);
             }
         }
     }
@@ -398,13 +400,13 @@ public final class LexerImpl implements Lexer {
      * @param eof    the eof indicator
      * @return the parser state
      */
-    private ParserState continueNumber(final CharBuffer buffer, final boolean eof) {
+    private ParserState continueNumber(final CharBuffer buffer, final boolean eof) { // NOPMD
         while (true) {
             if (moreDataNeeded(buffer, eof)) {
                 return ParserState.INPUT_NEEDED;
             }
             int codepoint = peek(buffer, eof);
-            switch (phase) {
+            switch (phase) { // NOPMD
                 case NUMBER_DECIMAL:
                     if (Numbers.isDecimal(codepoint) || Identifiers.isConnectorChar(codepoint)) {
                         codepoint(buffer, eof);
@@ -467,7 +469,7 @@ public final class LexerImpl implements Lexer {
                     } else if (codepoint == '.') {
                         kind = Tokens.FLOAT;
                         if (phase == NUMBER_BASED_FRACTION) {
-                            TextPos p = current();
+                            final TextPos p = current();
                             codepoint(buffer, eof);
                             error("lexical.FloatTooManyDots", p, current());
                         } else {
@@ -475,7 +477,7 @@ public final class LexerImpl implements Lexer {
                             codepoint(buffer, eof);
                         }
                     } else if (Numbers.isAnyDigit(codepoint)) {
-                        TextPos p = current();
+                        final TextPos p = current();
                         codepoint(buffer, eof);
                         error("lexical.SomeDigitAreOutOfBase", p, current());
                     } else {
@@ -528,7 +530,7 @@ public final class LexerImpl implements Lexer {
                         return makeToken();
                     }
                 case NUMBER_SUFFIX:
-                    if ((Identifiers.isIdentifierPart(codepoint))) {
+                    if (Identifiers.isIdentifierPart(codepoint)) {
                         codepoint(buffer, eof);
                         break;
                     } else {
@@ -567,13 +569,13 @@ public final class LexerImpl implements Lexer {
      * @param eof    the eof indicator
      * @return the parser state
      */
-    private ParserState continueString(final CharBuffer buffer, final boolean eof) {
+    private ParserState continueString(final CharBuffer buffer, final boolean eof) { // NOPMD
         while (true) {
             if (moreDataNeeded(buffer, eof)) {
                 return ParserState.INPUT_NEEDED;
             }
-            int codepoint = peek(buffer, eof);
-            switch (phase) {
+            final int codepoint = peek(buffer, eof);
+            switch (phase) { // NOPMD
                 case STRING_START_FIRST_QUOTE:
                     if (codepoint == startQuote) {
                         // possibly multiline sting
@@ -604,8 +606,8 @@ public final class LexerImpl implements Lexer {
                         return makeToken();
                     } else {
                         codepoint(buffer, eof);
-                        QuoteClass endQuoteClass = QuoteClass.classify(codepoint);
-                        if (endQuoteClass == quoteClass) {
+                        final QuoteClass endQuoteClass = QuoteClass.classify(codepoint);
+                        if (endQuoteClass == quoteClass) { // NOPMD
                             endQuote = codepoint;
                             return makeToken();
                         }
@@ -635,8 +637,8 @@ public final class LexerImpl implements Lexer {
                         error("lexical.EOFInString", start, current());
                         return makeToken();
                     } else {
-                        QuoteClass endQuoteClass = QuoteClass.classify(codepoint);
-                        if (endQuoteClass == quoteClass) {
+                        final QuoteClass endQuoteClass = QuoteClass.classify(codepoint);
+                        if (endQuoteClass == quoteClass) { // NOPMD
                             endQuote = codepoint(buffer, eof);
                             phase = STRING_MULTILINE_END_FIRST_QUOTE;
                         } else {
@@ -862,7 +864,7 @@ public final class LexerImpl implements Lexer {
                 return ParserState.INPUT_NEEDED;
             }
             final int codepoint = peek(buffer, eof);
-            switch (phase) {
+            switch (phase) { // NOPMD
                 case GRAPHICS_NORMAL:
                     switch (codepoint) {
                         case '/':
@@ -925,8 +927,8 @@ public final class LexerImpl implements Lexer {
     private ParserState parseLineComment(final CharBuffer buffer, final boolean eof) {
         // it is already known that it is line comment
         kind = Tokens.LINE_COMMENT;
-        int first = codepoint(buffer, eof);
-        int second = codepoint(buffer, eof);
+        final int first = codepoint(buffer, eof);
+        final int second = codepoint(buffer, eof);
         phase = first == '/' && second == '/' ? LINE_COMMENT_START : LINE_COMMENT_NORMAL;
         if (moreDataNeeded(buffer, eof)) {
             return ParserState.INPUT_NEEDED;
@@ -990,7 +992,7 @@ public final class LexerImpl implements Lexer {
             if (moreDataNeededNext(buffer, eof)) {
                 return ParserState.INPUT_NEEDED;
             }
-            int codepoint = peek(buffer, eof);
+            final int codepoint = peek(buffer, eof);
             if (codepoint == -1) {
                 error("lexical.EOFInBlockComment", start, current());
                 return makeToken();
@@ -1049,11 +1051,11 @@ public final class LexerImpl implements Lexer {
      */
     private int codepoint(final CharBuffer buffer, final boolean eof) {
         assert !moreDataNeeded(buffer, eof) : "Can consume only if there is data available";
-        int c = Character.codePointAt(buffer, 0);
+        final int c = Character.codePointAt(buffer, 0);
         if (text == null) {
             text = new StringBuilder();
         }
-        int s = Character.charCount(c);
+        final int s = Character.charCount(c);
         if (s == 2) {
             buffer.get();
             buffer.get();
@@ -1094,8 +1096,8 @@ public final class LexerImpl implements Lexer {
         if (eof && buffer.remaining() == 0) {
             return -1;
         }
-        int codepoint = Character.codePointAt(buffer, 0);
-        int p = Character.charCount(codepoint);
+        final int codepoint = Character.codePointAt(buffer, 0);
+        final int p = Character.charCount(codepoint);
         if (eof && buffer.remaining() == p) {
             return -1;
         }
@@ -1122,7 +1124,7 @@ public final class LexerImpl implements Lexer {
      */
     private boolean moreDataNeeded(final CharBuffer buffer, final boolean eof) {
         return !eof && (buffer.remaining() == 0
-                || (buffer.remaining() == 1 && Character.isHighSurrogate(buffer.charAt(0))));
+                || buffer.remaining() == 1 && Character.isHighSurrogate(buffer.charAt(0)));
     }
 
     /**
@@ -1136,12 +1138,12 @@ public final class LexerImpl implements Lexer {
         if (eof) {
             return false;
         }
-        if (buffer.remaining() == 0 || (buffer.remaining() == 1 && Character.isHighSurrogate(buffer.charAt(0)))) {
+        if (buffer.remaining() == 0 || buffer.remaining() == 1 && Character.isHighSurrogate(buffer.charAt(0))) {
             return true;
         }
-        int codepoint = Character.codePointAt(buffer, 0);
-        int p = Character.charCount(codepoint);
-        return buffer.remaining() == p || (buffer.remaining() == p + 1 && Character.isHighSurrogate(buffer.charAt(p)));
+        final int codepoint = Character.codePointAt(buffer, 0);
+        final int p = Character.charCount(codepoint);
+        return buffer.remaining() == p || buffer.remaining() == p + 1 && Character.isHighSurrogate(buffer.charAt(p));
     }
 
     /**
@@ -1153,8 +1155,8 @@ public final class LexerImpl implements Lexer {
         if (next != null) {
             throw new IllegalStateException("Next token is already available: " + next);
         }
-        TextPos end = current();
-        TokenKey key;
+        final TextPos end = current();
+        final TokenKey key;
         if (kind.hasQuotes()) {
             key = TokenKey.quoted(kind, modifier, quoteClass);
         } else if (kind.hasModifier()) {
@@ -1180,7 +1182,7 @@ public final class LexerImpl implements Lexer {
 
     @Override
     public Token read() {
-        Token rc = next;
+        final Token rc = next;
         if (rc == null) {
             throw new IllegalStateException("No token available. Call parse: " + this);
         }

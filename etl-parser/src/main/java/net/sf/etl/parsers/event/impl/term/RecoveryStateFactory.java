@@ -56,7 +56,7 @@ public final class RecoveryStateFactory implements TermParserStateFactory {
         /**
          * Nesting level of block skipping.
          */
-        private int blockSkip = 0;
+        private int blockSkip;
 
         /**
          * The constructor.
@@ -93,15 +93,15 @@ public final class RecoveryStateFactory implements TermParserStateFactory {
                 skipToken();
                 return;
             }
-            for (TermParserState state : previousStates()) {
+            for (final TermParserState state : previousStates()) {
                 final RecoverableStatus recoverableStatus = state.canRecover();
                 switch (recoverableStatus) {
                     case SKIP:
                         skipToken();
                         return;
                     case RECOVER:
-                        for (TermParserState forcedState : previousStates()) {
-                            if (state == forcedState) {
+                        for (final TermParserState forcedState : previousStates()) {
+                            if (state == forcedState) { // NOPMD
                                 break;
                             }
                             forcedState.forceFinish();

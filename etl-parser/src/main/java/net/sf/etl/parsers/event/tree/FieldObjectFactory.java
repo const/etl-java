@@ -25,6 +25,7 @@
 package net.sf.etl.parsers.event.tree;
 
 import net.sf.etl.parsers.ObjectName;
+import net.sf.etl.parsers.ParserException;
 import net.sf.etl.parsers.PropertyName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +35,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -75,8 +77,9 @@ public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<
     /**
      * The cache of fields.
      */
-    private final HashMap<Class<?>, HashMap<String, Field>> fieldCache =
-            new HashMap<Class<?>, HashMap<String, Field>>();
+    // TODO review usage ConcurrentHashMap in object factories (static vs. per parser instance)
+    private final Map<Class<?>, Map<String, Field>> fieldCache = // NOPMD
+            new HashMap<Class<?>, Map<String, Field>>();
 
     /**
      * The constructor from super class.
@@ -98,13 +101,11 @@ public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<
     protected final BaseObject createInstance(final Class<?> metaObject, final ObjectName name) {
         try {
             return (BaseObject) metaObject.newInstance();
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
+        } catch (Exception e) { // NOPMD
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Instance of " + metaObject.getCanonicalName() + " cannot be created.", e);
             }
-            throw new RuntimeException("Instance of " + metaObject.getCanonicalName() + " cannot be created.", e);
+            throw new ParserException("Instance of " + metaObject.getCanonicalName() + " cannot be created.", e);
         }
     }
 
@@ -132,7 +133,7 @@ public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<
             if (LOG.isErrorEnabled()) {
                 LOG.error("The field " + f + " cannot be accessed.", e);
             }
-            throw new RuntimeException("The field " + f + " cannot be accessed.", e);
+            throw new ParserException("The field " + f + " cannot be accessed.", e);
         }
     }
 
@@ -157,7 +158,7 @@ public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<
             if (LOG.isErrorEnabled()) {
                 LOG.error("The field " + f + " cannot be accessed.", e);
             }
-            throw new RuntimeException("The field " + f + " cannot be accessed.", e);
+            throw new ParserException("The field " + f + " cannot be accessed.", e);
         }
     }
 
@@ -165,17 +166,17 @@ public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<
     protected final Class<?> getFeatureType(final Field f) {
         Class<?> elementType = f.getType();
         if (List.class.isAssignableFrom(elementType)) {
-            Type rawType = f.getGenericType();
+            final Type rawType = f.getGenericType();
             if (rawType instanceof ParameterizedType) {
-                ParameterizedType pt = (ParameterizedType) rawType;
-                Type arg = pt.getActualTypeArguments()[0];
+                final ParameterizedType pt = (ParameterizedType) rawType;
+                final Type arg = pt.getActualTypeArguments()[0];
                 if (arg instanceof Class) {
                     elementType = (Class<?>) arg;
                 } else {
-                    throw new RuntimeException("The field " + f + " has unsupported collection type.");
+                    throw new ParserException("The field " + f + " has unsupported collection type.");
                 }
             } else {
-                throw new RuntimeException("The field " + f + " has unsupported collection type: "
+                throw new ParserException("The field " + f + " has unsupported collection type: "
                         + f.getGenericType().getClass().getCanonicalName());
             }
         }
@@ -206,7 +207,7 @@ public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<
     private Field field(final Class<?> c, final String name) {
         try {
             final String featureName = PropertyName.lowerCaseFeatureName(name);
-            HashMap<String, Field> classFields = fieldCache.get(c);
+            Map<String, Field> classFields = fieldCache.get(c);
             if (classFields == null) {
                 classFields = new HashMap<String, Field>();
                 fieldCache.put(c, classFields);
@@ -217,11 +218,11 @@ public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<
                 classFields.put(featureName, rc);
             }
             return rc;
-        } catch (Exception e) {
+        } catch (Exception e) { // NOPMD
             if (LOG.isErrorEnabled()) {
                 LOG.error("Unable to find field " + name + " in class " + c.getCanonicalName(), e);
             }
-            throw new RuntimeException("Unable to find field " + name + " in class " + c.getCanonicalName(), e);
+            throw new ParserException("Unable to find field " + name + " in class " + c.getCanonicalName(), e);
         }
     }
 }

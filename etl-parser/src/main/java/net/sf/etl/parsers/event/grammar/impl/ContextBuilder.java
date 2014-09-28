@@ -90,6 +90,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -101,7 +102,7 @@ import java.util.TreeMap;
  *
  * @author const
  */
-public final class ContextBuilder {
+public final class ContextBuilder { // NOPMD
     /**
      * The grammar builder for this context builder.
      */
@@ -113,7 +114,7 @@ public final class ContextBuilder {
     /**
      * The builders for operator levels.
      */
-    private final TreeMap<Integer, OperatorLevelBuilder> operatorLevels = new TreeMap<Integer, OperatorLevelBuilder>();
+    private final NavigableMap<Integer, OperatorLevelBuilder> operatorLevels = new TreeMap<Integer, OperatorLevelBuilder>();
     /**
      * The  context name.
      */
@@ -203,9 +204,8 @@ public final class ContextBuilder {
             actionBuilder = new ActionBuilder(this);
         }
         for (OpLevel l = contextView.allExpressionsLevel(); l != null; l = l.getPreviousLevel()) {
-            final OperatorLevelBuilder builder = new OperatorLevelBuilder(this, l);
+            final OperatorLevelBuilder builder = new OperatorLevelBuilder(this, l); // NOPMD
             operatorLevels.put(l.getPrecedence(), builder);
-            builder.prepare();
         }
     }
 
@@ -266,7 +266,7 @@ public final class ContextBuilder {
      * Compile a sequence of context statements. This sequence might happen in
      * block or at top level of the source.
      */
-    private void buildStatementNodes() {
+    private void buildStatementNodes() { // NOPMD
         final ActionBuilder b = actionBuilder;
         final Element contextElement = contextView().reportingContext();
         b.startMarked(contextElement);
@@ -326,13 +326,13 @@ public final class ContextBuilder {
                 b.startSequence(definition);
                 // handle the case when def/ref has been used
                 final ObjectOp o = s.topObject(contextView);
-                if (def != s) {
+                if (def != s) { // NOPMD
                     b.startDefinition(def);
                 }
                 b.startObjectAtMark(o, def.convertName(o.getName()), wrappers);
                 b.commitMark(definition); // this statement tries to commit mark
                 // now body of root object is compiled
-                compileSyntax(new HashSet<DefinitionView>(), b, o.getSyntax());
+                compileSyntax(new HashSet<DefinitionView>(), b, o.getSyntax()); // NOPMD
                 // object ends here
                 final Node object = b.endObject();
                 if (object.matchesEmpty()) {
@@ -341,7 +341,7 @@ public final class ContextBuilder {
                         fallback = s;
                     }
                 }
-                if (def != s) {
+                if (def != s) { // NOPMD
                     b.endDefinition(); // def
                 }
                 b.endSequence();
@@ -379,7 +379,7 @@ public final class ContextBuilder {
      * @param b       the builder used for compilation.
      * @param body    the syntax to compile
      */
-    public void compileSyntax(final HashSet<DefinitionView> visited, final ActionBuilder b,
+    public void compileSyntax(final Set<DefinitionView> visited, final ActionBuilder b, // NOPMD
                               final Syntax body) {
         if (body instanceof BlockRef) {
             final BlockRef s = (BlockRef) body;
@@ -420,7 +420,7 @@ public final class ContextBuilder {
                     Wrapper w = m.getWrapper();
                     w = w == null ? defaultWrapper : w;
                     final boolean isList = match("+=", let.getOperator());
-                    b.startProperty(let, new PropertyName(text(let.getName())), isList);
+                    b.startProperty(let, new PropertyName(text(let.getName())), isList); // NOPMD
                     b.startWrapper(w);
                     b.tokenText(m, Terms.VALUE, SyntaxRole.MODIFIER, m.getValue());
                     b.endWrapper(w);
@@ -470,10 +470,10 @@ public final class ContextBuilder {
             b.startFirstChoice(s);
             compileSyntax(visited, b, s.getFirst());
             compileSyntax(visited, b, s.getSecond());
-            FirstChoiceNode n = b.endFirstChoice();
-            ListIterator<Node> i = n.nodes().listIterator(n.nodes().size() - 1);
+            final FirstChoiceNode n = b.endFirstChoice();
+            final ListIterator<Node> i = n.nodes().listIterator(n.nodes().size() - 1);
             while (i.hasPrevious()) {
-                Node a = i.previous();
+                final Node a = i.previous();
                 if (a.matchesEmpty()) {
                     error(b, s.getFirst(), "grammar.Modifiers.firstChoiceEmptyFirst");
                 }
@@ -509,7 +509,7 @@ public final class ContextBuilder {
             String quote;
             try {
                 quote = LiteralUtils.parseString(text(s.getQuote()));
-            } catch (final Exception ex) {
+            } catch (final Exception ex) { // NOPMD
                 // do nothing, quote will stay as null
                 quote = null;
             }
@@ -525,7 +525,7 @@ public final class ContextBuilder {
                         break;
                     default:
                         b.startChoice(s);
-                        for (Token prefix : s.getPrefix()) {
+                        for (final Token prefix : s.getPrefix()) {
                             compileString(b, s, quote, text(prefix));
                         }
                         b.endChoice();
@@ -561,7 +561,7 @@ public final class ContextBuilder {
                 // TODO beter error if not choice
                 final List<ChoiceCaseDefView> choices = contextView.choices(b.topDefinition(), s);
                 b.startChoice(s);
-                for (ChoiceCaseDefView choiceCaseDefView : choices) {
+                for (final ChoiceCaseDefView choiceCaseDefView : choices) {
                     if (visited.contains(choiceCaseDefView)) {
                         error(b, body, "grammar.Ref.cyclicRef", s.getName(), contextView.name(),
                                 contextView.grammar().getSystemId());
@@ -595,7 +595,7 @@ public final class ContextBuilder {
             compileSyntax(visited, b, s.getSyntax());
             b.endSequence();
         } else {
-            throw new RuntimeException("[BUG]Unknown syntax element: " + body);
+            throw new IllegalStateException("[BUG]Unknown syntax element: " + body);
         }
     }
     // CHECKSTYLE:ON
@@ -608,7 +608,7 @@ public final class ContextBuilder {
      * @return the parsed value
      */
     private Integer parseInteger(final Token token, final String systemId) {
-        String t = text(token);
+        final String t = text(token);
         if (t == null) {
             return null;
         }
@@ -620,7 +620,7 @@ public final class ContextBuilder {
             } else {
                 try {
                     return numberInfo.parseInt();
-                } catch (Exception e) {
+                } catch (Exception e) { // NOPMD
                     // unable to parse error
                     error(new ErrorInfo("grammar.Number.tooBig", Collections.<Object>singletonList(token.text()),
                             new SourceLocation(token.start(), token.end(), systemId), null));
@@ -687,7 +687,7 @@ public final class ContextBuilder {
             compileNumberWithSuffix(b, s, suffixKind, text(s.getSuffix().get(0)));
         } else {
             b.startChoice(s);
-            for (Token suffix : s.getSuffix()) {
+            for (final Token suffix : s.getSuffix()) {
                 compileNumberWithSuffix(b, s, suffixKind, text(suffix));
             }
             b.endChoice();
@@ -704,7 +704,7 @@ public final class ContextBuilder {
      */
     private void compileNumberWithSuffix(final ActionBuilder b, final NumberOp s,
                                          final Tokens suffixKind, final String suffix) {
-        char ch = suffix.charAt(0);
+        final char ch = suffix.charAt(0);
         if (ch == 'E' || ch == 'e' || ch == '_') {
             error(b, s, "grammar.NumberOp.invalidSuffix", s.getSuffix());
         }
@@ -866,7 +866,7 @@ public final class ContextBuilder {
      * @param b         the state machine builder used by compiler
      * @param statement the statement to compile
      */
-    private void compileSyntaxStatement(final HashSet<DefinitionView> visited,
+    private void compileSyntaxStatement(final Set<DefinitionView> visited,
                                         final ActionBuilder b, final SyntaxStatement statement) {
         if (statement instanceof BlankSyntaxStatement) {
             // compile empty sequence. This sequence is to be optimized out.
@@ -890,7 +890,7 @@ public final class ContextBuilder {
                     compileSyntax(visited, b, s.getExpression());
                     b.endProperty();
                 } else {
-                    throw new RuntimeException("[BUG]Unknown operator: " + op);
+                    throw new IllegalStateException("[BUG]Unknown operator: " + op);
                 }
             }
         } else if (statement instanceof KeywordStatement) {
@@ -911,7 +911,7 @@ public final class ContextBuilder {
      * @param b       the builder to use
      * @param list    the list of statements to compile
      */
-    public void compileSyntax(final HashSet<DefinitionView> visited, final ActionBuilder b, final List<?> list) {
+    public void compileSyntax(final Set<DefinitionView> visited, final ActionBuilder b, final List<?> list) {
         for (final Object o : list) {
             if (o instanceof Syntax) {
                 final Syntax s = (Syntax) o;

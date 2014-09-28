@@ -32,6 +32,10 @@ import java.io.Serializable;
  */
 public final class ResourceReference implements Serializable {
     /**
+     * UID.
+     */
+    private static final long serialVersionUID = 1461385237448837546L;
+    /**
      * The system id.
      */
     private final String systemId;
@@ -68,14 +72,22 @@ public final class ResourceReference implements Serializable {
     @Override
     public boolean equals(final Object o) {
         //CHECKSTYLE:OFF
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-        ResourceReference that = (ResourceReference) o;
+        final ResourceReference that = (ResourceReference) o;
 
-        if (publicId != null ? !publicId.equals(that.publicId) : that.publicId != null) return false;
+        if (publicId != null ? !publicId.equals(that.publicId) : that.publicId != null) {
+            return false;
+        }
         //noinspection RedundantIfStatement
-        if (systemId != null ? !systemId.equals(that.systemId) : that.systemId != null) return false;
+        if (systemId != null ? !systemId.equals(that.systemId) : that.systemId != null) {
+            return false;
+        }
 
         return true;
         //CHECKSTYLE:ON

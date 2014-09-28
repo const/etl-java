@@ -35,6 +35,7 @@ import net.sf.etl.parsers.event.grammar.impl.flattened.OpLevel;
 import net.sf.etl.parsers.event.unstable.model.grammar.Element;
 
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The builder for single operator level.
@@ -53,7 +54,7 @@ public final class OperatorLevelBuilder {
     /**
      * The state machine builder associated.
      */
-    private ActionBuilder b;
+    private final ActionBuilder b;
 
     /**
      * The constructor.
@@ -65,13 +66,6 @@ public final class OperatorLevelBuilder {
         super();
         this.level = l;
         this.contextBuilder = builder;
-    }
-
-    /**
-     * Prepare builder.
-     */
-    public void prepare() {
-        // TODO  why not constructor?
         b = new ActionBuilder(contextBuilder);
     }
 
@@ -89,7 +83,7 @@ public final class OperatorLevelBuilder {
     /**
      * Compile normal level.
      */
-    private void compileNormalLevel() {
+    private void compileNormalLevel() { // NOPMD
         final ActionBuilder previousLevel = getPreviousBuilder();
         final HashSet<DefinitionView> visited = new HashSet<DefinitionView>();
         final Element contextElement = contextBuilder.contextView().reportingContext();
@@ -200,7 +194,7 @@ public final class OperatorLevelBuilder {
      * @param previousLevel the previous level
      * @param visited       the visited builders
      */
-    private void compileYfAndYfx(final ActionBuilder previousLevel, final HashSet<DefinitionView> visited) {
+    private void compileYfAndYfx(final ActionBuilder previousLevel, final Set<DefinitionView> visited) {
         for (final OpDefinitionView d : level.getYFX()) {
             b.startDefinition(d);
             b.startSequence(d.operator());
@@ -274,12 +268,12 @@ public final class OperatorLevelBuilder {
      * @param visited visited definitions
      * @param d       definition view for operator
      */
-    private void compileOpText(final HashSet<DefinitionView> visited, final OpDefinitionView d) {
+    private void compileOpText(final Set<DefinitionView> visited, final OpDefinitionView d) {
         if (d.isComposite()) {
             contextBuilder.compileSyntax(visited, b, d.operatorStatements(contextBuilder.contextView()));
         } else {
             b.startChoice(d.operator());
-            for (Token token : d.operator().getText()) {
+            for (final Token token : d.operator().getText()) {
                 b.tokenText(d.operator(), Terms.STRUCTURAL, SyntaxRole.OPERATOR, token);
             }
             b.endChoice();
@@ -309,8 +303,7 @@ public final class OperatorLevelBuilder {
      */
     private ActionBuilder getPreviousBuilder() {
         final int previousPrecedence = level.getPreviousLevel().getPrecedence();
-        final OperatorLevelBuilder lb = contextBuilder.levelBuilder(previousPrecedence);
-        return lb.b;
+        return contextBuilder.levelBuilder(previousPrecedence).b;
     }
 
     /**
@@ -324,7 +317,8 @@ public final class OperatorLevelBuilder {
         for (final OpDefinitionView op : level.getF()) {
             b.startDefinition(op.topObjectDefinition(contextBuilder.contextView()));
             b.startSequence(op.operator());
-            contextBuilder.compileSyntax(new HashSet<DefinitionView>(), b, op.topObject(contextBuilder.contextView()));
+            contextBuilder.compileSyntax(new HashSet<DefinitionView>(), //NOPMD
+                    b, op.topObject(contextBuilder.contextView()));
             b.endSequence();
             b.endDefinition();
         }

@@ -79,7 +79,7 @@ public final class Cell<T> {
      */
     public void put(final T newValue) {
         if (newValue == null) {
-            throw new NullPointerException("The supplied element could not be null.");
+            throw new IllegalArgumentException("The supplied element could not be null.");
         }
         if (this.element != null) {
             throw new IllegalStateException("The cell already has element: " + this.element

@@ -32,6 +32,8 @@ import net.sf.etl.parsers.streams.LexerReader;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The default term parser configuration (intended for command line tools), that does not distinguish
@@ -61,7 +63,7 @@ public final class DefaultTermParserConfiguration implements TermParserConfigura
     /**
      * The grammar cache.
      */
-    private final HashMap<String, CompiledGrammar> grammarCache = new HashMap<String, CompiledGrammar>();
+    private final Map<String, CompiledGrammar> grammarCache = new HashMap<String, CompiledGrammar>(); //NOPMD
 
     /**
      * The constructor from fields.
@@ -89,7 +91,7 @@ public final class DefaultTermParserConfiguration implements TermParserConfigura
         try {
             final String property = System.getProperty(ETL_FILE_ENCODING_PROPERTY, "UTF-8");
             return Charset.forName(property);
-        } catch (Exception ex) {
+        } catch (Exception ex) { // NOPMD
             return LexerReader.UTF8;
         }
     }
@@ -100,7 +102,7 @@ public final class DefaultTermParserConfiguration implements TermParserConfigura
     private static int getDefaultTabSize() {
         try {
             return Integer.parseInt(System.getProperty(ETL_TAB_SIZE_PROPERTY, "8"));
-        } catch (Exception ex) {
+        } catch (Exception ex) { // NOPMD
             return Whitespaces.DEFAULT_TAB_SIZE;
         }
     }
@@ -122,7 +124,7 @@ public final class DefaultTermParserConfiguration implements TermParserConfigura
     @Override
     public void cacheGrammar(final CompiledGrammar grammar) {
         synchronized (grammarCache) {
-            HashSet<String> cachedGrammars = new HashSet<String>();
+            final HashSet<String> cachedGrammars = new HashSet<String>();
             cacheGrammar(cachedGrammars, grammar);
         }
     }
@@ -134,18 +136,18 @@ public final class DefaultTermParserConfiguration implements TermParserConfigura
      * @param cachedGrammars the grammars cached in this pass
      * @param grammar        the cached grammar
      */
-    private void cacheGrammar(final HashSet<String> cachedGrammars, final CompiledGrammar grammar) {
+    private void cacheGrammar(final Set<String> cachedGrammars, final CompiledGrammar grammar) {
         final String systemId = grammar.getDescriptor().getSystemId();
         if (!cachedGrammars.add(systemId)) {
             grammarCache.put(systemId, grammar);
-            for (CompiledGrammar other : grammar.getOtherGrammars()) {
+            for (final CompiledGrammar other : grammar.getOtherGrammars()) {
                 cacheGrammar(cachedGrammars, other);
             }
         }
     }
 
     @Override
-    public Charset getEncoding(String systemId) {
+    public Charset getEncoding(final String systemId) {
         return encoding;
     }
 }

@@ -29,7 +29,7 @@ package net.sf.etl.parsers;
  *
  * @author const
  */
-public abstract class AbstractToken {
+public abstract class AbstractToken { // NOPMD
     /**
      * a end position of token.
      */
@@ -52,10 +52,10 @@ public abstract class AbstractToken {
      */
     protected AbstractToken(final TextPos start, final TextPos end, final ErrorInfo errorInfo) {
         if (start == null) {
-            throw new NullPointerException("Start must not be null");
+            throw new IllegalArgumentException("Start must not be null");
         }
         if (end == null) {
-            throw new NullPointerException("End must not be null");
+            throw new IllegalArgumentException("End must not be null");
         }
         this.start = start;
         this.end = end;

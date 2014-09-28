@@ -37,20 +37,20 @@ public class PlusOp extends Expression {
     /**
      * summands
      */
-    Expression[] summands;
+    private Expression[] summands;
 
     /**
      * @return Returns the summands.
      */
     public Expression[] getSummands() {
-        return summands;
+        return summands == null ? null : summands.clone(); // NOPMD
     }
 
     /**
      * @param summands The summands to set.
      */
-    public void setSummands(Expression[] summands) {
-        this.summands = summands;
+    public void setSummands(final Expression[] summands) {
+        this.summands = summands == null ? null : summands.clone();
     }
 
 }

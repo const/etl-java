@@ -58,9 +58,9 @@ final class ActionUtil {
      * @param atMark     if true, object should be started at mark
      * @return a report object state
      */
-    static StructuralTokenAction startObject(final SourceLocation source, final Action bodyStates,
-                                             final ObjectName name, final WrapperLink wrappers,
-                                             final boolean atMark) {
+    public static StructuralTokenAction startObject(final SourceLocation source, final Action bodyStates,
+                                                    final ObjectName name, final WrapperLink wrappers,
+                                                    final boolean atMark) {
         return new StructuralTokenAction(source, startIncludeWrappers(bodyStates, wrappers),
                 Terms.OBJECT_START, name, atMark);
     }
@@ -96,8 +96,8 @@ final class ActionUtil {
      * @param wrappers   the wrappers of the object
      * @return the generated state
      */
-    static StructuralTokenAction endObject(final SourceLocation source, final Action normalExit, final ObjectName name,
-                                           final WrapperLink wrappers) {
+    public static StructuralTokenAction endObject(final SourceLocation source, final Action normalExit, final ObjectName name,
+                                                  final WrapperLink wrappers) {
         return new StructuralTokenAction(source, endIncludeWrappers(normalExit, wrappers),
                 Terms.OBJECT_END, name, false);
     }
@@ -135,7 +135,7 @@ final class ActionUtil {
      */
     public static ReportErrorAction createReportErrorAction(final SourceLocation source, final Action errorExit,
                                                             final String errorId, final Object... args) {
-        CallAction recovery = new CallAction(source);
+        final CallAction recovery = new CallAction(source);
         recovery.setStateFactory(RecoveryStateFactory.INSTANCE);
         recovery.setSuccess(errorExit);
         recovery.setFailure(errorExit);

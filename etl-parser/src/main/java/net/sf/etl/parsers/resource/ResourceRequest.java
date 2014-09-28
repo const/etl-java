@@ -32,6 +32,10 @@ import java.io.Serializable;
  */
 public final class ResourceRequest implements Serializable {
     /**
+     * UID.
+     */
+    private static final long serialVersionUID = 8235987917918078795L;
+    /**
      * The resource reference.
      */
     private final ResourceReference resource;
@@ -73,14 +77,22 @@ public final class ResourceRequest implements Serializable {
     @Override
     public boolean equals(final Object o) {
         //CHECKSTYLE:OFF
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-        ResourceRequest that = (ResourceRequest) o;
+        final ResourceRequest that = (ResourceRequest) o;
 
-        if (resource != null ? !resource.equals(that.resource) : that.resource != null) return false;
+        if (resource != null ? !resource.equals(that.resource) : that.resource != null) {
+            return false;
+        }
         //noinspection RedundantIfStatement
-        if (role != null ? !role.equals(that.role) : that.role != null) return false;
+        if (role != null ? !role.equals(that.role) : that.role != null) {
+            return false;
+        }
 
         return true;
         //CHECKSTYLE:ON

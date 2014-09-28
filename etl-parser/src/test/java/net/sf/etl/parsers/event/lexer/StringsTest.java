@@ -49,7 +49,7 @@ public class StringsTest extends LexerTestCase {
         single("\"test\"", TokenKey.quoted(Tokens.STRING, null, QuoteClass.DOUBLE_QUOTE));
     }
 
-    private void checkSingleStringToken(String text, int quote) {
+    private void checkSingleStringToken(final String text, final int quote) {
         single(text, TokenKey.string(Tokens.STRING, quote));
     }
 
@@ -57,11 +57,11 @@ public class StringsTest extends LexerTestCase {
      * test multiline strings
      */
     @Test
-    public void testMutlitLineStrings() {
+    public void testMultiLineStrings() {
         single("\"\"\"night,\n" +
-                "morning,\n" +
-                "day,\n" +
-                "evening\"\"\"",
+                        "morning,\n" +
+                        "day,\n" +
+                        "evening\"\"\"",
                 TokenKey.quoted(Tokens.MULTILINE_STRING, null, QuoteClass.DOUBLE_QUOTE));
         checkSingleMultilineStringToken("\"\"\"simple string\"\"\"", '\"');
         checkSingleMultilineStringToken("\"\"\"simple \n string\"\"\"", '\"');
@@ -69,7 +69,7 @@ public class StringsTest extends LexerTestCase {
         checkSingleMultilineStringToken("\"\"\"simple \ntest\n string\"\"\"", '\"');
     }
 
-    private void checkSingleMultilineStringToken(String text, int quote) {
+    private void checkSingleMultilineStringToken(final String text, final int quote) {
         single(text, TokenKey.string(Tokens.MULTILINE_STRING, quote));
     }
 

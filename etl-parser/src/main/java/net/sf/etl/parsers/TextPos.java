@@ -121,15 +121,25 @@ public final class TextPos implements Serializable {
     @Override
     public boolean equals(final Object o) {
         // CHECKSTYLE:OFF
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-        TextPos textPos = (TextPos) o;
+        final TextPos textPos = (TextPos) o;
 
-        if (column != textPos.column) return false;
-        if (line != textPos.line) return false;
+        if (column != textPos.column) {
+            return false;
+        }
+        if (line != textPos.line) {
+            return false;
+        }
         //noinspection RedundantIfStatement
-        if (offset != textPos.offset) return false;
+        if (offset != textPos.offset) {
+            return false;
+        }
 
         return true;
         // CHECKSTYLE:ON

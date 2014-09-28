@@ -36,7 +36,7 @@ public class ChoiceTest extends TermStructureTestCase {
     /**
      * Namespace to use
      */
-    public static final String ns = "urn:test.Choice";
+    public static final String NS = "urn:test.Choice";
 
     @Test
     public void testA() {
@@ -44,14 +44,14 @@ public class ChoiceTest extends TermStructureTestCase {
         boolean errorExit = true;
         try {
             readDocType("script", "\"Choice.g.etl\"", "TestContext");
-            objectStart(ns, "TestStatement");
+            objectStart(NS, "TestStatement");
             propStart("Value");
             value("a");
             propEnd("Value");
-            objectEnd(ns, "TestStatement");
-            objectStart(ns, "TestStatement");
+            objectEnd(NS, "TestStatement");
+            objectStart(NS, "TestStatement");
             readError(Terms.SYNTAX_ERROR);
-            objectEnd(ns, "TestStatement");
+            objectEnd(NS, "TestStatement");
             errorExit = false;
         } finally {
             endParsing(errorExit);
@@ -64,19 +64,19 @@ public class ChoiceTest extends TermStructureTestCase {
         boolean errorExit = true;
         try {
             readDocType("script", "\"Choice.g.etl\"", null);
-            objectStart(ns, "TestStatement");
+            objectStart(NS, "TestStatement");
             propStart("Value");
             value("a");
             propEnd("Value");
-            objectEnd(ns, "TestStatement");
-            objectStart(ns, "TestStatement");
+            objectEnd(NS, "TestStatement");
+            objectStart(NS, "TestStatement");
             propStart("Value");
             value("b");
             propEnd("Value");
-            objectEnd(ns, "TestStatement");
-            objectStart(ns, "TestStatement");
+            objectEnd(NS, "TestStatement");
+            objectStart(NS, "TestStatement");
             readError(Terms.SYNTAX_ERROR);
-            objectEnd(ns, "TestStatement");
+            objectEnd(NS, "TestStatement");
             errorExit = false;
         } finally {
             endParsing(errorExit);
@@ -89,24 +89,24 @@ public class ChoiceTest extends TermStructureTestCase {
         boolean errorExit = true;
         try {
             readDocType(null, "\"ChoiceExt.g.etl\"", null);
-            objectStart(ns, "TestStatement");
+            objectStart(NS, "TestStatement");
             propStart("Value");
             value("a");
             propEnd("Value");
-            objectEnd(ns, "TestStatement");
-            objectStart(ns, "TestStatement");
+            objectEnd(NS, "TestStatement");
+            objectStart(NS, "TestStatement");
             readError(Terms.SYNTAX_ERROR);
-            objectEnd(ns, "TestStatement");
-            objectStart(ns, "TestStatement");
+            objectEnd(NS, "TestStatement");
+            objectStart(NS, "TestStatement");
             propStart("Value");
             value("B");
             propEnd("Value");
-            objectEnd(ns, "TestStatement");
-            objectStart(ns, "TestStatement");
+            objectEnd(NS, "TestStatement");
+            objectStart(NS, "TestStatement");
             propStart("Value");
             value("c");
             propEnd("Value");
-            objectEnd(ns, "TestStatement");
+            objectEnd(NS, "TestStatement");
             errorExit = false;
         } finally {
             endParsing(errorExit);

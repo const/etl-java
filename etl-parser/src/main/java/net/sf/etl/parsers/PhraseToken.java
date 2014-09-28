@@ -50,7 +50,7 @@ public final class PhraseToken extends AbstractToken {
     public PhraseToken(final PhraseTokens kind, final Token token, final ErrorInfo errors) {
         super(token.start(), token.end(), errors);
         if (kind == null) {
-            throw new NullPointerException("Kind must not be null");
+            throw new IllegalArgumentException("Kind must not be null");
         }
         switch (kind) {
             case SIGNIFICANT:
@@ -82,7 +82,7 @@ public final class PhraseToken extends AbstractToken {
     public PhraseToken(final PhraseTokens kind, final TextPos position, final ErrorInfo errors) {
         super(position, position, errors);
         if (kind == null) {
-            throw new NullPointerException("Kind must not be null");
+            throw new IllegalArgumentException("Kind must not be null");
         }
         switch (kind) {
             case END_BLOCK:

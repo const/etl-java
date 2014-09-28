@@ -78,6 +78,7 @@ public final class LookAheadSet {
      * A constructor that starts with empty set.
      */
     public LookAheadSet() {
+        // do nothing
     }
 
     /**
@@ -278,7 +279,7 @@ public final class LookAheadSet {
     /**
      * The entry in look ahead set.
      */
-    public abstract static class Entry {
+    public abstract static class Entry { // NOPMD
         /**
          * The source location.
          */
@@ -315,9 +316,13 @@ public final class LookAheadSet {
         @Override
         public boolean equals(final Object o) {
             //CHECKSTYLE:OFF
-            if (this == o) return true;
+            if (this == o) {
+                return true;
+            }
             //noinspection RedundantIfStatement
-            if (o == null || getClass() != o.getClass()) return false;
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             return true;
             //CHECKSTYLE:ON
@@ -355,9 +360,13 @@ public final class LookAheadSet {
         @Override
         public boolean equals(final Object o) {
             //CHECKSTYLE:OFF
-            if (this == o) return true;
+            if (this == o) {
+                return true;
+            }
             //noinspection RedundantIfStatement
-            if (o == null || getClass() != o.getClass()) return false;
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             return true;
             //CHECKSTYLE:ON
@@ -407,13 +416,19 @@ public final class LookAheadSet {
         @Override
         public boolean equals(final Object o) {
             //CHECKSTYLE:OFF
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
-            TokenKeyEntry that = (TokenKeyEntry) o;
+            final TokenKeyEntry that = (TokenKeyEntry) o;
 
             //noinspection RedundantIfStatement
-            if (!key.equals(that.key)) return false;
+            if (!key.equals(that.key)) {
+                return false;
+            }
 
             return true;
             //CHECKSTYLE:ON
@@ -437,7 +452,7 @@ public final class LookAheadSet {
                 }
                 if (quoteClass != null) {
                     if (modifier != null) {
-                        sb.append(",");
+                        sb.append(',');
                     }
                     sb.append("\'\\");
                     sb.appendCodePoint(quoteClass.sample());
@@ -482,13 +497,19 @@ public final class LookAheadSet {
         @Override
         public boolean equals(final Object o) {
             //CHECKSTYLE:OFF
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
-            PhraseEntry that = (PhraseEntry) o;
+            final PhraseEntry that = (PhraseEntry) o;
 
             //noinspection RedundantIfStatement
-            if (kind != that.kind) return false;
+            if (kind != that.kind) {
+                return false;
+            }
 
             return true;
             //CHECKSTYLE:ON
@@ -538,13 +559,19 @@ public final class LookAheadSet {
         @Override
         public boolean equals(final Object o) {
             //CHECKSTYLE:OFF
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
-            KeywordEntry that = (KeywordEntry) o;
+            final KeywordEntry that = (KeywordEntry) o;
 
             //noinspection RedundantIfStatement
-            if (!keyword.equals(that.keyword)) return false;
+            if (!keyword.equals(that.keyword)) {
+                return false;
+            }
 
             return true;
             //CHECKSTYLE:ON

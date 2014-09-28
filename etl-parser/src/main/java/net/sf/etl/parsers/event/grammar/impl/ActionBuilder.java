@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.event.grammar.impl;
+package net.sf.etl.parsers.event.grammar.impl; // NOPMD
 
 import net.sf.etl.parsers.DefinitionContext;
 import net.sf.etl.parsers.DefinitionInfo;
@@ -68,6 +68,7 @@ import net.sf.etl.parsers.event.unstable.model.grammar.Element;
 import net.sf.etl.parsers.event.unstable.model.grammar.Wrapper;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -77,7 +78,7 @@ import java.util.Set;
  *
  * @author const
  */
-public final class ActionBuilder {
+public final class ActionBuilder { //NOPMD
     /**
      * the stack of nodes.
      */
@@ -85,7 +86,7 @@ public final class ActionBuilder {
     /**
      * the stack of definitions.
      */
-    private final ArrayList<DefinitionView> definitionStack = new ArrayList<DefinitionView>();
+    private final List<DefinitionView> definitionStack = new ArrayList<DefinitionView>();
     /**
      * the context compiler, it is used for error reporting.
      */
@@ -93,7 +94,7 @@ public final class ActionBuilder {
     /**
      * The call nodes that reference this state builder factory.
      */
-    private final ArrayList<CallAction> referrers = new ArrayList<CallAction>();
+    private final List<CallAction> referrers = new ArrayList<CallAction>();
     /**
      * the node to return.
      */
@@ -454,7 +455,7 @@ public final class ActionBuilder {
      * @param token the text of the node (must be in the same source as element)
      */
     public void tokenText(final Element e, final Terms kind, final SyntaxRole role, final Token token) {
-        TokenKey key = token.key();
+        final TokenKey key = token.key();
         switch (key.kind()) {
             case STRING:
             case INTEGER_WITH_SUFFIX:
@@ -729,7 +730,7 @@ public final class ActionBuilder {
                         new ReturnAction(returnNode.getSource(), true),
                         new ReturnAction(returnNode.getSource(), false),
                         RecoveryVoteAction.NO_RECOVERY));
-        for (CallAction referrer : referrers) {
+        for (final CallAction referrer : referrers) {
             referrer.setStateFactory(targetFactory);
         }
         referrers.clear();

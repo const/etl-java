@@ -79,15 +79,25 @@ public final class DefinitionInfo {
     @Override
     public boolean equals(final Object o) {
         // CHECKSTYLE:OFF
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-        DefinitionInfo that = (DefinitionInfo) o;
+        final DefinitionInfo that = (DefinitionInfo) o;
 
-        if (context != null ? !context.equals(that.context) : that.context != null) return false;
-        if (location != null ? !location.equals(that.location) : that.location != null) return false;
+        if (context != null ? !context.equals(that.context) : that.context != null) {
+            return false;
+        }
+        if (location != null ? !location.equals(that.location) : that.location != null) {
+            return false;
+        }
         //noinspection RedundantIfStatement
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
 
         return true;
         // CHECKSTYLE:ON

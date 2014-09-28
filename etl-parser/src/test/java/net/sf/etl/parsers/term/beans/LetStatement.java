@@ -38,17 +38,17 @@ public class LetStatement extends Statement implements TokenCollector {
      */
     private static final long serialVersionUID = -8827443002800538040L;
     /**
+     * the text of the statement
+     */
+    private final StringBuilder text = new StringBuilder(); // NOPMD
+    /**
      * name of value
      */
-    String name;
+    private String name;
     /**
      * value
      */
-    Expression value;
-    /**
-     * the text of the statement
-     */
-    private StringBuilder text = new StringBuilder();
+    private Expression value;
 
     /**
      * @return Returns the name.
@@ -60,7 +60,7 @@ public class LetStatement extends Statement implements TokenCollector {
     /**
      * @param name The name to set.
      */
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -74,7 +74,7 @@ public class LetStatement extends Statement implements TokenCollector {
     /**
      * @param value The value to set.
      */
-    public void setValue(Expression value) {
+    public void setValue(final Expression value) {
         this.value = value;
     }
 
@@ -85,7 +85,8 @@ public class LetStatement extends Statement implements TokenCollector {
         return text.toString();
     }
 
-    public void collect(TermToken token) {
+    @Override
+    public void collect(final TermToken token) {
         if (token.hasLexicalToken()) {
             text.append(token.token().token().text());
         }

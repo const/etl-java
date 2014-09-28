@@ -30,6 +30,6 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
  *
  * @author const
  */
-public abstract class Element extends EObject {
+public abstract class Element extends EObject { // NOPMD
 
 }

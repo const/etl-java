@@ -77,7 +77,7 @@ public class GathererTest {
         leaf.makeDef("g");
         final Gatherer g = new Gatherer();
         final List<Holder> l = graph.topologicalSortObjects();
-        for (Holder aL : l) {
+        for (final Holder aL : l) {
             g.gatherDefinitions(aL);
         }
         assertSame(leaf.def("a").holder, m1);
@@ -129,7 +129,7 @@ public class GathererTest {
         leaf.makeImport("g", leaf);
         final ImportGatherer g = new ImportGatherer();
         final List<Holder> l = graph.topologicalSortObjects();
-        for (Holder aL : l) {
+        for (final Holder aL : l) {
             g.gatherDefinitions(aL);
         }
         assertSame(leaf.importDef("a").referencedHolder, m1);
@@ -148,15 +148,15 @@ public class GathererTest {
     /**
      * test definition class
      */
-    class Definition {
+    private class Definition {
         /**
          * a key of definition
          */
-        final String key;
+        public final String key;
         /**
          * a holder
          */
-        final Holder holder;
+        public final Holder holder;
 
         /**
          * A constructor
@@ -164,7 +164,7 @@ public class GathererTest {
          * @param holder a holder of definition
          * @param key    a key of definition
          */
-        Definition(Holder holder, String key) {
+        private Definition(final Holder holder, final String key) {
             this.key = key;
             this.holder = holder;
         }
@@ -173,15 +173,15 @@ public class GathererTest {
     /**
      * test definition class
      */
-    class ImportDefinition extends Definition {
+    private class ImportDefinition extends Definition {
         /**
          * an imported holder
          */
-        final Holder referencedHolder;
+        public final Holder referencedHolder;
         /**
          * an original definition
          */
-        final ImportDefinition original;
+        public final ImportDefinition original;
 
         /**
          * A constructor
@@ -190,7 +190,7 @@ public class GathererTest {
          * @param key              a key of definition
          * @param referencedHolder referenced object
          */
-        ImportDefinition(Holder holder, String key, Holder referencedHolder) {
+        public ImportDefinition(final Holder holder, final String key, final Holder referencedHolder) {
             super(holder, key);
             this.referencedHolder = referencedHolder;
             this.original = this;
@@ -202,7 +202,7 @@ public class GathererTest {
          * @param holder a holder of definition
          * @param def    an original definition
          */
-        ImportDefinition(Holder holder, ImportDefinition def) {
+        public ImportDefinition(final Holder holder, final ImportDefinition def) {
             super(holder, def.key);
             this.referencedHolder = def.referencedHolder;
             this.original = def.original;
@@ -213,24 +213,24 @@ public class GathererTest {
     /**
      * Test holder class
      */
-    class Holder {
+    private class Holder {
         /**
          * a node of this holder
          */
-        final Node<Holder> node;
+        public final Node<Holder> node;
         /**
          * a definition map of this holder
          */
-        final Map<String, Definition> definitions = new HashMap<String, Definition>();
+        public final Map<String, Definition> definitions = new HashMap<String, Definition>(); // NOPMD
         /**
          * a definition map of this holder
          */
-        final Map<String, ImportDefinition> imports = new HashMap<String, ImportDefinition>();
+        public final Map<String, ImportDefinition> imports = new HashMap<String, ImportDefinition>(); // NOPMD
 
         /**
          * @param graph a graph to which this holder belongs
          */
-        public Holder(DirectedAcyclicGraph<Holder> graph) {
+        public Holder(final DirectedAcyclicGraph<Holder> graph) {
             super();
             this.node = graph.getNode(this);
         }
@@ -241,7 +241,7 @@ public class GathererTest {
          * @param key a key
          * @return created definition;
          */
-        public Definition def(String key) {
+        public Definition def(final String key) {
             return definitions.get(key);
         }
 
@@ -251,7 +251,7 @@ public class GathererTest {
          * @param key a key
          * @return created definition;
          */
-        public ImportDefinition importDef(String key) {
+        public ImportDefinition importDef(final String key) {
             return imports.get(key);
         }
 
@@ -261,7 +261,7 @@ public class GathererTest {
          * @param key a key
          * @return created definition;
          */
-        public Definition makeDef(String key) {
+        public Definition makeDef(final String key) {
             final Definition rc = new Definition(this, key);
             definitions.put(key, rc);
             return rc;
@@ -274,7 +274,7 @@ public class GathererTest {
          * @param ref referenced context
          * @return created definition;
          */
-        public ImportDefinition makeImport(String key, Holder ref) {
+        public ImportDefinition makeImport(final String key, final Holder ref) {
             final ImportDefinition rc = new ImportDefinition(this, key, ref);
             imports.put(key, rc);
             return rc;
@@ -285,11 +285,11 @@ public class GathererTest {
     /**
      * Test gatherer over holder
      */
-    class Gatherer extends DefinitionGatherer<Holder, String, Definition> {
+    private class Gatherer extends DefinitionGatherer<Holder, String, Definition> {
         /**
          * duplicate nodes
          */
-        final HashMap<Object, DuplicateInfo> duplicates = new HashMap<Object, DuplicateInfo>();
+        public final Map<Object, DuplicateInfo> duplicates = new HashMap<Object, DuplicateInfo>(); // NOPMD
 
         @Override
         protected Definition includingDefinition(final Holder sourceHolder, final Definition object) {
@@ -297,8 +297,8 @@ public class GathererTest {
         }
 
         @Override
-        protected void reportDuplicates(Holder sourceHolder, String key,
-                                        HashSet<Definition> duplicateNodes) {
+        protected void reportDuplicates(final Holder sourceHolder, final String key,
+                                        final Set<Definition> duplicateNodes) {
             final DuplicateInfo d = new DuplicateInfo();
             d.key = key;
             d.duplicateSourceHolder = sourceHolder;
@@ -307,22 +307,22 @@ public class GathererTest {
         }
 
         @Override
-        protected Node<Holder> getHolderNode(Holder definitionHolder) {
-            return (definitionHolder).node;
+        protected Node<Holder> getHolderNode(final Holder definitionHolder) {
+            return definitionHolder.node;
         }
 
         @Override
-        protected Node<Holder> definitionNode(Definition definition) {
+        protected Node<Holder> definitionNode(final Definition definition) {
             return definition.holder.node;
         }
 
         @Override
-        protected String definitionKey(Definition definition) {
+        protected String definitionKey(final Definition definition) {
             return definition.key;
         }
 
         @Override
-        protected Map<String, Definition> definitionMap(Holder holder) {
+        protected Map<String, Definition> definitionMap(final Holder holder) {
             return holder.definitions;
         }
 
@@ -331,36 +331,36 @@ public class GathererTest {
     /**
      * Test gatherer over holder
      */
-    class ImportGatherer extends
+    private class ImportGatherer extends
             ImportDefinitionGatherer<Holder, String, ImportDefinition, Holder> {
         /**
          * duplicate nodes
          */
-        final HashMap<Object, DuplicateInfo> duplicates = new HashMap<Object, DuplicateInfo>();
+        public final Map<Object, DuplicateInfo> duplicates = new HashMap<Object, DuplicateInfo>(); // NOPMD
 
         @Override
-        protected Node<Holder> getHolderNode(Holder definitionHolder) {
-            return (definitionHolder).node;
+        protected Node<Holder> getHolderNode(final Holder definitionHolder) {
+            return definitionHolder.node;
         }
 
         @Override
-        protected Node<Holder> definitionNode(ImportDefinition definition) {
+        protected Node<Holder> definitionNode(final ImportDefinition definition) {
             return definition.original.holder.node;
         }
 
         @Override
-        protected String definitionKey(ImportDefinition definition) {
+        protected String definitionKey(final ImportDefinition definition) {
             return definition.key;
         }
 
         @Override
-        protected Map<String, ImportDefinition> definitionMap(Holder holder) {
+        protected Map<String, ImportDefinition> definitionMap(final Holder holder) {
             return holder.imports;
         }
 
         @Override
-        protected void reportDuplicateImportError(Holder sourceHolder,
-                                                  String key) {
+        protected void reportDuplicateImportError(final Holder sourceHolder,
+                                                  final String key) {
             final DuplicateInfo d = new DuplicateInfo();
             d.key = key;
             d.duplicateSourceHolder = sourceHolder;
@@ -369,12 +369,12 @@ public class GathererTest {
         }
 
         @Override
-        protected Holder importedObject(ImportDefinition importDefinition) {
+        protected Holder importedObject(final ImportDefinition importDefinition) {
             return importDefinition.referencedHolder;
         }
 
         @Override
-        protected ImportDefinition includingDefinition(Holder sourceHolder, ImportDefinition object) {
+        protected ImportDefinition includingDefinition(final Holder sourceHolder, final ImportDefinition object) {
             return new ImportDefinition(sourceHolder, object);
         }
 
@@ -383,19 +383,19 @@ public class GathererTest {
     /**
      * This class represent duplicate node information reported by gatherer.
      */
-    class DuplicateInfo {
+    private class DuplicateInfo {
         /**
          * source holder reported for duplicates
          */
-        Object key;
+        public Object key;
         /**
          * source holder reported for duplicates
          */
-        Object duplicateSourceHolder;
+        public Object duplicateSourceHolder;
         /**
          * duplicate nodes
          */
-        HashSet<Definition> duplicates;
+        public Set<Definition> duplicates;
 
     }
 }

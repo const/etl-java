@@ -69,15 +69,7 @@ public final class DirectedAcyclicGraph<E> {
     /**
      * The map from objects to nodes.
      */
-    private final Map<E, Node<E>> objects = new IdentityHashMap<E, Node<E>>();
-
-    /**
-     * This call represent directed acyclic graph and also provides a number of
-     * operations on it.
-     */
-    public DirectedAcyclicGraph() {
-        super();
-    }
+    private final Map<E, Node<E>> objects = new IdentityHashMap<E, Node<E>>(); // NOPMD
 
     /**
      * Get node for object. If node already exists it is returned, otherwise it
@@ -158,7 +150,7 @@ public final class DirectedAcyclicGraph<E> {
         /**
          * The node rank.
          */
-        private int rank = 0;
+        private int rank;
 
         /**
          * The constructor.
@@ -175,7 +167,7 @@ public final class DirectedAcyclicGraph<E> {
          * minimize number of immediate children and parents of all nodes. This
          * is an optimization step in order not to consider indirect imports.
          */
-        void minimizeImmediate() {
+        public void minimizeImmediate() {
             // minimize children
             final HashSet<Node<E>> children = new HashSet<Node<E>>(
                     immediateChildren);
@@ -243,7 +235,7 @@ public final class DirectedAcyclicGraph<E> {
          * @return true if the pair was created or false if it would have created cycle
          */
         private boolean addPair(final Node<E> parent, final Node<E> child) {
-            if (child == parent) {
+            if (child == parent) { // NOPMD
                 return false;
             } else if (child.allChildren.contains(parent)) {
                 return false;
@@ -395,7 +387,7 @@ public final class DirectedAcyclicGraph<E> {
             // get map with definitions considered native.
             final Map<DefinitionKey, Definition> existingDefinitions = definitionMap(sourceNode);
             // this map contains definitions gathered from parent holders
-            final Map<DefinitionKey, HashSet<Definition>> allDefinitions =
+            final Map<DefinitionKey, HashSet<Definition>> allDefinitions = // NOPMD
                     new HashMap<DefinitionKey, HashSet<Definition>>();
             // iterate gather all immediate parents.
             for (final DefinitionHolder parentHolder : getHolderNode(sourceNode).immediateParents()) {
@@ -406,7 +398,7 @@ public final class DirectedAcyclicGraph<E> {
                     if (!existingDefinitions.containsKey(definitionFromParentKey)) {
                         HashSet<Definition> definitions = allDefinitions.get(definitionFromParentKey);
                         if (definitions == null) {
-                            definitions = new HashSet<Definition>();
+                            definitions = new HashSet<Definition>(); // NOPMD
                             allDefinitions.put(definitionFromParentKey, definitions);
                         }
                         // definition is ignored if it is already available by
@@ -475,7 +467,7 @@ public final class DirectedAcyclicGraph<E> {
          * @param duplicateNodes a set of duplicate definitions
          */
         protected abstract void reportDuplicates(DefinitionHolder sourceHolder,
-                                                 DefinitionKey key, HashSet<Definition> duplicateNodes);
+                                                 DefinitionKey key, Set<Definition> duplicateNodes);
 
         /**
          * Get an DAG node for definition holder.
@@ -527,7 +519,7 @@ public final class DirectedAcyclicGraph<E> {
             extends DefinitionGatherer<DefinitionHolder, DefinitionKey, Definition> {
         @Override
         protected final void reportDuplicates(final DefinitionHolder sourceHolder, final DefinitionKey key,
-                                              final HashSet<Definition> duplicateNodes) {
+                                              final Set<Definition> duplicateNodes) {
             ImportedObject importedObject = null;
             // in case of imports there is no conflict if all imports point to
             // the same place

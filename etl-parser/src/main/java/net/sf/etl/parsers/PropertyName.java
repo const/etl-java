@@ -46,8 +46,7 @@ public final class PropertyName {
     public PropertyName(final String name) {
         super();
         if (name == null) {
-            throw new NullPointerException(
-                    "Null is not allowed as property name");
+            throw new IllegalArgumentException("Null is not allowed as property name");
         }
         this.name = name;
     }
@@ -82,10 +81,14 @@ public final class PropertyName {
     @Override
     public boolean equals(final Object o) {
         //CHECKSTYLE:OFF
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-        PropertyName that = (PropertyName) o;
+        final PropertyName that = (PropertyName) o;
 
         return name.equals(that.name);
         //CHECKSTYLE:ON

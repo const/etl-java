@@ -37,7 +37,7 @@ public class IntegerLiteral extends Expression {
     /**
      * value of literal
      */
-    int value;
+    private int value;
 
     /**
      * @return Returns the value.
@@ -49,7 +49,7 @@ public class IntegerLiteral extends Expression {
     /**
      * @param value The value to set.
      */
-    public void setValue(int value) {
+    public void setValue(final int value) {
         this.value = value;
     }
 

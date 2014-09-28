@@ -35,6 +35,7 @@ import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.PhraseParser;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The phrase parser.
@@ -75,7 +76,7 @@ public final class PhraseParserImpl implements PhraseParser {
     /**
      * The stack of block positions.
      */
-    private final ArrayList<TextPos> blockStarts = new ArrayList<TextPos>();
+    private final List<TextPos> blockStarts = new ArrayList<TextPos>();
     /**
      * The system id for phrase parser.
      */
@@ -95,7 +96,7 @@ public final class PhraseParserImpl implements PhraseParser {
     }
 
     @Override
-    public ParserState parse(final Cell<Token> token) {
+    public ParserState parse(final Cell<Token> token) { // NOPMD
         if (output != null) {
             return ParserState.OUTPUT_AVAILABLE;
         }
@@ -171,7 +172,7 @@ public final class PhraseParserImpl implements PhraseParser {
                     if (blockStarts.isEmpty()) {
                         return consume(token, PhraseTokens.EOF, AFTER_EOF);
                     } else {
-                        TextPos startPos = blockStarts.remove(blockStarts.size() - 1);
+                        final TextPos startPos = blockStarts.remove(blockStarts.size() - 1);
                         error("phrase.UnterminatedBlock", startPos);
                         return before(t, PhraseTokens.END_BLOCK, STATEMENT);
                     }
@@ -278,7 +279,7 @@ public final class PhraseParserImpl implements PhraseParser {
     @Override
     public PhraseToken read() {
         if (output != null) {
-            PhraseToken rc = output;
+            final PhraseToken rc = output;
             output = null;
             return rc;
         } else if (state == AFTER_EOF) {

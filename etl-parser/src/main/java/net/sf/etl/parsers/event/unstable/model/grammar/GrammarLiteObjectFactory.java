@@ -51,7 +51,7 @@ public final class GrammarLiteObjectFactory extends SimpleObjectFactory<Element>
     @Override
     public void valueEnlisted(final Element rc, final Property f, final Object v) {
         if (v instanceof Element) {
-            Element e = (Element) v;
+            final Element e = (Element) v;
             e.setOwnerObject(rc);
             e.setOwnerFeature(f.getName());
         }

@@ -29,7 +29,7 @@ package net.sf.etl.parsers.event.grammar.impl.flattened;
  *
  * @author const
  */
-public abstract class ContextMemberView {
+public abstract class ContextMemberView { // NOPMD
     /**
      * the context that included definition from other grammar.
      */

@@ -45,11 +45,11 @@ final class NumberParser extends BaseLiteralParser {
     /**
      * The sign of the number, 0 - unspecified.
      */
-    private int sign = 0;
+    private int sign;
     /**
      * THe exponent.
      */
-    private int exponent = 0;
+    private int exponent;
     /**
      * The suffix attached to number.
      */
@@ -73,7 +73,7 @@ final class NumberParser extends BaseLiteralParser {
     /**
      * @return the parsed number
      */
-    public NumberInfo parse() {
+    public NumberInfo parse() { // NOPMD
         Tokens kind = Tokens.INTEGER;
         int beforeDot = -1;
         // parsing integer of decimal, or floating point number
@@ -92,7 +92,7 @@ final class NumberParser extends BaseLiteralParser {
             // based number
             try {
                 base = Integer.parseInt(buffer().toString());
-            } catch (final Exception ex) {
+            } catch (final NumberFormatException ex) {
                 error("lexical.NumberBaseIsOutOfRange");
                 base = Character.MAX_RADIX;
             }

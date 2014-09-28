@@ -160,7 +160,7 @@ public final class TermParserReader extends AbstractReaderImpl<TermToken> {
     @Override
     protected boolean doAdvance() {
         while (true) {
-            ParserState state = termParser.parse(cell);
+            final ParserState state = termParser.parse(cell);
             switch (state) {
                 case RESOURCE_NEEDED:
                     resolver.resolve(termParser);

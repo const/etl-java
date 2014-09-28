@@ -50,7 +50,7 @@ final class DoctypeTokenListener implements TermTokenListener {
     /**
      * The last property.
      */
-    private PropertyName lastProperty;
+    private PropertyName lastProperty; // NOPMD
     /**
      * The start position.
      */

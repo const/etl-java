@@ -22,8 +22,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.event.impl.bootstrap;
+package net.sf.etl.parsers.event.impl.bootstrap; // NOPMD
 
+import net.sf.etl.parsers.ParserException;
 import net.sf.etl.parsers.PhraseToken;
 import net.sf.etl.parsers.PhraseTokens;
 import net.sf.etl.parsers.SourceLocation;
@@ -126,7 +127,7 @@ import java.util.List;
  */
 // NOTE POST 0.3 Implement better error checking and make this parser to reject
 // non matching grammars.
-public final class BootstrapETLParserLite {
+public final class BootstrapETLParserLite { // NOPMD
     /**
      * a logger used by this class to log the problems.
      */
@@ -515,7 +516,7 @@ public final class BootstrapETLParserLite {
     private void parseFirstChoiceLevel() {
         parseRepeatLevel();
         while (tryToken("/")) {
-            wrapTopObject(new FirstChoiceOp(), property(FirstChoiceOp.class, "first"));
+            wrapTopObject(new FirstChoiceOp(), property(FirstChoiceOp.class, "first")); // NOPMD
             startProperty(property(FirstChoiceOp.class, "second"));
             parseRepeatLevel();
             endProperty();
@@ -529,7 +530,7 @@ public final class BootstrapETLParserLite {
     private void parseChoiceLevel() {
         parseFirstChoiceLevel();
         while (tryToken("|")) {
-            wrapTopObject(new ChoiceOp(), property(ChoiceOp.class, "options"));
+            wrapTopObject(new ChoiceOp(), property(ChoiceOp.class, "options")); // NOPMD
             startProperty(property(ChoiceOp.class, "options"));
             parseFirstChoiceLevel();
             endProperty();
@@ -544,14 +545,14 @@ public final class BootstrapETLParserLite {
         parsePrimaryLevel();
         while (true) {
             if (tryToken("?")) {
-                wrapTopObject(new OptionalOp(), property(RepeatOp.class, "syntax"));
+                wrapTopObject(new OptionalOp(), property(RepeatOp.class, "syntax")); // NOPMD
                 endObject();
             } else if (tryToken("*")) {
-                wrapTopObject(new ZeroOrMoreOp(), property(RepeatOp.class,
+                wrapTopObject(new ZeroOrMoreOp(), property(RepeatOp.class, // NOPMD
                         "syntax"));
                 endObject();
             } else if (tryToken("+")) {
-                wrapTopObject(new OneOrMoreOp(),
+                wrapTopObject(new OneOrMoreOp(), // NOPMD
                         property(RepeatOp.class, "syntax"));
                 endObject();
             } else {
@@ -563,7 +564,7 @@ public final class BootstrapETLParserLite {
     /**
      * parse primary level.
      */
-    private void parsePrimaryLevel() {
+    private void parsePrimaryLevel() { // NOPMD
         if (tryToken("^", ObjectOp.class)) {
             startProperty(property(ObjectOp.class, "name"));
             parseObjectName();
@@ -744,7 +745,7 @@ public final class BootstrapETLParserLite {
         try {
             final Element po = topObject();
             final Property pp = topProperty();
-            Element v;
+            final Element v;
             if (pp.isList()) {
                 final List<?> l = (List<?>) pp.get(po);
                 v = (Element) l.remove(l.size() - 1);
@@ -763,10 +764,8 @@ public final class BootstrapETLParserLite {
             v.setOwnerFeature(property.getName());
             objectStartStack.push(objectStartStack.peek());
             pushObject(object);
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Property cannot be updated", e);
+        } catch (Exception e) { // NOPMD
+            throw new ParserException("Property cannot be updated", e);
         }
     }
 
@@ -782,9 +781,9 @@ public final class BootstrapETLParserLite {
         if (match(string)) {
             try {
                 startObject((Element) c.newInstance());
-            } catch (Exception e) {
-                throw new RuntimeException("Bootstrap parser cannot "
-                        + "create an instance: " + c.getCanonicalName());
+            } catch (Exception e) { // NOPMD
+                throw new ParserException("Bootstrap parser cannot "
+                        + "create an instance: " + c.getCanonicalName(), e);
             }
             advance();
             return true;
@@ -922,10 +921,8 @@ public final class BootstrapETLParserLite {
                 factory.setValueToFeature(top, featureId, token());
             }
             advance();
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Property cannot be accessed: " + featureId, e);
+        } catch (Exception e) { // NOPMD
+            throw new ParserException("Property cannot be accessed: " + featureId, e);
         }
     }
 
@@ -975,10 +972,8 @@ public final class BootstrapETLParserLite {
                 }
             }
             objectStack.push(object);
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Property cannot be accessed: " + sf, e);
+        } catch (Exception e) { // NOPMD
+            throw new ParserException("Property cannot be accessed: " + sf, e);
         }
     }
 

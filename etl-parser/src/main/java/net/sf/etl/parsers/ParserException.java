@@ -39,6 +39,7 @@ public class ParserException extends RuntimeException {
      * Constructor for the ParserException object.
      */
     public ParserException() {
+        // do nothing
     }
 
     /**

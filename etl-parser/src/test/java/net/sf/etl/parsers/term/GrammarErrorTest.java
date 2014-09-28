@@ -54,8 +54,8 @@ public class GrammarErrorTest extends BasicTermTestCase {
         read(Terms.OBJECT_END);
         read(Terms.STATEMENT_END);
         final TermToken grammarLoadedToken = read(Terms.GRAMMAR_IS_LOADED, true);
-        LoadedGrammarInfo loadedGrammarInfo = (LoadedGrammarInfo) grammarLoadedToken.getStructureId();
-        CompiledGrammar compiledGrammar = loadedGrammarInfo.resolvedGrammar().getObject();
+        final LoadedGrammarInfo loadedGrammarInfo = (LoadedGrammarInfo) grammarLoadedToken.getStructureId();
+        final CompiledGrammar compiledGrammar = loadedGrammarInfo.resolvedGrammar().getObject();
         assertNotSame(BootstrapGrammars.defaultGrammar(), loadedGrammarInfo.resolvedGrammar().getObject());
         assertEquals("DefaultContext", compiledGrammar.getDefaultContext().context());
         read(Terms.CONTROL);

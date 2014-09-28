@@ -65,7 +65,7 @@ public abstract class AbstractReaderImpl<T> implements AbstractReader<T> {
         } catch (ParserException e) {
             exception = e;
             throw exception;
-        } catch (Exception e) {
+        } catch (Exception e) { // NOPMD
             exception = new ParserException("Exception during parsing", e);
             throw exception;
         }
@@ -115,7 +115,7 @@ public abstract class AbstractReaderImpl<T> implements AbstractReader<T> {
                 closed = true;
                 doClose();
             }
-        } catch (Exception e) {
+        } catch (Exception e) { // NOPMD
             throw new ParserIOException(e);
         }
     }

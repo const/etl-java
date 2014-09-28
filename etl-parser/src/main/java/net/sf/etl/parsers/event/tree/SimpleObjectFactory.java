@@ -25,6 +25,7 @@
 package net.sf.etl.parsers.event.tree;
 
 import net.sf.etl.parsers.ObjectName;
+import net.sf.etl.parsers.ParserException;
 import net.sf.etl.parsers.PropertyName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -76,8 +78,8 @@ public class SimpleObjectFactory<BaseObject>
     /**
      * The cache of fields.
      */
-    private final HashMap<Class<?>, HashMap<String, Property>> propertyCache =
-            new HashMap<Class<?>, HashMap<String, Property>>();
+    private final Map<Class<?>, Map<String, Property>> propertyCache = // NOPMD
+            new HashMap<Class<?>, Map<String, Property>>();
 
     /**
      * The constructor from super class.
@@ -99,13 +101,11 @@ public class SimpleObjectFactory<BaseObject>
     protected final BaseObject createInstance(final Class<?> metaObject, final ObjectName name) {
         try {
             return (BaseObject) metaObject.newInstance();
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
+        } catch (Exception e) { // NOPMD
             if (LOG.isErrorEnabled()) {
                 LOG.error("Instance of " + metaObject.getCanonicalName() + " cannot be created.", e);
             }
-            throw new RuntimeException("Instance of " + metaObject.getCanonicalName() + " cannot be created.", e);
+            throw new ParserException("Instance of " + metaObject.getCanonicalName() + " cannot be created.", e);
         }
     }
 
@@ -129,11 +129,11 @@ public class SimpleObjectFactory<BaseObject>
     public final void setToFeature(final BaseObject rc, final Property f, final Object v) {
         try {
             f.set(rc, v);
-        } catch (Exception e) {
+        } catch (Exception e) { // NOPMD
             if (LOG.isErrorEnabled()) {
                 LOG.error("The property " + f + " cannot be accessed.", e);
             }
-            throw new RuntimeException("The property " + f + " cannot be accessed.", e);
+            throw new ParserException("The property " + f + " cannot be accessed.", e);
         }
     }
 
@@ -146,7 +146,7 @@ public class SimpleObjectFactory<BaseObject>
                 if (LOG.isErrorEnabled()) {
                     LOG.error("The property " + f + " must have a collection value.");
                 }
-                throw new IllegalStateException("The property " + f + " must have a collection value.");
+                throw new ParserException("The property " + f + " must have a collection value.");
             }
             return list;
         } catch (ClassCastException e) {
@@ -154,11 +154,11 @@ public class SimpleObjectFactory<BaseObject>
                 LOG.error("The property " + f + " is not of List type.", e);
             }
             throw e;
-        } catch (Exception e) {
+        } catch (Exception e) { // NOPMD
             if (LOG.isErrorEnabled()) {
                 LOG.error("The property " + f + " cannot be accessed.", e);
             }
-            throw new RuntimeException("The property " + f + " cannot be accessed.", e);
+            throw new ParserException("The property " + f + " cannot be accessed.", e);
         }
     }
 
@@ -191,7 +191,7 @@ public class SimpleObjectFactory<BaseObject>
     private Property property(final Class<?> c, final String name) {
         try {
             final String featureName = PropertyName.lowerCaseFeatureName(name);
-            HashMap<String, Property> classFields = propertyCache.get(c);
+            Map<String, Property> classFields = propertyCache.get(c);
             if (classFields == null) {
                 classFields = new HashMap<String, Property>();
                 propertyCache.put(c, classFields);
@@ -202,11 +202,11 @@ public class SimpleObjectFactory<BaseObject>
                 classFields.put(featureName, rc);
             }
             return rc;
-        } catch (Exception e) {
+        } catch (Exception e) { // NOPMD
             if (LOG.isErrorEnabled()) {
                 LOG.error("Unable to find property " + name + " in class " + c.getCanonicalName(), e);
             }
-            throw new RuntimeException("Unable to find property " + name + " in class " + c.getCanonicalName(), e);
+            throw new ParserException("Unable to find property " + name + " in class " + c.getCanonicalName(), e);
         }
     }
 
@@ -254,10 +254,10 @@ public class SimpleObjectFactory<BaseObject>
          * @param name        the name
          * @return the found instance
          */
-        public static Property find(final Class<?> objectClass, final String name) {
+        public static Property find(final Class<?> objectClass, final String name) { // NOPMD
             final String uName = Character.toUpperCase(name.charAt(0)) + name.substring(1);
             final String setterName = "set" + uName;
-            for (Method method : objectClass.getMethods()) {
+            for (final Method method : objectClass.getMethods()) {
                 if (method.getName().equals(setterName)) {
                     final Class<?>[] parameterTypes = method.getParameterTypes();
                     if (parameterTypes.length == 1) {
@@ -287,7 +287,7 @@ public class SimpleObjectFactory<BaseObject>
                 throw new IllegalStateException("Getter is does not specify parameterized type "
                         + objectClass.getName() + '.' + name + " -> " + genericReturnType);
             }
-            ParameterizedType type = (ParameterizedType) genericReturnType;
+            final ParameterizedType type = (ParameterizedType) genericReturnType;
             final Type[] actualTypeArguments = type.getActualTypeArguments();
             if (actualTypeArguments.length != 1) {
                 throw new IllegalStateException("Too much of type arguments "

@@ -37,7 +37,7 @@ public abstract class UnaryOp extends Expression {
     /**
      * A value
      */
-    Expression value;
+    private Expression value;
 
     /**
      * @return Returns the value.
@@ -49,7 +49,7 @@ public abstract class UnaryOp extends Expression {
     /**
      * @param value The value to set.
      */
-    public void setValue(Expression value) {
+    public void setValue(final Expression value) {
         this.value = value;
     }
 

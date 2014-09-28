@@ -113,12 +113,10 @@ public final class TermToken extends AbstractToken {
      * @return a context of the term
      */
     public LoadedGrammarInfo loadedGrammar() {
-        switch (kind()) {
-            case GRAMMAR_IS_LOADED:
-                return (LoadedGrammarInfo) structureId;
-            default:
-                throw new IllegalStateException(
-                        "Term context is not supported for kind: " + kind);
+        if (kind == Terms.GRAMMAR_IS_LOADED) {
+            return (LoadedGrammarInfo) structureId;
+        } else {
+            throw new IllegalStateException("Term context is not supported for kind: " + kind);
         }
     }
 

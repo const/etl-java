@@ -31,7 +31,7 @@ import net.sf.etl.parsers.Token;
  *
  * @author const
  */
-public abstract class LiteralNode extends BaseNode {
+public abstract class LiteralNode extends BaseNode { // NOPMD
     /**
      * text
      */

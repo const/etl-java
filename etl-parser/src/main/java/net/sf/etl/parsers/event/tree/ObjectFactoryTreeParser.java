@@ -32,10 +32,12 @@ import net.sf.etl.parsers.Terms;
 import net.sf.etl.parsers.Token;
 import net.sf.etl.parsers.event.Cell;
 import net.sf.etl.parsers.event.ParserState;
+import net.sf.etl.parsers.event.impl.util.ListStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is a TreeParser that uses {@link ObjectFactory} to create a tree of AST objects.
@@ -59,11 +61,11 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
     /**
      * The collectors.
      */
-    private final ArrayList<TokenCollector> collectors = new ArrayList<TokenCollector>();
+    private final ListStack<TokenCollector> collectors = new ListStack<TokenCollector>();
     /**
      * Token listeners for all tokens.
      */
-    private final ArrayList<TokenCollector> tokenListeners = new ArrayList<TokenCollector>();
+    private final List<TokenCollector> tokenListeners = new ArrayList<TokenCollector>();
     /**
      * The current system identifier.
      */
@@ -75,7 +77,7 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
     /**
      * flag indicating that parser had errors.
      */
-    private boolean hadErrors = false;
+    private boolean hadErrors;
     /**
      * The current state.
      */
@@ -208,11 +210,11 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
      * @param tk        the token
      * @param listeners the listener
      */
-    private void notify(final TermToken tk, final ArrayList<TokenCollector> listeners) {
-        for (TokenCollector c : listeners) {
+    private void notify(final TermToken tk, final List<TokenCollector> listeners) {
+        for (final TokenCollector c : listeners) {
             try {
                 c.collect(tk);
-            } catch (Exception ex) {
+            } catch (Exception ex) { // NOPMD
                 LOG.error("Error while notifying listener", ex);
             }
         }
@@ -248,13 +250,13 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
      */
     private abstract class State {
         /**
+         * The previous state in the state stack.
+         */
+        private final State previous;
+        /**
          * The object returned by invoked state.
          */
         private BaseObjectType result;
-        /**
-         * The previous state in the state stack.
-         */
-        private State previous;
 
         /**
          * Create state and install it.
@@ -291,7 +293,7 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
          *
          * @param token the token
          */
-        abstract void parse(final Cell<TermToken> token);
+        protected abstract void parse(final Cell<TermToken> token);
 
         /**
          * @return the object returned by invoked state.
@@ -315,7 +317,7 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
      */
     private final class SourceState extends State {
         @Override
-        void parse(final Cell<TermToken> tokenCell) {
+        protected void parse(final Cell<TermToken> tokenCell) {
             if (getResult() != null) {
                 current = getResult();
                 setResult(null);
@@ -362,7 +364,7 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
         private int count;
 
         @Override
-        void parse(final Cell<TermToken> tokenCell) {
+        protected void parse(final Cell<TermToken> tokenCell) {
             final TermToken token = tokenCell.take();
             switch (token.kind()) {
                 case OBJECT_START:
@@ -406,27 +408,27 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
         /**
          * Extra objects.
          */
-        private int extraObjects = 0;
+        private int extraObjects;
 
         /**
          * The constructor from token cell that contains object start token.
          *
          * @param tokenCell the token cell
          */
-        ObjectState(final Cell<TermToken> tokenCell) {
-            TermToken token = tokenCell.take();
+        protected ObjectState(final Cell<TermToken> tokenCell) {
+            final TermToken token = tokenCell.take();
             assert token.kind() == Terms.OBJECT_START : "parser is not over object: " + token;
             name = token.objectName();
             metaObject = factory.getMetaObject(name);
             rc = factory.createInstance(metaObject, name);
             startValue = factory.setObjectStartPos(rc, metaObject, token);
             if (rc instanceof TokenCollector) {
-                collectors.add((TokenCollector) rc);
+                collectors.push((TokenCollector) rc);
             }
         }
 
         @Override
-        void parse(final Cell<TermToken> tokenCell) {
+        protected void parse(final Cell<TermToken> tokenCell) {
             final TermToken token = tokenCell.peek();
             switch (token.kind()) {
                 case EOF:
@@ -439,8 +441,8 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
                         assert token.objectName().equals(name) : "type name does not match ";
                         factory.setObjectEndPos(rc, metaObject, startValue, token);
                         if (rc instanceof TokenCollector) {
-                            TokenCollector r = collectors.remove(collectors.size() - 1);
-                            assert r == rc;
+                            final TokenCollector r = collectors.pop();
+                            assert r == rc; // NOPMD
                         }
                         exit(rc);
                         return;
@@ -496,7 +498,7 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
         /**
          * amount of extra properties.
          */
-        private int extraProperties = 0;
+        private int extraProperties;
 
         /**
          * The constructor.
@@ -505,7 +507,7 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
          * @param metaObject the meta object
          * @param tokenCell  the token cell
          */
-        PropertyState(final BaseObjectType object, final MetaObjectType metaObject, final Cell<TermToken> tokenCell) {
+        protected PropertyState(final BaseObjectType object, final MetaObjectType metaObject, final Cell<TermToken> tokenCell) {
             this.object = object;
             this.metaObject = metaObject;
             final TermToken token = tokenCell.take();
@@ -517,7 +519,7 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
         }
 
         @Override
-        void parse(final Cell<TermToken> tokenCell) {
+        protected void parse(final Cell<TermToken> tokenCell) {
             if (getResult() != null) {
                 if (isList) {
                     factory.addToFeature(object, feature, holder, getResult());

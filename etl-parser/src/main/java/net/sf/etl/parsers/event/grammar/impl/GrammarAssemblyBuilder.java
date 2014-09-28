@@ -44,6 +44,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 /**
  * The grammar compiler.
@@ -56,7 +57,11 @@ public final class GrammarAssemblyBuilder implements GrammarCompilerEngine {
     /**
      * The map from grammar view to builders.
      */
-    private final HashMap<GrammarView, GrammarBuilder> viewToBuilder = new HashMap<GrammarView, GrammarBuilder>();
+    private final Map<GrammarView, GrammarBuilder> viewToBuilder = new HashMap<GrammarView, GrammarBuilder>(); // NOPMD
+    /**
+     * The linker.
+     */
+    private final ActionLinker linker = new ActionLinker();
     /**
      * The root grammar request.
      */
@@ -65,10 +70,6 @@ public final class GrammarAssemblyBuilder implements GrammarCompilerEngine {
      * The root compiled grammar.
      */
     private ResolvedObject<CompiledGrammar> rootGrammar;
-    /**
-     * The linker.
-     */
-    private ActionLinker linker = new ActionLinker();
 
     @Override
     public void start(final ResourceRequest reference) {
@@ -77,7 +78,7 @@ public final class GrammarAssemblyBuilder implements GrammarCompilerEngine {
     }
 
     @Override
-    public ParserState process() {
+    public ParserState process() { // NOPMD
         if (!assembly.unresolved().isEmpty()) {
             return ParserState.RESOURCE_NEEDED;
         }
@@ -92,43 +93,43 @@ public final class GrammarAssemblyBuilder implements GrammarCompilerEngine {
         if (assembly.hadErrors()) {
             return buildFailedGrammar();
         }
-        for (GrammarView grammarView : assembly.grammars()) {
-            viewToBuilder.put(grammarView, new GrammarBuilder(this, grammarView));
+        for (final GrammarView grammarView : assembly.grammars()) {
+            viewToBuilder.put(grammarView, new GrammarBuilder(this, grammarView)); // NOPMD
         }
         if (assembly.hadErrors()) {
             return buildFailedGrammar();
         }
-        for (GrammarBuilder builder : viewToBuilder.values()) {
+        for (final GrammarBuilder builder : viewToBuilder.values()) {
             builder.prepare();
         }
         if (assembly.hadErrors()) {
             return buildFailedGrammar();
         }
-        for (GrammarBuilder builder : viewToBuilder.values()) {
+        for (final GrammarBuilder builder : viewToBuilder.values()) {
             builder.buildNodes();
         }
         if (assembly.hadErrors()) {
             return buildFailedGrammar();
         }
-        for (GrammarBuilder builder : viewToBuilder.values()) {
+        for (final GrammarBuilder builder : viewToBuilder.values()) {
             builder.buildLookAhead();
         }
         if (assembly.hadErrors()) {
             return buildFailedGrammar();
         }
-        for (GrammarBuilder builder : viewToBuilder.values()) {
+        for (final GrammarBuilder builder : viewToBuilder.values()) {
             builder.buildStateMachines();
         }
         if (assembly.hadErrors()) {
             return buildFailedGrammar();
         }
-        for (GrammarBuilder builder : viewToBuilder.values()) {
+        for (final GrammarBuilder builder : viewToBuilder.values()) {
             builder.buildCompiledGrammars();
         }
         if (assembly.hadErrors()) {
             return buildFailedGrammar();
         }
-        for (GrammarBuilder builder : viewToBuilder.values()) {
+        for (final GrammarBuilder builder : viewToBuilder.values()) {
             builder.linkGrammars();
         }
         // actually get root grammar

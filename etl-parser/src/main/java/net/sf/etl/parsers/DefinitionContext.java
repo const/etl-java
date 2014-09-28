@@ -71,14 +71,22 @@ public final class DefinitionContext {
     @Override
     public boolean equals(final Object o) {
         // CHECKSTYLE:OFF
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-        DefinitionContext that = (DefinitionContext) o;
+        final DefinitionContext that = (DefinitionContext) o;
 
-        if (context != null ? !context.equals(that.context) : that.context != null) return false;
+        if (context != null ? !context.equals(that.context) : that.context != null) {
+            return false;
+        }
         //noinspection RedundantIfStatement
-        if (grammar != null ? !grammar.equals(that.grammar) : that.grammar != null) return false;
+        if (grammar != null ? !grammar.equals(that.grammar) : that.grammar != null) {
+            return false;
+        }
 
         return true;
         // CHECKSTYLE:ON

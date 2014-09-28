@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers.event.impl.term;
+package net.sf.etl.parsers.event.impl.term; // NOPMD
 
 import net.sf.etl.parsers.DefinitionContext;
 import net.sf.etl.parsers.ErrorInfo;
@@ -57,11 +57,12 @@ import net.sf.etl.parsers.resource.ResourceRequest;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Core implementation of term parser that delegates to other term parsers.
  */
-public final class TermParserImpl implements TermParser {
+public final class TermParserImpl implements TermParser { // NOPMD
     /**
      * The term parser context.
      */
@@ -73,7 +74,11 @@ public final class TermParserImpl implements TermParser {
     /**
      * Stack for soft ends.
      */
-    private final ArrayList<Integer> softEndStack = new ArrayList<Integer>();
+    private final ListStack<Integer> softEndStack = new ListStack<Integer>();
+    /**
+     * The list stack.
+     */
+    private final ListStack<KeywordContext> keywords = new ListStack<KeywordContext>();
     /**
      * The compiled grammar.
      */
@@ -105,7 +110,7 @@ public final class TermParserImpl implements TermParser {
     /**
      * The count for disabled soft ends.
      */
-    private int disabledSoftEndCount = 0;
+    private int disabledSoftEndCount;
     /**
      * The classified keyword.
      */
@@ -114,10 +119,6 @@ public final class TermParserImpl implements TermParser {
      * True if keyword is actually classified.
      */
     private boolean isKeywordClassified;
-    /**
-     * The list stack.
-     */
-    private ListStack<KeywordContext> keywords = new ListStack<KeywordContext>();
     /**
      * The token listener to handle some special conditions (currently only parsing and gathering
      * information from document type).
@@ -205,7 +206,7 @@ public final class TermParserImpl implements TermParser {
     }
 
     @Override
-    public void provideGrammar(final ResolvedObject<CompiledGrammar> resolvedGrammar,
+    public void provideGrammar(final ResolvedObject<CompiledGrammar> resolvedGrammar, // NOPMD
                                final ErrorInfo resolutionErrors) {
         if (this.grammar != null) {
             throw new IllegalStateException("Grammar is already provided");
@@ -220,7 +221,7 @@ public final class TermParserImpl implements TermParser {
         final TextPos contextEnd = doctype == null || doctype.getContext() == null
                 ? currentPos : doctype.getContext().end();
         if (initialContextName != null) {
-            for (DefinitionContext definitionContext : resolvedGrammar.getObject().getStatementContexts()) {
+            for (final DefinitionContext definitionContext : resolvedGrammar.getObject().getStatementContexts()) {
                 if (definitionContext.context().equals(initialContextName)) {
                     initialContext = definitionContext;
                     break;
@@ -266,7 +267,7 @@ public final class TermParserImpl implements TermParser {
         if (queue.hasMark() || queue.isEmpty()) {
             throw new ParserException("Unable to get element");
         }
-        TermToken termToken = queue.get();
+        final TermToken termToken = queue.get();
         if (termTokenListener != null) {
             termTokenListener.observe(termToken);
         }
@@ -333,7 +334,7 @@ public final class TermParserImpl implements TermParser {
      *
      * @param doctype the parsed doctype
      */
-    void setDoctype(final Doctype doctype) {
+    public void setDoctype(final Doctype doctype) { // NOPMD
         this.doctype = doctype;
         if (grammar != null) {
             throw new IllegalStateException("Grammar is already available");
@@ -341,7 +342,7 @@ public final class TermParserImpl implements TermParser {
         if (grammarRequest != null) {
             throw new IllegalStateException("The grammar request is already set");
         }
-        String refPublicId;
+        final String refPublicId;
         String refSystemId;
         if (doctype == null) {
             refPublicId = defaultPublicId;
@@ -381,11 +382,11 @@ public final class TermParserImpl implements TermParser {
      * @return the string
      */
     private String parseDoctypeString(final Token stringToken, final String errorId) {
-        String rc;
+        final String rc;
         if (stringToken == null) {
             rc = null;
         } else {
-            StringInfo parsed = new StringParser(stringToken.text(), stringToken.start(), systemId).parse();
+            final StringInfo parsed = new StringParser(stringToken.text(), stringToken.start(), systemId).parse();
             if (parsed.getText() == null || parsed.getText().length() == 0 || parsed.getErrors() != null) {
                 grammarRequestErrors = new ErrorInfo(errorId,
                         Collections.<Object>singletonList(stringToken.text()),
@@ -409,7 +410,7 @@ public final class TermParserImpl implements TermParser {
         /**
          * A stack of marks.
          */
-        private final ArrayList<Link<T>> markStack = new ArrayList<Link<T>>();
+        private final List<Link<T>> markStack = new ArrayList<Link<T>>();
         /**
          * amount of committed marks.
          */
@@ -428,7 +429,7 @@ public final class TermParserImpl implements TermParser {
         /**
          * Create new mark at the end of queue.
          */
-        void pushMark() {
+        public void pushMark() {
             markStack.add(last);
         }
 
@@ -451,8 +452,8 @@ public final class TermParserImpl implements TermParser {
          *
          * @return true if there are no more marks and queue is not empty
          */
-        boolean popMark() {
-            assert markStack.size() > 0 : "[BUG] Mark stack is empty";
+        public boolean popMark() {
+            assert !markStack.isEmpty() : "[BUG] Mark stack is empty";
             final int size = markStack.size();
             markStack.remove(size - 1);
             if (size == committedMarks) {
@@ -464,7 +465,7 @@ public final class TermParserImpl implements TermParser {
         /**
          * @return true if there is at least one mark on the stack
          */
-        boolean hasMark() {
+        public boolean hasMark() {
             return markStack.size() > committedMarks;
         }
 
@@ -473,7 +474,7 @@ public final class TermParserImpl implements TermParser {
          *
          * @param value a value to insert
          */
-        void insertAtMark(final T value) {
+        public void insertAtMark(final T value) {
             assert hasMark() : "[BUG] Mark stack is empty";
             final Link<T> mark = peekMark();
             final Link<T> l = new Link<T>(value);
@@ -505,7 +506,7 @@ public final class TermParserImpl implements TermParser {
          *
          * @param value a value
          */
-        void append(final T value) {
+        public void append(final T value) {
             final Link<T> l = new Link<T>(value);
             if (last == null) {
                 first = l;
@@ -521,9 +522,9 @@ public final class TermParserImpl implements TermParser {
          * @return peek object after mark or null if there are no objects after
          * mark.
          */
-        T peekObjectAfterMark() {
+        public T peekObjectAfterMark() {
             final Link<T> mark = peekMark();
-            final Link<T> afterMark = (mark == null ? first : mark.next);
+            final Link<T> afterMark = mark == null ? first : mark.next;
             return afterMark == null ? null : afterMark.value;
         }
 
@@ -531,7 +532,7 @@ public final class TermParserImpl implements TermParser {
         /**
          * @return check if queue has element to return to the user
          */
-        boolean hasElement() {
+        public boolean hasElement() {
             return !hasMark() && !isEmpty();
         }
 
@@ -540,7 +541,7 @@ public final class TermParserImpl implements TermParser {
          *
          * @return first item of queue or null.
          */
-        T get() {
+        public T get() {
             assert !hasMark() : "[BUG]Clients are not supposed to poll "
                     + "the queue while marks are active.";
             if (first == null) {
@@ -570,7 +571,7 @@ public final class TermParserImpl implements TermParser {
          *
          * @param value a value to insert.
          */
-        void insertBeforeMark(final T value) {
+        public void insertBeforeMark(final T value) {
             final Link<T> link = new Link<T>(value);
             markStack.set(0, link);
             link.next = first;
@@ -730,7 +731,7 @@ public final class TermParserImpl implements TermParser {
 
         @Override
         public void exit(final TermParserState state, final boolean success) {
-            if (state != stateStack) {
+            if (state != stateStack) { // NOPMD
                 throw new IllegalArgumentException("Exiting wrong state");
             }
             stateStack = state.getPreviousState();
@@ -756,7 +757,7 @@ public final class TermParserImpl implements TermParser {
 
         @Override
         public void startSoftEndContext() {
-            softEndStack.add(disabledSoftEndCount);
+            softEndStack.push(disabledSoftEndCount);
             disabledSoftEndCount = 0;
         }
 
@@ -767,14 +768,14 @@ public final class TermParserImpl implements TermParser {
 
         @Override
         public boolean enableSoftEnd() {
-            return (--disabledSoftEndCount) == 0;
+            return --disabledSoftEndCount == 0;
         }
 
         @Override
         public void endSoftEndContext() {
             assert disabledSoftEndCount == 0 : "Disabled soft end count should be zero at the end of the context"
                     + disabledSoftEndCount;
-            disabledSoftEndCount = softEndStack.remove(softEndStack.size() - 1);
+            disabledSoftEndCount = softEndStack.pop();
         }
 
         @Override

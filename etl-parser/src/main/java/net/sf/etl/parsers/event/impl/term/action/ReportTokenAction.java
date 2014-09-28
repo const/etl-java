@@ -61,8 +61,8 @@ public final class ReportTokenAction extends SimpleAction {
 
     @Override
     public void parseMore(final TermParserContext context, final ActionState state) {
-        PhraseToken in = context.current();
-        TermToken out = new TermToken(kind, role, null, in, in.start(), in.end(), getSource(), null);
+        final PhraseToken in = context.current();
+        final TermToken out = new TermToken(kind, role, null, in, in.start(), in.end(), getSource(), null);
         context.produce(out);
         context.consumePhraseToken();
         state.nextAction(getNext());

@@ -103,7 +103,7 @@ public final class StringParser extends BaseLiteralParser {
     /**
      * Preform string parsing.
      */
-    private void doParse() {
+    private void doParse() { // NOPMD
         kind = Tokens.STRING;
         int ch = la();
         ch = parsePrefix(ch);
@@ -140,7 +140,7 @@ public final class StringParser extends BaseLiteralParser {
                         break;
                     }
                 } else {
-                    if (quote == quoteClass) {
+                    if (quote == quoteClass) { // NOPMD
                         endQuote = ch;
                         ch = next(false);
                         break;
@@ -156,9 +156,10 @@ public final class StringParser extends BaseLiteralParser {
                         ch = next(false);
                         if (ch == '{') {
                             ch = next(false);
-                            int i = 0, value = 0;
+                            int i = 0;
+                            int value = 0;
                             while (Numbers.isHex(ch)) {
-                                value = (value << HEX_SHIFT) + Character.digit(ch, HEX_BASE);
+                                value = (value << HEX_SHIFT) + Character.digit(ch, HEX_BASE); // NOPMD
                                 ch = next(false);
                                 i++;
                             }
@@ -221,7 +222,7 @@ public final class StringParser extends BaseLiteralParser {
                     error("lexical.NewLineInString");
                     break;
                 } else {
-                    boolean cr = ch == Whitespaces.CR;
+                    final boolean cr = ch == Whitespaces.CR;
                     ch = next(true);
                     if (cr && ch == Whitespaces.LF) {
                         ch = next(true);
@@ -282,7 +283,7 @@ public final class StringParser extends BaseLiteralParser {
         int value = 0;
         int ch = current;
         while (i < n && Numbers.isHex(ch)) {
-            value = (value << HEX_SHIFT) + Character.digit(ch, HEX_BASE);
+            value = (value << HEX_SHIFT) + Character.digit(ch, HEX_BASE); // NOPMD
             ch = next(false);
             i++;
         }

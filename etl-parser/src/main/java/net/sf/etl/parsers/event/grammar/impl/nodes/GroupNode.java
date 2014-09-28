@@ -40,7 +40,7 @@ public abstract class GroupNode extends Node {
     /**
      * The list of nodes.
      */
-    private final ArrayList<Node> nodes = new ArrayList<Node>();
+    private final List<Node> nodes = new ArrayList<Node>();
 
     /**
      * @return the list of nodes
@@ -61,7 +61,7 @@ public abstract class GroupNode extends Node {
     public Node flatten() {
         boolean needsFlatten = false;
         final Class<?> type = getClass();
-        for (Node node : nodes) {
+        for (final Node node : nodes) {
             if (node.getClass() == type) {
                 needsFlatten = true;
                 break;
@@ -83,8 +83,8 @@ public abstract class GroupNode extends Node {
      * @param toFlatten the non flat nodes.
      * @param result    the nodes to flatten
      */
-    private void flattenTo(final Class<?> type, final List<Node> toFlatten, final ArrayList<Node> result) {
-        for (Node node : toFlatten) {
+    private void flattenTo(final Class<?> type, final List<Node> toFlatten, final List<Node> result) {
+        for (final Node node : toFlatten) {
             if (node.getClass() == type) {
                 flattenTo(type, ((GroupNode) node).nodes(), result);
             } else {

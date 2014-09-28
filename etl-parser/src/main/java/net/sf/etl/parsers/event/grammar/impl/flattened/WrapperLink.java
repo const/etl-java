@@ -105,7 +105,7 @@ public final class WrapperLink {
      */
     private String checkNull(final String argValue, final String argName) {
         if (argValue == null) {
-            throw new NullPointerException("The argument " + argName + " cannot be null.");
+            throw new IllegalArgumentException("The argument " + argName + " cannot be null.");
         }
         return argValue;
     }
@@ -155,23 +155,35 @@ public final class WrapperLink {
     @Override
     public boolean equals(final Object o) {
         //CHECKSTYLE:OFF
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-        WrapperLink that = (WrapperLink) o;
+        final WrapperLink that = (WrapperLink) o;
 
-        if (innerWrapper != null ? !innerWrapper.equals(that.innerWrapper) : that.innerWrapper != null) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (namespace != null ? !namespace.equals(that.namespace) : that.namespace != null) return false;
+        if (innerWrapper != null ? !innerWrapper.equals(that.innerWrapper) : that.innerWrapper != null) {
+            return false;
+        }
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (namespace != null ? !namespace.equals(that.namespace) : that.namespace != null) {
+            return false;
+        }
         //noinspection RedundantIfStatement
-        if (property != null ? !property.equals(that.property) : that.property != null) return false;
+        if (property != null ? !property.equals(that.property) : that.property != null) {
+            return false;
+        }
 
         return true;
         //CHECKSTYLE:ON
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode() { // NOPMD
         //CHECKSTYLE:OFF
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (namespace != null ? namespace.hashCode() : 0);
@@ -194,14 +206,14 @@ public final class WrapperLink {
      * @param rc the string buffer to use
      */
     private void toString(final StringBuilder rc) {
-        rc.append("{");
+        rc.append('{');
         rc.append(namespace);
-        rc.append("}");
+        rc.append('}');
         rc.append(name);
-        rc.append(".");
+        rc.append('.');
         rc.append(property);
         if (innerWrapper != null) {
-            rc.append("/");
+            rc.append('/');
             innerWrapper.toString(rc);
         }
     }

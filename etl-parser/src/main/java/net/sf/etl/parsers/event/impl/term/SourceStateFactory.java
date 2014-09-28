@@ -138,11 +138,11 @@ public final class SourceStateFactory implements TermParserStateFactory {
                         return;
                     }
                 case BEFORE_STATEMENT:
-                    CompiledGrammar grammar = context.parser().grammar();
+                    final CompiledGrammar grammar = context.parser().grammar();
                     if (grammar == null) {
                         throw new IllegalStateException("The grammar should be already defined here");
                     }
-                    DefinitionContext definitionContext = context.parser().initialContext();
+                    final DefinitionContext definitionContext = context.parser().initialContext();
                     if (definitionContext == null) {
                         throw new IllegalStateException("The default context must be defined");
                     }

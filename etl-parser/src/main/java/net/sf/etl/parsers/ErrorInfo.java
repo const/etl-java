@@ -148,18 +148,18 @@ public final class ErrorInfo implements Iterable<ErrorInfo> {
      * @return the error list
      */
     public static ErrorInfo merge(final Collection<ErrorInfo> errors) {
-        ArrayList<ErrorInfo> list = new ArrayList<ErrorInfo>();
-        for (ErrorInfo error : errors) {
+        final ArrayList<ErrorInfo> list = new ArrayList<ErrorInfo>();
+        for (final ErrorInfo error : errors) {
             if (error != null) {
-                for (ErrorInfo e : error) {
+                for (final ErrorInfo e : error) {
                     list.add(e);
                 }
             }
         }
         Collections.reverse(list);
         ErrorInfo current = null;
-        for (ErrorInfo e : list) {
-            current = new ErrorInfo(e.errorId, e.errorArgs, e.location, current);
+        for (final ErrorInfo e : list) {
+            current = new ErrorInfo(e.errorId, e.errorArgs, e.location, current); // NOPMD
         }
         return current;
     }
@@ -231,7 +231,7 @@ public final class ErrorInfo implements Iterable<ErrorInfo> {
      * @return the error message text
      */
     public String message() {
-        ResourceBundle b;
+        final ResourceBundle b;
         if (errorId.startsWith("lexical.")) {
             b = LEXICAL_ERRORS;
         } else if (errorId.startsWith("phrase.")) {
@@ -259,7 +259,7 @@ public final class ErrorInfo implements Iterable<ErrorInfo> {
 
             @Override
             public ErrorInfo next() {
-                ErrorInfo rc = current;
+                final ErrorInfo rc = current;
                 if (rc == null) {
                     throw new NoSuchElementException();
                 }

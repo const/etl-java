@@ -39,6 +39,7 @@ import net.sf.etl.parsers.event.unstable.model.grammar.SyntaxStatement;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -69,12 +70,12 @@ public abstract class ObjectDefinitionView extends DefinitionView {
      * structure is used because due to possible def redefinition actual top
      * object might change from context to context.
      */
-    private final HashMap<ContextView, Syntax> topObjects = new HashMap<ContextView, Syntax>();
+    private final Map<ContextView, Syntax> topObjects = new HashMap<ContextView, Syntax>(); // NOPMD
     /**
      * a definition that actually holds a top object. See comment to
      * {@link #topObject} for explanation why it is a hash map.
      */
-    private final HashMap<ContextView, DefinitionView> topObjectDefinitions =
+    private final Map<ContextView, DefinitionView> topObjectDefinitions = // NOPMD
             new HashMap<ContextView, DefinitionView>();
 
     /**
@@ -122,11 +123,11 @@ public abstract class ObjectDefinitionView extends DefinitionView {
      * @return the top object
      */
     public final ObjectName topObjectName(final ContextView context) {
-        ObjectOp topObject = topObject(context);
+        final ObjectOp topObject = topObject(context);
         if (topObject == null) {
             return null;
         }
-        net.sf.etl.parsers.event.unstable.model.grammar.ObjectName name = topObject.getName();
+        final net.sf.etl.parsers.event.unstable.model.grammar.ObjectName name = topObject.getName();
         return topObjectDefinition(context).convertName(name);
 
     }
@@ -180,7 +181,7 @@ public abstract class ObjectDefinitionView extends DefinitionView {
                 continue;
             }
             if (stmt instanceof Let) {
-                ObjectOp op = makeDefaultObject(context, view, stmt);
+                final ObjectOp op = makeDefaultObject(context, view, stmt);
                 if (op == null) {
                     error(view, stmt, "grammar.ObjectDefinition.misplacedLet",
                             definition().getName(), view.includingContext().name(),
@@ -223,7 +224,7 @@ public abstract class ObjectDefinitionView extends DefinitionView {
             }
         }
         leaveDefContext(visited, view);
-        if (visited.size() == 0 && topObjects.get(context) == null) {
+        if (visited.isEmpty() && topObjects.get(context) == null) {
             makeDefaultObject(context, view, view.definition());
         }
     }
@@ -268,20 +269,20 @@ public abstract class ObjectDefinitionView extends DefinitionView {
      * a default namespace
      */
     private ObjectOp makeDefaultObject(final ContextView context, final DefinitionView view, final Element element) {
-        GrammarView grammar = definingContext().grammar();
-        Token defaultNamespacePrefix = grammar.defaultNamespacePrefix();
-        SyntaxDefinition definition = definition();
+        final GrammarView grammar = definingContext().grammar();
+        final Token defaultNamespacePrefix = grammar.defaultNamespacePrefix();
+        final SyntaxDefinition definition = definition();
         if (defaultNamespacePrefix == null) {
             error(view, element, "grammar.ObjectDefinition.noDefaultGrammar",
                     definition.getName(), view.definingContext().name(),
                     view.definingContext().grammar().getSystemId());
             return null;
         }
-        ObjectOp o = new ObjectOp();
+        final ObjectOp o = new ObjectOp();
         o.setOwnerObject(definition);
         o.setOwnerFeature(DEFINITION_SYNTAX_FIELD);
         o.setLocation(definition.getLocation());
-        net.sf.etl.parsers.event.unstable.model.grammar.ObjectName name =
+        final net.sf.etl.parsers.event.unstable.model.grammar.ObjectName name =
                 new net.sf.etl.parsers.event.unstable.model.grammar.ObjectName();
         name.setOwnerObject(o);
         name.setOwnerFeature(NAME_FIELD);
@@ -289,7 +290,7 @@ public abstract class ObjectDefinitionView extends DefinitionView {
         name.setPrefix(defaultNamespacePrefix);
         name.setName(definition.getName());
         o.setName(name);
-        Sequence s = new Sequence();
+        final Sequence s = new Sequence();
         s.getSyntax().addAll(definition.getSyntax());
         s.setLocation(o.getLocation());
         s.setOwnerObject(o);

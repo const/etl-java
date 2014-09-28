@@ -37,11 +37,11 @@ public class MinusOp extends Expression {
     /**
      * minuend
      */
-    Expression minuend;
+    private Expression minuend;
     /**
      * subtrahend
      */
-    Expression subtrahend;
+    private Expression subtrahend;
 
     /**
      * @return Returns the minuend.
@@ -53,7 +53,7 @@ public class MinusOp extends Expression {
     /**
      * @param minuend The minuend to set.
      */
-    public void setMinuend(Expression minuend) {
+    public void setMinuend(final Expression minuend) {
         this.minuend = minuend;
     }
 
@@ -67,7 +67,7 @@ public class MinusOp extends Expression {
     /**
      * @param subtrahend The subtrahend to set.
      */
-    public void setSubtrahend(Expression subtrahend) {
+    public void setSubtrahend(final Expression subtrahend) {
         this.subtrahend = subtrahend;
     }
 }

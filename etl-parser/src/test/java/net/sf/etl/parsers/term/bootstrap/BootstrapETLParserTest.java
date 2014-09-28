@@ -24,6 +24,7 @@
  */
 package net.sf.etl.parsers.term.bootstrap;
 
+import net.sf.etl.parsers.ParserException;
 import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.event.impl.bootstrap.BootstrapETLParserLite;
 import net.sf.etl.parsers.event.unstable.model.grammar.Grammar;
@@ -50,9 +51,9 @@ public class BootstrapETLParserTest {
      * @param resourceName name of ResourceI
      * @return parsed grammar
      */
-    private Grammar parseResource(String resourceName) {
+    private Grammar parseResource(final String resourceName) {
         try {
-            PhraseParserReader phraseParser = new PhraseParserReader(new LexerReader(
+            final PhraseParserReader phraseParser = new PhraseParserReader(new LexerReader(
                     DefaultTermReaderConfiguration.INSTANCE,
                     new InputStreamReader(BootstrapETLParserTest.class.getResourceAsStream(resourceName), "UTF-8"),
                     BootstrapETLParserTest.class.getResource(resourceName).toString(),
@@ -64,10 +65,8 @@ public class BootstrapETLParserTest {
             } finally {
                 phraseParser.close();
             }
-        } catch (final RuntimeException e) {
-            throw e;
-        } catch (final Exception e) {
-            throw new RuntimeException("io problem", e);
+        } catch (final Exception e) { // NOPMD
+            throw new ParserException("io problem", e);
         }
 
     }

@@ -39,7 +39,7 @@ import static org.junit.Assert.fail;
  *
  * @author const
  */
-public abstract class BeansTermCase {
+public abstract class BeansTermCase { // NOPMD
     /**
      * A parser to use
      */
@@ -54,8 +54,8 @@ public abstract class BeansTermCase {
      *
      * @param resourceName a resource to parse
      */
-    protected void startWithResource(String resourceName) {
-        java.net.URL in = this.getClass().getResource(resourceName);
+    protected void startWithResource(final String resourceName) {
+        final java.net.URL in = this.getClass().getResource(resourceName);
         assertNotNull(in);
         startWithURL(in);
     }
@@ -63,10 +63,10 @@ public abstract class BeansTermCase {
     /**
      * Start parsing with URL
      *
-     * @param in an URL to parse
+     * @param url an URL to parse
      */
-    protected void startWithURL(java.net.URL in) {
-        termParser = new TermParserReader(in);
+    protected void startWithURL(final java.net.URL url) {
+        termParser = new TermParserReader(url);
         termParser.advance();
         parser = new TreeParserReader<Object>(termParser, createBeansTermParser());
         parser.setErrorTokenHandler(new TokenCollector() {
@@ -91,7 +91,7 @@ public abstract class BeansTermCase {
      *
      * @param errorExit true if error exit
      */
-    protected void endParsing(boolean errorExit) {
+    protected void endParsing(final boolean errorExit) {
         if (!errorExit) {
             assertFalse(parser.hadErrors());
         }

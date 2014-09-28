@@ -36,39 +36,39 @@ public final class OpLevel {
     /**
      * "xf" operators.
      */
-    private final HashSet<OpDefinitionView> xf = new HashSet<OpDefinitionView>();
+    private final Set<OpDefinitionView> xf = new HashSet<OpDefinitionView>();
     /**
      * "yf" operators.
      */
-    private final HashSet<OpDefinitionView> yf = new HashSet<OpDefinitionView>();
+    private final Set<OpDefinitionView> yf = new HashSet<OpDefinitionView>();
     /**
      * "yfy" operators.
      */
-    private final HashSet<OpDefinitionView> yfy = new HashSet<OpDefinitionView>();
+    private final Set<OpDefinitionView> yfy = new HashSet<OpDefinitionView>();
     /**
      * "xfx" operators.
      */
-    private final HashSet<OpDefinitionView> xfx = new HashSet<OpDefinitionView>();
+    private final Set<OpDefinitionView> xfx = new HashSet<OpDefinitionView>();
     /**
      * "xfy" operators.
      */
-    private final HashSet<OpDefinitionView> xfy = new HashSet<OpDefinitionView>();
+    private final Set<OpDefinitionView> xfy = new HashSet<OpDefinitionView>();
     /**
      * "yfx" operators.
      */
-    private final HashSet<OpDefinitionView> yfx = new HashSet<OpDefinitionView>();
+    private final Set<OpDefinitionView> yfx = new HashSet<OpDefinitionView>();
     /**
      * "fx" operators.
      */
-    private final HashSet<OpDefinitionView> fx = new HashSet<OpDefinitionView>();
+    private final Set<OpDefinitionView> fx = new HashSet<OpDefinitionView>();
     /**
      * "fy" operators.
      */
-    private final HashSet<OpDefinitionView> fy = new HashSet<OpDefinitionView>();
+    private final Set<OpDefinitionView> fy = new HashSet<OpDefinitionView>();
     /**
      * "f" operators.
      */
-    private final HashSet<OpDefinitionView> f = new HashSet<OpDefinitionView>();
+    private final Set<OpDefinitionView> f = new HashSet<OpDefinitionView>();
     /**
      * priority of this level.
      */

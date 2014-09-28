@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -51,7 +52,7 @@ public final class OpDefinitionView extends ObjectDefinitionView {
     /**
      * The map from context to operator information.
      */
-    private HashMap<ContextView, OpInfo> opInfo = new HashMap<ContextView, OpInfo>();
+    private final Map<ContextView, OpInfo> opInfo = new HashMap<ContextView, OpInfo>(); // NOPMD
 
     /**
      * The constructor.
@@ -102,8 +103,7 @@ public final class OpDefinitionView extends ObjectDefinitionView {
      * @return the right argument property or null if it is not defined
      */
     public PropertyInfo getRightArgProperty(final ContextView context) {
-        OpInfo op = parseDefinition(context);
-        return op.rightProperty;
+        return parseDefinition(context).rightProperty;
     }
 
     /**
@@ -111,8 +111,7 @@ public final class OpDefinitionView extends ObjectDefinitionView {
      * @return the left argument property or null if it is not defined
      */
     public PropertyInfo getLeftArgProperty(final ContextView context) {
-        OpInfo op = parseDefinition(context);
-        return op.leftProperty;
+        return parseDefinition(context).leftProperty;
     }
 
     /**
@@ -130,7 +129,7 @@ public final class OpDefinitionView extends ObjectDefinitionView {
         opInfo.put(context, rc);
         // NOTE POST 0.2: make definition parsing more flexible. Remove
         // artificial restrictions on refs.
-        OperatorDefinition od = operator();
+        final OperatorDefinition od = operator();
         if (isComposite()) {
             // ensure that text is not defined, and precedence is defined unless
             // operator is of F kind
@@ -182,7 +181,7 @@ public final class OpDefinitionView extends ObjectDefinitionView {
                             case YFX:
                             case YFY:
                                 if (rc.leftProperty == null) {
-                                    rc.leftProperty = new PropertyInfo(let, let.getName().text(), isList);
+                                    rc.leftProperty = new PropertyInfo(let, let.getName().text(), isList); // NOPMD
                                 } else {
                                     // Only one left operand is
                                     // allowed.
@@ -201,7 +200,7 @@ public final class OpDefinitionView extends ObjectDefinitionView {
                             case YFX:
                             case YFY:
                                 if (rc.rightProperty == null) {
-                                    rc.rightProperty = new PropertyInfo(let, let.getName().text(), isList);
+                                    rc.rightProperty = new PropertyInfo(let, let.getName().text(), isList); // NOPMD
                                 } else {
                                     // Only one right operand is
                                     // allowed.
@@ -216,10 +215,10 @@ public final class OpDefinitionView extends ObjectDefinitionView {
                     processCompositeStatement(rc, let);
                 }
             } else if (element instanceof ExpressionStatement) {
-                ExpressionStatement es = (ExpressionStatement) element;
+                final ExpressionStatement es = (ExpressionStatement) element;
                 if (es.getSyntax() instanceof RefOp) {
-                    RefOp r = (RefOp) es.getSyntax();
-                    DefView d = context.def(r.getName().text());
+                    final RefOp r = (RefOp) es.getSyntax();
+                    final DefView d = context.def(r.getName().text());
                     if (d == null) {
                         if (context.choice(r.getName().text()) != null) {
                             processCompositeStatement(rc, es);
@@ -237,8 +236,7 @@ public final class OpDefinitionView extends ObjectDefinitionView {
                     processCompositeStatement(rc, es);
                 }
             } else {
-                SyntaxStatement stmt = (SyntaxStatement) element;
-                processCompositeStatement(rc, stmt);
+                processCompositeStatement(rc, (SyntaxStatement) element);
             }
         }
     }
@@ -269,8 +267,7 @@ public final class OpDefinitionView extends ObjectDefinitionView {
      * @return operator statements
      */
     public List<SyntaxStatement> operatorStatements(final ContextView context) {
-        OpInfo op = parseDefinition(context);
-        return op.operatorStatements;
+        return parseDefinition(context).operatorStatements;
     }
 
     /**
@@ -278,8 +275,7 @@ public final class OpDefinitionView extends ObjectDefinitionView {
      * @return root object of the definition
      */
     public ObjectOp rootObject(final ContextView context) {
-        OpInfo op = parseDefinition(context);
-        return op.rootObject;
+        return parseDefinition(context).rootObject;
     }
 
     /**
@@ -344,7 +340,7 @@ public final class OpDefinitionView extends ObjectDefinitionView {
         /**
          * List of operator statements.
          */
-        private ArrayList<SyntaxStatement> operatorStatements = new ArrayList<SyntaxStatement>();
+        private final List<SyntaxStatement> operatorStatements = new ArrayList<SyntaxStatement>();
         /**
          * root object for operator.
          */

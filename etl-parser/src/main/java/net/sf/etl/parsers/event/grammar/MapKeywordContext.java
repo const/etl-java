@@ -27,6 +27,7 @@ package net.sf.etl.parsers.event.grammar;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Map keyword context.
@@ -35,7 +36,7 @@ public final class MapKeywordContext implements KeywordContext {
     /**
      * The backing map.
      */
-    private final HashMap<String, Keyword> map;
+    private final Map<String, Keyword> map;
 
     /**
      * Map keyword context that numerate keywords form zero, if keyword is mentioned several times, it numbered
@@ -45,7 +46,7 @@ public final class MapKeywordContext implements KeywordContext {
      */
     public MapKeywordContext(final Keyword... keywords) {
         this.map = new HashMap<String, Keyword>(keywords.length);
-        for (Keyword value : keywords) {
+        for (final Keyword value : keywords) {
             map.put(value.text(), value);
         }
     }
@@ -58,7 +59,7 @@ public final class MapKeywordContext implements KeywordContext {
      */
     public MapKeywordContext(final Collection<Keyword> keywords) {
         this.map = new HashMap<String, Keyword>(keywords.size());
-        for (Keyword value : keywords) {
+        for (final Keyword value : keywords) {
             map.put(value.text(), value);
         }
     }

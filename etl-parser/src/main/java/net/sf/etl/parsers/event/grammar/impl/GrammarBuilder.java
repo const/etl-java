@@ -39,6 +39,8 @@ import net.sf.etl.parsers.event.impl.term.action.buildtime.ActionLinker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A builder for specific grammar. This class takes flattened
@@ -60,11 +62,11 @@ public final class GrammarBuilder {
     /**
      * The context builders.
      */
-    private final HashMap<ContextView, ContextBuilder> contextBuilders = new HashMap<ContextView, ContextBuilder>();
+    private final Map<ContextView, ContextBuilder> contextBuilders = new HashMap<ContextView, ContextBuilder>(); // NOPMD
     /**
      * The grammars linked from this grammar.
      */
-    private final ArrayList<CompiledGrammar> linkedGrammars = new ArrayList<CompiledGrammar>();
+    private final List<CompiledGrammar> linkedGrammars = new ArrayList<CompiledGrammar>();
     /**
      * The default context.
      */
@@ -93,10 +95,10 @@ public final class GrammarBuilder {
      * it might require to reference other peer factories or activations in
      * them.
      */
-    void prepare() {
+    public void prepare() {
         // prepare contexts
         for (final ContextView view : grammarView.contexts()) {
-            final ContextBuilder builder = new ContextBuilder(this, view);
+            final ContextBuilder builder = new ContextBuilder(this, view); // NOPMD
             contextBuilders.put(view, builder);
             builder.prepare();
         }
@@ -151,7 +153,7 @@ public final class GrammarBuilder {
      * @return a context builder for corresponding context view
      */
     public ContextBuilder contextBuilder(final ContextView contextView) {
-        GrammarBuilder b;
+        final GrammarBuilder b;
         if (contextView.grammar() == grammarView) {
             b = this;
         } else {
@@ -219,21 +221,21 @@ public final class GrammarBuilder {
                 new HashMap<ExpressionContext, TermParserStateFactory>();
         // TODO expression
         final ActionLinker linker = getLinker();
-        for (ContextBuilder contextBuilder : contextBuilders.values()) {
+        for (final ContextBuilder contextBuilder : contextBuilders.values()) {
             if (contextBuilder.contextView().isAbstract()) {
                 continue;
             }
             final TermParserStateFactory parser = contextBuilder.parser();
             if (parser != null) {
                 final DefinitionContext definitionContext = contextBuilder.termContext();
-                final StatementSequenceStateFactory sequenceParser = new StatementSequenceStateFactory(parser);
-                linker.resolveBlock(definitionContext, new BlockStateFactory(definitionContext, sequenceParser));
+                final StatementSequenceStateFactory sequenceParser = new StatementSequenceStateFactory(parser); // NOPMD
+                linker.resolveBlock(definitionContext, new BlockStateFactory(definitionContext, sequenceParser));//NOPMD
                 statementSequences.put(definitionContext, sequenceParser);
                 statements.put(definitionContext, parser);
                 keywords.put(definitionContext, contextBuilder.getKeywordContext());
             }
         }
-        boolean script = grammarView.getGrammar().getScriptModifier() != null;
+        final boolean script = grammarView.getGrammar().getScriptModifier() != null;
         compiledGrammar = new BasicCompiledGrammar(grammarView.createDescriptor(),
                 allErrors(),
                 defaultContext,
@@ -257,7 +259,7 @@ public final class GrammarBuilder {
      * Link compiled grammars.
      */
     public void linkGrammars() {
-        for (GrammarView view : grammarView.getGrammarDependencies()) {
+        for (final GrammarView view : grammarView.getGrammarDependencies()) {
             linkedGrammars.add(assemblyBuilder.grammarBuilder(view).compiledGrammar());
         }
     }

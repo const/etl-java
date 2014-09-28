@@ -102,7 +102,7 @@ public class FirstChoiceTest extends FieldsTermCase<BaseNode> {
      * @param type an expected type
      * @param text an expected text
      */
-    private void checkStatement(Class<?> type, String text) {
+    private void checkStatement(final Class<?> type, final String text) {
         checkStatement(type, text, false);
     }
 
@@ -113,10 +113,10 @@ public class FirstChoiceTest extends FieldsTermCase<BaseNode> {
      * @param text              an expected text
      * @param normalizeNewlines if true normalize newlines in the text
      */
-    private void checkStatement(Class<?> type, String text,
-                                boolean normalizeNewlines) {
+    private void checkStatement(final Class<?> type, final String text,
+                                final boolean normalizeNewlines) {
         assertTrue(parser.advance());
-        Statement s = (Statement) parser.current();
+        final Statement s = (Statement) parser.current(); // NOPMD
         if (type != null) {
             assertNotNull(s.value);
             assertSame("Token: " + s.value.text, type, s.value.getClass());
@@ -131,7 +131,7 @@ public class FirstChoiceTest extends FieldsTermCase<BaseNode> {
 
     @Override
     protected FieldObjectFactory<BaseNode> createFieldTermParser() {
-        FieldObjectFactory<BaseNode> rc = super.createFieldTermParser();
+        final FieldObjectFactory<BaseNode> rc = super.createFieldTermParser();
         rc.ignoreNamespace(StandardGrammars.DOCTYPE_NS);
         rc.mapNamespaceToPackage(
                 "http://etl.sf.net/2006/samples/firstChoice/0.1",

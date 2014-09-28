@@ -43,16 +43,15 @@ import static org.junit.Assert.assertEquals;
 public class BasicLexerTest {
     @Test
     public void testEof() {
-        Lexer l = new LexerImpl();
+        final Lexer l = new LexerImpl();
         l.start("test:test", TextPos.START);
         ParserState r = l.parse(CharBuffer.wrap(""), false);
         assertEquals(ParserState.INPUT_NEEDED, r);
         r = l.parse(CharBuffer.wrap(""), true);
         assertEquals(ParserState.OUTPUT_AVAILABLE, r);
-        Token t = l.read();
+        final Token t = l.read();
         assertEquals(Tokens.EOF, t.kind());
         assertEquals(TextPos.START, t.start());
         assertEquals(TextPos.START, t.end());
     }
-
 }

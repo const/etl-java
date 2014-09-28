@@ -72,7 +72,7 @@ public final class CallAction extends Action {
                 state.nextAction(failure);
                 break;
             default:
-                throw new RuntimeException("Unexpected call status: " + status);
+                throw new IllegalStateException("Unexpected call status: " + status);
         }
     }
 

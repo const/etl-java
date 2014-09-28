@@ -128,7 +128,7 @@ public final class BlockStateFactory implements TermParserStateFactory {
         @Override
         public void parseMore() {
             final TermParserContext context = getContext();
-            PhraseToken current = context.current();
+            final PhraseToken current = context.current();
             switch (mode) {
                 case BEFORE_BLOCK:
                     if (current.kind() != PhraseTokens.START_BLOCK) {

@@ -43,6 +43,10 @@ public final class Keyword implements Serializable {
     private static final WeakHashMap<String, WeakReference<Keyword>> KEYWORDS =
             new WeakHashMap<String, WeakReference<Keyword>>();
     /**
+     * The serial version UID.
+     */
+    private static final long serialVersionUID = 3643615947738378559L;
+    /**
      * The keyword text.
      */
     private final String text;
@@ -96,7 +100,6 @@ public final class Keyword implements Serializable {
      * @return resolve object from serialization
      */
     private Object readResolve() {
-        // TODO resolve token key as well (for non-modified tokens)
         return forText(text, tokenKey);
     }
 

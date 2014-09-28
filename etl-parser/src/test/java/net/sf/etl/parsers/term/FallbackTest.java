@@ -36,7 +36,7 @@ public class FallbackTest extends TermStructureTestCase {
     /**
      * Namespace to use
      */
-    public static final String ns = "http://etl.sf.net/2006/tests/fallbacks";
+    public static final String NS = "http://etl.sf.net/2006/tests/fallbacks";
 
     /**
      * Test context with empty fallback statement
@@ -47,18 +47,18 @@ public class FallbackTest extends TermStructureTestCase {
         boolean errorExit = true;
         try {
             readDocType("\"Fallbacks.g.etl\"", "EmptyFallbacks");
-            objectStart(ns, "SomeStatement");
+            objectStart(NS, "SomeStatement");
             readDocAndOkAttribute();
             propStart("value");
             value("test");
             propEnd("value");
-            objectEnd(ns, "SomeStatement");
+            objectEnd(NS, "SomeStatement");
 
-            objectStart(ns, "BlankStatement");
+            objectStart(NS, "BlankStatement");
             readDocAndOkAttribute();
-            objectEnd(ns, "BlankStatement");
+            objectEnd(NS, "BlankStatement");
 
-            objectStart(ns, "SomeStatement");
+            objectStart(NS, "SomeStatement");
             readDoc();
             listStart("attributes");
             readError(Terms.SYNTAX_ERROR);
@@ -66,11 +66,11 @@ public class FallbackTest extends TermStructureTestCase {
             propStart("value");
             value("test");
             propEnd("value");
-            objectEnd(ns, "SomeStatement");
+            objectEnd(NS, "SomeStatement");
 
-            objectStart(ns, "BlankStatement");
+            objectStart(NS, "BlankStatement");
             readDocAndOkAttribute();
-            objectEnd(ns, "BlankStatement");
+            objectEnd(NS, "BlankStatement");
             readError(Terms.SYNTAX_ERROR);
 
             errorExit = false;
@@ -88,19 +88,19 @@ public class FallbackTest extends TermStructureTestCase {
         boolean errorExit = true;
         try {
             readDocType("\"Fallbacks.g.etl\"", "NonEmptyFallbacks");
-            objectStart(ns, "SomeStatement");
+            objectStart(NS, "SomeStatement");
             readDocAndOkAttribute();
             propStart("value");
             value("test");
             propEnd("value");
-            objectEnd(ns, "SomeStatement");
+            objectEnd(NS, "SomeStatement");
 
-            objectStart(ns, "SomeStatement");
+            objectStart(NS, "SomeStatement");
             readDocAndOkAttribute();
             readError(Terms.SYNTAX_ERROR);
-            objectEnd(ns, "SomeStatement");
+            objectEnd(NS, "SomeStatement");
 
-            objectStart(ns, "SomeStatement");
+            objectStart(NS, "SomeStatement");
             readDoc();
             listStart("attributes");
             readError(Terms.SYNTAX_ERROR);
@@ -108,12 +108,12 @@ public class FallbackTest extends TermStructureTestCase {
             propStart("value");
             value("test");
             propEnd("value");
-            objectEnd(ns, "SomeStatement");
+            objectEnd(NS, "SomeStatement");
 
-            objectStart(ns, "SomeStatement");
+            objectStart(NS, "SomeStatement");
             readDocAndOkAttribute();
             readError(Terms.SYNTAX_ERROR);
-            objectEnd(ns, "SomeStatement");
+            objectEnd(NS, "SomeStatement");
 
             errorExit = false;
         } finally {

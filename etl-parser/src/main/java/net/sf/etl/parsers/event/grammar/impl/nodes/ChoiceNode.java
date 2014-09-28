@@ -52,7 +52,7 @@ public final class ChoiceNode extends GroupNode {
         builder.setFallback(ActionUtil.createReportErrorAction(source, errorExit,
                 "syntax.UnexpectedToken.expectingTokens",
                 choiceLa.toString()));
-        for (Node node : nodes()) {
+        for (final Node node : nodes()) {
             builder.add(node.buildLookAhead(visitedSet), node.buildActions(b, normalExit, errorExit, recoveryTest));
         }
         return builder.build();
@@ -76,7 +76,7 @@ public final class ChoiceNode extends GroupNode {
         assert !nodes().isEmpty() : "Choice node must have at least one alternative";
         final Iterator<Node> i = nodes().iterator();
         final LookAheadSet rc = new LookAheadSet();
-        rc.addAll((i.next()).buildLookAhead(visitedBuilders));
+        rc.addAll(i.next().buildLookAhead(visitedBuilders));
         while (i.hasNext()) {
             final Node node = i.next();
             final LookAheadSet nodeLA = node.buildLookAhead(visitedBuilders);

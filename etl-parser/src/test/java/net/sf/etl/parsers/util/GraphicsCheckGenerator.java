@@ -28,32 +28,37 @@ package net.sf.etl.parsers.util;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.NavigableMap;
 import java.util.TreeMap;
 
 /**
  * Generator that generates test for graphics characters basing
  */
-public class GraphicsCheckGenerator {
+public class GraphicsCheckGenerator { // NOPMD
     /**
      * The size of range that is expanded to the set of switch cases, ranges larger than that are checked using
      * range checks.
      */
-    static final int EXPAND_RANGE_LIMIT = 3;
+    private static final int EXPAND_RANGE_LIMIT = 3;
 
+    private static void line(final String line) {
+        System.out.println(line); // NOPMD
+    }
 
-    public static void main(String args[]) throws Exception {
-        BufferedReader in = new BufferedReader(new InputStreamReader(GraphicsCheckGenerator.class.getResourceAsStream("/unicode/graphics.txt"), "UTF-8"));
+    public static void main(final String args[]) throws Exception { // NOPMD
+        final BufferedReader in = new BufferedReader(new InputStreamReader(GraphicsCheckGenerator.class.getResourceAsStream("/unicode/graphics.txt"), "UTF-8"));
         try {
             int start = -1;
             int current = -1;
             int block = -1;
             in.readLine(); // skip first line
-            TreeMap<Integer, Page> pages = new TreeMap<Integer, Page>();
+            final TreeMap<Integer, Page> pages = new TreeMap<Integer, Page>();
             // collect blocks
             for (String line = in.readLine(); line != null; line = in.readLine()) {
-                String[] t = line.split("\t");
-                int codepoint = Integer.parseInt(t[0].trim(), 16);
-                System.out.println(">>> " + Integer.toHexString(codepoint));
+                final String[] t = line.split("\t");
+                final int codepoint = Integer.parseInt(t[0].trim(), 16);
+                line(">>> " + Integer.toHexString(codepoint));
                 if (current == -1) {
                     start = current = codepoint;
                 } else if (current + 1 == codepoint) {
@@ -64,73 +69,74 @@ public class GraphicsCheckGenerator {
                 }
             }
             collectRanges(block, start, current, pages);
-            System.out.println("final int high = codepoint >> 8;");
-            System.out.println("final int low = codepoint & 0xFF;");
-            System.out.println("switch(high) {");
-            for (Page page : pages.values()) {
-                System.out.println("\t" + "case 0x" + Integer.toHexString(page.block) + ":");
+            line("final int high = codepoint >> 8;");
+            line("final int low = codepoint & 0xFF;");
+            line("switch(high) {");
+            for (final Page page : pages.values()) {
+                line("\t" + "case 0x" + Integer.toHexString(page.block) + ":");
                 if (page.ranges.size() == 1 && (page.ranges.get(0).start & 0xFF) == 0 && (page.ranges.get(0).end & 0xFF) == 0xFF) {
-                    System.out.println("\t\t" + "return true;");
+                    line("\t\t" + "return true;");
                     continue;
                 }
 
                 boolean hasSingle = false;
-                for (Range r : page.ranges) {
+                for (final Range r : page.ranges) {
                     if (r.end - r.start < EXPAND_RANGE_LIMIT) {
                         if (!hasSingle) {
-                            System.out.println("\t\t" + "switch(low) {");
+                            line("\t\t" + "switch(low) {");
                             hasSingle = true;
                         }
                         for (int i = r.start; i <= r.end; i++) {
-                            System.out.println("\t\t\t" + "case 0x" + Integer.toHexString(i & 0xFF) + ":");
+                            line("\t\t\t" + "case 0x" + Integer.toHexString(i & 0xFF) + ":");
                         }
                     }
                 }
-                String p;
+                final String p;
                 if (hasSingle) {
-                    System.out.println("\t\t\t\t" + "return true;");
-                    System.out.println("\t\t\t" + "default:");
+                    line("\t\t\t\t" + "return true;");
+                    line("\t\t\t" + "default:");
                     p = "\t\t\t\t";
                 } else {
                     p = "\t\t\t";
                 }
-                for (Range r : page.ranges) {
+                for (final Range r : page.ranges) {
                     if (r.end - r.start >= EXPAND_RANGE_LIMIT) {
-                        int lowEnd = r.end & 0xFF;
-                        int lowStart = r.start & 0xFF;
+                        final int lowEnd = r.end & 0xFF;
+                        final int lowStart = r.start & 0xFF;
                         if (lowStart == 0) {
-                            System.out.println(p + "if(low <= 0x" + Integer.toHexString(lowEnd) + ") return true;");
+                            line(p + "if(low <= 0x" + Integer.toHexString(lowEnd) + ") return true;");
                         } else if (lowEnd == 0xFF) {
-                            System.out.println(p + "if(0x" + Integer.toHexString(lowStart) + " <= low) return true;");
+                            line(p + "if(0x" + Integer.toHexString(lowStart) + " <= low) return true;");
                         } else {
-                            System.out.println(p + "if(0x" + Integer.toHexString(lowStart) +
+                            line(p + "if(0x" + Integer.toHexString(lowStart) +
                                     " <= low && low <= 0x" + Integer.toHexString(lowEnd) + ") return true;");
                         }
                     }
                 }
-                System.out.println(p + "return false;");
+                line(p + "return false;");
                 if (hasSingle) {
-                    System.out.println("\t\t\t" + "}");
+                    line("\t\t\t" + "}");
                 }
             }
-            System.out.println("\t" + "default:");
-            System.out.println("\t\t" + "return false;");
-            System.out.println("}");
+            line("\t" + "default:");
+            line("\t\t" + "return false;");
+            line("}");
         } finally {
             in.close();
         }
 
     }
 
-    private static int collectRanges(int block, int start, int end, TreeMap<Integer, Page> pages) {
-        int startBlock = start >> 8;
-        int endBlock = end >> 8;
+    private static int collectRanges(final int previousBlock, final int start, final int end, final NavigableMap<Integer, Page> pages) {
+        final int startBlock = start >> 8;
+        final int endBlock = end >> 8;
+        int block = previousBlock;
         if (startBlock != endBlock) {
-            int boundary = (startBlock << 8) + 0xFF;
+            final int boundary = (startBlock << 8) + 0xFF; // NOPMD
             block = collectRanges(block, start, boundary, pages);
             return collectRanges(block, boundary + 1, end, pages);
         }
-        Page page;
+        final Page page;
         if (block != startBlock) {
             block = startBlock;
             page = new Page(block);
@@ -138,26 +144,26 @@ public class GraphicsCheckGenerator {
         } else {
             page = pages.get(block);
         }
-        Range range = new Range(start, end);
-        System.out.println(">>> " + range);
+        final Range range = new Range(start, end);
+        line(">>> " + range);
         page.ranges.add(range);
         return block;
     }
 
-    static class Page {
-        final ArrayList<Range> ranges = new ArrayList<Range>();
+    private static class Page {
+        private final List<Range> ranges = new ArrayList<Range>();
         private final int block;
 
-        public Page(int block) {
+        private Page(final int block) {
             this.block = block;
         }
     }
 
-    static class Range {
-        final int start;
-        final int end;
+    private static class Range {
+        private final int start;
+        private final int end;
 
-        Range(int start, int end) {
+        private Range(final int start, final int end) {
             this.end = end;
             this.start = start;
         }
@@ -170,6 +176,4 @@ public class GraphicsCheckGenerator {
                     '}';
         }
     }
-
-
 }

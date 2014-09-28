@@ -32,6 +32,7 @@ import net.sf.etl.parsers.event.impl.term.action.CallAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The linker for the productions in the grammar. The linker is scoped to grammar compilation session.
@@ -41,7 +42,7 @@ public final class ActionLinker {
     /**
      * Scheduled links for the block.
      */
-    private final HashMap<DefinitionContext, List<CallAction>> blocks =
+    private final Map<DefinitionContext, List<CallAction>> blocks = // NOPMD
             new HashMap<DefinitionContext, List<CallAction>>();
 
     /**
@@ -51,9 +52,9 @@ public final class ActionLinker {
      * @param factory the state factory for the block
      */
     public void resolveBlock(final DefinitionContext context, final TermParserStateFactory factory) {
-        List<CallAction> calls = blocks.get(context);
+        final List<CallAction> calls = blocks.get(context);
         if (calls != null) {
-            for (CallAction call : calls) {
+            for (final CallAction call : calls) {
                 call.setStateFactory(factory);
             }
         }

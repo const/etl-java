@@ -79,15 +79,25 @@ public final class GrammarInfo {
     @Override
     public boolean equals(final Object o) {
         //CHECKSTYLE:OFF
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-        GrammarInfo that = (GrammarInfo) o;
+        final GrammarInfo that = (GrammarInfo) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (uri != null ? !uri.equals(that.uri) : that.uri != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (uri != null ? !uri.equals(that.uri) : that.uri != null) {
+            return false;
+        }
         //noinspection RedundantIfStatement
-        if (version != null ? !version.equals(that.version) : that.version != null) return false;
+        if (version != null ? !version.equals(that.version) : that.version != null) {
+            return false;
+        }
 
         return true;
         //CHECKSTYLE:ON

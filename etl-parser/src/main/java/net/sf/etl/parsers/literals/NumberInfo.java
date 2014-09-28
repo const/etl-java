@@ -116,7 +116,7 @@ public final class NumberInfo {
         }
         String textToParse = text;
         if (sign == -1) {
-            textToParse = "-" + textToParse;
+            textToParse = "-" + textToParse; // NOPMD
         }
         return Integer.parseInt(textToParse, base);
     }
@@ -128,13 +128,13 @@ public final class NumberInfo {
      * @return the parsed value
      */
     public double parseDouble() {
-        BigInteger digits = new BigInteger((sign >= 0 ? "" : "-") + text, base);
+        final BigInteger digits = new BigInteger((sign >= 0 ? "" : "-") + text, base);
         double exp = 1;
-        int a = Math.abs(exponent);
+        final int a = Math.abs(exponent);
         for (int i = 0; i < a; i++) {
             exp *= base;
         }
-        double rc = digits.doubleValue();
+        final double rc = digits.doubleValue();
         return exponent < 0 ? rc / exp : rc * exp;
     }
 

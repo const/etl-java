@@ -72,7 +72,7 @@ public class DefaultTermReaderConfiguration implements TermReaderCatalogConfigur
     }
 
     @Override
-    public BlockingCatalog getCatalog(String systemId) {
+    public BlockingCatalog getCatalog(final String systemId) {
         return catalog;
     }
 

@@ -34,12 +34,14 @@ import net.sf.etl.parsers.event.impl.LexerImpl;
 
 import java.nio.CharBuffer;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 /**
  * The basic lexer test case
  */
-public abstract class LexerTestCase {
+public abstract class LexerTestCase { // NOPMD
     // TODO unicode tests
     // TODO errors and error recovery tests
     /**
@@ -68,7 +70,7 @@ public abstract class LexerTestCase {
      *
      * @param text the text to parse
      */
-    protected void start(String text) {
+    protected void start(final String text) {
         lexer = new LexerImpl();
         lexer.start("unknown:text", TextPos.START);
         input = text;
@@ -81,7 +83,7 @@ public abstract class LexerTestCase {
      *
      * @param text the text to parse
      */
-    protected void startOneChar(String text) {
+    protected void startOneChar(final String text) {
         lexer = new LexerImpl();
         lexer.start("unknown:text", TextPos.START);
         input = text;
@@ -97,13 +99,13 @@ public abstract class LexerTestCase {
      */
     protected Token next() {
         while (true) {
-            ParserState status = lexer.parse(buffer, consumed == input.length());
+            final ParserState status = lexer.parse(buffer, consumed == input.length());
             if (status == ParserState.OUTPUT_AVAILABLE) {
                 current = lexer.read();
                 return current;
             } else if (status == ParserState.EOF) {
                 current = null;
-                return current;
+                return null;
             } else if (status == ParserState.INPUT_NEEDED) {
                 buffer.compact();
                 buffer.put(input.charAt(consumed++));
@@ -121,14 +123,14 @@ public abstract class LexerTestCase {
      * @param kind the expected token kind
      * @return the parsed token
      */
-    protected Token single(String text, Tokens kind) {
+    protected Token single(final String text, final Tokens kind) {
         // one char node
         startOneChar(text);
         read(text, kind);
         readEof();
         // single token mode
         start(text);
-        Token rc = read(text, kind);
+        final Token rc = read(text, kind);
         if (rc.hasErrors()) {
             fail("The token has errors: " + rc);
         }
@@ -142,8 +144,8 @@ public abstract class LexerTestCase {
      * @param text     the text to check
      * @param tokenKey the token key to use
      */
-    protected void single(String text, TokenKey tokenKey) {
-        Token t = single(text, tokenKey.kind());
+    protected void single(final String text, final TokenKey tokenKey) {
+        final Token t = single(text, tokenKey.kind());
         assertEquals(tokenKey, t.key());
     }
 
@@ -155,16 +157,16 @@ public abstract class LexerTestCase {
      * @param kind   the kind of the token
      * @param tokens the token text
      */
-    protected void sequence(String text, Tokens kind, String... tokens) {
+    protected void sequence(final String text, final Tokens kind, final String... tokens) {
         // one char mode
         startOneChar(text);
-        for (String t : tokens) {
+        for (final String t : tokens) {
             read(t, kind);
         }
         readEof();
         // many chars mode
         start(text);
-        for (String t : tokens) {
+        for (final String t : tokens) {
             read(t, kind);
         }
         readEof();
@@ -176,17 +178,17 @@ public abstract class LexerTestCase {
      * @param text   the text to check
      * @param tokens the token text
      */
-    protected void sequenceText(String text, String... tokens) {
+    protected void sequenceText(final String text, final String... tokens) {
         // one char mode
         startOneChar(text);
-        for (String t : tokens) {
+        for (final String t : tokens) {
             next();
             assertEquals(t, current.text());
         }
         readEof();
         // many chars mode
         start(text);
-        for (String t : tokens) {
+        for (final String t : tokens) {
             next();
             assertEquals(t, current.text());
         }
@@ -210,7 +212,7 @@ public abstract class LexerTestCase {
      * @param kind the expected token kind
      * @return the parsed token
      */
-    protected Token read(String text, Tokens kind) {
+    protected Token read(final String text, final Tokens kind) {
         next();
         checkCurrent(text, kind);
         return current;
@@ -223,20 +225,20 @@ public abstract class LexerTestCase {
      * @param kind the expected token kind
      * @return the parsed token
      */
-    protected Token read(String text, TokenKey kind) {
+    protected Token read(final String text, final TokenKey kind) {
         next();
         checkCurrent(text, kind);
         return current;
     }
 
 
-    protected void checkCurrent(String text, TokenKey tokenKey) {
+    protected void checkCurrent(final String text, final TokenKey tokenKey) {
         assertEquals(text, current.text());
         assertEquals(tokenKey, current.key());
     }
 
 
-    protected void checkCurrent(String text, Tokens kind) {
+    protected void checkCurrent(final String text, final Tokens kind) {
         assertEquals(text, current.text());
         assertEquals(kind, current.kind());
     }

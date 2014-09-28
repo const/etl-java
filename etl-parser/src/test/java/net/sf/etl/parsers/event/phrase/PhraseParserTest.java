@@ -97,13 +97,13 @@ public class PhraseParserTest {
     }
 
     private void next() {
-        ParserState r = phraseParser.parse(cell);
+        final ParserState r = phraseParser.parse(cell);
         switch (r) {
             case OUTPUT_AVAILABLE:
                 current = phraseParser.read();
                 return;
             case INPUT_NEEDED:
-                ParserState state = lexer.parse(buffer, true);
+                final ParserState state = lexer.parse(buffer, true);
                 assertEquals(ParserState.OUTPUT_AVAILABLE, state);
                 cell.put(lexer.read());
                 next();
@@ -113,12 +113,12 @@ public class PhraseParserTest {
         }
     }
 
-    private void read(PhraseTokens kind) {
+    private void read(final PhraseTokens kind) {
         next();
         assertEquals(kind, current.kind());
     }
 
-    private void start(String text) {
+    private void start(final String text) {
         buffer = CharBuffer.wrap(text);
         cell = new Cell<Token>();
         lexer = new LexerImpl();

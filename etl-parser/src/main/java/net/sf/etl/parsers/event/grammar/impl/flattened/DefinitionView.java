@@ -115,7 +115,7 @@ public abstract class DefinitionView extends ContextMemberView {
         } else if (def instanceof Attributes) {
             return new AttributesView(context, (Attributes) def);
         } else {
-            throw new RuntimeException("Unknown definition: " + def.getClass().getCanonicalName());
+            throw new IllegalStateException("Unknown definition: " + def.getClass().getCanonicalName());
         }
     }
 
@@ -142,7 +142,7 @@ public abstract class DefinitionView extends ContextMemberView {
         } else if (def instanceof AttributesView) {
             return new AttributesView(context, (AttributesView) def);
         } else {
-            throw new RuntimeException("Unknown definition view: " + def.getClass().getName());
+            throw new IllegalStateException("Unknown definition view: " + def.getClass().getName());
         }
     }
 

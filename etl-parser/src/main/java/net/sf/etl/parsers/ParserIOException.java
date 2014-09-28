@@ -49,6 +49,7 @@ public class ParserIOException extends ParserException {
      * A Constructor.
      */
     public ParserIOException() {
+        // Do nothing
     }
 
     /**

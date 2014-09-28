@@ -43,7 +43,7 @@ public class BaseLiteralParser {
     /**
      * Buffer used for consuming characters.
      */
-    private final StringBuilder buffer = new StringBuilder();
+    private final StringBuilder buffer = new StringBuilder(); // NOPMD
     /**
      * The start position.
      */
@@ -55,7 +55,7 @@ public class BaseLiteralParser {
     /**
      * position in input text.
      */
-    private int pos = 0;
+    private int pos;
     /**
      * The line .
      */
@@ -122,8 +122,8 @@ public class BaseLiteralParser {
         if (pos >= inputText.length()) {
             throw new ParserException();
         }
-        int c = inputText.codePointAt(pos);
-        int count = Character.charCount(c);
+        final int c = inputText.codePointAt(pos);
+        final int count = Character.charCount(c);
         pos += count;
         offset += count;
         column++;

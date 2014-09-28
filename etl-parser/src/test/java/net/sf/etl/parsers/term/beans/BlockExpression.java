@@ -37,19 +37,19 @@ public class BlockExpression extends Expression {
     /**
      * statements in the block
      */
-    Statement[] content;
+    private Statement[] content;
 
     /**
      * @return Returns the content.
      */
     public Statement[] getContent() {
-        return content;
+        return content == null ? null : content.clone(); // NOPMD
     }
 
     /**
      * @param content The content to set.
      */
-    public void setContent(Statement[] content) {
-        this.content = content;
+    public void setContent(final Statement[] content) {
+        this.content = content == null ? null : content.clone();
     }
 }

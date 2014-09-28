@@ -62,7 +62,7 @@ public class BasicTermTestCase {
      *
      * @param reader the reader
      */
-    protected void start(TermParserReader reader) {
+    protected void start(final TermParserReader reader) {
         closeReader();
         this.reader = reader;
         reader.advance();
@@ -73,7 +73,7 @@ public class BasicTermTestCase {
      *
      * @param term the term to parse
      */
-    protected TermToken read(Terms term) {
+    protected TermToken read(final Terms term) {
         return read(term, false);
     }
 
@@ -83,9 +83,9 @@ public class BasicTermTestCase {
      * @param term       the term to parse
      * @param haveErrors if true, the token must have errors, if false it must not have
      */
-    protected TermToken read(Terms term, boolean haveErrors) {
+    protected TermToken read(final Terms term, final boolean haveErrors) {
         skipIgnorable();
-        TermToken current = reader.current();
+        final TermToken current = reader.current();
         assertEquals("Current token: " + current, haveErrors, current.hasAnyErrors());
         reader.advance();
         assertEquals("Current token: " + current, term, current.kind());
@@ -106,7 +106,7 @@ public class BasicTermTestCase {
      * @param token the token to read
      * @param text  the text
      */
-    protected void read(Terms token, String text) {
+    protected void read(final Terms token, final String text) {
         final TermToken read = read(token);
         assertTrue("Current token: " + read, read.hasLexicalToken());
         assertEquals("Current token: " + read, text, read.token().token().text());
@@ -119,7 +119,7 @@ public class BasicTermTestCase {
      * @param grammar the grammar to parse
      * @param text    the text to parse
      */
-    protected void startCompiledGrammar(CompiledGrammar grammar, String text) {
+    protected void startCompiledGrammar(final CompiledGrammar grammar, final String text) {
         start(new TermParserReader(new PhraseParserReader(new LexerReader(DefaultTermReaderConfiguration.INSTANCE,
                 new StringReader(text), "t", TextPos.START)), grammar, false));
     }
@@ -129,7 +129,7 @@ public class BasicTermTestCase {
      *
      * @param systemId the systemId name
      */
-    protected void startSystemId(String systemId) throws IOException {
+    protected void startSystemId(final String systemId) throws IOException {
         startSystemId(new URL(systemId));
     }
 
@@ -138,7 +138,7 @@ public class BasicTermTestCase {
      *
      * @param url start grammar at URL
      */
-    protected void startSystemId(URL url) {
+    protected void startSystemId(final URL url) {
         start(new TermParserReader(url));
     }
 
@@ -147,7 +147,7 @@ public class BasicTermTestCase {
      *
      * @param resource the resource
      */
-    protected void startResource(String resource) {
+    protected void startResource(final String resource) {
         final URL url = getClass().getResource(resource);
         assertNotNull(getClass().getName() + " => " + resource, url);
         startSystemId(url);
@@ -157,12 +157,7 @@ public class BasicTermTestCase {
     @After
     public void closeReader() {
         if (reader != null) {
-            try {
-                reader.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            reader.close();
         }
     }
-
 }

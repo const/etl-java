@@ -35,25 +35,25 @@ public class HelloWorldTermTest extends TermStructureTestCase {
     /**
      * namespace for EJ grammar
      */
-    private static final String ns = "http://etl.sf.net/2006/samples/ej/0.1";
+    private static final String NS = "http://etl.sf.net/2006/samples/ej/0.1";
     /**
      * system id of minimal XJ grammar
      */
-    private static final String MinimalEJ_SYSTEM_ID = HelloWorldTermTest.class.getResource("hello/MinimalEJ.g.etl").toString();
+    private static final String MINIMAL_EJ_SYSTEM_ID = HelloWorldTermTest.class.getResource("hello/MinimalEJ.g.etl").toString();
 
     /**
      * check for identifier
      *
      * @param name text of identifier
      */
-    private void identifier(String name) {
-        this.objectStart(ns, "Identifier");
+    private void identifier(final String name) {
+        this.objectStart(NS, "Identifier");
         {
             propStart("Value");
             value(name);
             propEnd("Value");
         }
-        this.objectEnd(ns, "Identifier");
+        this.objectEnd(NS, "Identifier");
 
     }
 
@@ -62,14 +62,14 @@ public class HelloWorldTermTest extends TermStructureTestCase {
      *
      * @param name text of modifier
      */
-    private void modifier(String name) {
-        this.objectStart(ns, "Modifier");
+    private void modifier(final String name) {
+        this.objectStart(NS, "Modifier");
         {
             propStart("Value");
             value(name);
             propEnd("Value");
         }
-        this.objectEnd(ns, "Modifier");
+        this.objectEnd(NS, "Modifier");
     }
 
     /**
@@ -77,20 +77,21 @@ public class HelloWorldTermTest extends TermStructureTestCase {
      *
      * @param text text of documentation line
      */
-    private void docline(String text) {
-        this.objectStart(ns, "DocumentationLine");
+    private void docline(final String text) {
+        this.objectStart(NS, "DocumentationLine");
         {
             propStart("Text");
             value(text);
             propEnd("Text");
         }
-        this.objectEnd(ns, "DocumentationLine");
+        this.objectEnd(NS, "DocumentationLine");
 
     }
 
     /**
      * read hello world from URI
      */
+    @Test
     public void testHelloWorld() {
         startWithResource("hello/HelloWorld.ej.etl");
         walkThrougHelloWorld("\"MinimalEJ.g.etl\"");
@@ -99,6 +100,7 @@ public class HelloWorldTermTest extends TermStructureTestCase {
     /**
      * read hello world from URI and reader
      */
+    @Test
     public void testHelloWorldReader() {
         startWithResourceAsReader("hello/HelloWorld.ej.etl");
         walkThrougHelloWorld("\"MinimalEJ.g.etl\"");
@@ -109,7 +111,7 @@ public class HelloWorldTermTest extends TermStructureTestCase {
      *
      * @param grammarRef reference to grammar.
      */
-    private void walkThrougHelloWorld(String grammarRef) {
+    private void walkThrougHelloWorld(final String grammarRef) {
         boolean errorExit = true;
         try {
             readDocType(grammarRef, null);
@@ -125,11 +127,11 @@ public class HelloWorldTermTest extends TermStructureTestCase {
     /**
      * Read top level class statement
      */
-    private void readTopLevelClassStatement() {
-        this.objectStart(ns, "TopLevelClassifier");
+    private void readTopLevelClassStatement() { // NOPMD
+        this.objectStart(NS, "TopLevelClassifier");
         {
             propStart("Classifier");
-            this.objectStart(ns, "ClassStatement");
+            this.objectStart(NS, "ClassStatement");
             {
                 {
                     listStart("Documentation");
@@ -146,7 +148,7 @@ public class HelloWorldTermTest extends TermStructureTestCase {
                 }
                 {
                     this.listStart("Contents");
-                    this.objectStart(ns, "MethodStatement");
+                    this.objectStart(NS, "MethodStatement");
                     {
                         {
                             listStart("Documentation");
@@ -156,11 +158,11 @@ public class HelloWorldTermTest extends TermStructureTestCase {
                         }
                         {
                             listStart("AttributeSets");
-                            objectStart(ns, "AttributeSet");
+                            objectStart(NS, "AttributeSet");
                             listStart("Attributes");
                             identifier("SampleAttribute");
                             listEnd("Attributes");
-                            objectEnd(ns, "AttributeSet");
+                            objectEnd(NS, "AttributeSet");
                             listEnd("AttributeSets");
                         }
 
@@ -178,10 +180,10 @@ public class HelloWorldTermTest extends TermStructureTestCase {
                             propEnd("ReturnType");
                             identifierProp("Name", "main");
                             listStart("Parameters");
-                            this.objectStart(ns, "Parameter");
+                            this.objectStart(NS, "Parameter");
                             {
                                 propStart("Classifier");
-                                this.objectStart(ns, "ApplySquareOp");
+                                this.objectStart(NS, "ApplySquareOp");
                                 {
                                     propStart("Functor");
                                     readPrimitiveType("array");
@@ -190,68 +192,68 @@ public class HelloWorldTermTest extends TermStructureTestCase {
                                     identifier("String");
                                     this.listEnd("Args");
                                 }
-                                this.objectEnd(ns, "ApplySquareOp");
+                                this.objectEnd(NS, "ApplySquareOp");
                                 propEnd("Classifier");
                                 identifierProp("Name", "args");
                             }
-                            this.objectEnd(ns, "Parameter");
+                            this.objectEnd(NS, "Parameter");
                             listEnd("Parameters");
                         }
                         {
                             this.propStart("Body");
-                            this.objectStart(ns, "MethodBlock");
+                            this.objectStart(NS, "MethodBlock");
                             {
                                 listStart("Content");
-                                this.objectStart(ns, "ExpressionStatement");
+                                this.objectStart(NS, "ExpressionStatement");
                                 {
                                     this.propStart("Expression");
-                                    this.objectStart(ns, "ApplyRoundOp");
+                                    this.objectStart(NS, "ApplyRoundOp");
                                     {
                                         propStart("Functor");
 
-                                        this.objectStart(ns, "AccessOp");
+                                        this.objectStart(NS, "AccessOp");
                                         {
                                             propStart("Accessed");
-                                            this.objectStart(ns, "AccessOp");
+                                            this.objectStart(NS, "AccessOp");
                                             {
                                                 identifierProp("Accessed",
                                                         "System");
                                                 identifierProp("Feature", "out");
                                             }
-                                            this.objectEnd(ns, "AccessOp");
+                                            this.objectEnd(NS, "AccessOp");
                                             propEnd("Accessed");
                                             identifierProp("Feature", "println");
                                         }
-                                        this.objectEnd(ns, "AccessOp");
+                                        this.objectEnd(NS, "AccessOp");
                                         propEnd("Functor");
                                         listStart("Args");
-                                        this.objectStart(ns, "StringLiteral");
+                                        this.objectStart(NS, "StringLiteral");
                                         {
                                             propStart("Value");
                                             value("\"Hello, World!\"");
                                             propEnd("Value");
                                         }
-                                        this.objectEnd(ns, "StringLiteral");
+                                        this.objectEnd(NS, "StringLiteral");
                                         listEnd("Args");
                                     }
-                                    this.objectEnd(ns, "ApplyRoundOp");
+                                    this.objectEnd(NS, "ApplyRoundOp");
                                     this.propEnd("Expression");
                                 }
-                                this.objectEnd(ns, "ExpressionStatement");
+                                this.objectEnd(NS, "ExpressionStatement");
                                 listEnd("Content");
                             }
-                            this.objectEnd(ns, "MethodBlock");
+                            this.objectEnd(NS, "MethodBlock");
                             this.propEnd("Body");
                         }
                     }
-                    this.objectEnd(ns, "MethodStatement");
+                    this.objectEnd(NS, "MethodStatement");
                     this.listEnd("Contents");
                 }
             }
-            this.objectEnd(ns, "ClassStatement");
+            this.objectEnd(NS, "ClassStatement");
             propEnd("Classifier");
         }
-        this.objectEnd(ns, "TopLevelClassifier");
+        this.objectEnd(NS, "TopLevelClassifier");
     }
 
     /**
@@ -259,32 +261,32 @@ public class HelloWorldTermTest extends TermStructureTestCase {
      *
      * @param name a name of primitive type
      */
-    private void readPrimitiveType(String name) {
-        this.objectStart(ns, "PrimitiveType");
+    private void readPrimitiveType(final String name) {
+        this.objectStart(NS, "PrimitiveType");
         {
             propStart("Name");
             value(name);
             propEnd("Name");
         }
-        this.objectEnd(ns, "PrimitiveType");
+        this.objectEnd(NS, "PrimitiveType");
     }
 
     /**
      * Read package statement
      */
     private void readPackageStatement() {
-        this.objectStart(ns, "PackageStatement");
+        this.objectStart(NS, "PackageStatement");
         {
             identifierProp("Name", "test");
         }
-        this.objectEnd(ns, "PackageStatement");
+        this.objectEnd(NS, "PackageStatement");
     }
 
     /**
      * @param name       a name of property
      * @param identifier identifier value
      */
-    private void identifierProp(String name, String identifier) {
+    private void identifierProp(final String name, final String identifier) {
         propStart(name);
         identifier(identifier);
         propEnd(name);
@@ -296,7 +298,7 @@ public class HelloWorldTermTest extends TermStructureTestCase {
     @Test
     public void testDefaultGrammarDefaultContext() {
         final String text = "package test;";
-        startWithStringAndDefaultGrammar(text, MinimalEJ_SYSTEM_ID, null, null);
+        startWithStringAndDefaultGrammar(text, MINIMAL_EJ_SYSTEM_ID, null, null);
         boolean errorExit = true;
         try {
             readPackageStatement();
@@ -312,16 +314,16 @@ public class HelloWorldTermTest extends TermStructureTestCase {
     @Test
     public void testDefaultGrammarNewContext() {
         final String text = "test;";
-        startWithStringAndDefaultGrammar(text, MinimalEJ_SYSTEM_ID, null, "Code");
+        startWithStringAndDefaultGrammar(text, MINIMAL_EJ_SYSTEM_ID, null, "Code");
         boolean errorExit = true;
         try {
-            this.objectStart(ns, "ExpressionStatement");
+            this.objectStart(NS, "ExpressionStatement");
             {
                 propStart("Expression");
                 identifier("test");
                 propEnd("Expression");
             }
-            this.objectEnd(ns, "ExpressionStatement");
+            this.objectEnd(NS, "ExpressionStatement");
             errorExit = false;
         } finally {
             endParsing(errorExit);

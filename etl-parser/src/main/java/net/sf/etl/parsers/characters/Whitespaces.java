@@ -80,9 +80,10 @@ public final class Whitespaces {
             case 0x2029: // Zp: PARAGRAPH SEPARATOR
             case 0x2028: // Zl: LINE SEPARATOR
                 return true;
+            default:
+                return false;
         }
         //CHECKSTYLE:ON
-        return false;
     }
 
     /**
@@ -140,8 +141,9 @@ public final class Whitespaces {
             case 0x205F: // Zs: MEDIUM MATHEMATICAL SPACE
             case 0x3000: // Zs: IDEOGRAPHIC SPACE
                 return true;
+            default:
+                return false;
         }
         //CHECKSTYLE:ON
-        return false;
     }
 }

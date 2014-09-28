@@ -58,7 +58,7 @@ public final class RepeatNode extends ScopeNode {
         }
         normalExit = new RecoverySetupAction(source, normalExit, recoveryTest);
         errorExit = new RecoverySetupAction(source, errorExit, recoveryTest);
-        RecoveryChoiceAction recoveryChoiceAction = new RecoveryChoiceAction(source, errorExit);
+        final RecoveryChoiceAction recoveryChoiceAction = new RecoveryChoiceAction(source, errorExit);
         recoveryChoiceAction.setRecoveryPath(loopEntry);
         errorExit = recoveryChoiceAction;
         recoveryTest = new ChoiceBuilder(source).
@@ -72,7 +72,7 @@ public final class RepeatNode extends ScopeNode {
     @Override
     protected LookAheadSet createLookAhead(final Set<ActionBuilder> visitedBuilders) {
         final LookAheadSet inner = innerNode().buildLookAhead(visitedBuilders);
-        LookAheadSet rc;
+        final LookAheadSet rc;
         if (inner.containsEmpty()) {
             rc = inner;
         } else {

@@ -37,7 +37,7 @@ public class Identifier extends Expression {
     /**
      * a name
      */
-    String name;
+    private String name;
 
     /**
      * @return Returns the name.
@@ -49,7 +49,7 @@ public class Identifier extends Expression {
     /**
      * @param name The name to set.
      */
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 

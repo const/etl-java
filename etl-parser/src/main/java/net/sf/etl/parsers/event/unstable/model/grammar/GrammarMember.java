@@ -30,5 +30,5 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
  *
  * @author const
  */
-public abstract class GrammarMember extends AbstractStatement {
+public abstract class GrammarMember extends AbstractStatement { // NOPMD
 }

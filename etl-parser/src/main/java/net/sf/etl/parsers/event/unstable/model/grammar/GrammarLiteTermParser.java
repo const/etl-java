@@ -32,6 +32,7 @@ import net.sf.etl.parsers.streams.TreeParserReader;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * The AST parser that is used by lightweight grammar model.
@@ -42,7 +43,7 @@ public final class GrammarLiteTermParser extends TreeParserReader<Element> {
     /**
      * The errors.
      */
-    private final ArrayList<ErrorInfo> errors = new ArrayList<ErrorInfo>();
+    private final List<ErrorInfo> errors = new ArrayList<ErrorInfo>();
 
     /**
      * The constructor.

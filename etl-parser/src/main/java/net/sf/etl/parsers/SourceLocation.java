@@ -87,7 +87,7 @@ public final class SourceLocation {
      * @return the short name for system identifier
      */
     public String shortSystemId() {
-        int p = systemId.lastIndexOf('/');
+        final int p = systemId.lastIndexOf('/');
         return p == -1 ? systemId : systemId.substring(p + 1);
     }
 

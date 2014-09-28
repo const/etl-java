@@ -63,7 +63,7 @@ import java.util.Set;
  *
  * @author const
  */
-public final class GrammarView {
+public final class GrammarView { // NOPMD
     /**
      * The gatherer for grammar imports.
      */
@@ -84,11 +84,11 @@ public final class GrammarView {
     /**
      * The map from context name to context view.
      */
-    private final Map<String, ContextView> contexts = new HashMap<String, ContextView>();
+    private final Map<String, ContextView> contexts = new HashMap<String, ContextView>(); // NOPMD
     /**
      * The map from local name to imported grammar view.
      */
-    private final Map<String, GrammarImportView> importedGrammars = new HashMap<String, GrammarImportView>();
+    private final Map<String, GrammarImportView> importedGrammars = new HashMap<String, GrammarImportView>(); // NOPMD
     /**
      * The set of all included grammar views.
      */
@@ -96,7 +96,7 @@ public final class GrammarView {
     /**
      * The map from local name to namespace URI.
      */
-    private final Map<String, String> namespaceDeclarations = new HashMap<String, String>();
+    private final Map<String, String> namespaceDeclarations = new HashMap<String, String>(); // NOPMD
     /**
      * The system id for this grammar.
      */
@@ -112,16 +112,16 @@ public final class GrammarView {
     /**
      * The collection of grammar references.
      */
-    private final IdentityHashMap<GrammarRef, ResourceReference> references =
+    private final Map<GrammarRef, ResourceReference> references = // NOPMD
             new IdentityHashMap<GrammarRef, ResourceReference>();
     /**
      * The grammars used for creating this grammar.
      */
-    private final HashSet<ResolvedObject<GrammarView>> usedGrammars = new HashSet<ResolvedObject<GrammarView>>();
+    private final Set<ResolvedObject<GrammarView>> usedGrammars = new HashSet<ResolvedObject<GrammarView>>();
     /**
      * The failed grammars.
      */
-    private final ArrayList<GrammarAssembly.FailedGrammar> failedGrammars =
+    private final List<GrammarAssembly.FailedGrammar> failedGrammars =
             new ArrayList<GrammarAssembly.FailedGrammar>();
     /**
      * The grammar info.
@@ -191,8 +191,7 @@ public final class GrammarView {
      * @return the created descriptor for the grammar view.
      */
     public ResourceDescriptor createDescriptor() {
-        HashSet<GrammarView> visited = new HashSet<GrammarView>();
-        return createDescriptor(visited);
+        return createDescriptor(new HashSet<GrammarView>());
     }
 
     /**
@@ -201,21 +200,21 @@ public final class GrammarView {
      * @param visited the visited grammars
      * @return the descriptor
      */
-    private ResourceDescriptor createDescriptor(final HashSet<GrammarView> visited) {
+    private ResourceDescriptor createDescriptor(final Set<GrammarView> visited) {
         final ResourceDescriptor resource = firstResolved.getDescriptor();
         if (visited.contains(this)) {
             return new ResourceDescriptor(resource.getSystemId(), resource.getType(), resource.getVersion());
         } else {
             visited.add(this);
-            ArrayList<ResourceUsage> resourceUsages = new ArrayList<ResourceUsage>();
+            final ArrayList<ResourceUsage> resourceUsages = new ArrayList<ResourceUsage>();
             resourceUsages.addAll(resource.getUsedResources());
-            for (ResolvedObject<GrammarView> used : usedGrammars) {
+            for (final ResolvedObject<GrammarView> used : usedGrammars) {
                 resourceUsages.addAll(used.getResolutionHistory());
-                resourceUsages.add(new ResourceUsage(used.getRequest().getReference(),
+                resourceUsages.add(new ResourceUsage(used.getRequest().getReference(), // NOPMD
                         used.getObject().createDescriptor(visited),
                         StandardGrammars.USED_GRAMMAR_REQUEST_TYPE));
             }
-            for (GrammarAssembly.FailedGrammar failedGrammar : failedGrammars) {
+            for (final GrammarAssembly.FailedGrammar failedGrammar : failedGrammars) {
                 resourceUsages.addAll(failedGrammar.getUsedResources());
             }
             visited.remove(this);
@@ -227,9 +226,9 @@ public final class GrammarView {
     /**
      * @return grammars referenced from this grammar
      */
-    Set<ResourceReference> referencedGrammars() {
-        HashSet<ResourceReference> requests = new HashSet<ResourceReference>();
-        for (GrammarMember m : grammar.getContent()) {
+    public Set<ResourceReference> referencedGrammars() {
+        final HashSet<ResourceReference> requests = new HashSet<ResourceReference>();
+        for (final GrammarMember m : grammar.getContent()) {
             if (m instanceof GrammarImport) {
                 final ResourceReference request = toReference((GrammarImport) m);
                 if (request != null) {
@@ -277,12 +276,12 @@ public final class GrammarView {
      * @param publicIdToken the publicId token
      * @return the resource reference
      */
-    private ResourceReference getResourceReference(final Token systemIdToken, final Token publicIdToken) {
-        StringInfo refSystemId = parse(systemIdToken);
+    private ResourceReference getResourceReference(final Token systemIdToken, final Token publicIdToken) { // NOPMD
+        final StringInfo refSystemId = parse(systemIdToken);
         if (refSystemId != null && refSystemId.getErrors() != null) {
             error(refSystemId.getErrors());
         }
-        StringInfo refPublicId = parse(publicIdToken);
+        final StringInfo refPublicId = parse(publicIdToken);
         if (refPublicId != null && refPublicId.getErrors() != null) {
             error(refPublicId.getErrors());
         }
@@ -293,7 +292,7 @@ public final class GrammarView {
                 if (!uri.isOpaque()) {
                     textSystemId = uri.resolve(textSystemId).toString();
                 }
-            } catch (Exception ex) {
+            } catch (Exception ex) { // NOPMD
                 error(systemIdToken, "grammar.GrammarRef.systemIdParseError", systemIdToken.text());
             }
         }
@@ -312,11 +311,11 @@ public final class GrammarView {
                 final GrammarView importedGrammar = getReferencedGrammar(gi);
                 if (importedGrammar == null) {
                     failedGrammars.add(assembly.failure(
-                            new ResourceRequest(toReference(gi), StandardGrammars.USED_GRAMMAR_REQUEST_TYPE)));
+                            new ResourceRequest(toReference(gi), StandardGrammars.USED_GRAMMAR_REQUEST_TYPE))); // NOPMD
                 } else if (importedGrammars.containsKey(gi.getName().text())) {
                     error(gi, "grammar.Grammar.duplicateImport", gi.getName());
                 } else {
-                    importedGrammars.put(gi.getName().text(), new GrammarImportView(this,
+                    importedGrammars.put(gi.getName().text(), new GrammarImportView(this, // NOPMD
                             gi, importedGrammar));
                 }
             } else if (m instanceof GrammarInclude) {
@@ -324,7 +323,7 @@ public final class GrammarView {
                 final GrammarView includedGrammar = getReferencedGrammar(gi);
                 if (includedGrammar == null) {
                     failedGrammars.add(assembly.failure(
-                            new ResourceRequest(toReference(gi), StandardGrammars.USED_GRAMMAR_REQUEST_TYPE)));
+                            new ResourceRequest(toReference(gi), StandardGrammars.USED_GRAMMAR_REQUEST_TYPE))); // NOPMD
                 } else if (includeNode.hasImmediateParent(includedGrammar)) {
                     error(gi, "grammar.Grammar.duplicateInclude");
                 } else if (!includeNode.addParent(includedGrammar)) {
@@ -339,8 +338,8 @@ public final class GrammarView {
                 try {
                     // attempt to parse string as URI and return error if it is
                     // impossible
-                    new URI(LiteralUtils.parseString(ns.getUri().text()));
-                } catch (final Exception ex) {
+                    new URI(LiteralUtils.parseString(ns.getUri().text())); // NOPMD
+                } catch (final Exception ex) { // NOPMD
                     error(ns, "grammar.Grammar.invalidUriInNamespaceDeclaration",
                             ns.getPrefix(), ns.getUri());
                 }
@@ -436,7 +435,7 @@ public final class GrammarView {
      * Build context using grammar include relationship.
      */
     public void buildContexts() {
-        for (GrammarView pg : includeNode.immediateParents()) {
+        for (final GrammarView pg : includeNode.immediateParents()) {
             for (final ContextView pgc : pg.contexts.values()) {
                 final ContextView lc = getOrCreateContext(pgc.name());
                 lc.processGrammarInclude(pgc);
@@ -450,7 +449,7 @@ public final class GrammarView {
      * @param name the name of context
      * @return the context for the specified name
      */
-    ContextView getOrCreateContext(final String name) {
+    public ContextView getOrCreateContext(final String name) {
         return getOrCreateContext(name, null);
     }
 
@@ -477,7 +476,7 @@ public final class GrammarView {
      * @return the imported grammar or null if grammar does not exists
      */
     public GrammarView getImportedGrammar(final String grammarImportName) {
-        GrammarImportView importView = importedGrammars.get(grammarImportName);
+        final GrammarImportView importView = importedGrammars.get(grammarImportName);
         return importView == null ? null : importView.getImportedGrammar();
     }
 
@@ -515,7 +514,7 @@ public final class GrammarView {
     /**
      * flatten grammar according to internal extension constructs.
      */
-    void flattenGrammar() {
+    public void flattenGrammar() {
         assert !isAbstract() : "This method should not be called for abstract grammars";
         // check if imported grammars are non abstract
         for (final GrammarImportView grammarImport : importedGrammars.values()) {
@@ -612,7 +611,7 @@ public final class GrammarView {
      *
      * @param visitedGrammars the collection to which grammars are gathered.
      */
-    private void getGrammarDependencies(final HashSet<GrammarView> visitedGrammars) {
+    private void getGrammarDependencies(final Set<GrammarView> visitedGrammars) {
         // If grammar is already visited, dependencies either already here
         // or are in process being added.
         if (!visitedGrammars.contains(this)) {
@@ -660,22 +659,22 @@ public final class GrammarView {
 
         @Override
         protected Node<GrammarView> getHolderNode(final GrammarView definitionHolder) {
-            return (definitionHolder).includeNode;
+            return definitionHolder.includeNode;
         }
 
         @Override
         protected Node<GrammarView> definitionNode(final GrammarImportView definition) {
-            return (definition).getSourceGrammar().includeNode;
+            return definition.getSourceGrammar().includeNode;
         }
 
         @Override
         protected String definitionKey(final GrammarImportView definition) {
-            return (definition).getGrammarImport().getName().text();
+            return definition.getGrammarImport().getName().text();
         }
 
         @Override
         protected Map<String, GrammarImportView> definitionMap(final GrammarView holder) {
-            return (holder).importedGrammars;
+            return holder.importedGrammars;
         }
 
         @Override
@@ -685,7 +684,7 @@ public final class GrammarView {
 
         @Override
         protected GrammarView importedObject(final GrammarImportView importDefinition) {
-            return (importDefinition).getImportedGrammar();
+            return importDefinition.getImportedGrammar();
         }
     }
 }

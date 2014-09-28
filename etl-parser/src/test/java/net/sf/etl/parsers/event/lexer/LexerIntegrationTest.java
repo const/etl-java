@@ -31,7 +31,7 @@ import org.junit.Test;
 /**
  * More complex tests for the lexer that checks token combinations
  */
-public class LexerIntegrationTests extends LexerTestCase {
+public class LexerIntegrationTest extends LexerTestCase {
     @Test
     public void stringsAndGraphics() {
         start("namespace dc = \"http://etl.sf.net/etl/doctype/0.2.1\";");

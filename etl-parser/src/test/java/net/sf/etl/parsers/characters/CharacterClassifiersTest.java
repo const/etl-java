@@ -47,7 +47,7 @@ public class CharacterClassifiersTest {
 
     @Test
     public void testGraphics() {
-        for (char c : "*+$-\\/%<:=?>.!^~&|`@".toCharArray()) {
+        for (final char c : "*+$-\\/%<:=?>.!^~&|`@".toCharArray()) {
             assertTrue("char: " + c, Graphics.isGraphics(c));
         }
         assertFalse(Graphics.isGraphics(','));

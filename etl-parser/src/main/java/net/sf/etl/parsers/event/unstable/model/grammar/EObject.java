@@ -31,7 +31,7 @@ import net.sf.etl.parsers.SourceLocation;
  *
  * @author const
  */
-public abstract class EObject {
+public abstract class EObject { // NOPMD
     /**
      * The owner.
      */

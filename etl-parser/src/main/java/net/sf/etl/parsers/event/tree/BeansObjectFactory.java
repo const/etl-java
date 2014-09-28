@@ -93,7 +93,7 @@ public class BeansObjectFactory extends ReflectionObjectFactoryBase<Object, Prop
         final Class<?> beanClass = metaObject.getBeanDescriptor().getBeanClass();
         try {
             return beanClass.newInstance();
-        } catch (final Exception e) {
+        } catch (final Exception e) { // NOPMD
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Object cannot be created: " + beanClass.getName());
             }
@@ -124,7 +124,7 @@ public class BeansObjectFactory extends ReflectionObjectFactoryBase<Object, Prop
         final Method m = f.getWriteMethod();
         try {
             m.invoke(rc, v);
-        } catch (final Exception e) {
+        } catch (final Exception e) { // NOPMD
             throw new ParserException("Cannot set to feature " + f.getName()
                     + " a value " + v + " of type " + v.getClass().getName()
                     + " using method " + m, e);
@@ -151,7 +151,7 @@ public class BeansObjectFactory extends ReflectionObjectFactoryBase<Object, Prop
                 }
             }
             return list;
-        } catch (final Exception e) {
+        } catch (final Exception e) { // NOPMD
             throw new ParserException("Cannot read property " + f.getName(), e);
         }
     }
@@ -167,7 +167,7 @@ public class BeansObjectFactory extends ReflectionObjectFactoryBase<Object, Prop
                 Array.set(array, i, holder.get(i));
             }
             m.invoke(rc, array);
-        } catch (final Exception e) {
+        } catch (final Exception e) { // NOPMD
             throw new ParserException("Cannot write feature " + f, e);
         }
     }
@@ -177,7 +177,7 @@ public class BeansObjectFactory extends ReflectionObjectFactoryBase<Object, Prop
                                                           final String name) {
         final String featureName = PropertyName.lowerCaseFeatureName(name);
         final PropertyDescriptor[] propertyDescriptors = metaObject.getPropertyDescriptors();
-        for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
+        for (final PropertyDescriptor propertyDescriptor : propertyDescriptors) {
             if (propertyDescriptor.getName().equals(featureName)) {
                 return propertyDescriptor;
             }

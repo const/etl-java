@@ -44,7 +44,7 @@ import static org.junit.Assert.fail;
  *
  * @author const
  */
-public abstract class TermStructureTestCase {
+public abstract class TermStructureTestCase { // NOPMD
     /**
      * a logger
      */
@@ -60,7 +60,7 @@ public abstract class TermStructureTestCase {
      *
      * @param resourceName a resource to parse
      */
-    protected void startWithResource(String resourceName) {
+    protected void startWithResource(final String resourceName) {
         final java.net.URL in = this.getClass().getResource(resourceName);
         assertNotNull(in);
         startWithURL(in);
@@ -69,10 +69,10 @@ public abstract class TermStructureTestCase {
     /**
      * Start parsing with URL
      *
-     * @param in an URL to parse
+     * @param url an URL to parse
      */
-    protected void startWithURL(java.net.URL in) {
-        parser = new TermParserReader(in);
+    protected void startWithURL(final java.net.URL url) {
+        parser = new TermParserReader(url);
         parser.advance();
     }
 
@@ -81,7 +81,7 @@ public abstract class TermStructureTestCase {
      *
      * @param resourceName a resource to parse
      */
-    protected void startWithResourceAsReader(String resourceName) {
+    protected void startWithResourceAsReader(final String resourceName) {
         final java.net.URL in = this.getClass().getResource(resourceName);
         assertNotNull(in);
         parser = new TermParserReader(in);
@@ -96,9 +96,9 @@ public abstract class TermStructureTestCase {
      * @param grammarPublicId public id of default grammar
      * @param defaultContext  a default context with which to start
      */
-    protected void startWithStringAndDefaultGrammar(String text,
-                                                    String grammarSystemId, String grammarPublicId,
-                                                    String defaultContext) {
+    protected void startWithStringAndDefaultGrammar(final String text, // NOPMD
+                                                    final String grammarSystemId, final String grammarPublicId,
+                                                    final String defaultContext) {
         parser = new TermParserReader(DefaultTermReaderConfiguration.INSTANCE, new StringReader(text), "none:test");
         parser.setDefaultGrammar(grammarPublicId, grammarSystemId, defaultContext, false);
         assertEquals(parser.getConfiguration().getParserConfiguration().getTabSize(parser.getSystemId()),
@@ -111,7 +111,7 @@ public abstract class TermStructureTestCase {
      *
      * @param errorExit true if error exit
      */
-    protected void endParsing(boolean errorExit) {
+    protected void endParsing(final boolean errorExit) {
         if (!errorExit) {
             skipIgnorable();
             assertEquals("EOF is expected: " + parser.current(), Terms.EOF,
@@ -137,7 +137,7 @@ public abstract class TermStructureTestCase {
      * @param ns   an object name
      * @param name an object namespace
      */
-    protected void objectStart(String ns, String name) {
+    protected void objectStart(final String ns, final String name) {
         this.skipIgnorable();
         assertEquals("term kind " + parser.current(), Terms.OBJECT_START, parser.current().kind());
         assertEquals("namespace " + parser.current(), ns, parser.current().objectName().namespace());
@@ -151,7 +151,7 @@ public abstract class TermStructureTestCase {
      * @param ns   an object name
      * @param name an object namespace
      */
-    protected void objectEnd(String ns, String name) {
+    protected void objectEnd(final String ns, final String name) {
         this.skipIgnorable();
         assertEquals("term kind " + parser.current(), Terms.OBJECT_END, parser.current().kind());
         assertEquals("namespace " + parser.current(), ns, parser.current().objectName().namespace());
@@ -164,7 +164,7 @@ public abstract class TermStructureTestCase {
      *
      * @param name a name of property
      */
-    protected void listStart(String name) {
+    protected void listStart(final String name) {
         this.skipIgnorable();
         assertEquals("term kind " + parser.current(), Terms.LIST_PROPERTY_START, parser.current().kind());
         assertEquals("name " + parser.current(), name, parser.current().propertyName().name());
@@ -176,7 +176,7 @@ public abstract class TermStructureTestCase {
      *
      * @param name a name of property
      */
-    protected void listEnd(String name) {
+    protected void listEnd(final String name) {
         this.skipIgnorable();
         assertEquals("term kind " + parser.current(), Terms.LIST_PROPERTY_END, parser.current().kind());
         assertEquals("name " + parser.current(), name, parser.current().propertyName().name());
@@ -188,7 +188,7 @@ public abstract class TermStructureTestCase {
      *
      * @param name a name of property
      */
-    protected void propStart(String name) {
+    protected void propStart(final String name) {
         this.skipIgnorable();
         assertEquals("term kind " + parser.current(), Terms.PROPERTY_START, parser.current().kind());
         assertEquals("name " + parser.current(), name, parser.current().propertyName().name());
@@ -200,7 +200,7 @@ public abstract class TermStructureTestCase {
      *
      * @param name a name of property
      */
-    protected void propEnd(String name) {
+    protected void propEnd(final String name) {
         this.skipIgnorable();
         assertEquals("term kind " + parser.current(), Terms.PROPERTY_END, parser.current().kind());
         assertEquals("name " + parser.current(), name, parser.current().propertyName().name());
@@ -212,7 +212,7 @@ public abstract class TermStructureTestCase {
      *
      * @param value an expected value
      */
-    protected void value(String value) {
+    protected void value(final String value) {
         this.skipIgnorable();
         assertEquals("term kind " + parser.current(), Terms.VALUE, parser.current().kind());
         assertEquals("name " + parser.current(), value, parser.current().token().token().text());
@@ -254,7 +254,7 @@ public abstract class TermStructureTestCase {
                 case BLOCK_START:
                 case BLOCK_END:
                 case GRAMMAR_IS_LOADED:
-                    assertFalse("" + parser.current(), parser.current().hasAnyErrors());
+                    assertFalse(parser.current().toString(), parser.current().hasAnyErrors());
                     parser.advance();
                     break;
                 default:
@@ -269,12 +269,9 @@ public abstract class TermStructureTestCase {
      *
      * @param kind a kind of error
      */
-    protected void readError(Terms kind) {
-        switch (kind) {
-            case SYNTAX_ERROR:
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown error term kind: " + kind);
+    protected void readError(final Terms kind) {
+        if (kind != Terms.SYNTAX_ERROR) {
+            throw new IllegalArgumentException("Unknown error term kind: " + kind);
         }
         this.skipIgnorable();
         assertEquals("term kind " + parser.current(), kind, parser.current().kind());
@@ -287,7 +284,7 @@ public abstract class TermStructureTestCase {
      * @param systemId a system id of the grammar
      * @param context  context name
      */
-    protected void readDocType(String systemId, String context) {
+    protected void readDocType(final String systemId, final String context) {
         this.objectStart(StandardGrammars.DOCTYPE_NS, "DoctypeDeclaration");
         {
             if (systemId != null) {
@@ -311,7 +308,7 @@ public abstract class TermStructureTestCase {
      * @param systemId the system id of the grammar
      * @param context  the context name
      */
-    protected void readDocType(String type, String systemId, String context) {
+    protected void readDocType(final String type, final String systemId, final String context) {
         this.objectStart(StandardGrammars.DOCTYPE_NS, "DoctypeDeclaration");
         {
             if (type != null) {
@@ -339,7 +336,7 @@ public abstract class TermStructureTestCase {
      *
      * @param resource a resource
      */
-    protected void readAllWithoutErrors(String resource) {
+    protected void readAllWithoutErrors(final String resource) {
         startWithResource(resource);
         boolean errorExit = true;
         try {

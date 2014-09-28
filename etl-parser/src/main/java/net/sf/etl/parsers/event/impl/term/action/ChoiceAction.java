@@ -35,6 +35,7 @@ import net.sf.etl.parsers.event.grammar.TermParserContext;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.Map;
 
 /**
  * The generic choice action that does an universal choice over current phrase token.
@@ -53,7 +54,7 @@ public final class ChoiceAction extends Action {
     /**
      * For non-keyword tokens, a token key based match is tried.
      */
-    private final HashMap<TokenKey, Action> tokens = new HashMap<TokenKey, Action>();
+    private final HashMap<TokenKey, Action> tokens = new HashMap<TokenKey, Action>(); // NOPMD
     /**
      * If token phrase is not matched, of phrase token is not matched, this alternative is chosen.
      */
@@ -82,7 +83,7 @@ public final class ChoiceAction extends Action {
     public void parseMore(final TermParserContext context, final ActionState state) {
         final PhraseToken current = context.current();
         if (current.kind() == PhraseTokens.SIGNIFICANT) {
-            Keyword keyword = context.classify();
+            final Keyword keyword = context.classify();
             final Action action = keyword != null ? keywords.get(keyword) : tokens.get(current.token().key());
             state.nextAction(action != null ? action : unmatchedToken);
         } else {
@@ -94,21 +95,21 @@ public final class ChoiceAction extends Action {
     /**
      * @return the map for phrase tokens.
      */
-    public EnumMap<PhraseTokens, Action> getPhrase() {
+    public Map<PhraseTokens, Action> getPhrase() {
         return phrase;
     }
 
     /**
      * @return the map for keywords.
      */
-    public IdentityHashMap<Keyword, Action> getKeywords() {
+    public Map<Keyword, Action> getKeywords() {
         return keywords;
     }
 
     /**
      * @return the map for token keys.
      */
-    public HashMap<TokenKey, Action> getTokens() {
+    public Map<TokenKey, Action> getTokens() {
         return tokens;
     }
 

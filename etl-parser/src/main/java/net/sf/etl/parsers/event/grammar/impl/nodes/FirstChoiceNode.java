@@ -45,12 +45,12 @@ public final class FirstChoiceNode extends GroupNode {
     public Action buildActions(final ActionBuilder b, final Action normalExit, final Action errorExit,
                                final Action recoveryTest) {
         final HashSet<ActionBuilder> visitedSet = new HashSet<ActionBuilder>();
-        ArrayList<Node> nodes = new ArrayList<Node>(nodes());
+        final ArrayList<Node> nodes = new ArrayList<Node>(nodes());
         Action current = null;
         if (matchesEmpty() && !nodes.get(nodes().size() - 1).matchesEmpty()) {
-            ListIterator<Node> i = nodes().listIterator(nodes().size());
+            final ListIterator<Node> i = nodes().listIterator(nodes().size());
             while (i.hasPrevious()) {
-                Node node = i.previous();
+                final Node node = i.previous();
                 if (node.matchesEmpty()) {
                     current = node.buildActions(b, normalExit, errorExit, recoveryTest);
                     break;
@@ -58,14 +58,14 @@ public final class FirstChoiceNode extends GroupNode {
             }
             assert current != null;
         } else {
-            Node node = nodes().remove(nodes().size() - 1);
+            final Node node = nodes().remove(nodes().size() - 1);
             current = node.buildActions(b, normalExit, errorExit, recoveryTest);
         }
         Collections.reverse(nodes);
-        for (Node node : nodes) {
-            ChoiceBuilder choiceBuilder = new ChoiceBuilder(getSource());
+        for (final Node node : nodes) {
+            final ChoiceBuilder choiceBuilder = new ChoiceBuilder(getSource()); // NOPMD
             choiceBuilder.setFallback(current);
-            LookAheadSet la = new LookAheadSet(node.buildLookAhead(visitedSet));
+            final LookAheadSet la = new LookAheadSet(node.buildLookAhead(visitedSet)); // NOPMD
             la.removeEmpty();
             choiceBuilder.add(la, node.buildActions(b, normalExit, errorExit, recoveryTest));
             current = choiceBuilder.build();

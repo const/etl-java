@@ -41,11 +41,11 @@ public class Element implements Serializable {
     /**
      * start of element
      */
-    TextPos start;
+    private TextPos start;
     /**
      * end of element
      */
-    TextPos end;
+    private TextPos end;
 
     /**
      * @return Returns the end.
@@ -57,7 +57,7 @@ public class Element implements Serializable {
     /**
      * @param end The end to set.
      */
-    public void setEnd(TextPos end) {
+    public void setEnd(final TextPos end) {
         this.end = end;
     }
 
@@ -71,7 +71,7 @@ public class Element implements Serializable {
     /**
      * @param start The start to set.
      */
-    public void setStart(TextPos start) {
+    public void setStart(final TextPos start) {
         this.start = start;
     }
 }

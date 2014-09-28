@@ -37,6 +37,10 @@ import java.util.List;
  */
 public final class ResolvedObject<T> implements Serializable {
     /**
+     * UID.
+     */
+    private static final long serialVersionUID = -194207955111642983L;
+    /**
      * The original resource request.
      */
     private final ResourceRequest request;
@@ -112,16 +116,28 @@ public final class ResolvedObject<T> implements Serializable {
     @Override
     public boolean equals(final Object o) {
         //CHECKSTYLE:OFF
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-        ResolvedObject that = (ResolvedObject) o;
+        final ResolvedObject that = (ResolvedObject) o;
 
-        if (object != null ? !object.equals(that.object) : that.object != null) return false;
-        if (!request.equals(that.request)) return false;
-        if (!resolutionHistory.equals(that.resolutionHistory)) return false;
+        if (object != null ? !object.equals(that.object) : that.object != null) {
+            return false;
+        }
+        if (!request.equals(that.request)) {
+            return false;
+        }
+        if (!resolutionHistory.equals(that.resolutionHistory)) {
+            return false;
+        }
         //noinspection RedundantIfStatement
-        if (!descriptor.equals(that.descriptor)) return false;
+        if (!descriptor.equals(that.descriptor)) {
+            return false;
+        }
 
         return true;
         //CHECKSTYLE:ON

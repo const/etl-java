@@ -45,7 +45,7 @@ public final class Brackets {
      * @return true if the codepoint is a bracket
      */
     //CHECKSTYLE:OFF
-    public static boolean isBracket(final int codepoint) {
+    public static boolean isBracket(final int codepoint) { // NOPMD
         switch (codepoint) {
             // **** Ps characters *****
             case 0x0028: // Ps: LEFT PARENTHESIS

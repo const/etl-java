@@ -111,18 +111,29 @@ public final class ExpressionContext {
     @Override
     public boolean equals(final Object o) {
         //CHECKSTYLE:OFF
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ExpressionContext that = (ExpressionContext) o;
-
-        if (precedenceLevel != that.precedenceLevel) return false;
-        if (context != null ? !context.equals(that.context) : that.context != null) return false;
-        if (expressionGrammar != null ? !expressionGrammar.equals(that.expressionGrammar)
-                : that.expressionGrammar != null)
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
+
+        final ExpressionContext that = (ExpressionContext) o;
+
+        if (precedenceLevel != that.precedenceLevel) {
+            return false;
+        }
+        if (context != null ? !context.equals(that.context) : that.context != null) {
+            return false;
+        }
+        if (expressionGrammar != null ? !expressionGrammar.equals(that.expressionGrammar)
+                : that.expressionGrammar != null) {
+            return false;
+        }
         //noinspection RedundantIfStatement
-        if (hostContext != null ? !hostContext.equals(that.hostContext) : that.hostContext != null) return false;
+        if (hostContext != null ? !hostContext.equals(that.hostContext) : that.hostContext != null) {
+            return false;
+        }
 
         return true;
         //CHECKSTYLE:ON
@@ -141,13 +152,7 @@ public final class ExpressionContext {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("ExpressionContext");
-        sb.append("{hostContext=").append(hostContext);
-        sb.append(", expressionGrammar=").append(expressionGrammar);
-        sb.append(", context='").append(context).append('\'');
-        sb.append(", precedenceLevel=").append(precedenceLevel);
-        sb.append('}');
-        return sb.toString();
+        return "ExpressionContext" + "{hostContext=" + hostContext + ", expressionGrammar=" + expressionGrammar
+                + ", context='" + context + '\'' + ", precedenceLevel=" + precedenceLevel + '}';
     }
 }

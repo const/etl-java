@@ -46,8 +46,8 @@ public class SpacesAndCommentsTest extends LexerTestCase {
 
     @Test
     public void newlines() {
-        TextPos n1 = new TextPos(2, 1, 1);
-        TextPos n2 = new TextPos(2, 1, 2);
+        final TextPos n1 = new TextPos(2, 1, 1);
+        final TextPos n2 = new TextPos(2, 1, 2);
         Token t = single("\n", Tokens.NEWLINE);
         assertEquals(n1, t.end());
         t = single("\r", Tokens.NEWLINE);

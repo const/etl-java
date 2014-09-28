@@ -69,10 +69,10 @@ public final class StructuralTokenAction extends SimpleAction {
     public void parseMore(final TermParserContext context, final ActionState state) {
         if (atMark) {
             final TermToken termToken = context.peekObjectAtMark();
-            TextPos start = termToken != null ? termToken.start() : context.current().start();
+            final TextPos start = termToken != null ? termToken.start() : context.current().start();
             context.produceAfterMark(new TermToken(kind, null, type, null, start, start, getSource(), null));
         } else {
-            TextPos start = context.current().start();
+            final TextPos start = context.current().start();
             context.produce(new TermToken(kind, null, type, null, start, start, getSource(), null));
         }
         state.nextAction(getNext());

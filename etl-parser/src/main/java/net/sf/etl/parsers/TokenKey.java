@@ -37,6 +37,10 @@ import java.util.EnumMap;
  */
 public final class TokenKey implements Serializable {
     /**
+     * The serial version UID.
+     */
+    private static final long serialVersionUID = -882146831401926996L;
+    /**
      * Map for tokens without modifiers.
      */
     private static final EnumMap<Tokens, TokenKey> KIND_MAP;
@@ -48,26 +52,6 @@ public final class TokenKey implements Serializable {
      * The map for multiline strings without prefix.
      */
     private static final EnumMap<QuoteClass, TokenKey> MULTILINE_STRING_MAP;
-
-    static {
-        final EnumMap<Tokens, TokenKey> tokenKindMap = new EnumMap<Tokens, TokenKey>(Tokens.class);
-        for (Tokens k : Tokens.values()) {
-            tokenKindMap.put(k, new TokenKey(k, null, null));
-        }
-        KIND_MAP = tokenKindMap;
-        final EnumMap<QuoteClass, TokenKey> stringEnumMap = new EnumMap<QuoteClass, TokenKey>(QuoteClass.class);
-        for (QuoteClass quoteClass : QuoteClass.values()) {
-            stringEnumMap.put(quoteClass, new TokenKey(Tokens.STRING, null, quoteClass));
-        }
-        STRING_MAP = stringEnumMap;
-        final EnumMap<QuoteClass, TokenKey> multiLineStringEnumMap
-                = new EnumMap<QuoteClass, TokenKey>(QuoteClass.class);
-        for (QuoteClass quoteClass : QuoteClass.values()) {
-            multiLineStringEnumMap.put(quoteClass, new TokenKey(Tokens.MULTILINE_STRING, null, quoteClass));
-        }
-        MULTILINE_STRING_MAP = multiLineStringEnumMap;
-    }
-
     /**
      * Pre-calculated hash code, the token key is used in hash maps extensively, so hash code is pre-calculated
      * to speed up lookup and equality comparison.
@@ -85,6 +69,25 @@ public final class TokenKey implements Serializable {
      * The quote class for strings.
      */
     private final QuoteClass quoteClass;
+
+    static {
+        final EnumMap<Tokens, TokenKey> tokenKindMap = new EnumMap<Tokens, TokenKey>(Tokens.class);
+        for (final Tokens k : Tokens.values()) {
+            tokenKindMap.put(k, new TokenKey(k, null, null)); // NOPMD
+        }
+        KIND_MAP = tokenKindMap;
+        final EnumMap<QuoteClass, TokenKey> stringEnumMap = new EnumMap<QuoteClass, TokenKey>(QuoteClass.class);
+        for (final QuoteClass quoteClass : QuoteClass.values()) {
+            stringEnumMap.put(quoteClass, new TokenKey(Tokens.STRING, null, quoteClass)); // NOPMD
+        }
+        STRING_MAP = stringEnumMap;
+        final EnumMap<QuoteClass, TokenKey> multiLineStringEnumMap
+                = new EnumMap<QuoteClass, TokenKey>(QuoteClass.class);
+        for (final QuoteClass quoteClass : QuoteClass.values()) {
+            multiLineStringEnumMap.put(quoteClass, new TokenKey(Tokens.MULTILINE_STRING, null, quoteClass)); // NOPMD
+        }
+        MULTILINE_STRING_MAP = multiLineStringEnumMap;
+    }
 
     /**
      * The private constructor from fields.
@@ -247,8 +250,7 @@ public final class TokenKey implements Serializable {
      */
     public String prefix() {
         if (modifier == null) {
-            throw new IllegalStateException(
-                    "The token key does not have prefix: " + this);
+            throw new IllegalStateException("The token key does not have prefix: " + this);
         }
         return modifier;
     }
@@ -258,8 +260,7 @@ public final class TokenKey implements Serializable {
      */
     public String suffix() {
         if (modifier == null) {
-            throw new IllegalStateException(
-                    "The token key does not have suffix: " + this);
+            throw new IllegalStateException("The token key does not have suffix: " + this);
         }
         return modifier;
     }
@@ -297,15 +298,27 @@ public final class TokenKey implements Serializable {
     @Override
     public boolean equals(final Object o) {
         // CHECKSTYLE:OFF
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-        TokenKey tokenKey = (TokenKey) o;
-        if (hashCode != tokenKey.hashCode) return false;
-        if (quoteClass != tokenKey.quoteClass) return false;
-        if (kind != tokenKey.kind) return false;
+        final TokenKey tokenKey = (TokenKey) o;
+        if (hashCode != tokenKey.hashCode) {
+            return false;
+        }
+        if (quoteClass != tokenKey.quoteClass) {
+            return false;
+        }
+        if (kind != tokenKey.kind) {
+            return false;
+        }
         //noinspection RedundantIfStatement
-        if (modifier != null ? !modifier.equals(tokenKey.modifier) : tokenKey.modifier != null) return false;
+        if (modifier != null ? !modifier.equals(tokenKey.modifier) : tokenKey.modifier != null) {
+            return false;
+        }
 
         return true;
         // CHECKSTYLE:ON

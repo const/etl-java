@@ -33,10 +33,9 @@ import net.sf.etl.parsers.event.grammar.KeywordContext;
 import net.sf.etl.parsers.event.grammar.TermParserStateFactory;
 import net.sf.etl.parsers.resource.ResourceDescriptor;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The compiled grammar based on supplied data. The supplied data is used as is,
@@ -61,19 +60,19 @@ public final class BasicCompiledGrammar implements CompiledGrammar {
     /**
      * The keywords for the grammar.
      */
-    private final HashMap<DefinitionContext, KeywordContext> keywords;
+    private final Map<DefinitionContext, KeywordContext> keywords;
     /**
      * The statement parsers.
      */
-    private final HashMap<DefinitionContext, TermParserStateFactory> statementParsers;
+    private final Map<DefinitionContext, TermParserStateFactory> statementParsers;
     /**
      * The statement sequence parsers for the grammar.
      */
-    private final HashMap<DefinitionContext, TermParserStateFactory> statementSequenceParsers;
+    private final Map<DefinitionContext, TermParserStateFactory> statementSequenceParsers;
     /**
      * The expression parsers for the grammar.
      */
-    private final HashMap<ExpressionContext, TermParserStateFactory> expressionParsers;
+    private final Map<ExpressionContext, TermParserStateFactory> expressionParsers;
     /**
      * Other grammars that are referenced from this grammar.
      */
@@ -108,16 +107,16 @@ public final class BasicCompiledGrammar implements CompiledGrammar {
      * @param expressionContexts       the expression contexts
      * @param script                   the default script mode
      */
-    public BasicCompiledGrammar(final ResourceDescriptor resourceDescriptor,
+    public BasicCompiledGrammar(final ResourceDescriptor resourceDescriptor, // NOPMD
                                 final ErrorInfo errors,
                                 final DefinitionContext defaultContext,
-                                final HashMap<DefinitionContext, KeywordContext> keywords,
-                                final HashMap<DefinitionContext, TermParserStateFactory> statementParsers,
-                                final HashMap<DefinitionContext, TermParserStateFactory> statementSequenceParsers,
-                                final HashMap<ExpressionContext, TermParserStateFactory> expressionParsers,
-                                final ArrayList<CompiledGrammar> otherGrammars,
-                                final ArrayList<DefinitionContext> definitionContexts,
-                                final ArrayList<ExpressionContext> expressionContexts, final boolean script) {
+                                final Map<DefinitionContext, KeywordContext> keywords,
+                                final Map<DefinitionContext, TermParserStateFactory> statementParsers,
+                                final Map<DefinitionContext, TermParserStateFactory> statementSequenceParsers,
+                                final Map<ExpressionContext, TermParserStateFactory> expressionParsers,
+                                final List<CompiledGrammar> otherGrammars,
+                                final List<DefinitionContext> definitionContexts,
+                                final List<ExpressionContext> expressionContexts, final boolean script) {
         this.resourceDescriptor = resourceDescriptor;
         this.errors = errors;
         this.defaultContext = defaultContext;

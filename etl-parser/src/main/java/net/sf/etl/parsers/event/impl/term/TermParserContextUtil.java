@@ -98,7 +98,7 @@ public final class TermParserContextUtil {
     public static boolean skipIgnorable(final SourceLocation source, final TermParserContext context,
                                         final boolean skipDocumentation) {
         if (context.isAdvanceNeeded()) {
-            PhraseToken t = context.current();
+            final PhraseToken t = context.current();
             switch (t.kind()) {
                 case SOFT_STATEMENT_END:
                     if (!context.isScriptMode() || !context.canSoftEndStatement()) {
@@ -117,13 +117,11 @@ public final class TermParserContextUtil {
                     context.consumePhraseToken();
                     return true;
                 case SIGNIFICANT:
-                    if (skipDocumentation) {
-                        if (t.hasToken() && t.token().kind() == Tokens.DOC_COMMENT) {
-                            context.produce(new TermToken(Terms.IGNORABLE, SyntaxRole.DOCUMENTATION, null, t,
-                                    t.start(), t.end(), source, null));
-                            context.consumePhraseToken();
-                            return true;
-                        }
+                    if (skipDocumentation && t.hasToken() && t.token().kind() == Tokens.DOC_COMMENT) {
+                        context.produce(new TermToken(Terms.IGNORABLE, SyntaxRole.DOCUMENTATION, null, t,
+                                t.start(), t.end(), source, null));
+                        context.consumePhraseToken();
+                        return true;
                     }
                     break;
                 default:
