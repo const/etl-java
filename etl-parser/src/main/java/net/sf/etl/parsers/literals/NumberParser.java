@@ -130,7 +130,9 @@ final class NumberParser extends BaseLiteralParser {
             if (base == Numbers.DECIMAL || base == Numbers.BINARY) {
                 exponent -= beforeDot < 0 ? 0 : text.length() - beforeDot;
             } else {
+                // CHECKSTYLE:OFF
                 exponent -= beforeDot < 0 ? 0 : (text.length() - beforeDot) * 4;
+                // CHECKSTYLE:ON
             }
         }
         if (Numbers.isValidNumberSuffixStart(ch)) {
@@ -189,7 +191,7 @@ final class NumberParser extends BaseLiteralParser {
     }
 
     /**
-     * Check characters after exponent to check if they are valid start of exponent number
+     * Check characters after exponent to check if they are valid start of exponent number.
      *
      * @param ch1 the fist character after exponent
      * @param ch2 the second character after exponent
@@ -200,7 +202,7 @@ final class NumberParser extends BaseLiteralParser {
     }
 
     /**
-     * Produce result
+     * Produce result.
      *
      * @param kind the token kind
      * @return the number information

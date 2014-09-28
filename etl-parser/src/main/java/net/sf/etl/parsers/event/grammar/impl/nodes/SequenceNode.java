@@ -75,10 +75,10 @@ public final class SequenceNode extends GroupNode {
                 errorExit = recoveryChoiceAction;
                 head = node.buildActions(b, head, errorExit, recoveryTest);
                 recoveryChoiceAction.setRecoveryPath(head);
-                recoveryTest = new ChoiceBuilder(node.getSource()). // NOPMD
-                        setFallback(recoveryTest).
-                        add(currentLa, new RecoveryVoteAction(node.getSource(), recoveryChoiceAction)). // NOPMD
-                        build();
+                recoveryTest = new ChoiceBuilder(node.getSource())  // NOPMD
+                        .setFallback(recoveryTest)
+                        .add(currentLa, new RecoveryVoteAction(node.getSource(), recoveryChoiceAction)) // NOPMD
+                        .build();
                 head = new RecoverySetupAction(node.getSource(), head, recoveryTest); // NOPMD
             }
             if (!wasNonEmpty && !node.matchesEmpty() && i.hasPrevious()) {

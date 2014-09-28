@@ -178,7 +178,7 @@ public final class Numbers {
     }
 
     /**
-     * Check if a codepoint is sign character
+     * Check if a codepoint is sign character.
      *
      * @param codepoint the codepoint
      * @return true if sign character (plus or minus)

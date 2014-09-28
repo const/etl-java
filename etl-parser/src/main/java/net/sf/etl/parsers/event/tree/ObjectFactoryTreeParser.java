@@ -507,7 +507,8 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
          * @param metaObject the meta object
          * @param tokenCell  the token cell
          */
-        protected PropertyState(final BaseObjectType object, final MetaObjectType metaObject, final Cell<TermToken> tokenCell) {
+        protected PropertyState(final BaseObjectType object, final MetaObjectType metaObject,
+                                final Cell<TermToken> tokenCell) {
             this.object = object;
             this.metaObject = metaObject;
             final TermToken token = tokenCell.take();

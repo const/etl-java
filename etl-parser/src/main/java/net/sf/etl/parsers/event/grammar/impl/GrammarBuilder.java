@@ -62,7 +62,7 @@ public final class GrammarBuilder {
     /**
      * The context builders.
      */
-    private final Map<ContextView, ContextBuilder> contextBuilders = new HashMap<ContextView, ContextBuilder>(); // NOPMD
+    private final Map<ContextView, ContextBuilder> contextBuilders = new HashMap<ContextView, ContextBuilder>(); //NOPMD
     /**
      * The grammars linked from this grammar.
      */
@@ -229,7 +229,8 @@ public final class GrammarBuilder {
             if (parser != null) {
                 final DefinitionContext definitionContext = contextBuilder.termContext();
                 final StatementSequenceStateFactory sequenceParser = new StatementSequenceStateFactory(parser); // NOPMD
-                linker.resolveBlock(definitionContext, new BlockStateFactory(definitionContext, sequenceParser));//NOPMD
+                linker.resolveBlock(definitionContext,
+                        new BlockStateFactory(definitionContext, sequenceParser)); //NOPMD
                 statementSequences.put(definitionContext, sequenceParser);
                 statements.put(definitionContext, parser);
                 keywords.put(definitionContext, contextBuilder.getKeywordContext());

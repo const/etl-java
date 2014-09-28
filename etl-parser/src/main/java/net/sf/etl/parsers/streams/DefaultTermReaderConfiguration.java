@@ -37,7 +37,7 @@ import java.net.URL;
 /**
  * The configuration for the blocking parsers.
  */
-public class DefaultTermReaderConfiguration implements TermReaderCatalogConfiguration {
+public final class DefaultTermReaderConfiguration implements TermReaderCatalogConfiguration {
     /**
      * The default configuration instance.
      */

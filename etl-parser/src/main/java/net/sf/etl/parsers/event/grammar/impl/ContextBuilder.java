@@ -114,7 +114,8 @@ public final class ContextBuilder { // NOPMD
     /**
      * The builders for operator levels.
      */
-    private final NavigableMap<Integer, OperatorLevelBuilder> operatorLevels = new TreeMap<Integer, OperatorLevelBuilder>();
+    private final NavigableMap<Integer, OperatorLevelBuilder> operatorLevels =
+            new TreeMap<Integer, OperatorLevelBuilder>();
     /**
      * The  context name.
      */

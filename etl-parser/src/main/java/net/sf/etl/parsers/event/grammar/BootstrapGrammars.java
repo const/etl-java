@@ -150,18 +150,18 @@ public final class BootstrapGrammars {
                     for (final ResourceRequest request : compiler.requests()) {
                         try {
                             final String systemId = request.getReference().getSystemId();
-                            final URL url = new URL(systemId); // NOPMD
+                            final URL url = new URL(systemId);
                             final InputStream input = url.openStream();
                             try {
-                                final BootstrapETLParserLite parser = new BootstrapETLParserLite( // NOPMD
+                                final BootstrapETLParserLite parser = new BootstrapETLParserLite(
                                         new PhraseParserReader(
                                                 new LexerReader(DefaultTermReaderConfiguration.INSTANCE,
                                                         new InputStreamReader(input, UTF8),
                                                         systemId, TextPos.START)));
                                 final Grammar grammar = parser.parse();
                                 // note that exception is thrown if there was problem with parsing resource
-                                compiler.provide(new ResolvedObject<Grammar>(request, null, // NOPMD
-                                        new ResourceDescriptor(systemId, StandardGrammars.GRAMMAR_NATURE, null), //NOPMD
+                                compiler.provide(new ResolvedObject<Grammar>(request, null,
+                                        new ResourceDescriptor(systemId, StandardGrammars.GRAMMAR_NATURE, null),
                                         grammar), null);
                             } finally {
                                 input.close();

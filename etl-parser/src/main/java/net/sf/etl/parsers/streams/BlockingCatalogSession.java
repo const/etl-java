@@ -187,6 +187,7 @@ final class BlockingCatalogSession { // NOPMD
      * Start parsing.
      *
      * @param resourceRequest the resource request
+     * @return the initial grammar resolution result
      */
     private CatalogResult resolveInitialGrammar(final ResourceRequest resourceRequest) {
         CatalogResult result = null;
@@ -274,20 +275,20 @@ final class BlockingCatalogSession { // NOPMD
             if (catalogFile.getUsedResources().isEmpty()) {
                 catalogResourceUsage = Collections.emptyList();
             } else {
-                catalogResourceUsage = new ArrayList<ResourceUsage>(); // NOPMD
+                catalogResourceUsage = new ArrayList<ResourceUsage>();
                 for (final CatalogResourceUsage resourceUsage : catalogFile.getUsedResources()) {
-                    catalogResourceUsage.add(new ResourceUsage( // NOPMD
-                            new ResourceReference(resourceUsage.getSystemId(), null), // NOPMD
-                            new ResourceDescriptor(resourceUsage.getSystemId(), // NOPMD
+                    catalogResourceUsage.add(new ResourceUsage(
+                            new ResourceReference(resourceUsage.getSystemId(), null),
+                            new ResourceDescriptor(resourceUsage.getSystemId(),
                                     StandardGrammars.CATALOG_RESOURCE_TYPE,
                                     resourceUsage.getVersion() == null ? null : resourceUsage.getVersion().toString()),
                             resourceUsage.getRole()
                     ));
                 }
             }
-            rc.add(new ResourceUsage( // NOPMD
-                    new ResourceReference(trace.getCatalogRequest().getSystemId(), null), // NOPMD
-                    new ResourceDescriptor( // NOPMD
+            rc.add(new ResourceUsage(
+                    new ResourceReference(trace.getCatalogRequest().getSystemId(), null),
+                    new ResourceDescriptor(
                             catalogFile.getSystemId(),
                             StandardGrammars.CATALOG_TYPE,
                             catalogFile.getVersion() == null ? null : catalogFile.getVersion().toString(),

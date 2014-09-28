@@ -81,6 +81,10 @@ public final class GrammarAssembly {
      * The failed grammars.
      */
     private final Map<ResourceRequest, FailedGrammar> failed = new HashMap<ResourceRequest, FailedGrammar>(); // NOPMD
+    /**
+     * The initial reference.
+     */
+    private ResourceRequest initialRequest;
 
 
     /**
@@ -181,7 +185,7 @@ public final class GrammarAssembly {
      * @param errorId the error id
      * @param args    the error args
      */
-    public void error(final Element element, final String errorId, final Object[] args) {
+    public void error(final Element element, final String errorId, final Object... args) {
         error(new ErrorInfo(errorId, Arrays.asList(args), element == null ? null : element.getLocation(), null));
     }
 
@@ -203,6 +207,7 @@ public final class GrammarAssembly {
      * @param reference the resource reference
      */
     public void start(final ResourceRequest reference) {
+        initialRequest = reference;
         unresolvedResourceRequests.add(reference);
         allResourceReferences.add(reference.getReference());
     }
@@ -236,13 +241,12 @@ public final class GrammarAssembly {
      * Flatten the grammars.
      */
     public void flatten() { // NOPMD
-        /**
-         TODO make sense of check below
-         if (rootGrammar.isAbstract()) {
-         error("grammar.AbstractRootGrammar", rootGrammar.getSystemId(),
-         source.getPublicId());
-         }
-         **/
+        final ResolvedObject<Grammar> rootGrammar = resolutions.get(initialRequest.getReference());
+        if (rootGrammar != null && rootGrammar.getObject() != null
+                && rootGrammar.getObject().getAbstractModifier() != null) {
+            error(rootGrammar.getObject(), "grammar.AbstractRootGrammar",
+                    rootGrammar.getDescriptor().getSystemId());
+        }
         for (final GrammarView grammarView : grammarViews.values()) {
             grammarView.prepareContexts();
         }

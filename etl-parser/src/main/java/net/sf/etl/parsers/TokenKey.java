@@ -272,6 +272,9 @@ public final class TokenKey implements Serializable {
         return quoteClass;
     }
 
+    /**
+     * @return the object substituted instead of deserialized one
+     */
     private Object readResolve() {
         if (quoteClass != null) {
             return quoted(kind, modifier, quoteClass);

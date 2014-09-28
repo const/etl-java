@@ -96,7 +96,8 @@ final class ActionUtil {
      * @param wrappers   the wrappers of the object
      * @return the generated state
      */
-    public static StructuralTokenAction endObject(final SourceLocation source, final Action normalExit, final ObjectName name,
+    public static StructuralTokenAction endObject(final SourceLocation source, final Action normalExit,
+                                                  final ObjectName name,
                                                   final WrapperLink wrappers) {
         return new StructuralTokenAction(source, endIncludeWrappers(normalExit, wrappers),
                 Terms.OBJECT_END, name, false);

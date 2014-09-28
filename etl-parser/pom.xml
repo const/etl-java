@@ -90,9 +90,16 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>2.12.1</version>
                 <configuration>
-                    <configLocation>${project.basedir}/src/config/checks/checkstyle-checker.xml</configLocation>
+                    <configLocation>src/config/checks/checkstyle-checker.xml</configLocation>
                     <logViolationsToConsole>true</logViolationsToConsole>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
