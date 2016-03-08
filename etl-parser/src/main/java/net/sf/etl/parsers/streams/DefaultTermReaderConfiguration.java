@@ -27,8 +27,8 @@ package net.sf.etl.parsers.streams;
 
 import net.sf.etl.parsers.DefaultTermParserConfiguration;
 import net.sf.etl.parsers.TermParserConfiguration;
-import org.apache_extras.xml_catalog.blocking.BlockingCatalog;
-import org.apache_extras.xml_catalog.blocking.provider.CatalogProviders;
+import net.sf.etl.xml_catalog.blocking.BlockingCatalog;
+import net.sf.etl.xml_catalog.blocking.provider.CatalogProviders;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

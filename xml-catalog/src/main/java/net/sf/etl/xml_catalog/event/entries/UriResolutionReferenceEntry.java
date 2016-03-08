@@ -23,19 +23,46 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers.streams;
+package net.sf.etl.xml_catalog.event.entries;
 
-import net.sf.etl.xml_catalog.blocking.BlockingCatalog;
+import java.net.URI;
 
 /**
- * The catalog based configuration.
+ * The URI entry.
  */
-public interface TermReaderCatalogConfiguration extends TermReaderConfiguration {
+public abstract class UriResolutionReferenceEntry extends UriReferenceEntry implements UriResolutionEntry {
     /**
-     * Get catalog for the specified system id.
-     *
-     * @param systemId the system id to check
-     * @return get catalog for the parser, it is used to resolve grammars for the file
+     * The purpose.
      */
-    BlockingCatalog getCatalog(String systemId);
+    private final String purpose;
+    /**
+     * The nature.
+     */
+    private final String nature;
+
+    /**
+     * The constructor.
+     *
+     * @param id      the id
+     * @param base    the base URI
+     * @param uri     the URI reference
+     * @param purpose the URI purpose
+     * @param nature  the URI reference
+     */
+    protected UriResolutionReferenceEntry(final String id, final URI base, final URI uri,
+                                          final String purpose, final String nature) {
+        super(id, base, uri);
+        this.purpose = purpose;
+        this.nature = nature;
+    }
+
+    @Override
+    public final String getNature() {
+        return nature;
+    }
+
+    @Override
+    public final String getPurpose() {
+        return purpose;
+    }
 }

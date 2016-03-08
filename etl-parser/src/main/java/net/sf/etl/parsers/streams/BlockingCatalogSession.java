@@ -43,11 +43,11 @@ import net.sf.etl.parsers.resource.ResourceDescriptor;
 import net.sf.etl.parsers.resource.ResourceReference;
 import net.sf.etl.parsers.resource.ResourceRequest;
 import net.sf.etl.parsers.resource.ResourceUsage;
-import org.apache_extras.xml_catalog.blocking.BlockingCatalog;
-import org.apache_extras.xml_catalog.event.CatalogFile;
-import org.apache_extras.xml_catalog.event.CatalogResourceUsage;
-import org.apache_extras.xml_catalog.event.CatalogResult;
-import org.apache_extras.xml_catalog.event.CatalogResultTrace;
+import net.sf.etl.xml_catalog.blocking.BlockingCatalog;
+import net.sf.etl.xml_catalog.event.CatalogFile;
+import net.sf.etl.xml_catalog.event.CatalogResourceUsage;
+import net.sf.etl.xml_catalog.event.CatalogResult;
+import net.sf.etl.xml_catalog.event.CatalogResultTrace;
 
 import java.net.URL;
 import java.util.ArrayList;

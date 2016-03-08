@@ -23,19 +23,7 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers.streams;
-
-import net.sf.etl.xml_catalog.blocking.BlockingCatalog;
-
 /**
- * The catalog based configuration.
+ * Different utilities related to URI processing.
  */
-public interface TermReaderCatalogConfiguration extends TermReaderConfiguration {
-    /**
-     * Get catalog for the specified system id.
-     *
-     * @param systemId the system id to check
-     * @return get catalog for the parser, it is used to resolve grammars for the file
-     */
-    BlockingCatalog getCatalog(String systemId);
-}
+package net.sf.etl.xml_catalog.util;

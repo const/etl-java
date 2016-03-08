@@ -23,19 +23,36 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers.streams;
+package net.sf.etl.xml_catalog.event.entries;
 
-import net.sf.etl.xml_catalog.blocking.BlockingCatalog;
+import java.net.URI;
 
 /**
- * The catalog based configuration.
+ * The system id mapping entry.
  */
-public interface TermReaderCatalogConfiguration extends TermReaderConfiguration {
+public final class SystemEntry extends UriReferenceEntry {
     /**
-     * Get catalog for the specified system id.
-     *
-     * @param systemId the system id to check
-     * @return get catalog for the parser, it is used to resolve grammars for the file
+     * The system id.
      */
-    BlockingCatalog getCatalog(String systemId);
+    private final String systemId;
+
+    /**
+     * The constructor.
+     *
+     * @param id       the id
+     * @param base     the base URI
+     * @param uri      the URI reference
+     * @param systemId the system id.
+     */
+    public SystemEntry(final String id, final URI base, final URI uri, final String systemId) {
+        super(id, base, uri);
+        this.systemId = systemId;
+    }
+
+    /**
+     * @return the system id.
+     */
+    public String getSystemId() {
+        return systemId;
+    }
 }

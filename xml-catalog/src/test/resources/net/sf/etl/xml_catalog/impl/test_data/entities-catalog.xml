@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<catalog xmlns:t="urn:oasis:names:tc:entity:xmlns:tr9401:catalog"
+         xmlns:r="http://www.rddl.org/"
+         xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+
+    <delegatePublic publicIdStartString="-//OASIS//DTD Entity Resolution XML Catalog" catalog="pd-catalog1.xml"/>
+    <delegatePublic publicIdStartString="-//OASIS//DTD Entity" catalog="pd-catalog2.xml"/>
+    <delegatePublic publicIdStartString="-//OASIS//DTD Entity Test" catalog="pd-catalog3.xml"/>
+    <delegatePublic publicIdStartString="-//OASIS//DTD Entity" catalog="pd-catalog4.xml"/>
+    <delegatePublic publicIdStartString="-//OASIS//DTD Entity Resolution XML" catalog="pd-catalog5.xml"/>
+
+    <delegateSystem systemIdStartString="http://www.oasis-open.org/committees/entity/release/1.1/"
+                    catalog="pd-catalog1.xml"/>
+    <delegateSystem systemIdStartString="http://www.oasis-open.org/committees/" catalog="pd-catalog2.xml"/>
+    <delegateSystem systemIdStartString="http://www.oasis-open.org/committees/public/" catalog="pd-catalog3.xml"/>
+    <delegateSystem systemIdStartString="http://www.oasis-open.org/committees/" catalog="pd-catalog4.xml"/>
+    <delegateSystem systemIdStartString="http://www.oasis-open.org/committees/entity/" catalog="pd-catalog5.xml"/>
+
+    <system systemId="http://example.com/1.0/future.xsd" xml:base="base-s/" uri="future-s.xsd"/>
+    <public publicId="-//Example//Future 1.0//EN" xml:base="base-p/" uri="future-p.xsd"/>
+
+    <rewriteSystem systemIdStartString="http://example.com/1.0/r/" rewritePrefix="1/"/>
+    <rewriteSystem systemIdStartString="http://example.com/1.0/r/x/" rewritePrefix="2/"/>
+    <rewriteSystem systemIdStartString="http://example.com/1.0/r/x/" rewritePrefix="3/"/>
+    <rewriteSystem systemIdStartString="http://example.com/1.0/r/x/y/" rewritePrefix="4/"/>
+    <rewriteSystem systemIdStartString="http://example.com/1.0/r/x/" rewritePrefix="5/"/>
+
+    <group xml:base="s/">
+        <systemSuffix systemIdSuffix="/r/tx.xml" uri="1/tx.xml"/>
+        <systemSuffix systemIdSuffix="/r/x/tx.xml" uri="2/tx.xml"/>
+        <systemSuffix systemIdSuffix="/r/tx.xml" uri="3/tx.xml"/>
+        <systemSuffix systemIdSuffix="/tx.xml" uri="4/tx.xml"/>
+    </group>
+
+    <t:dtddecl publicId="-//Example//Future 1.x//EN" uri="future-1.dtd"/>
+    <t:dtddecl publicId="-//Example//Future 1.x//EN" uri="future-2.dtd"/>
+    <t:dtddecl publicId="-//Example//Future 1.x.t//EN" uri="future-t.dtd"/>
+    <group prefer="public">
+        <t:dtddecl publicId="-//Example//Future 1.x//EN" uri="future-3.dtd"/>
+    </group>
+
+
+    <t:notation name="notation-0" uri="n0.txt"/>
+    <t:notation name="notation-1" uri="n1.txt"/>
+    <t:notation name="notation-1" uri="n2.txt"/>
+
+    <t:entity name="entity-0" uri="e-0.txt"/>
+    <t:doctype name="doctype-0" uri="dt-0.txt"/>
+    <t:linktype name="linktype-0" uri="lt-0.txt"/>
+
+    <t:document uri="document-1.txt"/>
+    <t:document uri="document-2.txt"/>
+
+    <t:sgmldecl uri="sgmldecl.dtd"/>
+
+    <uri name="http://sample.com/1.0/future.xsd" xml:base="base-u/" uri="future-u.xsd"/>
+
+    <rewriteURI uriStartString="http://sample.com/1.0/r/" rewritePrefix="1/"/>
+    <rewriteURI uriStartString="http://sample.com/1.0/r/x/" rewritePrefix="2/" r:nature="n:1" r:purpose="p:1"/>
+    <rewriteURI uriStartString="http://sample.com/1.0/r/x/" rewritePrefix="3/" r:nature="n:1" r:purpose="p:2"/>
+    <rewriteURI uriStartString="http://sample.com/1.0/r/x/y/" rewritePrefix="4/"/>
+    <rewriteURI uriStartString="http://sample.com/1.0/r/x/" rewritePrefix="5/"/>
+
+    <group xml:base="s/">
+        <uriSuffix uriSuffix="/r/tx.xml" uri="1/tx.xml"/>
+        <uriSuffix uriSuffix="/r/x/tx.xml" uri="2/tx.xml"/>
+        <uriSuffix uriSuffix="/r/tx.xml" uri="3/tx.xml"/>
+        <uriSuffix uriSuffix="/tx.xml" uri="4/tx.xml" r:nature="n:1" r:purpose="p:3"/>
+    </group>
+
+    <delegateURI uriStartString="https://www.oasis-open.org/committees/entity/release/1.1/"
+                 catalog="pd-catalog1.xml"/>
+    <delegateURI uriStartString="https://www.oasis-open.org/committees/" catalog="pd-catalog2.xml"
+                 r:nature="n:1" r:purpose="p:1"/>
+    <delegateURI uriStartString="https://www.oasis-open.org/committees/public/" catalog="pd-catalog3.xml"/>
+    <delegateURI uriStartString="https://www.oasis-open.org/committees/" catalog="pd-catalog4.xml"
+                 r:nature="n:1" r:purpose="p:2"/>
+    <delegateURI uriStartString="https://www.oasis-open.org/committees/entity/" catalog="pd-catalog5.xml"
+                 r:nature="n:2" r:purpose="p:1"/>
+
+</catalog>

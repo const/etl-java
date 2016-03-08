@@ -23,19 +23,22 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers.streams;
-
-import net.sf.etl.xml_catalog.blocking.BlockingCatalog;
+package net.sf.etl.xml_catalog.event.engine;
 
 /**
- * The catalog based configuration.
+ * The catalog processing status.
  */
-public interface TermReaderCatalogConfiguration extends TermReaderConfiguration {
+public enum CatalogEngineStatus {
     /**
-     * Get catalog for the specified system id.
-     *
-     * @param systemId the system id to check
-     * @return get catalog for the parser, it is used to resolve grammars for the file
+     * The evaluation of expression is not yet started.
      */
-    BlockingCatalog getCatalog(String systemId);
+    NOT_STARTED,
+    /**
+     * The catalog is needed.
+     */
+    CATALOG_NEEDED,
+    /**
+     * The result is available.
+     */
+    RESULT_AVAILABLE
 }

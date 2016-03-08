@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+    <nextCatalog xml:base="../.." catalog="net/sf/etl/xml_catalog/impl/test_data/missing-catalog.xml"/>
+</catalog>
+

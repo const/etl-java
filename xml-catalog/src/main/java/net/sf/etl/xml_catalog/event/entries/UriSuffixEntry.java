@@ -23,19 +23,39 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers.streams;
+package net.sf.etl.xml_catalog.event.entries;
 
-import net.sf.etl.xml_catalog.blocking.BlockingCatalog;
+import java.net.URI;
 
 /**
- * The catalog based configuration.
+ * The URI suffix entry.
  */
-public interface TermReaderCatalogConfiguration extends TermReaderConfiguration {
+public final class UriSuffixEntry extends UriResolutionReferenceEntry {
     /**
-     * Get catalog for the specified system id.
-     *
-     * @param systemId the system id to check
-     * @return get catalog for the parser, it is used to resolve grammars for the file
+     * The URI suffix.
      */
-    BlockingCatalog getCatalog(String systemId);
+    private final String uriSuffix;
+
+    /**
+     * The constructor.
+     *
+     * @param id        the id
+     * @param base      the base URI
+     * @param uri       the URI reference
+     * @param purpose   the URI purpose
+     * @param nature    the URI reference
+     * @param uriSuffix the URI suffix to match
+     */
+    public UriSuffixEntry(final String id, final URI base, final URI uri, final String purpose,
+                          final String nature, final String uriSuffix) {
+        super(id, base, uri, purpose, nature);
+        this.uriSuffix = uriSuffix;
+    }
+
+    /**
+     * @return the URI suffix
+     */
+    public String getUriSuffix() {
+        return uriSuffix;
+    }
 }

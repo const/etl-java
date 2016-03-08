@@ -23,19 +23,22 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers.streams;
-
-import net.sf.etl.xml_catalog.blocking.BlockingCatalog;
+package net.sf.etl.xml_catalog.event;
 
 /**
- * The catalog based configuration.
+ * The catalog context that is used to report catalog events and to acquire catalog related
+ * configuration.
  */
-public interface TermReaderCatalogConfiguration extends TermReaderConfiguration {
+public interface CatalogContext {
     /**
-     * Get catalog for the specified system id.
-     *
-     * @param systemId the system id to check
-     * @return get catalog for the parser, it is used to resolve grammars for the file
+     * @return the current value of prefers public attribute.
      */
-    BlockingCatalog getCatalog(String systemId);
+    boolean prefersPublic();
+
+    /**
+     * This method is invoked by providers when catalog is loaded or created by actual providers.
+     *
+     * @param event the event
+     */
+    void catalogLoaded(CatalogResolutionEvent event);
 }

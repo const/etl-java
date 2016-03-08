@@ -23,19 +23,25 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers.streams;
+package net.sf.etl.xml_catalog.event.engine.impl.util;
 
-import net.sf.etl.xml_catalog.blocking.BlockingCatalog;
+import java.util.Comparator;
 
 /**
- * The catalog based configuration.
+ * This comparator compares strings using length. If strings have the same length, they are compared lexicographically.
  */
-public interface TermReaderCatalogConfiguration extends TermReaderConfiguration {
+public final class ReverseLengthComparator implements Comparator<String> {
     /**
-     * Get catalog for the specified system id.
-     *
-     * @param systemId the system id to check
-     * @return get catalog for the parser, it is used to resolve grammars for the file
+     * The reverse instance of comparator.
      */
-    BlockingCatalog getCatalog(String systemId);
+    public static final ReverseLengthComparator INSTANCE = new ReverseLengthComparator();
+
+    @Override
+    public int compare(final String o1, final String o2) {
+        int rc = o2.length() - o1.length();
+        if (rc == 0) {
+            rc = o2.compareTo(o1);
+        }
+        return rc;
+    }
 }

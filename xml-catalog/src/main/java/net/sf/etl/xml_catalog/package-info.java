@@ -23,19 +23,11 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers.streams;
-
-import net.sf.etl.xml_catalog.blocking.BlockingCatalog;
-
 /**
- * The catalog based configuration.
+ * This package contains public API for managing catalogs. This is API is fairly low level. And the application would
+ * usually want to use TBD utility classes. The more complex applications like IDEs will use this API directly.
+ * <p/>
+ * The parser specific resolvers are created using instances of
+ * {@link net.sf.etl.xml_catalog.blocking.BlockingCatalog} interface.
  */
-public interface TermReaderCatalogConfiguration extends TermReaderConfiguration {
-    /**
-     * Get catalog for the specified system id.
-     *
-     * @param systemId the system id to check
-     * @return get catalog for the parser, it is used to resolve grammars for the file
-     */
-    BlockingCatalog getCatalog(String systemId);
-}
+package net.sf.etl.xml_catalog;

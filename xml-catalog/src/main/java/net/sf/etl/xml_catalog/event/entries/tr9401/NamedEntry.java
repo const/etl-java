@@ -23,19 +23,38 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers.streams;
+package net.sf.etl.xml_catalog.event.entries.tr9401;
 
-import net.sf.etl.xml_catalog.blocking.BlockingCatalog;
+import net.sf.etl.xml_catalog.event.entries.UriReferenceEntry;
+
+import java.net.URI;
 
 /**
- * The catalog based configuration.
+ * The doctype entry.
  */
-public interface TermReaderCatalogConfiguration extends TermReaderConfiguration {
+public abstract class NamedEntry extends UriReferenceEntry {
     /**
-     * Get catalog for the specified system id.
-     *
-     * @param systemId the system id to check
-     * @return get catalog for the parser, it is used to resolve grammars for the file
+     * The  name.
      */
-    BlockingCatalog getCatalog(String systemId);
+    private final String name;
+
+    /**
+     * The constructor.
+     *
+     * @param id   the id
+     * @param base the base URI
+     * @param uri  the URI reference
+     * @param name the name
+     */
+    protected NamedEntry(final String id, final URI base, final URI uri, final String name) {
+        super(id, base, uri);
+        this.name = name;
+    }
+
+    /**
+     * @return the name
+     */
+    public final String getName() {
+        return name;
+    }
 }

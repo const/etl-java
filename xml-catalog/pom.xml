@@ -1,61 +1,52 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  ~ Reference ETL Parser for Java
-  ~ Copyright (c) 2000-2013 Constantine A Plotnikov
-  ~
-  ~ Permission is hereby granted, free of charge, to any person
-  ~ obtaining a copy of this software and associated documentation
-  ~ files (the "Software"), to deal in the Software without restriction,
-  ~ including without limitation the rights to use, copy, modify, merge,
-  ~ publish, distribute, sublicense, and/or sell copies of the Software,
-  ~ and to permit persons to whom the Software is furnished to do so,
-  ~ subject to the following conditions:
-  ~
-  ~ The above copyright notice and this permission notice shall be
-  ~ included in all copies or substantial portions of the Software.
-  ~
-  ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-  ~ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-  ~ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  ~ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-  ~ BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-  ~ ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-  ~ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  ~ SOFTWARE.
-  -->
-
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.sf.etl</groupId>
-    <artifactId>etl-parser</artifactId>
+    <artifactId>xml-catalog</artifactId>
     <version>0.3.0-SNAPSHOT</version>
-    <name>ETL Parser</name>
-    <description>This module represent basic event-driven ETL parser for Java.</description>
+    <packaging>jar</packaging>
+
+    <name>XML Catalog Resolver</name>
+    <description>
+        XML Catalog 1.1 Resolver that provides flexible event-driven resolution process.
+        It is intended to be usable in IDE and in command line tool contexts. The library
+        also tries to take convention-over-configuration approach, so the library will
+        work in many cases without explicit configuration.
+    </description>
+
+    <developers>
+        <developer>
+            <name>Constantine Plotnikov</name>
+            <email>constantine.plotnikov@gmail.com</email>
+        </developer>
+    </developers>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.6</maven.compiler.source>
+        <maven.compiler.target>1.6</maven.compiler.target>
+        <junit.version>4.11</junit.version>
+        <slf4j.version>1.7.6</slf4j.version>
         <logback.version>1.1.2</logback.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>net.sf.etl</groupId>
-            <artifactId>xml-catalog</artifactId>
-            <version>0.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -80,7 +71,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.0</version>
                 <configuration>
-                    <encoding>UTF-8</encoding>
                     <source>1.6</source>
                     <target>1.6</target>
                 </configuration>
@@ -90,16 +80,9 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>2.12.1</version>
                 <configuration>
-                    <configLocation>${project.basedir}/../src/config/checks/checkstyle-checker.xml</configLocation>
+                    <configLocation>src/config/checks/checkstyle-checker.xml</configLocation>
                     <logViolationsToConsole>true</logViolationsToConsole>
                 </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -123,7 +106,7 @@
                     <detail>true</detail>
                     <printFailingErrors>true</printFailingErrors>
                     <rulesets>
-                        <ruleset>${project.basedir}/../src/config/checks/pmd-rules.xml</ruleset>
+                        <ruleset>${project.basedir}/src/config/checks/pmd-rules.xml</ruleset>
                     </rulesets>
                 </configuration>
                 <executions>

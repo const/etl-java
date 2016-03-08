@@ -23,19 +23,25 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers.streams;
+package net.sf.etl.xml_catalog.blocking.provider.schema;
 
-import net.sf.etl.xml_catalog.blocking.BlockingCatalog;
+import net.sf.etl.xml_catalog.blocking.provider.CatalogProvider;
 
 /**
- * The catalog based configuration.
+ * Module for schema based catalog providers, it is intended for use with {@link java.util.ServiceLoader}
+ * to load the catalog providers from the libraries.
  */
-public interface TermReaderCatalogConfiguration extends TermReaderConfiguration {
+public interface SchemaProviderModule {
     /**
-     * Get catalog for the specified system id.
-     *
-     * @param systemId the system id to check
-     * @return get catalog for the parser, it is used to resolve grammars for the file
+     * @return list of URI schema supported by this module
      */
-    BlockingCatalog getCatalog(String systemId);
+    String[] supportedUriSchemas();
+
+    /**
+     * Get provider for schema.
+     *
+     * @param schema the schema to handle
+     * @return the catalog provider that is able to handle it
+     */
+    CatalogProvider getProvider(String schema);
 }

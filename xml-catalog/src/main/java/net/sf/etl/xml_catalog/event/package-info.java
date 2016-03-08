@@ -23,19 +23,8 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers.streams;
-
-import net.sf.etl.xml_catalog.blocking.BlockingCatalog;
-
 /**
- * The catalog based configuration.
+ * Event-based catalog engine API. This API provides just a resolution engine. The actual blocking on
+ * non-blocking resolution process is implemented elsewhere.
  */
-public interface TermReaderCatalogConfiguration extends TermReaderConfiguration {
-    /**
-     * Get catalog for the specified system id.
-     *
-     * @param systemId the system id to check
-     * @return get catalog for the parser, it is used to resolve grammars for the file
-     */
-    BlockingCatalog getCatalog(String systemId);
-}
+package net.sf.etl.xml_catalog.event;

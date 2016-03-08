@@ -23,19 +23,29 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers.streams;
-
-import net.sf.etl.xml_catalog.blocking.BlockingCatalog;
+package net.sf.etl.xml_catalog.util;
 
 /**
- * The catalog based configuration.
+ * Namespaces for the catalog.
  */
-public interface TermReaderCatalogConfiguration extends TermReaderConfiguration {
+public final class Namespaces {
     /**
-     * Get catalog for the specified system id.
-     *
-     * @param systemId the system id to check
-     * @return get catalog for the parser, it is used to resolve grammars for the file
+     * OASIS Catalog namespace.
      */
-    BlockingCatalog getCatalog(String systemId);
+    public static final String CATALOG = "urn:oasis:names:tc:entity:xmlns:xml:catalog";
+    /**
+     * TR9409 catalog namespace.
+     */
+    public static final String TR9401 = "urn:oasis:names:tc:entity:xmlns:tr9401:catalog";
+    /**
+     * RDDL namespace.
+     */
+    public static final String RDDL = "http://www.rddl.org/";
+
+    /**
+     * Private constructor for utility class.
+     */
+    private Namespaces() {
+        // DO noting.
+    }
 }

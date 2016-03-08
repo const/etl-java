@@ -23,19 +23,40 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers.streams;
+package net.sf.etl.xml_catalog.blocking.provider.schema;
 
-import net.sf.etl.xml_catalog.blocking.BlockingCatalog;
+import net.sf.etl.xml_catalog.blocking.provider.CatalogProvider;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * The catalog based configuration.
+ * The map-based schema provider implementation.
  */
-public interface TermReaderCatalogConfiguration extends TermReaderConfiguration {
+public class MapSchemaProviderModule implements SchemaProviderModule {
     /**
-     * Get catalog for the specified system id.
-     *
-     * @param systemId the system id to check
-     * @return get catalog for the parser, it is used to resolve grammars for the file
+     * The catalog provider for file lists.
      */
-    BlockingCatalog getCatalog(String systemId);
+    private final Map<String, CatalogProvider> catalogProviders = new HashMap<String, CatalogProvider>(); // NOPMD
+
+    @Override
+    public final String[] supportedUriSchemas() {
+        return catalogProviders.keySet().toArray(new String[catalogProviders.size()]);
+    }
+
+    @Override
+    public final CatalogProvider getProvider(final String schema) {
+        final CatalogProvider catalogProvider = catalogProviders.get(schema);
+        if (catalogProvider == null) {
+            throw new IllegalArgumentException("The catalog provider is not supported: " + schema);
+        }
+        return catalogProvider;
+    }
+
+    /**
+     * @return the catalog provider for file lists.
+     */
+    protected final Map<String, CatalogProvider> getCatalogProviders() {
+        return catalogProviders;
+    }
 }

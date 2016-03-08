@@ -23,19 +23,19 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers.streams;
-
-import net.sf.etl.xml_catalog.blocking.BlockingCatalog;
+package net.sf.etl.xml_catalog.event.entries;
 
 /**
- * The catalog based configuration.
+ * The URI resolution entry.
  */
-public interface TermReaderCatalogConfiguration extends TermReaderConfiguration {
+public interface UriResolutionEntry {
     /**
-     * Get catalog for the specified system id.
-     *
-     * @param systemId the system id to check
-     * @return get catalog for the parser, it is used to resolve grammars for the file
+     * @return the RDDL nature
      */
-    BlockingCatalog getCatalog(String systemId);
+    String getNature();
+
+    /**
+     * @return the RDDL purpose
+     */
+    String getPurpose();
 }

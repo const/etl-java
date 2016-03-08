@@ -23,19 +23,9 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers.streams;
-
-import net.sf.etl.xml_catalog.blocking.BlockingCatalog;
-
 /**
- * The catalog based configuration.
+ * The blocking catalog API. It contains simple catalog providers that resolve synchronously.
+ * This catalog API is usually sufficient for the command line applications. Asynchronous API will
+ * be provided in another project later.
  */
-public interface TermReaderCatalogConfiguration extends TermReaderConfiguration {
-    /**
-     * Get catalog for the specified system id.
-     *
-     * @param systemId the system id to check
-     * @return get catalog for the parser, it is used to resolve grammars for the file
-     */
-    BlockingCatalog getCatalog(String systemId);
-}
+package net.sf.etl.xml_catalog.blocking;

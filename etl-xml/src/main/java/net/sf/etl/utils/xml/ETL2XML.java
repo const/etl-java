@@ -27,9 +27,9 @@ package net.sf.etl.utils.xml;
 import net.sf.etl.parsers.streams.TermParserReader;
 import net.sf.etl.utils.AbstractFileConverter;
 import net.sf.etl.utils.InvalidOptionValueException;
+import net.sf.etl.xml_catalog.blocking.CatalogResolver;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
-import org.apache_extras.xml_catalog.blocking.CatalogResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
