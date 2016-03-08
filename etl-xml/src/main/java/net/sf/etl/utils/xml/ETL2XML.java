@@ -26,6 +26,9 @@ package net.sf.etl.utils.xml;
 
 import net.sf.etl.parsers.streams.TermParserReader;
 import net.sf.etl.utils.AbstractFileConverter;
+import net.sf.etl.utils.InvalidOptionValueException;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
 import org.apache_extras.xml_catalog.blocking.CatalogResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,36 +49,15 @@ import java.io.StringWriter;
  *
  * @author const
  */
-public final class ETL2XML extends AbstractFileConverter {
+public final class ETL2XML extends AbstractFileConverter<ETL2XMLConfig> {
     /**
      * The logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(ETL2XML.class);
     /**
-     * the name of style file.
-     */
-    private String styleFileName;
-
-    /**
-     * the type of style file.
-     */
-    private String styleFileType;
-
-    /**
-     * the kind of output.
-     */
-    private String outputKind;
-
-    /**
      * the instance of transformer.
      */
     private Templates templates;
-
-    /**
-     * If true attributes are avoided.
-     */
-    private boolean avoidAttributes;
-
 
     /**
      * The constructor.
@@ -101,25 +83,37 @@ public final class ETL2XML extends AbstractFileConverter {
     }
 
     @Override
+    protected ETL2XMLConfig parseConfig(final CommandLine commandLine) {
+        return new ETL2XMLConfig(commandLine);
+    }
+
+    @Override
+    protected Options getOptions() {
+        return ETL2XMLConfig.getXmlOptions();
+    }
+
+    @Override
     protected void processContent(final OutputStream stream, final TermParserReader p) throws Exception {
-        if ("-tree".equals(this.outputKind)) {
+        final OutputFormat outputKind = getConfig().getFormat();
+
+        if (OutputFormat.TREE == outputKind) {
             final TreeOutput out = new TreeOutput();
             out.process(p, stream);
-        } else if ("-xmi".equals(this.outputKind)) {
-            final XMLOutput out = new XMIOutput(this.avoidAttributes);
+        } else if (OutputFormat.XMI == outputKind) {
+            final XMLOutput out = new XMIOutput(getConfig().isAvoidAttributes());
             out.process(p, stream);
-        } else if ("-html".equals(this.outputKind)
-                || "-text".equals(this.outputKind)) {
+        } else if (OutputFormat.HTML == outputKind || OutputFormat.TEXT == outputKind) {
             final StringWriter sw = new StringWriter();
             final XMLOutput out = new PresentationOutput(null, null);
             out.process(p, sw);
             // resolve stylesheets for the resolver
             if (templates == null) {
+                final String styleFileName = getConfig().getStyle();
                 final CatalogResolver resolver = new CatalogResolver(getConfiguration().getCatalog(styleFileName));
                 final String transform;
                 if (styleFileName == null) {
                     // TODO resolve by extension
-                    transform = getClass().getResource("/net/sf/etl/util/xslt/generic-outline.xsl").toString();
+                    transform = getClass().getResource("/net/sf/etl/utils/xslt/generic-outline.xsl").toString();
                 } else if (new File(styleFileName).exists()) {
                     transform = new File(styleFileName).toURI().toString();
                 } else {
@@ -132,45 +126,37 @@ public final class ETL2XML extends AbstractFileConverter {
             }
             final Transformer t = templates.newTransformer();
             t.transform(new StreamSource(new StringReader(sw.toString())), new StreamResult(stream));
-        } else {
-            final XMLOutput out = new PresentationOutput(this.styleFileName, this.styleFileType);
+        } else if (OutputFormat.PRESENTATION == outputKind) {
+            final XMLOutput out = new PresentationOutput(getConfig().getStyle(), getConfig().getStyleType());
             out.process(p, stream);
+        } else {
+            throw new InvalidOptionValueException("The format " + outputKind + " is not yet supported.");
         }
     }
 
-    @Override
-    protected int handleCustomOption(final String[] args, final int start) throws Exception { // NOPMD
-        int i = start;
-        if ("-presentation".equals(args[i]) || "-text".equals(args[i])
-                || "-xmi".equals(args[i]) || "-html".equals(args[i])
-                || "-tree".equals(args[i])) {
-            if (this.outputKind == null) {
-                this.outputKind = args[i];
-            } else {
-                LOG.error(args[i] + " option ignored because there is already active option " + outputKind);
-            }
-        } else if ("-style".equals(args[i])) {
-            if (this.styleFileName == null) {
-                this.styleFileName = args[i + 1];
-                i++;
-            } else {
-                LOG.error(args[i] + " option ignored because there is already active style file " + styleFileName);
-                i++;
-            }
-        } else if ("-styleType".equals(args[i])) {
-            if (this.styleFileType == null) {
-                this.styleFileType = args[i + 1];
-                i++;
-            } else {
-                LOG.error(args[i] + " option ignored because there is already active style file type "
-                        + styleFileType);
-                i++;
-            }
-        } else if ("-avoid-attributes".equals(args[i])) {
-            this.avoidAttributes = true;
-        } else {
-            return super.handleCustomOption(args, i);
-        }
-        return i;
+    /**
+     * The output format.
+     */
+    public enum OutputFormat {
+        /**
+         * The presentation XML.
+         */
+        PRESENTATION,
+        /**
+         * The text output (XSLT from presentation).
+         */
+        TEXT,
+        /**
+         * XMI-like format.
+         */
+        XMI,
+        /**
+         * The html output (XSLT from presentation).
+         */
+        HTML,
+        /**
+         * Tree format.
+         */
+        TREE,
     }
 }

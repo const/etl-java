@@ -30,9 +30,6 @@ import net.sf.etl.parsers.event.tree.ObjectFactory;
 import net.sf.etl.parsers.term.FieldsTermCase;
 import org.junit.Test;
 
-import java.lang.reflect.Field;
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -136,7 +133,7 @@ public class FirstChoiceTest extends FieldsTermCase<BaseNode> {
         rc.mapNamespaceToPackage(
                 "http://etl.sf.net/2006/samples/firstChoice/0.1",
                 "net.sf.etl.parsers.term.firstchoice");
-        rc.setPosPolicy(ObjectFactory.PositionPolicyPositions.<BaseNode, Field, Class<?>, List<Object>>get());
+        rc.setPosPolicy(ObjectFactory.PositionPolicyPositions.get());
         return rc;
     }
 }

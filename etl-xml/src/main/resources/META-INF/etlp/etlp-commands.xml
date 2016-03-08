@@ -1,0 +1,5 @@
+<commands>
+    <command name="format" class="net.sf.etl.utils.FormatSource">format source</command>
+    <command name="xml" class="net.sf.etl.utils.xml.ETL2XML">convert to xml/html</command>
+    <command name="beans" class="net.sf.etl.utils.etl2beans.ETL2Beans">convert to beans xml</command>
+</commands>

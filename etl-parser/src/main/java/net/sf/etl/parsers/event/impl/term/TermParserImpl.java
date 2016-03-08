@@ -405,7 +405,7 @@ public final class TermParserImpl implements TermParser { // NOPMD
      * position and inserting new tokens just after mark. The functionality is
      * separated into own class just for convenience.
      */
-    private static final class MarkedQueue<T> {
+    public static final class MarkedQueue<T> {
         // NOTE POST 0.2: introduce single item optimization.
         /**
          * A stack of marks.
@@ -475,7 +475,6 @@ public final class TermParserImpl implements TermParser { // NOPMD
          * @param value a value to insert
          */
         public void insertAtMark(final T value) {
-            assert hasMark() : "[BUG] Mark stack is empty";
             final Link<T> mark = peekMark();
             final Link<T> l = new Link<T>(value);
             l.previous = mark;
@@ -497,7 +496,9 @@ public final class TermParserImpl implements TermParser { // NOPMD
          * @return a current mark
          */
         private Link<T> peekMark() {
-            assert hasMark() : "[BUG] Mark stack is empty";
+            if (!hasMark()) {
+                throw new IllegalStateException("[BUG] Mark stack is empty");
+            }
             return markStack.get(markStack.size() - 1);
         }
 
@@ -542,8 +543,10 @@ public final class TermParserImpl implements TermParser { // NOPMD
          * @return first item of queue or null.
          */
         public T get() {
-            assert !hasMark() : "[BUG]Clients are not supposed to poll "
-                    + "the queue while marks are active.";
+            if (hasMark()) {
+                throw new IllegalStateException("[BUG]Clients are not supposed to poll "
+                        + "the queue while marks are active.");
+            }
             if (first == null) {
                 return null;
             } else {
@@ -573,14 +576,19 @@ public final class TermParserImpl implements TermParser { // NOPMD
          */
         public void insertBeforeMark(final T value) {
             final Link<T> link = new Link<T>(value);
-            markStack.set(0, link);
-            link.next = first;
-            if (first != null) {
-                first.previous = link;
+            final Link<T> old = peekMark();
+            markStack.set(markStack.size() - 1, link);
+            link.previous = old;
+            if (old != null) {
+                link.next = old.next;
+                old.next = link;
             } else {
+                link.next = first;
+                first = link;
+            }
+            if (last == old) { // NOPMD
                 last = link;
             }
-            first = link;
         }
 
         @Override
@@ -628,6 +636,11 @@ public final class TermParserImpl implements TermParser { // NOPMD
                     throw new IllegalArgumentException("Value cannot be null");
                 }
                 this.value = value;
+            }
+
+            @Override
+            public String toString() {
+                return String.valueOf(value);
             }
         }
     }

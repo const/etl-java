@@ -23,45 +23,36 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers;
+package net.sf.etl.utils;
 
-import net.sf.etl.parsers.event.grammar.CompiledGrammar;
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 
-import java.nio.charset.Charset;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
- * The configuration for the term parser, there is a default configuration,
- * but it is expected, that IDE will provide other configuration.
+ * The base calss for tests.
  */
-public interface TermParserConfiguration {
-    /**
-     * Get tab size for the specified system id.
-     *
-     * @param systemId the system id to check
-     * @return the tabulation size
-     */
-    int getTabSize(String systemId);
+public class ConverterTestBase {
 
     /**
-     * Get cached grammar.
-     *
-     * @param systemId the system of compiled grammar
-     * @return the cached grammar
+     * @return the base directory for the module
      */
-    CompiledGrammar getCachedGrammar(String systemId);
+    protected final String getModuleBaseDirectory() {
+        try {
+            final Class<?> c = getClass();
+            final String name = c.getName().replace('.', '/') + ".class";
+            final URL url = c.getClassLoader().getResource(name);
+            assertNotNull(url);
+            assertTrue("FILE".equalsIgnoreCase(url.getProtocol()));
+            final String path = url.toURI().getPath();
+            final String dir = path.substring(0, path.length() - name.length());
+            return new File(dir).getParentFile().getParentFile().getAbsolutePath();
+        } catch (URISyntaxException e) {
+            throw new IllegalStateException("Detection problem", e);
+        }
+    }
 
-    /**
-     * Cache compiled grammar.
-     *
-     * @param grammar the grammar to cache
-     */
-    void cacheGrammar(CompiledGrammar grammar);
-
-    /**
-     * Get encoding by system id.
-     *
-     * @param systemId the system id
-     * @return the charset
-     */
-    Charset getEncoding(String systemId);
 }

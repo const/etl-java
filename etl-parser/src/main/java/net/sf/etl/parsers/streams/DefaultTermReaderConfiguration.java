@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
+import java.util.Collections;
 
 /**
  * The configuration for the blocking parsers.
@@ -52,6 +53,10 @@ public final class DefaultTermReaderConfiguration implements TermReaderCatalogCo
      * The parser configuration.
      */
     private final TermParserConfiguration termParserConfiguration;
+    /**
+     * The grammar resolver.
+     */
+    private final GrammarResolver grammarResolver;
 
     /**
      * The constructor.
@@ -63,16 +68,49 @@ public final class DefaultTermReaderConfiguration implements TermReaderCatalogCo
                                           final BlockingCatalog catalog) {
         this.catalog = catalog;
         this.termParserConfiguration = termParserConfiguration;
+        this.grammarResolver = new DefaultGrammarResolver(this, Collections.<String>emptySet());
     }
+
+    /**
+     * The constructor.
+     *
+     * @param termParserConfiguration the configuration
+     * @param classLoader the class loader to use
+     */
+    public DefaultTermReaderConfiguration(final TermParserConfiguration termParserConfiguration,
+                                          final ClassLoader classLoader) {
+        this(termParserConfiguration, getDefaultCatalog(classLoader));
+    }
+
+    /**
+     * The constructor.
+     *
+     * @param classLoader the class loader to use
+     */
+    public DefaultTermReaderConfiguration(final ClassLoader classLoader) {
+        this(DefaultTermParserConfiguration.INSTANCE, classLoader);
+    }
+
 
     /**
      * @return the default catalog
      */
     private static BlockingCatalog getDefaultCatalog() {
-        final BlockingCatalog defaultCatalog = BlockingCatalog.getDefaultCatalog(DefaultTermReaderConfiguration.class);
+        return getDefaultCatalog(DefaultTermReaderConfiguration.class.getClassLoader());
+    }
+
+    /**
+     * Get default catalog with class loader.
+     *
+     * @param classLoader the class loader to use
+     * @return the default catalog
+     */
+    private static BlockingCatalog getDefaultCatalog(final ClassLoader classLoader) {
+        final BlockingCatalog defaultCatalog = BlockingCatalog.getDefaultCatalog(classLoader);
         return defaultCatalog.withOtherProvider(
                 CatalogProviders.createCachedCatalog(defaultCatalog.getCatalogProvider()));
     }
+
 
     @Override
     public BlockingCatalog getCatalog(final String systemId) {
@@ -95,7 +133,6 @@ public final class DefaultTermReaderConfiguration implements TermReaderCatalogCo
 
     @Override
     public GrammarResolver getGrammarResolver(final String systemId) {
-        return DefaultGrammarResolver.INSTANCE;
+        return grammarResolver;
     }
-
 }

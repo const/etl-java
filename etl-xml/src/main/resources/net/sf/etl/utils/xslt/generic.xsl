@@ -23,8 +23,8 @@
   ~ SOFTWARE.
   -->
 
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                xmlns:p="http://etl.sf.net/2006/etl/presentation">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:p="http://etl.sf.net/2006/etl/presentation"
+                version="1.0">
 
     <!-- This is a generic XSLT that syntax-highlights ETL code -->
     <xsl:output method="html" xmlns=""/>

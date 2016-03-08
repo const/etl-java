@@ -31,6 +31,8 @@ import net.sf.etl.parsers.Token;
 import net.sf.etl.parsers.Tokens;
 import net.sf.etl.parsers.characters.TextUtil;
 import net.sf.etl.parsers.streams.TermParserReader;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +77,7 @@ import java.util.Set;
  *
  * @author const
  */
-public final class FormatSource extends AbstractFileConverter { // NOPMD
+public final class FormatSource extends AbstractFileConverter<AbstractFileConverter.BaseConfig> { // NOPMD
     /**
      * The logger.
      */
@@ -144,6 +146,16 @@ public final class FormatSource extends AbstractFileConverter { // NOPMD
     }
 
     @Override
+    protected BaseConfig parseConfig(final CommandLine commandLine) {
+        return new BaseConfig(commandLine);
+    }
+
+    @Override
+    protected Options getOptions() {
+        return BaseConfig.getBaseOptions();
+    }
+
+    @Override
     protected void processContent(final OutputStream stream, final TermParserReader p)
             throws Exception {
         // TODO encoding
@@ -207,25 +219,27 @@ public final class FormatSource extends AbstractFileConverter { // NOPMD
      * @param tk the token
      */
     private void processIgnorable(final TermParserReader p, final Token tk) {
-        switch (tk.kind()) {
-            case NEWLINE:
-                wasNewLine = true;
-                break;
-            case DOC_COMMENT:
-                // Note if doc comment is classified as ignorable, then it is
-                // encountered in the context where doc comments cannot happen and
-                // it should be treated the same as a line comment.
-            case LINE_COMMENT:
-                startBlockContentComment(tk);
-                print(tk);
-                forceNewLine();
-                break;
-            case BLOCK_COMMENT:
-                startBlockContentComment(tk);
-                print(tk);
-                break;
-            default:
-                break;
+        if (tk != null) {
+            switch (tk.kind()) {
+                case NEWLINE:
+                    wasNewLine = true;
+                    break;
+                case DOC_COMMENT:
+                    // Note if doc comment is classified as ignorable, then it is
+                    // encountered in the context where doc comments cannot happen and
+                    // it should be treated the same as a line comment.
+                case LINE_COMMENT:
+                    startBlockContentComment(tk);
+                    print(tk);
+                    forceNewLine();
+                    break;
+                case BLOCK_COMMENT:
+                    startBlockContentComment(tk);
+                    print(tk);
+                    break;
+                default:
+                    break;
+            }
         }
         // Whatever token was, advance to the next token.
         p.advance();

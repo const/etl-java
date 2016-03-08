@@ -74,8 +74,7 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
     /**
      * The current position policy.
      */
-    private PositionPolicy<BaseObjectType, FeatureType, MetaObjectType, HolderType> positionPolicy =
-            PositionPolicyExpanded.get();
+    private PositionPolicy positionPolicy = PositionPolicyExpanded.get();
 
     /**
      * The constructor.
@@ -304,8 +303,7 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
      *
      * @param policy new value of policy
      */
-    public final void setPosPolicy(
-            final PositionPolicy<BaseObjectType, FeatureType, MetaObjectType, HolderType> policy) {
+    public final void setPosPolicy(final PositionPolicy policy) {
         if (policy == null) {
             throw new IllegalArgumentException("The null policy is not allowed");
         }
@@ -346,25 +344,24 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
 
     /**
      * The position policy interface.
-     *
-     * @param <BaseObjectType> this is a base type for returned objects
-     * @param <FeatureType>    this is a type for feature metatype used by objects
-     * @param <MetaObjectType> this is a type for meta object type
-     * @param <HolderType>     this is a holder type for collection properties
      */
-    public interface PositionPolicy<BaseObjectType, FeatureType, MetaObjectType, HolderType> {
-
+    public interface PositionPolicy {
         /**
          * Set start position in object.
          *
-         * @param factory    the factory instance
-         * @param rc         the object
-         * @param metaObject the meta object
-         * @param token      teh start object token
+         * @param factory          the factory instance
+         * @param rc               the object
+         * @param metaObject       the meta object
+         * @param token            teh start object token
+         * @param <BaseObjectType> this is a base type for returned objects
+         * @param <FeatureType>    this is a type for feature metatype used by objects
+         * @param <MetaObjectType> this is a type for meta object type
+         * @param <HolderType>     this is a holder type for collection properties
          * @return the value to be passed to
          * {@link #setObjectEndPos(Object, Object, Object, net.sf.etl.parsers.TermToken)}, the
          * default implementation returns the start position.
          */
+        <BaseObjectType, FeatureType, MetaObjectType, HolderType>
         Object setObjectStartPos(ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> factory,
                                  BaseObjectType rc, MetaObjectType metaObject, TermToken token);
 
@@ -372,14 +369,19 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
          * Set end position in object. Default implementation tries to set
          * properties endLine, endColumn, and endOffset with corresponding values.
          *
-         * @param factory    the factory instance
-         * @param systemId   the system id
-         * @param rc         the object
-         * @param metaObject the meta object
-         * @param startValue the value returned from
-         *                   {@link #setObjectStartPos(Object, Object, net.sf.etl.parsers.TermToken)}
-         * @param token      the end object token
+         * @param factory          the factory instance
+         * @param systemId         the system id
+         * @param rc               the object
+         * @param metaObject       the meta object
+         * @param startValue       the value returned from
+         *                         {@link #setObjectStartPos(Object, Object, net.sf.etl.parsers.TermToken)}
+         * @param <BaseObjectType> this is a base type for returned objects
+         * @param <FeatureType>    this is a type for feature metatype used by objects
+         * @param <MetaObjectType> this is a type for meta object type
+         * @param <HolderType>     this is a holder type for collection properties
+         * @param token            the end object token
          */
+        <BaseObjectType, FeatureType, MetaObjectType, HolderType>
         void setObjectEndPos(ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> factory,
                              final String systemId, final BaseObjectType rc, final MetaObjectType metaObject,
                              final Object startValue, final TermToken token);
@@ -442,38 +444,27 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
     /**
      * The star/end position policy. The implementation tries to set
      * property location with corresponding {@link SourceLocation} value.
-     *
-     * @param <BaseObjectType> this is a base type for returned objects
-     * @param <FeatureType>    this is a type for feature metatype used by objects
-     * @param <MetaObjectType> this is a type for meta object type
-     * @param <HolderType>     this is a holder type for collection properties
      */
-    public static final class PositionPolicyLocation<BaseObjectType, FeatureType, MetaObjectType, HolderType>
-            implements PositionPolicy<BaseObjectType, FeatureType, MetaObjectType, HolderType> {
+    public static final class PositionPolicyLocation implements PositionPolicy {
 
         /**
          * Get instance of the position policy.
          *
-         * @param <BaseObjectType> this is a base type for returned objects
-         * @param <FeatureType>    this is a type for feature metatype used by objects
-         * @param <MetaObjectType> this is a type for meta object type
-         * @param <HolderType>     this is a holder type for collection properties
          * @return the instance.
          */
-        public static <BaseObjectType, FeatureType, MetaObjectType, HolderType>
-        PositionPolicy<BaseObjectType, FeatureType, MetaObjectType, HolderType> get() {
-            return new PositionPolicyLocation<BaseObjectType, FeatureType, MetaObjectType, HolderType>();
+        public static PositionPolicy get() {
+            return new PositionPolicyLocation();
         }
 
         @Override
-        public Object setObjectStartPos(
+        public <BaseObjectType, FeatureType, MetaObjectType, HolderType> Object setObjectStartPos(
                 final ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> factory,
                 final BaseObjectType rc, final MetaObjectType metaObject, final TermToken token) {
             return token.start();
         }
 
         @Override
-        public void setObjectEndPos(
+        public <BaseObjectType, FeatureType, MetaObjectType, HolderType> void setObjectEndPos(
                 final ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> factory,
                 final String systemId, final BaseObjectType rc, final MetaObjectType metaObject,
                 final Object startValue, final TermToken token) {
@@ -487,31 +478,20 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
     /**
      * The star/end position policy. The implementation tries to set
      * properties start and end with corresponding {@link TextPos} values.
-     *
-     * @param <BaseObjectType> this is a base type for returned objects
-     * @param <FeatureType>    this is a type for feature metatype used by objects
-     * @param <MetaObjectType> this is a type for meta object type
-     * @param <HolderType>     this is a holder type for collection properties
      */
-    public static final class PositionPolicyPositions<BaseObjectType, FeatureType, MetaObjectType, HolderType>
-            implements PositionPolicy<BaseObjectType, FeatureType, MetaObjectType, HolderType> {
+    public static final class PositionPolicyPositions implements PositionPolicy {
 
         /**
          * Get instance of the position policy.
          *
-         * @param <BaseObjectType> this is a base type for returned objects
-         * @param <FeatureType>    this is a type for feature metatype used by objects
-         * @param <MetaObjectType> this is a type for meta object type
-         * @param <HolderType>     this is a holder type for collection properties
          * @return the instance.
          */
-        public static <BaseObjectType, FeatureType, MetaObjectType, HolderType>
-        PositionPolicy<BaseObjectType, FeatureType, MetaObjectType, HolderType> get() {
-            return new PositionPolicyPositions<BaseObjectType, FeatureType, MetaObjectType, HolderType>();
+        public static PositionPolicy get() {
+            return new PositionPolicyPositions();
         }
 
         @Override
-        public Object setObjectStartPos(
+        public <BaseObjectType, FeatureType, MetaObjectType, HolderType> Object setObjectStartPos(
                 final ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> factory,
                 final BaseObjectType rc, final MetaObjectType metaObject, final TermToken token) {
             final TextPos pos = token.start();
@@ -521,7 +501,7 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
         }
 
         @Override
-        public void setObjectEndPos(
+        public <BaseObjectType, FeatureType, MetaObjectType, HolderType> void setObjectEndPos(
                 final ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> factory,
                 final String systemId, final BaseObjectType rc, final MetaObjectType metaObject,
                 final Object startValue, final TermToken token) {
@@ -535,31 +515,20 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
      * The expanded position policy. The implementation tries to set
      * properties startLine, startColumn, and startOffset with corresponding
      * values.
-     *
-     * @param <BaseObjectType> this is a base type for returned objects
-     * @param <FeatureType>    this is a type for feature metatype used by objects
-     * @param <MetaObjectType> this is a type for meta object type
-     * @param <HolderType>     this is a holder type for collection properties
      */
-    public static final class PositionPolicyExpanded<BaseObjectType, FeatureType, MetaObjectType, HolderType>
-            implements PositionPolicy<BaseObjectType, FeatureType, MetaObjectType, HolderType> {
+    public static final class PositionPolicyExpanded implements PositionPolicy {
 
         /**
          * Get instance of the position policy.
          *
-         * @param <BaseObjectType> this is a base type for returned objects
-         * @param <FeatureType>    this is a type for feature metatype used by objects
-         * @param <MetaObjectType> this is a type for meta object type
-         * @param <HolderType>     this is a holder type for collection properties
          * @return the instance.
          */
-        public static <BaseObjectType, FeatureType, MetaObjectType, HolderType>
-        PositionPolicy<BaseObjectType, FeatureType, MetaObjectType, HolderType> get() {
-            return new PositionPolicyExpanded<BaseObjectType, FeatureType, MetaObjectType, HolderType>();
+        public static PositionPolicy get() {
+            return new PositionPolicyExpanded();
         }
 
         @Override
-        public Object setObjectStartPos(
+        public <BaseObjectType, FeatureType, MetaObjectType, HolderType> Object setObjectStartPos(
                 final ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> factory,
                 final BaseObjectType rc, final MetaObjectType metaObject, final TermToken token) {
             final TextPos pos = token.start();
@@ -573,7 +542,7 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
         }
 
         @Override
-        public void setObjectEndPos(
+        public <BaseObjectType, FeatureType, MetaObjectType, HolderType> void setObjectEndPos(
                 final ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> factory,
                 final String systemId, final BaseObjectType rc, final MetaObjectType metaObject,
                 final Object startValue, final TermToken token) {
@@ -584,6 +553,36 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
             factory.setToFeature(rc, endColumnFeature, pos.column());
             final FeatureType endOffsetFeature = factory.getPropertyMetaObject(rc, metaObject, "endOffset");
             factory.setToFeature(rc, endOffsetFeature, pos.offset());
+        }
+    }
+
+    /**
+     * The "none" position policy. The implementation does nothing.
+     */
+    public static final class PositionPolicyNone implements PositionPolicy {
+
+        /**
+         * Get instance of the position policy.
+         *
+         * @return the instance.
+         */
+        public static PositionPolicy get() {
+            return new PositionPolicyNone();
+        }
+
+        @Override
+        public <BaseObjectType, FeatureType, MetaObjectType, HolderType> Object setObjectStartPos(
+                final ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> factory,
+                final BaseObjectType rc, final MetaObjectType metaObject, final TermToken token) {
+            return null;
+        }
+
+        @Override
+        public <BaseObjectType, FeatureType, MetaObjectType, HolderType> void setObjectEndPos(
+                final ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> factory,
+                final String systemId, final BaseObjectType rc, final MetaObjectType metaObject,
+                final Object startValue, final TermToken token) {
+            // do nothing
         }
     }
 }

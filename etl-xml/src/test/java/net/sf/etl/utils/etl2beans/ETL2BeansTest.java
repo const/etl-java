@@ -23,45 +23,29 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers;
+package net.sf.etl.utils.etl2beans;
 
-import net.sf.etl.parsers.event.grammar.CompiledGrammar;
-
-import java.nio.charset.Charset;
+import net.sf.etl.utils.ConverterTestBase;
+import net.sf.etl.utils.ETLProcessor;
+import org.junit.Test;
 
 /**
- * The configuration for the term parser, there is a default configuration,
- * but it is expected, that IDE will provide other configuration.
+ * The smoke test for ETL2Beans
  */
-public interface TermParserConfiguration {
+public class ETL2BeansTest extends ConverterTestBase {
     /**
-     * Get tab size for the specified system id.
-     *
-     * @param systemId the system id to check
-     * @return the tabulation size
+     * Test simple run.
      */
-    int getTabSize(String systemId);
-
-    /**
-     * Get cached grammar.
-     *
-     * @param systemId the system of compiled grammar
-     * @return the cached grammar
-     */
-    CompiledGrammar getCachedGrammar(String systemId);
-
-    /**
-     * Cache compiled grammar.
-     *
-     * @param grammar the grammar to cache
-     */
-    void cacheGrammar(CompiledGrammar grammar);
-
-    /**
-     * Get encoding by system id.
-     *
-     * @param systemId the system id
-     * @return the charset
-     */
-    Charset getEncoding(String systemId);
+    @Test
+    public void testSimple() {
+        final String moduleDir = getModuleBaseDirectory();
+        ETLProcessor.main(new String[]{
+                "beans",
+                "-m", "http://etl.sf.net/2006/samples/imports/Expression/0.1=net.sf.etl.parsers.term.beans",
+                "-m", "http://etl.sf.net/2006/samples/imports/Main/0.1=net.sf.etl.parsers.term.beans",
+                "-c", moduleDir + "/../etl-parser/target/test-classes",
+                "-i", moduleDir + "/../etl-parser/src/test/resources/net/sf/etl/parsers/term/imports/*.i.etl",
+                "--output", moduleDir + "/target/temp/output/beans/*.i.b.xml",
+        });
+    }
 }

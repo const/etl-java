@@ -30,6 +30,9 @@ import net.sf.etl.parsers.streams.LexerReader;
 import net.sf.etl.parsers.streams.PhraseParserReader;
 import net.sf.etl.parsers.streams.TermParserReader;
 import net.sf.etl.parsers.streams.TermReaderCatalogConfiguration;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,46 +49,47 @@ import java.util.TreeMap;
 /**
  * Abstract class for utilities that convert one set of sources to another.
  *
+ * @param <Config> the configuration type
  * @author const
  */
-public abstract class AbstractFileConverter {
+public abstract class AbstractFileConverter<Config extends AbstractFileConverter.BaseConfig> {
     /**
      * The logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(AbstractFileConverter.class);
-    /**
-     * The parser configuration.
-     */
-    private final TermReaderCatalogConfiguration configuration = DefaultTermReaderConfiguration.INSTANCE;
     /**
      * Map from source to destinations. Null key means stdin. Null value means
      * stdout.
      */
     private final NavigableMap<String, String> sourceFiles = new TreeMap<String, String>();
     /**
-     * the base directory.
+     * The parser configuration.
      */
-    private String inFiles;
+    private TermReaderCatalogConfiguration configuration = DefaultTermReaderConfiguration.INSTANCE;
     /**
-     * the output directory.
+     * The parsed config.
      */
-    private String outFiles;
+    private Config config;
 
     /**
-     * Parse custom option in argument list.
+     * Parse configuration.
      *
-     * @param args the argument list
-     * @param i    the offset in args array
-     * @return new offset in args array
-     * @throws Exception if there is a problem with handling option
+     * @param commandLine the command line
+     * @return the parsed configuration
      */
-    // CHECKSTYLE:OFF
-    protected int handleCustomOption(final String[] args, final int i) throws Exception {
-        // TODO migrate to some library for handling command-line
-        LOG.error("unknown option at " + i + ": " + args[i]);
-        return i;
+    protected abstract Config parseConfig(CommandLine commandLine);
+
+    /**
+     * @return the command line options
+     */
+    protected abstract Options getOptions();
+
+    /**
+     * @return the configuration
+     */
+    protected final Config getConfig() {
+        return config;
     }
-    // CHECKSTYLE:ON
 
     /**
      * Process content and write it on output stream.
@@ -102,31 +106,18 @@ public abstract class AbstractFileConverter {
      * @param args the arguments to parse
      * @throws Exception if there is a problem
      */
-    protected final void parseArgs(final String[] args) throws Exception { // NOPMD
-        // TODO handle catalog options as well
-        for (int i = 0; i < args.length; i++) {
-            if ("-in".equals(args[i])) {
-                if (this.inFiles == null) {
-                    this.inFiles = args[i + 1];
-                    i++;
-                } else {
-                    LOG.error(args[i] + " option ignored because there is already input file " + inFiles);
-                    i++;
-                }
-            } else if ("-out".equals(args[i])) {
-                if (this.outFiles == null) {
-                    this.outFiles = args[i + 1];
-                    i++;
-                } else {
-                    LOG.error(args[i] + " option ignored because there is already output file " + outFiles);
-                    i++;
-                }
-            } else {
-                i = handleCustomOption(args, i);
-            }
-        }
+    protected final void parseArgs(final String[] args) throws Exception {
+        final CommandLine commandLine = new PosixParser().parse(getOptions(), args, false);
+        config = parseConfig(commandLine);
         prepareFileMapping();
+        initConfiguration();
+    }
 
+    /**
+     * Init configuration if needed. The method is invoked once before processing.
+     */
+    protected void initConfiguration() { // NOPMD
+        // do something in subclasses
     }
 
     /**
@@ -135,21 +126,20 @@ public abstract class AbstractFileConverter {
      * @throws MalformedURLException if there file name error
      */
     protected final void prepareFileMapping() throws MalformedURLException { // NOPMD
+        final String inFiles = "-".equals(config.getInput()) ? null : config.getInput();
+        final String outFiles = "-".equals(config.getOutput()) ? null : config.getOutput();
         if (inFiles == null) {
             if (outFiles != null && outFiles.indexOf('*') != -1) {
-                throw new IllegalArgumentException(
+                throw new InvalidOptionValueException(
                         "wildcard is allowed only if there is input file specified: " + outFiles);
             }
-            sourceFiles.put(null, null);
-        }
-        if (outFiles == null) {
-            if (inFiles != null) {
-                if (inFiles.indexOf('*') != -1) {
-                    throw new IllegalArgumentException(
-                            "wildcard is allowed only if there is output file specified: " + inFiles);
-                }
-                sourceFiles.put(new File(inFiles).getAbsoluteFile().toURI().toString(), null);
+            sourceFiles.put(null, outFiles);
+        } else if (outFiles == null) {
+            if (inFiles.indexOf('*') != -1) {
+                throw new InvalidOptionValueException(
+                        "wildcard is allowed only if there is output file specified: " + inFiles);
             }
+            sourceFiles.put(new File(inFiles).getAbsoluteFile().toURI().toString(), null);
         } else {
             if (inFiles.indexOf('*') != -1) {
                 // wildcard
@@ -157,23 +147,23 @@ public abstract class AbstractFileConverter {
                 final File out = new File(outFiles).getAbsoluteFile(); // NOPMD
                 final int starPos = in.getName().indexOf('*');
                 if (starPos == -1) {
-                    throw new IllegalArgumentException("wildcard is specified in wrong place: " + inFiles);
+                    throw new InvalidOptionValueException("wildcard is specified in wrong place: " + inFiles);
                 }
                 final String inPrefix = in.getName().substring(0, starPos); // NOPMD
                 final String inSuffix = in.getName().substring(starPos + 1);
                 if (inSuffix.indexOf('*') != -1) {
                     // TODO replace with some commandline exception that is logged specially
-                    throw new IllegalArgumentException("Only single wildcard is allowed in input: " + inFiles);
+                    throw new InvalidOptionValueException("Only single wildcard is allowed in input: " + inFiles);
                 }
                 final int outStarPos = in.getName().indexOf('*');
                 if (outStarPos == -1) {
-                    throw new IllegalArgumentException("Wildcard is required in output: " + outFiles);
+                    throw new InvalidOptionValueException("Wildcard is required in output: " + outFiles);
                 }
                 final String outPrefix = out.getName().substring(0, outStarPos); // NOPMD
                 final String outSuffix = out.getName()
                         .substring(outStarPos + 1);
                 if (outSuffix.indexOf('*') != -1) {
-                    throw new IllegalArgumentException("Only single wildcard is allowed in output: " + outFiles);
+                    throw new InvalidOptionValueException("Only single wildcard is allowed in output: " + outFiles);
                 }
                 final File inDir = in.getParentFile();
                 final File outDir = out.getParentFile();
@@ -196,12 +186,11 @@ public abstract class AbstractFileConverter {
             } else {
                 // normal
                 if (outFiles.indexOf('*') != -1) {
-                    throw new IllegalArgumentException("wildcard only allowed for output if it is in input: "
+                    throw new InvalidOptionValueException("wildcard only allowed for output if it is in input: "
                             + outFiles);
                 }
-                inFiles = new File(inFiles).getAbsoluteFile().toURI().toString();
-                sourceFiles.put(inFiles, outFiles);
-
+                final String file = new File(inFiles).getAbsoluteFile().toURI().toString();
+                sourceFiles.put(file, outFiles);
             }
         }
     }
@@ -259,5 +248,65 @@ public abstract class AbstractFileConverter {
      */
     public final TermReaderCatalogConfiguration getConfiguration() {
         return configuration;
+    }
+
+    /**
+     * The configuration.
+     *
+     * @param configuration configuration
+     */
+    protected final void setConfiguration(final TermReaderCatalogConfiguration configuration) {
+        this.configuration = configuration;
+    }
+
+    /**
+     * The base configuration.
+     */
+    public static class BaseConfig {
+        // TODO handle catalog options as well
+        /**
+         * The command line.
+         */
+        private final CommandLine commandLine;
+
+        /**
+         * The constructor.
+         *
+         * @param commandLine the command line
+         */
+        public BaseConfig(final CommandLine commandLine) {
+            this.commandLine = commandLine;
+        }
+
+        /**
+         * @return get base options.
+         */
+        public static Options getBaseOptions() {
+            // TODO catalog options here
+            return new Options()
+                    .addOption("i", "input", true, "input file list or '-' in the case of stdin.")
+                    .addOption("o", "output", true, "output file list or '-' in the case of stdout.");
+        }
+
+        /**
+         * @return the input files
+         */
+        public final String getInput() {
+            return commandLine.getOptionValue('i');
+        }
+
+        /**
+         * @return the output files
+         */
+        public final String getOutput() {
+            return commandLine.getOptionValue('o');
+        }
+
+        /**
+         * @return the command line
+         */
+        protected final CommandLine getCommandLine() {
+            return commandLine;
+        }
     }
 }

@@ -28,8 +28,6 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
 import net.sf.etl.parsers.StandardGrammars;
 import net.sf.etl.parsers.event.tree.SimpleObjectFactory;
 
-import java.util.List;
-
 /**
  * The object factory that implement typical scenarios for loading grammar objects.
  */
@@ -40,7 +38,7 @@ public final class GrammarLiteObjectFactory extends SimpleObjectFactory<Element>
      */
     public GrammarLiteObjectFactory() {
         super(Element.class.getClassLoader());
-        setPosPolicy(PositionPolicyLocation.<Element, Property, Class<?>, List<Object>>get());
+        setPosPolicy(PositionPolicyLocation.get());
         mapNamespaceToPackage(StandardGrammars.ETL_GRAMMAR_NAMESPACE,
                 "net.sf.etl.parsers.event.unstable.model.grammar");
         ignoreNamespace(StandardGrammars.DOCTYPE_NS);

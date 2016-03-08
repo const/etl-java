@@ -36,10 +36,6 @@ import net.sf.etl.parsers.term.beans.LetStatement;
 import net.sf.etl.parsers.term.beans.PlusOp;
 import org.junit.Test;
 
-import java.beans.BeanInfo;
-import java.beans.PropertyDescriptor;
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -93,15 +89,13 @@ public class ImportsTest extends BeansTermCase {
     @Override
     protected BeansObjectFactory createBeansTermParser() {
         final BeansObjectFactory rc = new BeansObjectFactory(getClass().getClassLoader());
-        rc.setPosPolicy(
-                ObjectFactory.PositionPolicyPositions.<Object, PropertyDescriptor, BeanInfo, List<Object>>get());
+        rc.setPosPolicy(ObjectFactory.PositionPolicyPositions.get());
         rc.ignoreNamespace(StandardGrammars.DOCTYPE_NS);
         rc.mapNamespaceToPackage(
                 "http://etl.sf.net/2006/samples/imports/Expression/0.1",
                 Expression.class.getPackage().getName());
         rc.mapNameToClass(MAIN_NS, "LetStatement", LetStatement.class);
-        rc.mapNameToClass(MAIN_NS, "ExpressionStatement",
-                ExpressionStatement.class);
+        rc.mapNameToClass(MAIN_NS, "ExpressionStatement", ExpressionStatement.class);
         return rc;
     }
 }

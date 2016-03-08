@@ -23,38 +23,22 @@
   ~ SOFTWARE.
   -->
 
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                xmlns:p="http://etl.sf.net/2006/etl/presentation">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:p="http://etl.sf.net/2006/etl/presentation"
+                version="1.0">
+    <xsl:import href="generic.xsl"/>
 
-    <!-- This is a generic XSLT that copies text as is and appends list of errors at the end as comments -->
-    <xsl:output method="text" xmlns=""/>
-
+    <!-- This is a generic XSLT that syntax-highlights ETL code -->
     <xsl:template match="p:source">
-        <xsl:apply-templates/>
-        <xsl:apply-templates mode="errors"/>
+        <html>
+            <pre>
+                <span class="etl_source">
+                    <span class="etl_linenum">1:</span>
+                    <xsl:apply-templates/>
+                </span>
+            </pre>
+            <ul>
+                <xsl:apply-templates mode="errors"/>
+            </ul>
+        </html>
     </xsl:template>
-
-    <xsl:template match="*" priority="-1">
-        <xsl:apply-templates/>
-    </xsl:template>
-
-    <xsl:template match="*[@token]" priority="-1">
-        <xsl:value-of select="./text()"/>
-    </xsl:template>
-
-    <xsl:template match="*" mode="errors">
-        <xsl:apply-templates mode="errors"/>
-    </xsl:template>
-
-    <xsl:template match="p:error" mode="errors">
-        <xsl:text>// !! </xsl:text>
-        <xsl:value-of select="@kind"/>
-        <xsl:text>: </xsl:text>
-        <xsl:value-of select="@shortLocation"/>
-        <xsl:text>: </xsl:text>
-        <xsl:value-of select="@message"/>
-    </xsl:template>
-
-    <xsl:template match="text()" mode="errors"/>
-
 </xsl:stylesheet>

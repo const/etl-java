@@ -25,44 +25,21 @@
 package net.sf.etl.utils;
 
 import net.sf.etl.parsers.event.tree.ObjectFactory;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * This is an abstract class that helps to implement tools that convert AST to
  * other forms using abstract tree parser.
  *
+ * @param <Config> the configuration type
  * @author const
  */
-public abstract class ETL2AST extends AbstractFileConverter {
-    /**
-     * The list of loaded packages.
-     */
-    private final List<String> ignoredNamespaces = new ArrayList<String>();
-    /**
-     * If true, text position is expanded.
-     */
-    private boolean expandTextPos = true;
-
-    // CHECKSTYLE:OFF
-    @Override
-    protected int handleCustomOption(final String[] args, final int start) throws Exception {
-        int i = start;
-        if ("-i".equals(args[i])) {
-            final String namespace = args[i + 1];
-            i++;
-            ignoredNamespaces.add(namespace);
-        } else if ("-expand-position".equals(args[i])) {
-            expandTextPos = Boolean.valueOf(args[i + 1]);
-            i++;
-        } else {
-            return super.handleCustomOption(args, i);
-        }
-        return i;
-    }
-    // CHECKSTYLE:ON
-
+public abstract class ETL2AST<Config extends ETL2AST.BaseASTConfig> extends AbstractFileConverter<Config> {
     /**
      * Configure parser with standard options.
      *
@@ -71,12 +48,67 @@ public abstract class ETL2AST extends AbstractFileConverter {
     @SuppressWarnings("unchecked")
     protected final void configureStandardOptions(final ObjectFactory<?, ?, ?, ?> p) {
         // ignore namespace
-        for (final String ignoredNamespace : ignoredNamespaces) {
+        for (final String ignoredNamespace : getConfig().getIgnoredNamespaces()) {
             p.ignoreNamespace(ignoredNamespace);
         }
         // specify text position flag
-        ((ObjectFactory<Object, Object, Object, Object>) p).setPosPolicy(expandTextPos
-                ? ObjectFactory.PositionPolicyExpanded.get()
-                : ObjectFactory.PositionPolicyPositions.get());
+        p.setPosPolicy(getConfig().getPositionPolicy());
+    }
+
+    /**
+     * The AST configuration.
+     */
+    public static class BaseASTConfig extends BaseConfig {
+        /**
+         * The constructor.
+         *
+         * @param commandLine the command line
+         */
+        public BaseASTConfig(final CommandLine commandLine) {
+            super(commandLine);
+        }
+
+        /**
+         * @return the AST options
+         */
+        public static Options getAstOptions() {
+            final Options options = BaseConfig.getBaseOptions();
+            options.addOption("I", "ignore-namespace", true, "ignore all objects from specified namespace URL");
+            options.addOption("p", "position-policy", true, "use the specified position policy "
+                    + "('location', 'positions' (default), 'expanded', or class name), or 'none'");
+            return options;
+        }
+
+        /**
+         * @return the list of ignored namespaces
+         */
+        public final List<String> getIgnoredNamespaces() {
+            final String[] ignored = getCommandLine().getOptionValues('I');
+            return ignored == null ? Collections.<String>emptyList() : Arrays.asList(ignored);
+        }
+
+        /**
+         * @return the position policy
+         */
+        public final ObjectFactory.PositionPolicy getPositionPolicy() {
+            final String policyName = getCommandLine().getOptionValue('p');
+            final ObjectFactory.PositionPolicy policy;
+            if (policyName == null || "positions".equalsIgnoreCase(policyName)) {
+                policy = ObjectFactory.PositionPolicyPositions.get();
+            } else if ("location".equalsIgnoreCase(policyName)) {
+                policy = ObjectFactory.PositionPolicyLocation.get();
+            } else if ("expanded".equalsIgnoreCase(policyName)) {
+                policy = ObjectFactory.PositionPolicyExpanded.get();
+            } else if ("none".equalsIgnoreCase(policyName)) {
+                policy = ObjectFactory.PositionPolicyNone.get();
+            } else {
+                try {
+                    policy = (ObjectFactory.PositionPolicy) Class.forName(policyName).newInstance();
+                } catch (Exception ex) { // NOPMD
+                    throw new InvalidOptionValueException("The policy cannot be instantiated: " + policyName, ex);
+                }
+            }
+            return policy;
+        }
     }
 }

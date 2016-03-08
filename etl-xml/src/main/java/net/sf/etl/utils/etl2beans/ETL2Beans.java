@@ -26,17 +26,20 @@ package net.sf.etl.utils.etl2beans;
 
 import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.event.tree.BeansObjectFactory;
+import net.sf.etl.parsers.streams.DefaultTermReaderConfiguration;
 import net.sf.etl.parsers.streams.TermParserReader;
 import net.sf.etl.parsers.streams.TreeParserReader;
 import net.sf.etl.utils.ETL2AST;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.beans.DefaultPersistenceDelegate;
+import java.beans.Encoder;
+import java.beans.Expression;
+import java.beans.PersistenceDelegate;
 import java.beans.XMLEncoder;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 
 /**
@@ -44,15 +47,11 @@ import java.util.Map.Entry;
  *
  * @author const
  */
-public final class ETL2Beans extends ETL2AST {
+public final class ETL2Beans extends ETL2AST<ETL2BeansConfig> {
     /**
      * The logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(ETL2Beans.class);
-    /**
-     * The map from namespace to package.
-     */
-    private final Map<String, String> packageMap = new HashMap<String, String>(); // NOPMD
 
     /**
      * Application entry point.
@@ -68,34 +67,47 @@ public final class ETL2Beans extends ETL2AST {
     }
 
     @Override
-    protected void processContent(final OutputStream stream, final TermParserReader p)
-            throws Exception {
-        final BeansObjectFactory bp = new BeansObjectFactory(ETL2Beans.class.getClassLoader());
-        configureStandardOptions(bp);
-        for (final Entry<String, String> e : packageMap.entrySet()) {
-            bp.mapNamespaceToPackage(e.getKey(), e.getValue());
-        }
-        final XMLEncoder en = new XMLEncoder(stream);
-        en.setPersistenceDelegate(TextPos.class,
-                new DefaultPersistenceDelegate(new String[]{"line", "column", "offset"}));
-        final TreeParserReader<Object> parser = new TreeParserReader<Object>(p, bp);
-        while (parser.advance()) {
-            en.writeObject(parser.current());
-        }
-        en.close();
+    protected void initConfiguration() {
+        final ClassLoader classloader = getConfig().getBeansClassloader();
+        setConfiguration(new DefaultTermReaderConfiguration(classloader));
+        Thread.currentThread().setContextClassLoader(classloader);
     }
 
     @Override
-    protected int handleCustomOption(final String[] args, final int start) throws Exception {
-        int i = start;
-        if ("-map".equals(args[i])) {
-            final String namespace = args[i + 1];
-            final String packageName = args[i + 2];
-            i += 2;
-            packageMap.put(namespace, packageName);
-        } else {
-            return super.handleCustomOption(args, i);
+    protected ETL2BeansConfig parseConfig(final CommandLine commandLine) {
+        return new ETL2BeansConfig(commandLine);
+    }
+
+    @Override
+    protected Options getOptions() {
+        return ETL2BeansConfig.getBeansOptions();
+    }
+
+    @Override
+    protected void processContent(final OutputStream stream, final TermParserReader p)
+            throws Exception {
+        final BeansObjectFactory bp = new BeansObjectFactory(getConfig().getBeansClassloader());
+        configureStandardOptions(bp);
+        for (final Entry<String, String> e : getConfig().getPackageMap().entrySet()) {
+            bp.mapNamespaceToPackage(e.getKey(), e.getValue());
         }
-        return i;
+        final XMLEncoder en = new XMLEncoder(stream);
+        try {
+            en.setPersistenceDelegate(TextPos.class, new PersistenceDelegate() {
+                @Override
+                protected Expression instantiate(final Object oldInstance, final Encoder encoder) {
+                    final TextPos pos = (TextPos) oldInstance;
+                    return new Expression(oldInstance, oldInstance.getClass(), "new", new Object[]{
+                            pos.line(), pos.column(), pos.offset()
+                    });
+                }
+            });
+            final TreeParserReader<Object> parser = new TreeParserReader<Object>(p, bp);
+            while (parser.advance()) {
+                en.writeObject(parser.current());
+            }
+        } finally {
+            en.close();
+        }
     }
 }

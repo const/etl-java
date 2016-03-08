@@ -168,7 +168,8 @@ public final class TermParserReader extends AbstractReaderImpl<TermToken> {
                 case EOF:
                     return false;
                 case OUTPUT_AVAILABLE:
-                    setCurrent(termParser.read());
+                    final TermToken token = termParser.read();
+                    setCurrent(token);
                     return true;
                 case INPUT_NEEDED:
                     if (phraseParserReader.advance()) {

@@ -112,4 +112,13 @@ public final class DefinitionInfo {
         return result;
         // CHECKSTYLE:ON
     }
+
+    @Override
+    public String toString() {
+        return "DefinitionInfo{"
+                + "context=" + context
+                + ", name='" + name + '\''
+                + ", location=" + location
+                + '}';
+    }
 }

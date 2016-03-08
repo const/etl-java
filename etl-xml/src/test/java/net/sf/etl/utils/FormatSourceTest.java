@@ -22,46 +22,24 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package net.sf.etl.utils;
 
-package net.sf.etl.parsers;
-
-import net.sf.etl.parsers.event.grammar.CompiledGrammar;
-
-import java.nio.charset.Charset;
+import org.junit.Test;
 
 /**
- * The configuration for the term parser, there is a default configuration,
- * but it is expected, that IDE will provide other configuration.
+ * Smoke test for format source.
  */
-public interface TermParserConfiguration {
+public class FormatSourceTest extends ConverterTestBase {
     /**
-     * Get tab size for the specified system id.
-     *
-     * @param systemId the system id to check
-     * @return the tabulation size
+     * The test.
      */
-    int getTabSize(String systemId);
+    @Test
+    public void test() {
+        final String moduleDir = getModuleBaseDirectory();
+        FormatSource.main(new String[]{
+                "-i", moduleDir + "/../etl-parser/src/main/resources/net/sf/etl/grammars/*.g.etl",
+                "--output", moduleDir + "/target/temp/output/formatted-grammars/*.g.etl",
+        });
+    }
 
-    /**
-     * Get cached grammar.
-     *
-     * @param systemId the system of compiled grammar
-     * @return the cached grammar
-     */
-    CompiledGrammar getCachedGrammar(String systemId);
-
-    /**
-     * Cache compiled grammar.
-     *
-     * @param grammar the grammar to cache
-     */
-    void cacheGrammar(CompiledGrammar grammar);
-
-    /**
-     * Get encoding by system id.
-     *
-     * @param systemId the system id
-     * @return the charset
-     */
-    Charset getEncoding(String systemId);
 }

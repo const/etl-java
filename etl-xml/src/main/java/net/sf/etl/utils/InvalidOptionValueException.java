@@ -23,45 +23,36 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers;
-
-import net.sf.etl.parsers.event.grammar.CompiledGrammar;
-
-import java.nio.charset.Charset;
+package net.sf.etl.utils;
 
 /**
- * The configuration for the term parser, there is a default configuration,
- * but it is expected, that IDE will provide other configuration.
+ * The exception is thrown when option value is invalid.
  */
-public interface TermParserConfiguration {
+public class InvalidOptionValueException extends RuntimeException {
     /**
-     * Get tab size for the specified system id.
+     * Constructs a new exception with the specified detail message.
+     * The cause is not initialized, and may subsequently be initialized by a
+     * call to {@link #initCause}.
      *
-     * @param systemId the system id to check
-     * @return the tabulation size
+     * @param message the detail message. The detail message is saved for
+     *                later retrieval by the {@link #getMessage()} method.
      */
-    int getTabSize(String systemId);
+    public InvalidOptionValueException(final String message) {
+        super(message);
+    }
 
     /**
-     * Get cached grammar.
+     * Constructs a new exception with the specified detail message and
+     * cause.
      *
-     * @param systemId the system of compiled grammar
-     * @return the cached grammar
+     * @param message the detail message (which is saved for later retrieval
+     *                by the {@link #getMessage()} method).
+     * @param cause   the cause (which is saved for later retrieval by the
+     *                {@link #getCause()} method).  (A <tt>null</tt> value is
+     *                permitted, and indicates that the cause is nonexistent or
+     *                unknown.)
      */
-    CompiledGrammar getCachedGrammar(String systemId);
-
-    /**
-     * Cache compiled grammar.
-     *
-     * @param grammar the grammar to cache
-     */
-    void cacheGrammar(CompiledGrammar grammar);
-
-    /**
-     * Get encoding by system id.
-     *
-     * @param systemId the system id
-     * @return the charset
-     */
-    Charset getEncoding(String systemId);
+    public InvalidOptionValueException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
 }
