@@ -53,14 +53,6 @@ public final class LexerImpl implements Lexer { // NOPMD
      */
     public static final String UNKNOWN_FILE = "unknown:file";
     /**
-     * The system identifier for the source.
-     */
-    private String systemId = UNKNOWN_FILE;
-    /**
-     * The max supported base.
-     */
-    public static final int MAX_BASE = 36;
-    /**
      * Number: Based.
      */
     private static final int NUMBER_START = 0;
@@ -172,6 +164,10 @@ public final class LexerImpl implements Lexer { // NOPMD
      * The parser configuration.
      */
     private final TermParserConfiguration configuration;
+    /**
+     * The system identifier for the source.
+     */
+    private String systemId = UNKNOWN_FILE;
     /**
      * If true, parsing started.
      */

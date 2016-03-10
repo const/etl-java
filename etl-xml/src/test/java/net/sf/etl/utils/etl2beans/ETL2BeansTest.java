@@ -41,6 +41,7 @@ public class ETL2BeansTest extends ConverterTestBase {
         final String moduleDir = getModuleBaseDirectory();
         ETLProcessor.main(new String[]{
                 "beans",
+                "-C", moduleDir + "/../etl-parser/src/test/resources/META-INF/xml/catalog.xml",
                 "-m", "http://etl.sf.net/2006/samples/imports/Expression/0.1=net.sf.etl.parsers.term.beans",
                 "-m", "http://etl.sf.net/2006/samples/imports/Main/0.1=net.sf.etl.parsers.term.beans",
                 "-c", moduleDir + "/../etl-parser/target/test-classes",

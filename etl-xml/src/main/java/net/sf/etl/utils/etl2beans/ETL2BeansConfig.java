@@ -29,16 +29,7 @@ import net.sf.etl.utils.ETL2AST;
 import net.sf.etl.utils.InvalidOptionValueException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,17 +39,9 @@ import java.util.Map;
  */
 public final class ETL2BeansConfig extends ETL2AST.BaseASTConfig {
     /**
-     * The logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(ETL2BeansConfig.class);
-    /**
      * The package map.
      */
     private Map<String, String> packageMap;
-    /**
-     * The class loader.
-     */
-    private ClassLoader classLoader;
 
     /**
      * The constructor.
@@ -75,52 +58,7 @@ public final class ETL2BeansConfig extends ETL2AST.BaseASTConfig {
     public static Options getBeansOptions() {
         final Options options = getAstOptions();
         options.addOption("m", "map", true, "map from namespace uri to package name <ns>=<package name>");
-        options.addOption("c", "classpath", true, "the classpath roots (might be separated by '"
-                + File.pathSeparator + "'). It must be file or directory.");
         return options;
-    }
-
-    /**
-     * @return the classloader for beans.
-     */
-    public ClassLoader getBeansClassloader() {
-        if (classLoader == null) {
-            final ArrayList<URL> urls = new ArrayList<URL>();
-            final String[] cs = getCommandLine().getOptionValues('c');
-            if (cs != null && cs.length > 0) {
-                for (final String c : cs) {
-                    final String[] pe = c.split(File.pathSeparator);
-                    for (final String p : pe) {
-                        final String tp = p.trim();
-                        if (tp.length() != 0) {
-                            final File file = new File(tp);
-                            if (file.exists()) { // NOPMD
-                                try {
-                                    urls.add(file.getAbsoluteFile().toURI().toURL());
-                                } catch (MalformedURLException e) {
-                                    LOG.error("Bad classpath element: " + p, e);
-                                }
-                            } else {
-                                LOG.warn("Classpath element " + p + " does not exists, ignoring.");
-                            }
-                        }
-                    }
-                }
-            }
-            LOG.info("Classpath: " + urls);
-            if (!urls.isEmpty()) {
-                classLoader = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-                    @Override
-                    public ClassLoader run() {
-                        return new URLClassLoader(
-                                urls.toArray(new URL[urls.size()]), ETL2BeansConfig.class.getClassLoader());
-                    }
-                });
-            } else {
-                classLoader = ETL2BeansConfig.class.getClassLoader();
-            }
-        }
-        return classLoader;
     }
 
     /**

@@ -26,7 +26,6 @@ package net.sf.etl.utils.etl2beans;
 
 import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.event.tree.BeansObjectFactory;
-import net.sf.etl.parsers.streams.DefaultTermReaderConfiguration;
 import net.sf.etl.parsers.streams.TermParserReader;
 import net.sf.etl.parsers.streams.TreeParserReader;
 import net.sf.etl.utils.ETL2AST;
@@ -67,13 +66,6 @@ public final class ETL2Beans extends ETL2AST<ETL2BeansConfig> {
     }
 
     @Override
-    protected void initConfiguration() {
-        final ClassLoader classloader = getConfig().getBeansClassloader();
-        setConfiguration(new DefaultTermReaderConfiguration(classloader));
-        Thread.currentThread().setContextClassLoader(classloader);
-    }
-
-    @Override
     protected ETL2BeansConfig parseConfig(final CommandLine commandLine) {
         return new ETL2BeansConfig(commandLine);
     }
@@ -86,7 +78,7 @@ public final class ETL2Beans extends ETL2AST<ETL2BeansConfig> {
     @Override
     protected void processContent(final OutputStream stream, final TermParserReader p)
             throws Exception {
-        final BeansObjectFactory bp = new BeansObjectFactory(getConfig().getBeansClassloader());
+        final BeansObjectFactory bp = new BeansObjectFactory(getConfig().getClassloader());
         configureStandardOptions(bp);
         for (final Entry<String, String> e : getConfig().getPackageMap().entrySet()) {
             bp.mapNamespaceToPackage(e.getKey(), e.getValue());

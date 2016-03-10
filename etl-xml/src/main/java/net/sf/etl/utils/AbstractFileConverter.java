@@ -24,12 +24,17 @@
  */
 package net.sf.etl.utils;
 
+import net.sf.etl.parsers.DefaultTermParserConfiguration;
 import net.sf.etl.parsers.TextPos;
+import net.sf.etl.parsers.characters.TextUtil;
 import net.sf.etl.parsers.streams.DefaultTermReaderConfiguration;
 import net.sf.etl.parsers.streams.LexerReader;
 import net.sf.etl.parsers.streams.PhraseParserReader;
 import net.sf.etl.parsers.streams.TermParserReader;
 import net.sf.etl.parsers.streams.TermReaderCatalogConfiguration;
+import net.sf.etl.xml_catalog.blocking.BlockingCatalog;
+import net.sf.etl.xml_catalog.blocking.provider.CatalogProviders;
+import net.sf.etl.xml_catalog.blocking.provider.CatalogRuntimeProvider;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
@@ -41,7 +46,16 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
@@ -116,8 +130,16 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
     /**
      * Init configuration if needed. The method is invoked once before processing.
      */
-    protected void initConfiguration() { // NOPMD
-        // do something in subclasses
+    protected final void initConfiguration() {
+        final ClassLoader classloader = config.getClassloader();
+        final CatalogRuntimeProvider provider = CatalogProviders.createDefaultCatalogProvider(
+                CatalogProviders.DEFAULT_ROOT_REQUEST, classloader,
+                true, config.isUserCatalogEnabled(), config.isSystemCatalogEnabled(), config.getCatalogPaths());
+        final BlockingCatalog catalog = new BlockingCatalog(CatalogProviders.DEFAULT_ROOT_REQUEST,
+                CatalogProviders.createCachedCatalog(provider));
+        configuration = new DefaultTermReaderConfiguration(new DefaultTermParserConfiguration(
+                config.getTabSize(), config.getCharset()), catalog);
+        Thread.currentThread().setContextClassLoader(classloader);
     }
 
     /**
@@ -263,11 +285,42 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
      * The base configuration.
      */
     public static class BaseConfig {
-        // TODO handle catalog options as well
+        /**
+         * Option for suppressing system catalog.
+         */
+        private static final String FILE_ENCODING = "file-encoding";
+        /**
+         * Option for suppressing system catalog.
+         */
+        private static final String DEFAULT_FILE_ENCODING = TextUtil.UTF8.displayName();
+        /**
+         * Option for suppressing system catalog.
+         */
+        private static final String TAB_SIZE = "tab-size";
+        /**
+         * Option for suppressing system catalog.
+         */
+        private static final String DEFAULT_TAB_SIZE = "8";
+        /**
+         * Option for suppressing system catalog.
+         */
+        private static final String SUPPRESS_SYSTEM_CATALOG = "suppress-system-catalog";
+        /**
+         * Option for suppressing user catalog.
+         */
+        private static final String SUPPRESS_USER_CATALOG = "suppress-user-catalog";
         /**
          * The command line.
          */
         private final CommandLine commandLine;
+        /**
+         * The class loader.
+         */
+        private ClassLoader classLoader;
+        /**
+         * The catalog paths (URLs).
+         */
+        private List<URI> catalogPaths;
 
         /**
          * The constructor.
@@ -284,8 +337,64 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
         public static Options getBaseOptions() {
             // TODO catalog options here
             return new Options()
+                    .addOption("C", "catalog", true, "the additional catalog to use (file only). "
+                            + "Catalogs specified by this option are consulted before classpath catalogs "
+                            + "and system/user catalogs.")
+                    .addOption("c", "classpath", true, "the classpath roots (might be separated by '"
+                            + File.pathSeparator + "'). It must be file or directory. Used for catalog construction, "
+                            + "and class loading if needed.")
+                    .addOption(null, SUPPRESS_SYSTEM_CATALOG, false, "suppress usage of system catalog.")
+                    .addOption(null, SUPPRESS_USER_CATALOG, false, "suppress usage of user catalog.")
+                    .addOption(null, FILE_ENCODING, true, "the file encoding (default: " + DEFAULT_FILE_ENCODING + ")")
+                    .addOption(null, TAB_SIZE, true, "the tab size (default: " + DEFAULT_FILE_ENCODING + ")")
                     .addOption("i", "input", true, "input file list or '-' in the case of stdin.")
                     .addOption("o", "output", true, "output file list or '-' in the case of stdout.");
+        }
+
+        /**
+         * @return the default tab size
+         */
+        public final int getTabSize() {
+            final String optionValue = commandLine.getOptionValue(TAB_SIZE, DEFAULT_TAB_SIZE);
+            try {
+                final int tabSize = Integer.parseInt(optionValue);
+                if (tabSize <= 0) {
+                    LOG.error("Invalid tab size: " + optionValue + " using " + DEFAULT_TAB_SIZE);
+                    return Integer.parseInt(DEFAULT_TAB_SIZE);
+                }
+                return tabSize;
+            } catch (NumberFormatException ex) {
+                LOG.error("Invalid tab size: " + optionValue + " using " + DEFAULT_TAB_SIZE);
+                return Integer.parseInt(DEFAULT_TAB_SIZE);
+            }
+        }
+
+
+        /**
+         * @return the charset for input files.
+         */
+        public final Charset getCharset() {
+            final String optionValue = commandLine.getOptionValue(FILE_ENCODING, DEFAULT_FILE_ENCODING);
+            try {
+                return Charset.forName(optionValue);
+            } catch (UnsupportedCharsetException ex) {
+                LOG.error("Unsupported charset: " + optionValue + " (using " + TextUtil.UTF8.displayName() + ")");
+                return TextUtil.UTF8;
+            }
+        }
+
+        /**
+         * @return true if system catalog is enabled
+         */
+        public final boolean isSystemCatalogEnabled() {
+            return !commandLine.hasOption(SUPPRESS_SYSTEM_CATALOG);
+        }
+
+        /**
+         * @return true if user catalog is enabled
+         */
+        public final boolean isUserCatalogEnabled() {
+            return !commandLine.hasOption(SUPPRESS_USER_CATALOG);
         }
 
         /**
@@ -300,6 +409,72 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
          */
         public final String getOutput() {
             return commandLine.getOptionValue('o');
+        }
+
+
+        /**
+         * @return the paths to catalogs.
+         */
+        public final List<URI> getCatalogPaths() {
+            if (catalogPaths == null) {
+                final String[] cs = getCommandLine().getOptionValues('C');
+                catalogPaths = new ArrayList<URI>();
+                if (cs != null && cs.length > 0) {
+                    for (final String c : cs) {
+                        final File file = new File(c);
+                        if (file.isFile()) {
+                            catalogPaths.add(file.getAbsoluteFile().toURI());
+                        } else {
+                            LOG.error("File does not exists or is not a file: " + c);
+                        }
+                    }
+                } else {
+                    catalogPaths = Collections.emptyList();
+                }
+            }
+            return catalogPaths;
+        }
+
+        /**
+         * @return the classloader for beans.
+         */
+        public final ClassLoader getClassloader() {
+            if (classLoader == null) {
+                final ArrayList<URL> urls = new ArrayList<URL>();
+                final String[] cs = getCommandLine().getOptionValues('c');
+                if (cs != null && cs.length > 0) {
+                    for (final String c : cs) {
+                        final String[] pe = c.split(File.pathSeparator);
+                        for (final String p : pe) {
+                            final String tp = p.trim();
+                            if (tp.length() != 0) {
+                                final File file = new File(tp);
+                                if (file.exists()) { // NOPMD
+                                    try {
+                                        urls.add(file.getAbsoluteFile().toURI().toURL());
+                                    } catch (MalformedURLException e) {
+                                        LOG.error("Bad classpath element: " + p, e);
+                                    }
+                                } else {
+                                    LOG.warn("Classpath element " + p + " does not exists, ignoring.");
+                                }
+                            }
+                        }
+                    }
+                }
+                if (!urls.isEmpty()) {
+                    classLoader = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+                        @Override
+                        public ClassLoader run() {
+                            return new URLClassLoader(
+                                    urls.toArray(new URL[urls.size()]), BaseConfig.class.getClassLoader());
+                        }
+                    });
+                } else {
+                    classLoader = BaseConfig.class.getClassLoader();
+                }
+            }
+            return classLoader;
         }
 
         /**

@@ -114,7 +114,31 @@ public final class CatalogProviders {
         final boolean classPathEnabled = Boolean.parseBoolean(System.getProperty(CLASSPATH_ENABLED_PROPERTY, "true"));
         final boolean userEnabled = Boolean.parseBoolean(System.getProperty(USER_ENABLED_PROPERTY, "true"));
         final boolean systemEnabled = Boolean.parseBoolean(System.getProperty(SYSTEM_ENABLED_PROPERTY, "true"));
+        return createDefaultCatalogProvider(rootRequest, contextClassLoader,
+                classPathEnabled, userEnabled, systemEnabled, null);
+    }
+
+    /**
+     * Create default catalog provider.
+     *
+     * @param rootRequest        the root request
+     * @param contextClassLoader the context classloader
+     * @param classPathEnabled   the classpath enabled
+     * @param userEnabled        the user catalog enabled
+     * @param systemEnabled      the system catalog enabled
+     * @param prependedUris      the uris added at the beggining of the list
+     * @return the catalog provider
+     */
+    public static CatalogRuntimeProvider createDefaultCatalogProvider(final CatalogRequest rootRequest,
+                                                                      final ClassLoader contextClassLoader,
+                                                                      final boolean classPathEnabled,
+                                                                      final boolean userEnabled,
+                                                                      final boolean systemEnabled,
+                                                                      final List<URI> prependedUris) {
         final Vector<URI> uriList = new Vector<URI>(); // NOPMD
+        if (prependedUris != null) {
+            uriList.addAll(prependedUris);
+        }
         final CatalogRuntimeProvider runtimeProvider = new CatalogRuntimeProvider();
         if (contextClassLoader != null) {
             runtimeProvider.registerSchemaModule(new ClasspathSchemaModule(contextClassLoader));

@@ -45,6 +45,18 @@ public class ETL2XMLTest extends ConverterTestBase {
     }
 
     @Test
+    public void smokeTestHtmlWithCatalog() {
+        final String moduleDir = getModuleBaseDirectory();
+        ETL2XML.main(new String[]{
+                "-f", "html",
+                "-C", moduleDir + "/../etl-parser/src/test/resources/META-INF/xml/catalog.xml",
+                "-i", moduleDir + "/../etl-parser/src/test/resources/net/sf/etl/parsers/term/imports/*.i.etl",
+                "--output", moduleDir + "/target/temp/output/beans/*.i.b.html",
+        });
+    }
+
+
+    @Test
     public void smokeTestXmi() {
         final String moduleDir = getModuleBaseDirectory();
         ETL2XML.main(new String[]{
@@ -69,6 +81,8 @@ public class ETL2XMLTest extends ConverterTestBase {
         final String moduleDir = getModuleBaseDirectory();
         ETLProcessor.main(new String[]{
                 "xml",
+                "--file-encoding", "ASCII",
+                "--tab-size", "4",
                 "-f", "tree",
                 "-i", moduleDir + "/../etl-parser/src/main/resources/net/sf/etl/grammars/*.g.etl",
                 "--output", moduleDir + "/target/temp/output/formatted-grammars/*.g.etl.t.xml",
