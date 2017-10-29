@@ -26,6 +26,7 @@
 package net.sf.etl.parsers.resource;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * The request for the resource.
@@ -76,34 +77,18 @@ public final class ResourceRequest implements Serializable {
 
     @Override
     public boolean equals(final Object o) {
-        //CHECKSTYLE:OFF
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         final ResourceRequest that = (ResourceRequest) o;
-
-        if (resource != null ? !resource.equals(that.resource) : that.resource != null) {
-            return false;
-        }
-        //noinspection RedundantIfStatement
-        if (role != null ? !role.equals(that.role) : that.role != null) {
-            return false;
-        }
-
-        return true;
-        //CHECKSTYLE:ON
+        return Objects.equals(resource, that.resource) && Objects.equals(role, that.role);
     }
 
     @Override
     public int hashCode() {
-        //CHECKSTYLE:OFF
-        int result = resource != null ? resource.hashCode() : 0;
-        result = 31 * result + (role != null ? role.hashCode() : 0);
-        return result;
-        //CHECKSTYLE:ON
+        return Objects.hash(resource, role);
     }
 }

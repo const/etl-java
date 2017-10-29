@@ -25,6 +25,8 @@
 
 package net.sf.etl.parsers;
 
+import java.util.Objects;
+
 /**
  * Statement context. It allows identifying the statement context within the grammar.
  */
@@ -70,35 +72,19 @@ public final class DefinitionContext {
 
     @Override
     public boolean equals(final Object o) {
-        // CHECKSTYLE:OFF
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         final DefinitionContext that = (DefinitionContext) o;
-
-        if (context != null ? !context.equals(that.context) : that.context != null) {
-            return false;
-        }
-        //noinspection RedundantIfStatement
-        if (grammar != null ? !grammar.equals(that.grammar) : that.grammar != null) {
-            return false;
-        }
-
-        return true;
-        // CHECKSTYLE:ON
+        return Objects.equals(grammar, that.grammar) && Objects.equals(context, that.context);
     }
 
     @Override
     public int hashCode() {
-        // CHECKSTYLE:OFF
-        int result = grammar != null ? grammar.hashCode() : 0;
-        result = 31 * result + (context != null ? context.hashCode() : 0);
-        return result;
-        // CHECKSTYLE:ON
+        return Objects.hash(grammar, context);
     }
 
     @Override

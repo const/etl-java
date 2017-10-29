@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.event.grammar.impl.flattened;
+package net.sf.etl.parsers.event.grammar.impl.flattened; // NOPMD
 
 import net.sf.etl.parsers.event.unstable.model.grammar.Associativity;
 import net.sf.etl.parsers.event.unstable.model.grammar.BlankSyntaxStatement;
@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -95,7 +96,8 @@ public final class OpDefinitionView extends ObjectDefinitionView {
      */
     public Associativity associativity() {
         final OperatorDefinition od = operator();
-        return od.getAssociativity() == null ? null : Associativity.valueOf(od.getAssociativity().text().toUpperCase());
+        return od.getAssociativity() == null ? null : Associativity.valueOf(
+                od.getAssociativity().text().toUpperCase(Locale.US));
     }
 
     /**
@@ -190,6 +192,7 @@ public final class OpDefinitionView extends ObjectDefinitionView {
                                 break;
                             default:
                                 error(this, operand, "grammar.Operand.leftNotAllowed", associativity.name());
+                                break;
                         }
                     } else if ("right".equals(operand.getPosition())) {
                         switch (associativity) {
@@ -209,6 +212,7 @@ public final class OpDefinitionView extends ObjectDefinitionView {
                                 break;
                             default:
                                 error(this, operand, "grammar.Operand.rightNotAllowed", associativity.name());
+                                break;
                         }
                     }
                 } else {

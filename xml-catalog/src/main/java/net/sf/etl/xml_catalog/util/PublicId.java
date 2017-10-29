@@ -25,6 +25,8 @@
 
 package net.sf.etl.xml_catalog.util;
 
+import java.util.Locale;
+
 /**
  * The public identifier utilities. The class implements public id transformations specified in
  * RFC 3151 "A URN Namespace for Public Identifiers".
@@ -176,6 +178,6 @@ public final class PublicId {
      * @return true if public id URN
      */
     public static boolean isPublicIdURN(final String urn) {
-        return urn != null && urn.substring(0, URN_PUBLIC_ID.length()).toLowerCase().startsWith(URN_PUBLIC_ID);
+        return urn != null && urn.substring(0, URN_PUBLIC_ID.length()).toLowerCase(Locale.US).startsWith(URN_PUBLIC_ID);
     }
 }

@@ -24,8 +24,7 @@
   ~ SOFTWARE.
   -->
 
-<!DOCTYPE catalog PUBLIC "-//OASIS//DTD XML Catalogs V1.1//EN"
-        "D:\projects\sf\etl-java\xml-catalog\src\main\resources\net\sf\etl\xml_catalog\grammars\oasis_xml_catalogs_1_1\catalog.dtd">
+<!DOCTYPE catalog PUBLIC "-//OASIS//DTD XML Catalogs V1.1//EN" "./oasis_xml_catalogs_1_1/catalog.dtd">
 <catalog xmlns:rddl="http://www.rddl.org/" xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="public">
     <!-- This is a bootstrap catalog that is used to resolve catalog grammars -->
     <group xml:base="oasis_xml_catalogs_1_0/">

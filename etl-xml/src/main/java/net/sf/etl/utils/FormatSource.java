@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.utils;
+package net.sf.etl.utils; // NOPMD
 
 import net.sf.etl.parsers.TermToken;
 import net.sf.etl.parsers.Terms;
@@ -271,6 +271,7 @@ public final class FormatSource extends AbstractFileConverter<AbstractFileConver
                     break;
                 default:
                     formatSegmentContent(p);
+                    break;
             }
 
         }
@@ -309,6 +310,7 @@ public final class FormatSource extends AbstractFileConverter<AbstractFileConver
                     break;
                 default:
                     formatSegmentContent(p);
+                    break;
             }
         }
         consume(p, Terms.ATTRIBUTES_END);
@@ -372,9 +374,11 @@ public final class FormatSource extends AbstractFileConverter<AbstractFileConver
                         default:
                             space();
                             print(tk);
+                            break;
                     }
                 }
                 p.advance();
+                break;
         }
     }
 

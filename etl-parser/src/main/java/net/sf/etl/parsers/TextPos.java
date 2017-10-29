@@ -120,7 +120,6 @@ public final class TextPos implements Serializable {
 
     @Override
     public boolean equals(final Object o) {
-        // CHECKSTYLE:OFF
         if (this == o) {
             return true;
         }
@@ -129,20 +128,7 @@ public final class TextPos implements Serializable {
         }
 
         final TextPos textPos = (TextPos) o;
-
-        if (column != textPos.column) {
-            return false;
-        }
-        if (line != textPos.line) {
-            return false;
-        }
-        //noinspection RedundantIfStatement
-        if (offset != textPos.offset) {
-            return false;
-        }
-
-        return true;
-        // CHECKSTYLE:ON
+        return column == textPos.column && line == textPos.line && offset == textPos.offset;
     }
 
     @Override

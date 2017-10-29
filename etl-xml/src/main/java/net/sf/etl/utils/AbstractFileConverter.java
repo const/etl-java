@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.utils;
+package net.sf.etl.utils; // NOPMD
 
 import net.sf.etl.parsers.DefaultTermParserConfiguration;
 import net.sf.etl.parsers.TextPos;
@@ -120,7 +120,7 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
      * @param args the arguments to parse
      * @throws Exception if there is a problem
      */
-    protected final void parseArgs(final String[] args) throws Exception {
+    protected final void parseArgs(final String... args) throws Exception {
         final CommandLine commandLine = new PosixParser().parse(getOptions(), args, false);
         config = parseConfig(commandLine);
         prepareFileMapping();
@@ -194,6 +194,9 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
                     LOG.error("Failed to create directory: " + outDir);
                 }
                 final String[] files = inDir.list();
+                if (files == null) {
+                    throw new InvalidOptionValueException("Unable to list directory: " + inDir);
+                }
                 final int inPrefixSize = inPrefix.length();
                 final int inSuffixSize = inSuffix.length();
                 for (final String file : files) {
@@ -201,8 +204,8 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
                         final int fileNameLength = file.length();
                         final String outputName = outPrefix
                                 + file.substring(inPrefixSize, fileNameLength - inSuffixSize) + outSuffix;
-                        sourceFiles.put(new File(inDir, file).getAbsoluteFile()
-                                .toURI().toString(), new File(outDir, outputName).toString());
+                        sourceFiles.put(new File(inDir, file).getAbsoluteFile().toURI().toString(), // NOPMD
+                                new File(outDir, outputName).toString()); // NOPMD
                     }
                 }
             } else {
@@ -223,12 +226,12 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
      * @param args the application arguments
      * @throws Exception in case of IO problem
      */
-    public final void start(final String[] args) throws Exception {
+    public final void start(final String... args) throws Exception {
         parseArgs(args);
         for (final Map.Entry<String, String> me : sourceFiles.entrySet()) {
             FileOutputStream fout = null;
             if (me.getValue() != null) {
-                fout = new FileOutputStream(me.getValue());
+                fout = new FileOutputStream(me.getValue()); // NOPMD
             }
             final OutputStream outStream = fout != null ? fout : System.out;
             try {
@@ -236,13 +239,13 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
                 TermParserReader p = null;
                 try {
                     if (me.getKey() == null) {
-                        p = new TermParserReader(configuration, new PhraseParserReader(
+                        p = new TermParserReader(configuration, new PhraseParserReader(// NOPMD
                                 new LexerReader(configuration,
                                         new InputStreamReader(System.in,
                                                 configuration.getParserConfiguration().getEncoding("urn:system:in")),
                                         "urn:system:in", TextPos.START)));
                     } else {
-                        p = new TermParserReader(configuration, new URL(me.getKey()));
+                        p = new TermParserReader(configuration, new URL(me.getKey())); // NOPMD
                     }
                     p.advance();
                     processContent(outStream, p);
@@ -418,10 +421,10 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
         public final List<URI> getCatalogPaths() {
             if (catalogPaths == null) {
                 final String[] cs = getCommandLine().getOptionValues('C');
-                catalogPaths = new ArrayList<URI>();
+                catalogPaths = new ArrayList<>();
                 if (cs != null && cs.length > 0) {
                     for (final String c : cs) {
-                        final File file = new File(c);
+                        final File file = new File(c); // NOPMD
                         if (file.isFile()) {
                             catalogPaths.add(file.getAbsoluteFile().toURI());
                         } else {
@@ -440,7 +443,7 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
          */
         public final ClassLoader getClassloader() {
             if (classLoader == null) {
-                final ArrayList<URL> urls = new ArrayList<URL>();
+                final ArrayList<URL> urls = new ArrayList<>();
                 final String[] cs = getCommandLine().getOptionValues('c');
                 if (cs != null && cs.length > 0) {
                     for (final String c : cs) {
@@ -448,7 +451,7 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
                         for (final String p : pe) {
                             final String tp = p.trim();
                             if (tp.length() != 0) {
-                                final File file = new File(tp);
+                                final File file = new File(tp); // NOPMD
                                 if (file.exists()) { // NOPMD
                                     try {
                                         urls.add(file.getAbsoluteFile().toURI().toURL());

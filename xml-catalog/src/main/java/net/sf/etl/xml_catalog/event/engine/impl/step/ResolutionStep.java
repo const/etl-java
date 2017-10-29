@@ -71,7 +71,7 @@ public abstract class ResolutionStep {
         NavigableMap<String, CatalogReferenceEntry> result = delegates;
         if (prefix != null && value.startsWith(prefix)) {
             if (result == null) {
-                result = new TreeMap<String, CatalogReferenceEntry>(ReverseLengthComparator.INSTANCE);
+                result = new TreeMap<>(ReverseLengthComparator.INSTANCE);
             }
             if (!result.containsKey(prefix)) {
                 result.put(prefix, entry);

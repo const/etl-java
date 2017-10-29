@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.event.grammar.impl.flattened;
+package net.sf.etl.parsers.event.grammar.impl.flattened; // NOPMD
 
 import net.sf.etl.parsers.DefinitionContext;
 import net.sf.etl.parsers.SourceLocation;
@@ -496,10 +496,10 @@ public final class ContextView { // NOPMD
         }
         // validate choices
         if (!isAbstract()) {
-            for (final String choiceName : choiceDefs.keySet()) {
-                if (!choiceCaseDefs.containsKey(choiceName)) {
-                    error(reportingContext, "grammar.Context.missingCaseForChoice", name(), choiceName,
-                            choiceDefs.get(choiceName).definition().getLocation().toShortString());
+            for (final Map.Entry<String, ChoiceDefView> entry : choiceDefs.entrySet()) {
+                if (!choiceCaseDefs.containsKey(entry.getKey())) {
+                    error(reportingContext, "grammar.Context.missingCaseForChoice", name(), entry.getKey(),
+                            entry.getValue().definition().getLocation().toShortString());
                 }
             }
             for (final Map.Entry<String, List<ChoiceCaseDefView>> entry : choiceCaseDefs.entrySet()) {
@@ -724,7 +724,7 @@ public final class ContextView { // NOPMD
          *
          * @param id id of duplicate definitions error
          */
-        public ContextDefinitionGatherer(final String id) {
+        protected ContextDefinitionGatherer(final String id) {
             this.errorId = id;
         }
 
@@ -751,12 +751,12 @@ public final class ContextView { // NOPMD
     /**
      * Gatherer of definitions by grammar include.
      */
-    private static class DefinitionGathererByGrammarInclude extends ContextDefinitionGatherer {
+    private static final class DefinitionGathererByGrammarInclude extends ContextDefinitionGatherer {
 
         /**
          * The constructor.
          */
-        public DefinitionGathererByGrammarInclude() {
+        private DefinitionGathererByGrammarInclude() {
             super("grammar.Context.Definition.duplicateDefinitionByGrammarInclude");
         }
 
@@ -779,12 +779,12 @@ public final class ContextView { // NOPMD
     /**
      * Gatherer of definitions by context include.
      */
-    private static class DefinitionGathererByContextInclude extends ContextDefinitionGatherer {
+    private static final class DefinitionGathererByContextInclude extends ContextDefinitionGatherer {
 
         /**
          * The constructor.
          */
-        public DefinitionGathererByContextInclude() {
+        private DefinitionGathererByContextInclude() {
             super("grammar.Context.Definition.duplicateDefinitionByContextInclude");
         }
 
@@ -807,7 +807,7 @@ public final class ContextView { // NOPMD
     /**
      * Gatherer imports by grammar include hierarchy.
      */
-    private static class ImportGathererByGrammarInclude extends ContextImportGatherer {
+    private static final class ImportGathererByGrammarInclude extends ContextImportGatherer {
 
         @Override
         protected ContextImportView includingDefinition(final ContextView sourceHolder,
@@ -839,7 +839,7 @@ public final class ContextView { // NOPMD
     /**
      * Gatherer imports by grammar include hierarchy.
      */
-    private static class ImportGathererByContextInclude extends
+    private static final class ImportGathererByContextInclude extends
             ContextImportGatherer {
         @Override
         protected ContextImportView includingDefinition(final ContextView sourceHolder,

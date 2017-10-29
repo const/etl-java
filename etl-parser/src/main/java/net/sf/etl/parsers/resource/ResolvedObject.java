@@ -29,6 +29,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * The resolved object wrapper that is used to describe a resolution process to the compiler. The object is immutable.
@@ -115,43 +116,22 @@ public final class ResolvedObject<T> implements Serializable {
 
     @Override
     public boolean equals(final Object o) {
-        //CHECKSTYLE:OFF
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
-        final ResolvedObject that = (ResolvedObject) o;
-
-        if (object != null ? !object.equals(that.object) : that.object != null) {
-            return false;
-        }
-        if (!request.equals(that.request)) {
-            return false;
-        }
-        if (!resolutionHistory.equals(that.resolutionHistory)) {
-            return false;
-        }
-        //noinspection RedundantIfStatement
-        if (!descriptor.equals(that.descriptor)) {
-            return false;
-        }
-
-        return true;
-        //CHECKSTYLE:ON
+        final ResolvedObject<?> that = (ResolvedObject<?>) o;
+        return Objects.equals(request, that.request)
+                && Objects.equals(resolutionHistory, that.resolutionHistory)
+                && Objects.equals(descriptor, that.descriptor)
+                && Objects.equals(object, that.object);
     }
 
     @Override
     public int hashCode() {
-        //CHECKSTYLE:OFF
-        int result = request.hashCode();
-        result = 31 * result + resolutionHistory.hashCode();
-        result = 31 * result + descriptor.hashCode();
-        result = 31 * result + (object != null ? object.hashCode() : 0);
-        return result;
-        //CHECKSTYLE:ON
+        return Objects.hash(request, resolutionHistory, descriptor, object);
     }
 
     /**

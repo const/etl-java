@@ -26,6 +26,8 @@ package net.sf.etl.parsers.event.grammar.impl.flattened;
 
 import net.sf.etl.parsers.SourceLocation;
 
+import java.util.Objects;
+
 /**
  * A link in wrapper chain used to include other context in this context. By
  * construction of the object there can be no cycles.
@@ -154,43 +156,24 @@ public final class WrapperLink {
 
     @Override
     public boolean equals(final Object o) {
-        //CHECKSTYLE:OFF
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         final WrapperLink that = (WrapperLink) o;
-
-        if (innerWrapper != null ? !innerWrapper.equals(that.innerWrapper) : that.innerWrapper != null) {
-            return false;
-        }
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
-        if (namespace != null ? !namespace.equals(that.namespace) : that.namespace != null) {
-            return false;
-        }
-        //noinspection RedundantIfStatement
-        if (property != null ? !property.equals(that.property) : that.property != null) {
-            return false;
-        }
-
-        return true;
-        //CHECKSTYLE:ON
+        return Objects.equals(objectLocation, that.objectLocation)
+                && Objects.equals(propertyLocation, that.propertyLocation)
+                && Objects.equals(name, that.name)
+                && Objects.equals(namespace, that.namespace)
+                && Objects.equals(property, that.property)
+                && Objects.equals(innerWrapper, that.innerWrapper);
     }
 
     @Override
-    public int hashCode() { // NOPMD
-        //CHECKSTYLE:OFF
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (namespace != null ? namespace.hashCode() : 0);
-        result = 31 * result + (property != null ? property.hashCode() : 0);
-        result = 31 * result + (innerWrapper != null ? innerWrapper.hashCode() : 0);
-        return result;
-        //CHECKSTYLE:ON
+    public int hashCode() {
+        return Objects.hash(objectLocation, propertyLocation, name, namespace, property, innerWrapper);
     }
 
     @Override

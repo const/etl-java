@@ -28,6 +28,7 @@ import net.sf.etl.parsers.characters.QuoteClass;
 
 import java.io.Serializable;
 import java.util.EnumMap;
+import java.util.Objects;
 
 /**
  * The key that specifies the extended token kind. If token has additional properties like modifiers and quotes,
@@ -52,23 +53,6 @@ public final class TokenKey implements Serializable {
      * The map for multiline strings without prefix.
      */
     private static final EnumMap<QuoteClass, TokenKey> MULTILINE_STRING_MAP;
-    /**
-     * Pre-calculated hash code, the token key is used in hash maps extensively, so hash code is pre-calculated
-     * to speed up lookup and equality comparison.
-     */
-    private final int hashCode;
-    /**
-     * The token kind.
-     */
-    private final Tokens kind;
-    /**
-     * The modifier (like suffix for numbers or prefix for strings).
-     */
-    private final String modifier;
-    /**
-     * The quote class for strings.
-     */
-    private final QuoteClass quoteClass;
 
     static {
         final EnumMap<Tokens, TokenKey> tokenKindMap = new EnumMap<Tokens, TokenKey>(Tokens.class);
@@ -88,6 +72,24 @@ public final class TokenKey implements Serializable {
         }
         MULTILINE_STRING_MAP = multiLineStringEnumMap;
     }
+
+    /**
+     * Pre-calculated hash code, the token key is used in hash maps extensively, so hash code is pre-calculated
+     * to speed up lookup and equality comparison.
+     */
+    private final int hashCode;
+    /**
+     * The token kind.
+     */
+    private final Tokens kind;
+    /**
+     * The modifier (like suffix for numbers or prefix for strings).
+     */
+    private final String modifier;
+    /**
+     * The quote class for strings.
+     */
+    private final QuoteClass quoteClass;
 
     /**
      * The private constructor from fields.
@@ -300,31 +302,16 @@ public final class TokenKey implements Serializable {
 
     @Override
     public boolean equals(final Object o) {
-        // CHECKSTYLE:OFF
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         final TokenKey tokenKey = (TokenKey) o;
-        if (hashCode != tokenKey.hashCode) {
-            return false;
-        }
-        if (quoteClass != tokenKey.quoteClass) {
-            return false;
-        }
-        if (kind != tokenKey.kind) {
-            return false;
-        }
-        //noinspection RedundantIfStatement
-        if (modifier != null ? !modifier.equals(tokenKey.modifier) : tokenKey.modifier != null) {
-            return false;
-        }
-
-        return true;
-        // CHECKSTYLE:ON
+        return hashCode == tokenKey.hashCode && kind == tokenKey.kind
+                && Objects.equals(modifier, tokenKey.modifier)
+                && quoteClass == tokenKey.quoteClass;
     }
 
     @Override
@@ -332,15 +319,11 @@ public final class TokenKey implements Serializable {
         return hashCode;
     }
 
+
     /**
      * @return calculated hash code
      */
     private int calculateHashCode() {
-        // CHECKSTYLE:OFF
-        int result = kind != null ? kind.hashCode() : 0;
-        result = 31 * result + (modifier != null ? modifier.hashCode() : 0);
-        result = 31 * result + (quoteClass != null ? quoteClass.hashCode() : 0);
-        return result;
-        // CHECKSTYLE:ON
+        return Objects.hash(hashCode, kind, modifier, quoteClass);
     }
 }

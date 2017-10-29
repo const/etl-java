@@ -123,7 +123,7 @@ public final class ETLProcessor {
                     final String name = command.getAttribute("name");
                     final String className = command.getAttribute("class");
                     final String description = command.getTextContent();
-                    map.put(name, new Command(name, className, description));
+                    map.put(name, new Command(name, className, description)); // NOPMD
                 }
             }
             return map;
@@ -158,7 +158,7 @@ public final class ETLProcessor {
          * @param className   the class name
          * @param description the description
          */
-        public Command(final String name, final String className, final String description) {
+        private Command(final String name, final String className, final String description) {
             this.name = name;
             this.className = className;
             this.description = description;

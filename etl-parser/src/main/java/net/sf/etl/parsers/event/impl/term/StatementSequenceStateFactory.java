@@ -75,7 +75,7 @@ public final class StatementSequenceStateFactory implements TermParserStateFacto
     /**
      * The statement sequence state.
      */
-    private static class StatementSequenceState extends TermParserState {
+    private static final class StatementSequenceState extends TermParserState {
         /**
          * Statement state factory.
          */
@@ -97,9 +97,9 @@ public final class StatementSequenceStateFactory implements TermParserStateFacto
          * @param statementStateFactory the constructor
          * @param singleStatement       the single statement indicator
          */
-        public StatementSequenceState(final TermParserContext context, final TermParserState previous,
-                                      final TermParserStateFactory statementStateFactory,
-                                      final boolean singleStatement) {
+        private StatementSequenceState(final TermParserContext context, final TermParserState previous,
+                                       final TermParserStateFactory statementStateFactory,
+                                       final boolean singleStatement) {
             super(context, previous);
             this.statementStateFactory = statementStateFactory;
             this.singleStatement = singleStatement;

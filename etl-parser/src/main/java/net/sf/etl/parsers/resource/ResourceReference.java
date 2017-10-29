@@ -26,6 +26,7 @@
 package net.sf.etl.parsers.resource;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * The resource reference.
@@ -71,35 +72,19 @@ public final class ResourceReference implements Serializable {
 
     @Override
     public boolean equals(final Object o) {
-        //CHECKSTYLE:OFF
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         final ResourceReference that = (ResourceReference) o;
-
-        if (publicId != null ? !publicId.equals(that.publicId) : that.publicId != null) {
-            return false;
-        }
-        //noinspection RedundantIfStatement
-        if (systemId != null ? !systemId.equals(that.systemId) : that.systemId != null) {
-            return false;
-        }
-
-        return true;
-        //CHECKSTYLE:ON
+        return Objects.equals(systemId, that.systemId) && Objects.equals(publicId, that.publicId);
     }
 
     @Override
     public int hashCode() {
-        //CHECKSTYLE:OFF
-        int result = systemId != null ? systemId.hashCode() : 0;
-        result = 31 * result + (publicId != null ? publicId.hashCode() : 0);
-        return result;
-        //CHECKSTYLE:ON
+        return Objects.hash(systemId, publicId);
     }
 
     @Override

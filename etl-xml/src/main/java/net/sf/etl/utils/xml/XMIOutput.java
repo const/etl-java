@@ -92,6 +92,7 @@ public final class XMIOutput extends StructuralOutput {
                     break loop;
                 default:
                     otherToken();
+                    break;
             }
         }
         endElement();
@@ -151,6 +152,7 @@ public final class XMIOutput extends StructuralOutput {
                     break;
                 default:
                     otherToken();
+                    break;
             }
         }
         final TextPos end = parser().current().end();

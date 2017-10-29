@@ -404,6 +404,7 @@ public final class TermParserImpl implements TermParser { // NOPMD
      * This class represents a queue of tokens that have a possibility of
      * position and inserting new tokens just after mark. The functionality is
      * separated into own class just for convenience.
+     * @param <T> the element type
      */
     public static final class MarkedQueue<T> {
         // NOTE POST 0.2: introduce single item optimization.
@@ -609,6 +610,7 @@ public final class TermParserImpl implements TermParser { // NOPMD
 
         /**
          * Queue link.
+         * @param <T> the element type
          */
         private static final class Link<T> {
             /**
@@ -629,7 +631,7 @@ public final class TermParserImpl implements TermParser { // NOPMD
              *
              * @param value a value that is held by link
              */
-            public Link(final T value) {
+            private Link(final T value) {
                 if (value == null) {
                     // This is an artificial limitation. However get() interface
                     // should be changed to lift it.

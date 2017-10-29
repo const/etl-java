@@ -25,6 +25,8 @@
 
 package net.sf.etl.parsers;
 
+import java.util.Objects;
+
 /**
  * The expression context that identifies the expression context within some statement context.
  * Grammars for expression context and statement context could be different. For example in
@@ -110,44 +112,22 @@ public final class ExpressionContext {
 
     @Override
     public boolean equals(final Object o) {
-        //CHECKSTYLE:OFF
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         final ExpressionContext that = (ExpressionContext) o;
-
-        if (precedenceLevel != that.precedenceLevel) {
-            return false;
-        }
-        if (context != null ? !context.equals(that.context) : that.context != null) {
-            return false;
-        }
-        if (expressionGrammar != null ? !expressionGrammar.equals(that.expressionGrammar)
-                : that.expressionGrammar != null) {
-            return false;
-        }
-        //noinspection RedundantIfStatement
-        if (hostContext != null ? !hostContext.equals(that.hostContext) : that.hostContext != null) {
-            return false;
-        }
-
-        return true;
-        //CHECKSTYLE:ON
+        return precedenceLevel == that.precedenceLevel
+                && Objects.equals(hostContext, that.hostContext)
+                && Objects.equals(expressionGrammar, that.expressionGrammar)
+                && Objects.equals(context, that.context);
     }
 
     @Override
     public int hashCode() {
-        //CHECKSTYLE:OFF
-        int result = hostContext != null ? hostContext.hashCode() : 0;
-        result = 31 * result + (expressionGrammar != null ? expressionGrammar.hashCode() : 0);
-        result = 31 * result + (context != null ? context.hashCode() : 0);
-        result = 31 * result + precedenceLevel;
-        return result;
-        //CHECKSTYLE:ON
+        return Objects.hash(hostContext, expressionGrammar, context, precedenceLevel);
     }
 
     @Override

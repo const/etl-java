@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.event.grammar;
+package net.sf.etl.parsers.event.grammar; // NOPMD
 
 import net.sf.etl.parsers.PhraseTokens;
 import net.sf.etl.parsers.SourceLocation;
@@ -315,17 +315,7 @@ public final class LookAheadSet {
 
         @Override
         public boolean equals(final Object o) {
-            //CHECKSTYLE:OFF
-            if (this == o) {
-                return true;
-            }
-            //noinspection RedundantIfStatement
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            return true;
-            //CHECKSTYLE:ON
+            return this == o || o != null && getClass() == o.getClass();
         }
 
         @Override
@@ -359,17 +349,7 @@ public final class LookAheadSet {
 
         @Override
         public boolean equals(final Object o) {
-            //CHECKSTYLE:OFF
-            if (this == o) {
-                return true;
-            }
-            //noinspection RedundantIfStatement
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            return true;
-            //CHECKSTYLE:ON
+            return this == o || o != null && getClass() == o.getClass();
         }
 
         @Override
@@ -415,7 +395,6 @@ public final class LookAheadSet {
 
         @Override
         public boolean equals(final Object o) {
-            //CHECKSTYLE:OFF
             if (this == o) {
                 return true;
             }
@@ -424,14 +403,7 @@ public final class LookAheadSet {
             }
 
             final TokenKeyEntry that = (TokenKeyEntry) o;
-
-            //noinspection RedundantIfStatement
-            if (!key.equals(that.key)) {
-                return false;
-            }
-
-            return true;
-            //CHECKSTYLE:ON
+            return key.equals(that.key);
         }
 
         @Override
@@ -496,7 +468,6 @@ public final class LookAheadSet {
 
         @Override
         public boolean equals(final Object o) {
-            //CHECKSTYLE:OFF
             if (this == o) {
                 return true;
             }
@@ -505,14 +476,7 @@ public final class LookAheadSet {
             }
 
             final PhraseEntry that = (PhraseEntry) o;
-
-            //noinspection RedundantIfStatement
-            if (kind != that.kind) {
-                return false;
-            }
-
-            return true;
-            //CHECKSTYLE:ON
+            return kind == that.kind;
         }
 
         @Override
@@ -558,7 +522,6 @@ public final class LookAheadSet {
 
         @Override
         public boolean equals(final Object o) {
-            //CHECKSTYLE:OFF
             if (this == o) {
                 return true;
             }
@@ -567,14 +530,7 @@ public final class LookAheadSet {
             }
 
             final KeywordEntry that = (KeywordEntry) o;
-
-            //noinspection RedundantIfStatement
-            if (!keyword.equals(that.keyword)) {
-                return false;
-            }
-
-            return true;
-            //CHECKSTYLE:ON
+            return keyword.equals(that.keyword);
         }
 
         @Override

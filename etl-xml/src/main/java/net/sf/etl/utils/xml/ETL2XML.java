@@ -64,7 +64,7 @@ public final class ETL2XML extends AbstractFileConverter<ETL2XMLConfig> {
      *
      * @param args the program arguments.
      */
-    public ETL2XML(final String[] args) {
+    public ETL2XML(final String... args) {
         super();
         try {
             start(args);

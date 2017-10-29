@@ -62,7 +62,7 @@ final class NumberParser extends BaseLiteralParser {
      * @param start     the start position
      * @param systemId  the system id
      */
-    public NumberParser(final String inputText, final TextPos start, final String systemId) {
+    NumberParser(final String inputText, final TextPos start, final String systemId) {
         super(inputText, start, systemId);
     }
 

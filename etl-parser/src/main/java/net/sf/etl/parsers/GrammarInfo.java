@@ -25,6 +25,8 @@
 
 package net.sf.etl.parsers;
 
+import java.util.Objects;
+
 /**
  * The information about grammar.
  */
@@ -78,39 +80,20 @@ public final class GrammarInfo {
 
     @Override
     public boolean equals(final Object o) {
-        //CHECKSTYLE:OFF
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         final GrammarInfo that = (GrammarInfo) o;
-
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
-        if (uri != null ? !uri.equals(that.uri) : that.uri != null) {
-            return false;
-        }
-        //noinspection RedundantIfStatement
-        if (version != null ? !version.equals(that.version) : that.version != null) {
-            return false;
-        }
-
-        return true;
-        //CHECKSTYLE:ON
+        return Objects.equals(uri, that.uri) && Objects.equals(name, that.name)
+                && Objects.equals(version, that.version);
     }
 
     @Override
     public int hashCode() {
-        //CHECKSTYLE:OFF
-        int result = uri != null ? uri.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (version != null ? version.hashCode() : 0);
-        return result;
-        //CHECKSTYLE:ON
+        return Objects.hash(uri, name, version);
     }
 
     @Override

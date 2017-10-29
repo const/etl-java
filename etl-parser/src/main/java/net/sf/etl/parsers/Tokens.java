@@ -149,7 +149,7 @@ public enum Tokens {
      * @param quoted   true has quote class.
      * @param role     the role in the segment parser.
      */
-    private Tokens(final boolean modified, final boolean quoted, final PhraseTokens role) {
+    Tokens(final boolean modified, final boolean quoted, final PhraseTokens role) {
         this.modified = modified;
         this.quoted = quoted;
         phraseRole = role;

@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * The resource descriptor.
@@ -243,42 +244,21 @@ public final class ResourceDescriptor implements Serializable {
 
     @Override
     public boolean equals(final Object o) {
-        //CHECKSTYLE:OFF
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         final ResourceDescriptor that = (ResourceDescriptor) o;
-
-        if (!systemId.equals(that.systemId)) {
-            return false;
-        }
-        if (type != null ? !type.equals(that.type) : that.type != null) {
-            return false;
-        }
-        if (usedResources != null ? !usedResources.equals(that.usedResources) : that.usedResources != null) {
-            return false;
-        }
-        //noinspection RedundantIfStatement
-        if (version != null ? !version.equals(that.version) : that.version != null) {
-            return false;
-        }
-
-        return true;
-        //CHECKSTYLE:ON
+        return Objects.equals(systemId, that.systemId)
+                && Objects.equals(type, that.type)
+                && Objects.equals(version, that.version)
+                && Objects.equals(usedResources, that.usedResources);
     }
 
     @Override
     public int hashCode() {
-        //CHECKSTYLE:OFF
-        int result = systemId.hashCode();
-        result = 31 * result + (type != null ? type.hashCode() : 0);
-        result = 31 * result + (version != null ? version.hashCode() : 0);
-        result = 31 * result + (usedResources != null ? usedResources.hashCode() : 0);
-        return result;
-        //CHECKSTYLE:ON
+        return Objects.hash(systemId, type, version, usedResources);
     }
 }

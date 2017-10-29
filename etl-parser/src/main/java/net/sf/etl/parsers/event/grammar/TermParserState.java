@@ -66,29 +66,24 @@ public abstract class TermParserState {
      * @return previous states for iterator
      */
     public final Iterable<TermParserState> previousStates() {
-        return new Iterable<TermParserState>() {
+        return () -> new Iterator<TermParserState>() {
+            private TermParserState state = previous;
+
             @Override
-            public Iterator<TermParserState> iterator() {
-                return new Iterator<TermParserState>() {
-                    private TermParserState state = previous;
+            public boolean hasNext() {
+                return state != null;
+            }
 
-                    @Override
-                    public boolean hasNext() {
-                        return state != null;
-                    }
+            @Override
+            public TermParserState next() {
+                final TermParserState rc = state;
+                state = state.getPreviousState();
+                return rc;
+            }
 
-                    @Override
-                    public TermParserState next() {
-                        final TermParserState rc = state;
-                        state = state.getPreviousState();
-                        return rc;
-                    }
-
-                    @Override
-                    public void remove() {
-                        throw new UnsupportedOperationException("The operation is not supported");
-                    }
-                };
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException("The operation is not supported");
             }
         };
     }
@@ -167,7 +162,7 @@ public abstract class TermParserState {
     /**
      * The call status.
      */
-    public static enum CallStatus {
+    public enum CallStatus {
         /**
          * No was made.
          */
@@ -185,7 +180,7 @@ public abstract class TermParserState {
     /**
      * The recoverable status.
      */
-    public static enum RecoverableStatus {
+    public enum RecoverableStatus {
         /**
          * This state could not recover at the moment.
          */

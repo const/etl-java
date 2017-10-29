@@ -147,11 +147,7 @@ public final class CatalogResolutionCache {
      */
     private void registerForUsedResources(final String systemId, final List<CatalogResourceUsage> usedResources) {
         for (final CatalogResourceUsage usage : usedResources) {
-            Set<String> systemIds = dependencies.get(usage.getSystemId());
-            if (systemIds == null) {
-                systemIds = new HashSet<String>(); // NOPMD
-                dependencies.put(usage.getSystemId(), systemIds);
-            }
+            Set<String> systemIds = dependencies.computeIfAbsent(usage.getSystemId(), k -> new HashSet<>()); // NOPMD
             systemIds.add(systemId);
         }
     }

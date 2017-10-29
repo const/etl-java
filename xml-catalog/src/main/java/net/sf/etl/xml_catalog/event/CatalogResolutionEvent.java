@@ -28,6 +28,7 @@ package net.sf.etl.xml_catalog.event;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * The resolution event for the catalog.
@@ -119,21 +120,8 @@ public final class CatalogResolutionEvent {
 
         final CatalogResolutionEvent that = (CatalogResolutionEvent) o;
 
-        if (file != null ? !file.equals(that.file) : that.file != null) {
-            return false;
-        }
-        if (problem != null ? !problem.equals(that.problem) : that.problem != null) {
-            return false;
-        }
-        if (request != null ? !request.equals(that.request) : that.request != null) {
-            return false;
-        }
-        //noinspection RedundantIfStatement
-        if (resolutionHistory != null ? !resolutionHistory.equals(that.resolutionHistory) : that.resolutionHistory != null) {
-            return false;
-        }
-        return true;
-        // CHECKSTYLE:ON
+        return Objects.equals(file, that.file) && Objects.equals(problem, that.problem)
+                && Objects.equals(request, that.request) && Objects.equals(resolutionHistory, that.resolutionHistory);
     }
 
     @Override

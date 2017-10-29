@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.event.grammar.impl.flattened;
+package net.sf.etl.parsers.event.grammar.impl.flattened; // NOPMD
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -332,7 +332,7 @@ public final class DirectedAcyclicGraph<E> {
      * @param <E> the element type
      * @author const
      */
-    private static class NodeUnwrapIterator<E> implements Iterator<E> {
+    private static final class NodeUnwrapIterator<E> implements Iterator<E> {
         /**
          * the iterator over collection of nodes.
          */
@@ -343,7 +343,7 @@ public final class DirectedAcyclicGraph<E> {
          *
          * @param i the unwrapped iterator
          */
-        public NodeUnwrapIterator(final Iterator<Node<E>> i) {
+        private NodeUnwrapIterator(final Iterator<Node<E>> i) {
             super();
             this.i = i;
         }

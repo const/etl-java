@@ -116,7 +116,8 @@ public final class DomParser {
                         name(element));
             } else if ("rewriteURI".equals(name)) {
                 return new RewriteUriEntry(id, base, purpose(element), nature(element),
-                        DomUtil.attribute(element, "uriStartString", true), DomUtil.attribute(element, "rewritePrefix", true));
+                        DomUtil.attribute(element, "uriStartString", true),
+                        DomUtil.attribute(element, "rewritePrefix", true));
             } else if ("uriSuffix".equals(name)) {
                 return new UriSuffixEntry(id, base, uri(element, base), purpose(element), nature(element),
                         DomUtil.attribute(element, "uriSuffix", true));

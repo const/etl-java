@@ -25,6 +25,8 @@
 
 package net.sf.etl.parsers;
 
+import java.util.Objects;
+
 /**
  * Information about definition, this information could be used to locate definition location.
  */
@@ -78,39 +80,20 @@ public final class DefinitionInfo {
 
     @Override
     public boolean equals(final Object o) {
-        // CHECKSTYLE:OFF
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         final DefinitionInfo that = (DefinitionInfo) o;
-
-        if (context != null ? !context.equals(that.context) : that.context != null) {
-            return false;
-        }
-        if (location != null ? !location.equals(that.location) : that.location != null) {
-            return false;
-        }
-        //noinspection RedundantIfStatement
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
-
-        return true;
-        // CHECKSTYLE:ON
+        return Objects.equals(context, that.context) && Objects.equals(name, that.name)
+                && Objects.equals(location, that.location);
     }
 
     @Override
     public int hashCode() {
-        // CHECKSTYLE:OFF
-        int result = context != null ? context.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (location != null ? location.hashCode() : 0);
-        return result;
-        // CHECKSTYLE:ON
+        return Objects.hash(context, name, location);
     }
 
     @Override

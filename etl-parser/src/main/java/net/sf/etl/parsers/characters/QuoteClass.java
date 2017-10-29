@@ -77,7 +77,7 @@ public enum QuoteClass {
      *
      * @param sample the sample code point
      */
-    private QuoteClass(final int sample) {
+    QuoteClass(final int sample) {
         this.sample = sample;
     }
 

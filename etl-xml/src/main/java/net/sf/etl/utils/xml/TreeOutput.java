@@ -75,6 +75,7 @@ public final class TreeOutput extends StructuralOutput {
                     break loop;
                 default:
                     otherToken();
+                    break;
             }
         }
         endStructElement();
@@ -127,6 +128,7 @@ public final class TreeOutput extends StructuralOutput {
                     break;
                 default:
                     otherToken();
+                    break;
             }
         }
         context.activeProperty = null;
@@ -181,6 +183,7 @@ public final class TreeOutput extends StructuralOutput {
                     }
                 default:
                     otherToken();
+                    break;
             }
         }
         // end content

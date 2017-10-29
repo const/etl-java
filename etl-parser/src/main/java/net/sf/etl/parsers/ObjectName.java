@@ -24,6 +24,8 @@
  */
 package net.sf.etl.parsers;
 
+import java.util.Objects;
+
 /**
  * Qualified name of object.
  *
@@ -67,35 +69,19 @@ public final class ObjectName {
 
     @Override
     public boolean equals(final Object o) {
-        //CHECKSTYLE:OFF
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         final ObjectName that = (ObjectName) o;
-
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
-        //noinspection RedundantIfStatement
-        if (namespace != null ? !namespace.equals(that.namespace) : that.namespace != null) {
-            return false;
-        }
-
-        return true;
-        //CHECKSTYLE:ON
+        return Objects.equals(namespace, that.namespace) && Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
-        //CHECKSTYLE:OFF
-        int result = namespace != null ? namespace.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        return result;
-        //CHECKSTYLE:ON
+        return Objects.hash(namespace, name);
     }
 
     @Override

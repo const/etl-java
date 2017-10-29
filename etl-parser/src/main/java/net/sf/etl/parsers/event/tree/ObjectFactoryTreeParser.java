@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers.event.tree;
+package net.sf.etl.parsers.event.tree; // NOPMD
 
 import net.sf.etl.parsers.ObjectName;
 import net.sf.etl.parsers.ParserException;

@@ -50,6 +50,7 @@ public final class CatalogDirectProvider implements CatalogProvider {
             documentBuilderFactory.setIgnoringComments(true);
             documentBuilderFactory.setIgnoringElementContentWhitespace(true);
             final Document document = documentBuilderFactory.newDocumentBuilder().parse(request.getSystemId());
+            // TODO version from file or http
             catalogFile = CatalogFile.fromDom(request.getSystemId(), System.currentTimeMillis(),
                     Collections.<CatalogResourceUsage>emptyList(), document);
         } catch (Throwable problem) {

@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.xml_catalog.event.engine;
+package net.sf.etl.xml_catalog.event.engine; //NOPMD
 
 import net.sf.etl.xml_catalog.event.CatalogFile;
 import net.sf.etl.xml_catalog.event.CatalogRequest;
@@ -564,8 +564,8 @@ public final class CatalogEngine {
          * @param base         the base URI
          * @param preferPublic the value of prefer public attribute
          */
-        public EntityProcessor(final String publicId, final String systemId, final String base,
-                               final boolean preferPublic) {
+        protected EntityProcessor(final String publicId, final String systemId, final String base,
+                                  final boolean preferPublic) {
             this.publicId = PublicId.normalize(publicId);
             this.systemId = makeRelativeUri("systemId", systemId, base);
             if (PublicId.isPublicIdURN(this.systemId)) {
@@ -618,21 +618,21 @@ public final class CatalogEngine {
         /**
          * @return the system id
          */
-        public String getSystemId() {
+        protected String getSystemId() {
             return systemId;
         }
 
         /**
          * @return the public id
          */
-        public String getPublicId() {
+        protected String getPublicId() {
             return publicId;
         }
 
         /**
          * @return the prefer public
          */
-        public boolean isPreferPublic() {
+        protected boolean isPreferPublic() {
             return preferPublic;
         }
     }
@@ -641,7 +641,7 @@ public final class CatalogEngine {
     /**
      * Plain URI processor that consider entities.
      */
-    private class EntityUriProcessor extends EntityProcessor {
+    private final class EntityUriProcessor extends EntityProcessor {
         /**
          * The URI to resolve.
          */
@@ -666,8 +666,8 @@ public final class CatalogEngine {
          * @param baseUri      the base uri (might be null)
          * @param preferPublic the default value of prefer public attribute
          */
-        public EntityUriProcessor(final String uri, final String nature, final String purpose, final String publicId,
-                                  final String systemId, final String baseUri, final boolean preferPublic) {
+        private EntityUriProcessor(final String uri, final String nature, final String purpose, final String publicId,
+                                   final String systemId, final String baseUri, final boolean preferPublic) {
             super(publicId, systemId, baseUri, preferPublic);
             this.uri = makeRelativeUri("uri", uri, baseUri);
             this.nature = makeRelativeUri("nature", nature, baseUri);
@@ -686,7 +686,7 @@ public final class CatalogEngine {
     /**
      * Plain URI processor that does not consider entities.
      */
-    private class UriProcessor extends DocumentProcessor {
+    private final class UriProcessor extends DocumentProcessor {
         /**
          * The URI to resolve.
          */
@@ -708,7 +708,7 @@ public final class CatalogEngine {
          * @param purpose the purpose of uri
          * @param baseUri the base URI
          */
-        public UriProcessor(final String uri, final String nature, final String purpose, final String baseUri) {
+        private UriProcessor(final String uri, final String nature, final String purpose, final String baseUri) {
             this.uri = makeRelativeUri("uri", uri, baseUri);
             this.nature = makeRelativeUri("nature", nature, baseUri);
             this.purpose = makeRelativeUri("purpose", purpose, baseUri);
@@ -725,7 +725,7 @@ public final class CatalogEngine {
     /**
      * The process or TR9401 elements in the catalog along with entities.
      */
-    private class TR9401Processor extends EntityProcessor {
+    private final class TR9401Processor extends EntityProcessor {
         /**
          * The type of element.
          */
@@ -745,8 +745,8 @@ public final class CatalogEngine {
          * @param type         the type of TR9401 entity to resolve
          * @param name         the name of TR9401 entity to resolve
          */
-        public TR9401Processor(final String publicId, final String systemId, final String baseUri,
-                               final boolean preferPublic, final String type, final String name) {
+        private TR9401Processor(final String publicId, final String systemId, final String baseUri,
+                                final boolean preferPublic, final String type, final String name) {
             super(publicId, systemId, baseUri, preferPublic);
             this.type = convertType(type);
             this.name = name;

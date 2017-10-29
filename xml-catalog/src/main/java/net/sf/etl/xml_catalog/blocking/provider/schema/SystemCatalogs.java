@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * The utilities that adds system catalogs if they exists to the collection.
@@ -72,7 +73,7 @@ public final class SystemCatalogs {
     public static void addSystemCatalogs(final List<URI> uriList,
                                          final boolean userCatalogEnabled, final boolean systemCatalogEnabled) {
         addSystemCatalogs(
-                !systemCatalogEnabled || System.getProperty("os.name").toLowerCase().contains("windows")
+                !systemCatalogEnabled || System.getProperty("os.name").toLowerCase(Locale.US).contains("windows")
                         ? null : UNIX_SYSTEM_CATALOG_PATH,
                 !userCatalogEnabled ? null : System.getProperty("user.home"), USER_XML_DIR,
                 uriList);

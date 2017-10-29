@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.event.grammar.impl.flattened;
+package net.sf.etl.parsers.event.grammar.impl.flattened; // NOPMD
 
 import net.sf.etl.parsers.ErrorInfo;
 import net.sf.etl.parsers.GrammarInfo;

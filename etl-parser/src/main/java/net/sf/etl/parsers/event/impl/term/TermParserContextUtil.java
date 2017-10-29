@@ -70,6 +70,7 @@ public final class TermParserContextUtil {
                 break;
             default:
                 role = SyntaxRole.IGNORABLE;
+                break;
         }
         reportIgnorable(context, role, token);
     }

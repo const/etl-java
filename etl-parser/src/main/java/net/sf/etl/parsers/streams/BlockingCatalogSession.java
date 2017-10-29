@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-package net.sf.etl.parsers.streams;
+package net.sf.etl.parsers.streams; // NOPMD
 
 import net.sf.etl.parsers.ErrorInfo;
 import net.sf.etl.parsers.LoadedGrammarInfo;
@@ -94,9 +94,9 @@ final class BlockingCatalogSession { // NOPMD
      * @param loadedGrammars the grammars that has been already loaded (to prevent cyclic loading of grammars
      *                       for grammars)
      */
-    public BlockingCatalogSession(final TermReaderCatalogConfiguration configuration, final BlockingCatalog catalog,
-                                  final TermParser parser,
-                                  final Set<String> loadedGrammars) {
+    BlockingCatalogSession(final TermReaderCatalogConfiguration configuration, final BlockingCatalog catalog,
+                           final TermParser parser,
+                           final Set<String> loadedGrammars) {
         this.loadedGrammars = loadedGrammars;
         this.catalog = catalog != null ? catalog : configuration.getCatalog(parser.getSystemId());
         this.parser = parser;
@@ -275,9 +275,9 @@ final class BlockingCatalogSession { // NOPMD
             if (catalogFile.getUsedResources().isEmpty()) {
                 catalogResourceUsage = Collections.emptyList();
             } else {
-                catalogResourceUsage = new ArrayList<ResourceUsage>();
+                catalogResourceUsage = new ArrayList<>(); // NOPMD
                 for (final CatalogResourceUsage resourceUsage : catalogFile.getUsedResources()) {
-                    catalogResourceUsage.add(new ResourceUsage(
+                    catalogResourceUsage.add(new ResourceUsage(// NOPMD
                             new ResourceReference(resourceUsage.getSystemId(), null),
                             new ResourceDescriptor(resourceUsage.getSystemId(),
                                     StandardGrammars.CATALOG_RESOURCE_TYPE,
@@ -286,7 +286,7 @@ final class BlockingCatalogSession { // NOPMD
                     ));
                 }
             }
-            rc.add(new ResourceUsage(
+            rc.add(new ResourceUsage(// NOPMD
                     new ResourceReference(trace.getCatalogRequest().getSystemId(), null),
                     new ResourceDescriptor(
                             catalogFile.getSystemId(),

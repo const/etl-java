@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.sf.etl.parsers.event.tree;
+package net.sf.etl.parsers.event.tree; // NOPMD
 
 import net.sf.etl.parsers.ObjectName;
 import net.sf.etl.parsers.ParserException;

@@ -1,28 +1,3 @@
-<!--
-  ~ Reference ETL Parser for Java
-  ~ Copyright (c) 2000-2013 Constantine A Plotnikov
-  ~
-  ~ Permission is hereby granted, free of charge, to any person
-  ~ obtaining a copy of this software and associated documentation
-  ~ files (the "Software"), to deal in the Software without restriction,
-  ~ including without limitation the rights to use, copy, modify, merge,
-  ~ publish, distribute, sublicense, and/or sell copies of the Software,
-  ~ and to permit persons to whom the Software is furnished to do so,
-  ~ subject to the following conditions:
-  ~
-  ~ The above copyright notice and this permission notice shall be
-  ~ included in all copies or substantial portions of the Software.
-  ~
-  ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-  ~ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-  ~ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  ~ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-  ~ BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-  ~ ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-  ~ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  ~ SOFTWARE.
-  -->
-
 <ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          name="AsyncObjects Rules"
          xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
@@ -38,19 +13,22 @@
     <rule ref="rulesets/java/codesize.xml">
         <exclude name="TooManyMethods"/>
         <exclude name="CyclomaticComplexity"/>
+        <exclude name="ModifiedCyclomaticComplexity"/>
+        <exclude name="StdCyclomaticComplexity"/>
     </rule>
     <rule ref="rulesets/java/comments.xml">
         <exclude name="CommentSize"/>
+        <!-- next, disabled due to lack of override support https://github.com/pmd/pmd/issues/396 -->
+        <exclude name="CommentRequired"/>
     </rule>
     <rule ref="rulesets/java/controversial.xml">
+        <exclude name="AtLeastOneConstructor"/>
         <exclude name="DataflowAnomalyAnalysis"/>
         <exclude name="CallSuperInConstructor"/>
         <exclude name="OnlyOneReturn"/>
         <exclude name="AvoidFinalLocalVariable"/>
         <exclude name="NullAssignment"/>
-        <exclude name="BooleanInversion"/>
         <exclude name="AvoidLiteralsInIfCondition"/>
-        <exclude name="AtLeastOneConstructor"/>
     </rule>
     <rule ref="rulesets/java/coupling.xml">
         <exclude name="LawOfDemeter"/>
@@ -61,6 +39,7 @@
         <exclude name="ConfusingTernary"/>
         <exclude name="AvoidInstanceofChecksInCatchClause"/>
         <exclude name="AccessorClassGeneration"/>
+        <exclude name="AccessorMethodGeneration"/>
     </rule>
     <rule ref="rulesets/java/empty.xml"/>
     <rule ref="rulesets/java/finalizers.xml"/>
@@ -75,10 +54,10 @@
         <exclude name="JUnitAssertionsShouldIncludeMessage"/>
         <exclude name="JUnitTestContainsTooManyAsserts"/>
         <exclude name="UseAssertTrueInsteadOfAssertEquals"/>
-        <exclude name="TestClassWithoutTestCases"/>
-        <exclude name="JUnitTestsShouldIncludeAssert"/>
     </rule>
-    <rule ref="rulesets/java/logging-jakarta-commons.xml"/>
+    <rule ref="rulesets/java/logging-jakarta-commons.xml">
+        <exclude name="GuardLogStatement"/>
+    </rule>
     <rule ref="rulesets/java/logging-java.xml"/>
     <rule ref="rulesets/java/migrating.xml"/>
     <rule ref="rulesets/java/naming.xml">
@@ -91,12 +70,9 @@
         <exclude name="ShortMethodName"/>
         <exclude name="AvoidFieldNameMatchingMethodName"/>
     </rule>
-    <rule ref="rulesets/java/optimizations.xml">
-        <exclude name="AvoidInstantiatingObjectsInLoops"/>
-    </rule>
+    <rule ref="rulesets/java/optimizations.xml"/>
     <rule ref="rulesets/java/strictexception.xml">
         <exclude name="AvoidCatchingThrowable"/>
-        <exclude name="AvoidInstanceofChecksInCatchClause"/>
         <exclude name="SignatureDeclareThrowsException"/>
     </rule>
     <rule ref="rulesets/java/strings.xml">

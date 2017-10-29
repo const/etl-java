@@ -27,6 +27,7 @@ package net.sf.etl.xml_catalog.event;
 
 import java.net.URI;
 import java.net.URL;
+import java.util.Objects;
 
 /**
  * The request for the catalog file. The catalog requests could be invalid, in that case they might be ignored.
@@ -104,11 +105,7 @@ public final class CatalogRequest {
             return false;
         }
         final CatalogRequest that = (CatalogRequest) o;
-        //noinspection RedundantIfStatement
-        if (systemId != null ? !systemId.equals(that.systemId) : that.systemId != null) {
-            return false;
-        }
-        return true;
+        return Objects.equals(systemId, that.systemId);
         // CHECKSTYLE:ON
     }
 
