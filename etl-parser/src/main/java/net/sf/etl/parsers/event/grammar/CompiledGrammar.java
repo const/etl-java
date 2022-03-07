@@ -30,6 +30,7 @@ import net.sf.etl.parsers.ErrorInfo;
 import net.sf.etl.parsers.ExpressionContext;
 import net.sf.etl.parsers.resource.ResourceDescriptor;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -39,7 +40,7 @@ import java.util.List;
  * with future minor versions of the the library and even between different versions of JDK. So use serialization
  * only for caching purposes.</p>
  */
-public interface CompiledGrammar {
+public interface CompiledGrammar extends Serializable {
 
     /**
      * Get other compiled grammars that were produced as result of compilation of this grammar

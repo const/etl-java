@@ -69,4 +69,10 @@ public interface AbstractReader<TokenType> {
      */
     TokenType current();
 
+    /**
+     * @return current token or null if token has not been read yet.
+     * @see #advance()
+     */
+    TokenType currentOrNull();
+
 }

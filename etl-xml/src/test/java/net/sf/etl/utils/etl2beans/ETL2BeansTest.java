@@ -25,9 +25,10 @@
 
 package net.sf.etl.utils.etl2beans;
 
+import net.sf.etl.parsers.StandardGrammars;
 import net.sf.etl.utils.ConverterTestBase;
 import net.sf.etl.utils.ETLProcessor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * The smoke test for ETL2Beans
@@ -41,7 +42,7 @@ public class ETL2BeansTest extends ConverterTestBase {
         final String moduleDir = getModuleBaseDirectory();
         ETLProcessor.main(new String[]{
                 "beans",
-                "-C", moduleDir + "/../etl-parser/src/test/resources/META-INF/xml/catalog.xml",
+                "-I", StandardGrammars.DOCTYPE_NS,
                 "-m", "http://etl.sf.net/2006/samples/imports/Expression/0.1=net.sf.etl.parsers.term.beans",
                 "-m", "http://etl.sf.net/2006/samples/imports/Main/0.1=net.sf.etl.parsers.term.beans",
                 "-c", moduleDir + "/../etl-parser/target/test-classes",

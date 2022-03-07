@@ -24,8 +24,9 @@
  */
 package net.sf.etl.parsers.term;
 
+import net.sf.etl.parsers.GrammarId;
 import net.sf.etl.parsers.Terms;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * This test checks handling of errors using fallback test
@@ -37,6 +38,7 @@ public class FallbackTest extends TermStructureTestCase {
      * Namespace to use
      */
     public static final String NS = "http://etl.sf.net/2006/tests/fallbacks";
+    public static final GrammarId FALLBACK_GRAMMAR_ID = new GrammarId("test.Fallbacks", "");
 
     /**
      * Test context with empty fallback statement
@@ -46,7 +48,7 @@ public class FallbackTest extends TermStructureTestCase {
         startWithResource("fallback/EmptyFallbacks.test.etl");
         boolean errorExit = true;
         try {
-            readDocType("\"Fallbacks.g.etl\"", "EmptyFallbacks");
+            readDocType(FALLBACK_GRAMMAR_ID, "EmptyFallbacks");
             objectStart(NS, "SomeStatement");
             readDocAndOkAttribute();
             propStart("value");
@@ -87,7 +89,7 @@ public class FallbackTest extends TermStructureTestCase {
         startWithResource("fallback/NonEmptyFallbacks.test.etl");
         boolean errorExit = true;
         try {
-            readDocType("\"Fallbacks.g.etl\"", "NonEmptyFallbacks");
+            readDocType(FALLBACK_GRAMMAR_ID, "NonEmptyFallbacks");
             objectStart(NS, "SomeStatement");
             readDocAndOkAttribute();
             propStart("value");

@@ -25,8 +25,11 @@
 package net.sf.etl.parsers.term;
 
 import net.sf.etl.parsers.DefaultTermParserConfiguration;
+import net.sf.etl.parsers.GrammarId;
 import net.sf.etl.parsers.StandardGrammars;
+import net.sf.etl.parsers.TermToken;
 import net.sf.etl.parsers.Terms;
+import net.sf.etl.parsers.literals.StringParser;
 import net.sf.etl.parsers.streams.DefaultTermReaderConfiguration;
 import net.sf.etl.parsers.streams.TermParserReader;
 import org.slf4j.Logger;
@@ -34,10 +37,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.StringReader;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Base class for structural term test case
@@ -91,16 +94,15 @@ public abstract class TermStructureTestCase { // NOPMD
     /**
      * Start parsing resource with specified reader
      *
-     * @param text            a text to parse
-     * @param grammarSystemId system id of default grammar
-     * @param grammarPublicId public id of default grammar
+     * @param text            the text to parse
+     * @param grammarId       the system id of default grammar
      * @param defaultContext  a default context with which to start
      */
     protected void startWithStringAndDefaultGrammar(final String text, // NOPMD
-                                                    final String grammarSystemId, final String grammarPublicId,
+                                                    final GrammarId grammarId,
                                                     final String defaultContext) {
         parser = new TermParserReader(DefaultTermReaderConfiguration.INSTANCE, new StringReader(text), "none:test");
-        parser.setDefaultGrammar(grammarPublicId, grammarSystemId, defaultContext, false);
+        parser.setDefaultGrammar(grammarId, defaultContext, false);
         assertEquals(parser.getConfiguration().getParserConfiguration().getTabSize(parser.getSystemId()),
                 Integer.getInteger(DefaultTermParserConfiguration.ETL_TAB_SIZE_PROPERTY, 8).intValue());
         parser.advance();
@@ -114,8 +116,7 @@ public abstract class TermStructureTestCase { // NOPMD
     protected void endParsing(final boolean errorExit) {
         if (!errorExit) {
             skipIgnorable();
-            assertEquals("EOF is expected: " + parser.current(), Terms.EOF,
-                    parser.current().kind());
+            assertEquals(Terms.EOF, parser.current().kind(), "EOF is expected: " + parser.current());
         }
         // if (errorExit) {
         // try {
@@ -139,9 +140,9 @@ public abstract class TermStructureTestCase { // NOPMD
      */
     protected void objectStart(final String ns, final String name) {
         this.skipIgnorable();
-        assertEquals("term kind " + parser.current(), Terms.OBJECT_START, parser.current().kind());
-        assertEquals("namespace " + parser.current(), ns, parser.current().objectName().namespace());
-        assertEquals("name " + parser.current(), name, parser.current().objectName().name());
+        assertEquals(Terms.OBJECT_START, parser.current().kind(), "term kind " + parser.current());
+        assertEquals(ns, parser.current().objectName().namespace(), "namespace " + parser.current());
+        assertEquals(name, parser.current().objectName().name(), "name " + parser.current());
         parser.advance();
     }
 
@@ -153,9 +154,9 @@ public abstract class TermStructureTestCase { // NOPMD
      */
     protected void objectEnd(final String ns, final String name) {
         this.skipIgnorable();
-        assertEquals("term kind " + parser.current(), Terms.OBJECT_END, parser.current().kind());
-        assertEquals("namespace " + parser.current(), ns, parser.current().objectName().namespace());
-        assertEquals("name " + parser.current(), name, parser.current().objectName().name());
+        assertEquals(Terms.OBJECT_END, parser.current().kind(), "term kind " + parser.current());
+        assertEquals(ns, parser.current().objectName().namespace(), "namespace " + parser.current());
+        assertEquals(name, parser.current().objectName().name(), "name " + parser.current());
         parser.advance();
     }
 
@@ -166,8 +167,8 @@ public abstract class TermStructureTestCase { // NOPMD
      */
     protected void listStart(final String name) {
         this.skipIgnorable();
-        assertEquals("term kind " + parser.current(), Terms.LIST_PROPERTY_START, parser.current().kind());
-        assertEquals("name " + parser.current(), name, parser.current().propertyName().name());
+        assertEquals(Terms.LIST_PROPERTY_START, parser.current().kind(), "term kind " + parser.current());
+        assertEquals(name, parser.current().propertyName().name(), "name " + parser.current());
         parser.advance();
     }
 
@@ -178,8 +179,8 @@ public abstract class TermStructureTestCase { // NOPMD
      */
     protected void listEnd(final String name) {
         this.skipIgnorable();
-        assertEquals("term kind " + parser.current(), Terms.LIST_PROPERTY_END, parser.current().kind());
-        assertEquals("name " + parser.current(), name, parser.current().propertyName().name());
+        assertEquals(Terms.LIST_PROPERTY_END, parser.current().kind(), "term kind " + parser.current());
+        assertEquals(name, parser.current().propertyName().name(), "name " + parser.current());
         parser.advance();
     }
 
@@ -190,8 +191,8 @@ public abstract class TermStructureTestCase { // NOPMD
      */
     protected void propStart(final String name) {
         this.skipIgnorable();
-        assertEquals("term kind " + parser.current(), Terms.PROPERTY_START, parser.current().kind());
-        assertEquals("name " + parser.current(), name, parser.current().propertyName().name());
+        assertEquals(Terms.PROPERTY_START, parser.current().kind(), "term kind " + parser.current());
+        assertEquals(name, parser.current().propertyName().name(), "name " + parser.current());
         parser.advance();
     }
 
@@ -202,8 +203,8 @@ public abstract class TermStructureTestCase { // NOPMD
      */
     protected void propEnd(final String name) {
         this.skipIgnorable();
-        assertEquals("term kind " + parser.current(), Terms.PROPERTY_END, parser.current().kind());
-        assertEquals("name " + parser.current(), name, parser.current().propertyName().name());
+        assertEquals(Terms.PROPERTY_END, parser.current().kind(), "term kind " + parser.current());
+        assertEquals(name, parser.current().propertyName().name(), "name " + parser.current());
         parser.advance();
     }
 
@@ -212,11 +213,18 @@ public abstract class TermStructureTestCase { // NOPMD
      *
      * @param value an expected value
      */
-    protected void value(final String value) {
+    protected TermToken value(final String value) {
+        TermToken current = value();
+        assertEquals(value, current.token().token().text(), "name " + current);
+        return current;
+    }
+
+    protected TermToken value() {
         this.skipIgnorable();
-        assertEquals("term kind " + parser.current(), Terms.VALUE, parser.current().kind());
-        assertEquals("name " + parser.current(), value, parser.current().token().token().text());
+        TermToken current = parser.current();
+        assertEquals(Terms.VALUE, current.kind(), "term kind " + current);
         parser.advance();
+        return current;
     }
 
     /**
@@ -254,7 +262,7 @@ public abstract class TermStructureTestCase { // NOPMD
                 case BLOCK_START:
                 case BLOCK_END:
                 case GRAMMAR_IS_LOADED:
-                    assertFalse(parser.current().toString(), parser.current().hasAnyErrors());
+                    assertFalse(parser.current().hasAnyErrors(), parser.current().toString());
                     parser.advance();
                     break;
                 default:
@@ -274,52 +282,47 @@ public abstract class TermStructureTestCase { // NOPMD
             throw new IllegalArgumentException("Unknown error term kind: " + kind);
         }
         this.skipIgnorable();
-        assertEquals("term kind " + parser.current(), kind, parser.current().kind());
+        assertEquals(kind, parser.current().kind(), "term kind " + parser.current());
         parser.advance();
     }
 
     /**
      * Read doctype
      *
-     * @param systemId a system id of the grammar
+     * @param grammarId the grammar id of the grammar
      * @param context  context name
      */
-    protected void readDocType(final String systemId, final String context) {
-        this.objectStart(StandardGrammars.DOCTYPE_NS, "DoctypeDeclaration");
-        {
-            if (systemId != null) {
-                propStart("SystemId");
-                value(systemId);
-                propEnd("SystemId");
-            }
-            if (context != null) {
-                propStart("Context");
-                value(context);
-                propEnd("Context");
-            }
-        }
-        this.objectEnd(StandardGrammars.DOCTYPE_NS, "DoctypeDeclaration");
+    protected void readDocType(GrammarId grammarId, final String context) {
+        readDocType(null, grammarId, context);
     }
 
     /**
      * Read doctype
      *
-     * @param type     the source type
-     * @param systemId the system id of the grammar
-     * @param context  the context name
+     * @param type the type
+     * @param grammarId the grammar id of the grammar
+     * @param context  context name
      */
-    protected void readDocType(final String type, final String systemId, final String context) {
+    protected void readDocType(String type, GrammarId grammarId, final String context) {
         this.objectStart(StandardGrammars.DOCTYPE_NS, "DoctypeDeclaration");
         {
             if (type != null) {
-                propStart("Type");
+                propStart(StandardGrammars.DOCTYPE_GRAMMAR_DOCTYPE_TYPE.name());
                 value(type);
-                propEnd("Type");
+                propEnd(StandardGrammars.DOCTYPE_GRAMMAR_DOCTYPE_TYPE.name());
             }
-            if (systemId != null) {
-                propStart("SystemId");
-                value(systemId);
-                propEnd("SystemId");
+            if (grammarId != null) {
+                listStart(StandardGrammars.DOCTYPE_GRAMMAR_DOCTYPE_QUALIFIED_NAME.name());
+                for (String n : grammarId.name().split("\\.")) {
+                    value(n);
+                }
+                listEnd(StandardGrammars.DOCTYPE_GRAMMAR_DOCTYPE_QUALIFIED_NAME.name());
+                if (!grammarId.version().isEmpty()) {
+                    propStart(StandardGrammars.DOCTYPE_GRAMMAR_DOCTYPE_VERSION.name());
+                    var t = value();
+                    var r = StringParser.parse(t.token().token(), "test file");
+                    propEnd(StandardGrammars.DOCTYPE_GRAMMAR_DOCTYPE_VERSION.name());
+                }
             }
             if (context != null) {
                 propStart("Context");
@@ -329,7 +332,6 @@ public abstract class TermStructureTestCase { // NOPMD
         }
         this.objectEnd(StandardGrammars.DOCTYPE_NS, "DoctypeDeclaration");
     }
-
 
     /**
      * Read entire source and fail if errors are detected

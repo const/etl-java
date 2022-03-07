@@ -26,6 +26,7 @@
 package net.sf.etl.parsers.literals;
 
 import net.sf.etl.parsers.TextPos;
+import net.sf.etl.parsers.Token;
 import net.sf.etl.parsers.Tokens;
 import net.sf.etl.parsers.characters.Identifiers;
 import net.sf.etl.parsers.characters.Numbers;
@@ -88,6 +89,10 @@ public final class StringParser extends BaseLiteralParser {
         super(inputText, start, systemId);
     }
 
+    public static ParseResult<String> parse(Token token, String systemId) {
+        var parsed = new StringParser(token.text(), token.start(), systemId).parse();
+        return ParseResult.of(parsed.getText(), parsed.getErrors());
+    }
 
     /**
      * @return the parsed string

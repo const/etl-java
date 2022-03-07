@@ -27,15 +27,14 @@ package net.sf.etl.parsers.event.impl.term; // NOPMD
 
 import net.sf.etl.parsers.DefinitionContext;
 import net.sf.etl.parsers.ErrorInfo;
+import net.sf.etl.parsers.GrammarId;
 import net.sf.etl.parsers.LoadedGrammarInfo;
 import net.sf.etl.parsers.ParserException;
 import net.sf.etl.parsers.PhraseToken;
-import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.StandardGrammars;
 import net.sf.etl.parsers.TermToken;
 import net.sf.etl.parsers.Terms;
 import net.sf.etl.parsers.TextPos;
-import net.sf.etl.parsers.Token;
 import net.sf.etl.parsers.event.Cell;
 import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.TermParser;
@@ -48,15 +47,10 @@ import net.sf.etl.parsers.event.grammar.TermParserState;
 import net.sf.etl.parsers.event.grammar.TermParserStateFactory;
 import net.sf.etl.parsers.event.impl.util.ListStack;
 import net.sf.etl.parsers.event.unstable.model.doctype.Doctype;
-import net.sf.etl.parsers.literals.StringInfo;
-import net.sf.etl.parsers.literals.StringParser;
 import net.sf.etl.parsers.resource.ResolvedObject;
-import net.sf.etl.parsers.resource.ResourceReference;
 import net.sf.etl.parsers.resource.ResourceRequest;
 
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -70,15 +64,15 @@ public final class TermParserImpl implements TermParser { // NOPMD
     /**
      * The token queue.
      */
-    private final MarkedQueue<TermToken> queue = new MarkedQueue<TermToken>();
+    private final MarkedQueue<TermToken> queue = new MarkedQueue<>();
     /**
      * Stack for soft ends.
      */
-    private final ListStack<Integer> softEndStack = new ListStack<Integer>();
+    private final ListStack<Integer> softEndStack = new ListStack<>();
     /**
      * The list stack.
      */
-    private final ListStack<KeywordContext> keywords = new ListStack<KeywordContext>();
+    private final ListStack<KeywordContext> keywords = new ListStack<>();
     /**
      * The compiled grammar.
      */
@@ -106,7 +100,7 @@ public final class TermParserImpl implements TermParser { // NOPMD
     /**
      * If true, advance is needed.
      */
-    private boolean advanceNeeded;
+    private boolean advanceNeeded = true;
     /**
      * The count for disabled soft ends.
      */
@@ -147,11 +141,7 @@ public final class TermParserImpl implements TermParser { // NOPMD
     /**
      * The default public id.
      */
-    private String defaultPublicId;
-    /**
-     * The default system id.
-     */
-    private String defaultSystemId;
+    private GrammarId defaultGrammarId;
     /**
      * The default context.
      */
@@ -171,10 +161,9 @@ public final class TermParserImpl implements TermParser { // NOPMD
     }
 
     @Override
-    public void setDefaultGrammar(final String userPublicId, final String userSystemId,
+    public void setDefaultGrammar(final GrammarId grammarId,
                                   final String userContextName, final Boolean userScriptMode) {
-        this.defaultPublicId = userPublicId;
-        this.defaultSystemId = userSystemId;
+        this.defaultGrammarId = grammarId;
         defaultContext = userContextName;
         defaultScriptMode = userScriptMode;
     }
@@ -342,62 +331,28 @@ public final class TermParserImpl implements TermParser { // NOPMD
         if (grammarRequest != null) {
             throw new IllegalStateException("The grammar request is already set");
         }
-        final String refPublicId;
-        String refSystemId;
+        GrammarId grammarId;
         if (doctype == null) {
-            refPublicId = defaultPublicId;
-            refSystemId = defaultSystemId;
+            grammarId = defaultGrammarId;
             initialContextName = defaultContext;
             scriptMode = defaultScriptMode;
+            if (grammarId == null) {
+                grammarRequestErrors = new ErrorInfo("syntax.NoDefaultGrammar", ErrorInfo.NO_ARGS,
+                        TextPos.START, TextPos.START, systemId);
+            }
         } else {
-            refPublicId = parseDoctypeString(doctype.getPublicId(), "syntax.MalformedDoctypePublicId");
-            refSystemId = parseDoctypeString(doctype.getSystemId(), "syntax.MalformedDoctypeSystemId");
+            var parsed = GrammarId.parse(doctype.getLocation(), doctype.getQualifiedName(), doctype.getVersion());
             initialContextName = doctype.getContext() == null ? null : doctype.getContext().text();
             if (doctype.getType() != null) {
                 scriptMode = "script".equals(doctype.getType().text());
             }
+            grammarId = parsed.result();
+            grammarRequestErrors = parsed.errors();
         }
-        // attempt to parse system id relatively
-        if (refSystemId != null) {
-            try {
-                refSystemId = URI.create(systemId).resolve(refSystemId).toString();
-            } catch (final Throwable t) {
-                grammarRequestErrors = new ErrorInfo("syntax.MalformedDoctypeSystemIdURI",
-                        new Object[]{
-                                refSystemId, t.toString()
-                        },
-                        doctype == null ? currentPos : doctype.getSystemId().start(),
-                        doctype == null ? currentPos : doctype.getSystemId().end(), systemId, grammarRequestErrors);
-            }
+        if (grammarId == null) {
+            grammarId = StandardGrammars.DEFAULT_GRAMMAR_ID;
         }
-        grammarRequest = new ResourceRequest(new ResourceReference(refSystemId, refPublicId),
-                StandardGrammars.GRAMMAR_REQUEST_TYPE);
-    }
-
-    /**
-     * Parse doctype token.
-     *
-     * @param stringToken the token
-     * @param errorId     the error if string is invalid.
-     * @return the string
-     */
-    private String parseDoctypeString(final Token stringToken, final String errorId) {
-        final String rc;
-        if (stringToken == null) {
-            rc = null;
-        } else {
-            final StringInfo parsed = new StringParser(stringToken.text(), stringToken.start(), systemId).parse();
-            if (parsed.getText() == null || parsed.getText().length() == 0 || parsed.getErrors() != null) {
-                grammarRequestErrors = new ErrorInfo(errorId,
-                        Collections.<Object>singletonList(stringToken.text()),
-                        new SourceLocation(stringToken.start(), stringToken.end(), systemId),
-                        grammarRequestErrors);
-                rc = null;
-            } else {
-                rc = parsed.getText();
-            }
-        }
-        return rc;
+        grammarRequest = new ResourceRequest(grammarId, systemId, systemId);
     }
 
     /**
@@ -411,7 +366,7 @@ public final class TermParserImpl implements TermParser { // NOPMD
         /**
          * A stack of marks.
          */
-        private final List<Link<T>> markStack = new ArrayList<Link<T>>();
+        private final List<Link<T>> markStack = new ArrayList<>();
         /**
          * amount of committed marks.
          */
@@ -477,7 +432,7 @@ public final class TermParserImpl implements TermParser { // NOPMD
          */
         public void insertAtMark(final T value) {
             final Link<T> mark = peekMark();
-            final Link<T> l = new Link<T>(value);
+            final Link<T> l = new Link<>(value);
             l.previous = mark;
             if (mark == null) {
                 l.next = first;
@@ -576,7 +531,7 @@ public final class TermParserImpl implements TermParser { // NOPMD
          * @param value a value to insert.
          */
         public void insertBeforeMark(final T value) {
-            final Link<T> link = new Link<T>(value);
+            final Link<T> link = new Link<>(value);
             final Link<T> old = peekMark();
             markStack.set(markStack.size() - 1, link);
             link.previous = old;
@@ -596,7 +551,7 @@ public final class TermParserImpl implements TermParser { // NOPMD
         public String toString() {
             final StringBuilder rc = new StringBuilder();
             rc.append('[');
-            Link c = first;
+            var c = first;
             while (c != null) {
                 if (c.previous != null) {
                     rc.append(", ");
@@ -788,7 +743,7 @@ public final class TermParserImpl implements TermParser { // NOPMD
 
         @Override
         public void endSoftEndContext() {
-            assert disabledSoftEndCount == 0 : "Disabled soft end count should be zero at the end of the context"
+            assert disabledSoftEndCount == 0 : "Disabled soft end count should be zero at the end of the context: "
                     + disabledSoftEndCount;
             disabledSoftEndCount = softEndStack.pop();
         }

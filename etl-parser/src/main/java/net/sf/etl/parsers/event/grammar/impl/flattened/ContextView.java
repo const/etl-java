@@ -40,6 +40,7 @@ import net.sf.etl.parsers.event.unstable.model.grammar.SyntaxDefinition;
 import net.sf.etl.parsers.event.unstable.model.grammar.Wrapper;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -88,24 +89,24 @@ public final class ContextView { // NOPMD
     /**
      * The tree map from precedence to level view object.
      */
-    private final NavigableMap<Integer, OpLevel> operatorLevels = new TreeMap<Integer, OpLevel>();
+    private final NavigableMap<Integer, OpLevel> operatorLevels = new TreeMap<>();
     /**
      * The statements defined in the context.
      */
-    private final Set<StatementView> statements = new HashSet<StatementView>();
+    private final Set<StatementView> statements = new HashSet<>();
     /**
      * The map from name to definition.
      */
-    private final Map<String, DefView> defs = new HashMap<String, DefView>(); // NOPMD
+    private final Map<String, DefView> defs = new HashMap<>(); // NOPMD
     /**
      * The map for choice definitions.
      */
-    private final Map<String, ChoiceDefView> choiceDefs = new HashMap<String, ChoiceDefView>(); // NOPMD
+    private final Map<String, ChoiceDefView> choiceDefs = new HashMap<>(); // NOPMD
     /**
      * The map for choice cases definitions.
      */
     private final Map<String, List<ChoiceCaseDefView>> choiceCaseDefs = // NOPMD
-            new HashMap<String, List<ChoiceCaseDefView>>();
+            new HashMap<>();
     /**
      * DAG node in context include hierarchy.
      */
@@ -113,7 +114,7 @@ public final class ContextView { // NOPMD
     /**
      * The map from included context name to context include views.
      */
-    private final Map<String, ContextIncludeView> contextIncludes = new HashMap<String, ContextIncludeView>(); // NOPMD
+    private final Map<String, ContextIncludeView> contextIncludes = new HashMap<>(); // NOPMD
     /**
      * The DAG node in context include along with grammar include hierarchy.
      */
@@ -121,11 +122,11 @@ public final class ContextView { // NOPMD
     /**
      * The map that contains imports. key is local name of context.
      */
-    private final Map<String, ContextImportView> imports = new HashMap<String, ContextImportView>(); // NOPMD
+    private final Map<String, ContextImportView> imports = new HashMap<>(); // NOPMD
     /**
      * The map that definitions. key is name of definition.
      */
-    private final Map<String, DefinitionView> definitions = new HashMap<String, DefinitionView>(); // NOPMD
+    private final Map<String, DefinitionView> definitions = new HashMap<>(); // NOPMD
     /**
      * The context name.
      */
@@ -190,8 +191,7 @@ public final class ContextView { // NOPMD
     private void loadContent() {
         assert context != null;
         for (final ContextMember m : context.getContent()) {
-            if (m instanceof ContextInclude) {
-                final ContextInclude ci = (ContextInclude) m;
+            if (m instanceof ContextInclude ci) {
                 final ContextView referencedContext = grammar.context(ci.getContextName());
                 if (referencedContext == null) {
                     error(ci, "grammar.Context.ContextInclude.missingContext", ci.getContextName());
@@ -226,8 +226,7 @@ public final class ContextView { // NOPMD
                 }
                 contextIncludes.put(referencedContext.name(),
                         new ContextIncludeView(ci, this, referencedContext, wrapperLink)); // NOPMD
-            } else if (m instanceof ContextImport) {
-                final ContextImport ci = (ContextImport) m;
+            } else if (m instanceof ContextImport ci) {
                 final GrammarView referencedGrammar;
                 if (ci.getGrammarName() == null) {
                     referencedGrammar = grammar;
@@ -254,8 +253,7 @@ public final class ContextView { // NOPMD
                 }
                 final ContextImportView view = new ContextImportView(ci, this, referencedContext); // NOPMD
                 imports.put(view.localName(), view);
-            } else if (m instanceof SyntaxDefinition) {
-                final SyntaxDefinition def = (SyntaxDefinition) m;
+            } else if (m instanceof SyntaxDefinition def) {
                 if (definitions.containsKey(def.getName().text())) {
                     error(def, "grammar.Context.Definition.duplicateDefinition", def.getName());
                     continue;
@@ -402,8 +400,7 @@ public final class ContextView { // NOPMD
             }
         }
         for (final DefinitionView m : definitions.values()) {
-            if (m instanceof OpDefinitionView) {
-                final OpDefinitionView op = (OpDefinitionView) m;
+            if (m instanceof OpDefinitionView op) {
                 final Associativity associativity = op.associativity();
                 if (associativity == null) {
                     // the definition is invalid. there likely were a parse
@@ -609,7 +606,7 @@ public final class ContextView { // NOPMD
         if (rc == null && !defs.containsKey(s.getName().text())) {
             d.definingContext().error(s, "grammar.Ref.danglingRef", s.getName());
         }
-        return rc;
+        return rc != null ? rc : Collections.emptyList();
     }
 
     /**

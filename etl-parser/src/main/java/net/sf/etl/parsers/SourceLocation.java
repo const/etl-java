@@ -24,64 +24,23 @@
  */
 package net.sf.etl.parsers;
 
+import java.io.Serializable;
+
 /**
  * This class represents location in the source code. It is primary used for
  * error reporting.
  *
+ * @param start    the start of source code fragment
+ * @param end      the end of source code fragment
+ * @param systemId the location of source code fragment
+ *
  * @author const
  */
-public final class SourceLocation {
+public record SourceLocation(TextPos start, TextPos end, String systemId) implements Serializable {
     /**
      * The unknown location.
      */
     public static final SourceLocation UNKNOWN = new SourceLocation(TextPos.START, TextPos.START, "unknown:");
-    /**
-     * the start of source code fragment.
-     */
-    private final TextPos start;
-    /**
-     * the end of source code fragment.
-     */
-    private final TextPos end;
-    /**
-     * the location of source code fragment.
-     */
-    private final String systemId;
-
-    /**
-     * A constructor from fields.
-     *
-     * @param start    the start of source code fragment
-     * @param end      the end of source code fragment
-     * @param systemId the location of source code fragment
-     */
-    public SourceLocation(final TextPos start, final TextPos end, final String systemId) {
-        super();
-        this.end = end;
-        this.start = start;
-        this.systemId = systemId;
-    }
-
-    /**
-     * @return the end of source code fragment
-     */
-    public TextPos end() {
-        return end;
-    }
-
-    /**
-     * @return the start of source code fragment
-     */
-    public TextPos start() {
-        return start;
-    }
-
-    /**
-     * @return the location of source code fragment
-     */
-    public String systemId() {
-        return systemId;
-    }
 
     /**
      * @return the short name for system identifier

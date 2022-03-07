@@ -27,6 +27,7 @@ package net.sf.etl.parsers.event;
 
 import net.sf.etl.parsers.DefinitionContext;
 import net.sf.etl.parsers.ErrorInfo;
+import net.sf.etl.parsers.GrammarId;
 import net.sf.etl.parsers.PhraseToken;
 import net.sf.etl.parsers.TermToken;
 import net.sf.etl.parsers.event.grammar.CompiledGrammar;
@@ -51,12 +52,11 @@ public interface TermParser {
      * Set default grammar as it has been specified using doctype instruction, it is used when the first statement
      * is encountered and no doctype is specified.
      *
-     * @param publicId     the public id
-     * @param systemId     the system id
+     * @param grammarId    the grammar id
      * @param context      the top level context
      * @param isScriptMode if true, by default parser is starting in script mode
      */
-    void setDefaultGrammar(String publicId, String systemId, String context, Boolean isScriptMode);
+    void setDefaultGrammar(GrammarId grammarId, String context, Boolean isScriptMode);
 
     /**
      * @return true after grammar was supplied to the term parser of the parser was constructed from compiled grammar

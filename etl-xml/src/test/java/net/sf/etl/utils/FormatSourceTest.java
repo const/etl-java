@@ -24,7 +24,7 @@
  */
 package net.sf.etl.utils;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Smoke test for format source.
@@ -37,7 +37,7 @@ public class FormatSourceTest extends ConverterTestBase {
     public void test() {
         final String moduleDir = getModuleBaseDirectory();
         FormatSource.main(new String[]{
-                "-i", moduleDir + "/../etl-parser/src/main/resources/net/sf/etl/grammars/*.g.etl",
+                "-i", moduleDir + "/../etl-parser/src/main/resources/META-INF/etl/grammars/ETL/*.g.etl",
                 "--output", moduleDir + "/target/temp/output/formatted-grammars/*.g.etl",
         });
     }

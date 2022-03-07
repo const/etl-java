@@ -26,6 +26,7 @@
 package net.sf.etl.parsers.event.grammar;
 
 import net.sf.etl.parsers.ErrorInfo;
+import net.sf.etl.parsers.GrammarId;
 import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.unstable.model.grammar.Grammar;
 import net.sf.etl.parsers.resource.ResolvedObject;
@@ -82,7 +83,7 @@ public interface GrammarCompilerEngine {
      * @param systemId the system id that was previously provided as a resolved object
      * @return the first provided resolved object with the same system id
      */
-    ResolvedObject<Grammar> getProvided(String systemId);
+    ResolvedObject<Grammar> getProvided(GrammarId systemId);
 
     /**
      * @return read compiled grammar

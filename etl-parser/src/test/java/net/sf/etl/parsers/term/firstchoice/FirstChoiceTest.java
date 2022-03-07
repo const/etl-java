@@ -28,13 +28,13 @@ import net.sf.etl.parsers.StandardGrammars;
 import net.sf.etl.parsers.event.tree.FieldObjectFactory;
 import net.sf.etl.parsers.event.tree.ObjectFactory;
 import net.sf.etl.parsers.term.FieldsTermCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * A test that checks first choice cases
@@ -116,7 +116,7 @@ public class FirstChoiceTest extends FieldsTermCase<BaseNode> {
         final Statement s = (Statement) parser.current(); // NOPMD
         if (type != null) {
             assertNotNull(s.value);
-            assertSame("Token: " + s.value.text, type, s.value.getClass());
+            assertSame(type, s.value.getClass(), "Token: " + s.value.text);
             if (text != null) {
                 assertNotNull(s.value.text);
                 assertEquals(text, normalizeNewlines ? s.value.text.text().replaceAll("\r\n", "\n") : s.value.text.text());

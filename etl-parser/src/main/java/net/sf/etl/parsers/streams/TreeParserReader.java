@@ -53,7 +53,7 @@ public class TreeParserReader<Element> extends AbstractReaderImpl<Element> {
     /**
      * The underlying lexer.
      */
-    private final Cell<TermToken> tokenCell = new Cell<TermToken>();
+    private final Cell<TermToken> tokenCell = new Cell<>();
     /**
      * The loaded grammar.
      */

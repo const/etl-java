@@ -1,4 +1,4 @@
-doctype "ChoiceExt.g.etl";
+doctype test.ChoiceExt;
 a
 b
 B

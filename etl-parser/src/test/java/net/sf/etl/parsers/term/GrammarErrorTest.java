@@ -31,10 +31,10 @@ import net.sf.etl.parsers.Terms;
 import net.sf.etl.parsers.event.grammar.BootstrapGrammars;
 import net.sf.etl.parsers.event.grammar.CompiledGrammar;
 import net.sf.etl.parsers.event.term.BasicTermTestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 /**
  * The test that loads grammar with error
@@ -48,8 +48,14 @@ public class GrammarErrorTest extends BasicTermTestCase {
         read(Terms.OBJECT_START);
         read(Terms.STRUCTURAL, "doctype");
         read(Terms.IGNORABLE);
+        read(Terms.LIST_PROPERTY_START);
+        read(Terms.VALUE, "test");
+        read(Terms.STRUCTURAL, ".");
+        read(Terms.VALUE, "Broken");
+        read(Terms.IGNORABLE);
+        read(Terms.LIST_PROPERTY_END);
         read(Terms.PROPERTY_START);
-        read(Terms.VALUE, "\"Broken.g.etl\"");
+        read(Terms.VALUE, "\"0.1\"");
         read(Terms.PROPERTY_END);
         read(Terms.OBJECT_END);
         read(Terms.STATEMENT_END);

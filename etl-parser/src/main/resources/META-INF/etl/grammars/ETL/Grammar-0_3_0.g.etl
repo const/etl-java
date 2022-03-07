@@ -1,6 +1,6 @@
-doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN";
+doctype ETL.Grammar "0.3.0";
 // Reference ETL Parser for Java
-// Copyright (c) 2000-2013 Constantine A Plotnikov
+// Copyright (c) 2000-2022 Constantine A Plotnikov
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -69,7 +69,7 @@ doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN";
 /// and tokens.
 ///
 /// @author const
-grammar net.sf.etl.grammars.Grammar "0.3.0" {
+grammar ETL.Grammar "0.3.0" {
 	namespace default g = "http://etl.sf.net/etl/grammar";
 
 	/// This abstract context contains definition used across this grammar.
@@ -572,7 +572,7 @@ grammar net.sf.etl.grammars.Grammar "0.3.0" {
 				@ Associativity = ref(OpAssociativity);
 				% , {
 					@ Precedence = ref(IntegerValue);
-				    % , {
+					% , {
 						@ Text += list | {token};
 					} % ) {
 						@ Syntax += block(SimpleOpSyntax);
@@ -679,16 +679,10 @@ grammar net.sf.etl.grammars.Grammar "0.3.0" {
 
 		/// This definition provides way of referencing other grammars.
 		def GrammarRef {
+			@ QualifiedName += list . {identifier;};
 			{
-				@ SystemId = ref(String);
-				% public {
-					@ PublicId = ref(String);
-				}?;
-			} | {
-				% public {
-					@ PublicId = ref(String);
-				};
-			};
+				@ Version = ref(String);
+			}?;
 		};
 
 		/// This is blank statement. It is used to attach attributes
@@ -777,8 +771,8 @@ grammar net.sf.etl.grammars.Grammar "0.3.0" {
 		/// grammars.
 		///
 		/// The grammar can have a script modifier, it means that the default
-        /// source type for this grammar is "script", by default the source mode
-        /// is "strict".
+		/// source type for this grammar is "script", by default the source mode
+		/// is "strict".
 		statement Grammar {
 			% grammar;
 			modifiers wrapper g:Modifier.Value {
@@ -787,7 +781,7 @@ grammar net.sf.etl.grammars.Grammar "0.3.0" {
 			};
 			@ Name += list . {ref(Name);};
 			{
-			    @ Version = ref(String);
+				@ Version = ref(String);
 			}?;
 			@ Content += block(GrammarContent);
 		};

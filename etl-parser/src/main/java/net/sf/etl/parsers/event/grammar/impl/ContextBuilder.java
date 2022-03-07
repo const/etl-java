@@ -284,7 +284,7 @@ public final class ContextBuilder { // NOPMD
             final SyntaxDefinition definition = contextView.documentation().definition();
             b.startChoice(definition);
             b.startDocComment(definition, contextView.documentation().definitionInfo());
-            compileSyntax(new HashSet<DefinitionView>(), b, contextView.documentation().statements());
+            compileSyntax(new HashSet<>(), b, contextView.documentation().statements());
             b.endDocComment();
             b.startSequence(definition);
             b.endSequence();
@@ -302,7 +302,7 @@ public final class ContextBuilder { // NOPMD
             final SyntaxDefinition definition = contextView.attributes().definition();
             b.startRepeat(definition);
             b.startAttributes(definition, contextView().attributes().definitionInfo());
-            compileSyntax(new HashSet<DefinitionView>(), b, contextView.attributes().statements());
+            compileSyntax(new HashSet<>(), b, contextView.attributes().statements());
             b.endAttributes();
             b.endRepeat();
             b.endDefinition();
@@ -914,11 +914,9 @@ public final class ContextBuilder { // NOPMD
      */
     public void compileSyntax(final Set<DefinitionView> visited, final ActionBuilder b, final List<?> list) {
         for (final Object o : list) {
-            if (o instanceof Syntax) {
-                final Syntax s = (Syntax) o;
+            if (o instanceof Syntax s) {
                 compileSyntax(visited, b, s);
-            } else if (o instanceof SyntaxStatement) {
-                final SyntaxStatement s = (SyntaxStatement) o;
+            } else if (o instanceof SyntaxStatement s) {
                 compileSyntaxStatement(visited, b, s);
             }
         }

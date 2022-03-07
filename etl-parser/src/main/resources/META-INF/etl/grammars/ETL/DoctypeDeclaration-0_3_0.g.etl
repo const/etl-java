@@ -1,6 +1,6 @@
-doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN";
+doctype ETL.Grammar "0.3.0";
 // Reference ETL Parser for Java
-// Copyright (c) 2000-2013 Constantine A Plotnikov
+// Copyright (c) 2000-2022 Constantine A Plotnikov
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -32,7 +32,7 @@ doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN";
 /// universal mapping that is suitable for all.
 ///
 /// <author>const</author>
-grammar net.sf.etl.grammars.DoctypeDeclaration "0.3.0" {
+grammar ETL.DoctypeDeclaration "0.3.0" {
 	namespace dc = "http://etl.sf.net/etl/doctype";
 
 	/// This is the only context in the grammar
@@ -48,31 +48,23 @@ grammar net.sf.etl.grammars.DoctypeDeclaration "0.3.0" {
 		};
 
 		/// A doctype statement that declares grammar associated
-		/// with the file. The doctype statement is an obvious rip-off of XML doctype.
-		/// Inline grammar is not supported yet.
+		/// with the file.
 		///
 		/// System identifier or public identifier or both might be used.
 		/// <example>
-		/// 	doctype public "-//IDN etl.sf.net/ETL/Grammar 0.3.0" context = CompositeSyntax;
-		/// 	doctype "http://etl.sf.net/2005/etl/grammar.g.etl" public '-//IDN etl.sf.net/ETL/Grammar 0.3';
-		/// 	doctype "mygrammar.g.etl";
+		/// 	doctype ETL.Grammar "0.3.0" context = CompositeSyntax;
+		/// 	doctype ETL.Grammar "0.3.0";
 		/// </example>
 		statement DoctypeStatement {
 			^ dc:DoctypeDeclaration {
 				% doctype {
-				    {
-				        @ Type = token(script) | token(strict);
-				    }?;
 					{
-						@ SystemId = ref(String);
-						% public {
-							@ PublicId = ref(String);
-						}?;
-					} | {
-						% public {
-							@ PublicId = ref(String);
-						};
-					};
+						@ Type = token(script) | token(strict);
+					}?;
+					@ QualifiedName += list . {identifier};
+					{
+						@ Version = ref(String);
+					}?;
 					% context % = {
 						@ Context = identifier;
 					}?;

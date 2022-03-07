@@ -1,4 +1,4 @@
-doctype script public "-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN";
+doctype script ETL.Grammar "0.3.0";
 grammar test.Choice {
     namespace default c = "urn:test.Choice"
     context abstract Base {

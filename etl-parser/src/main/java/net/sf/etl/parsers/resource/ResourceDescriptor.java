@@ -163,13 +163,13 @@ public final class ResourceDescriptor implements Serializable {
      * @return the filtered out resource usage
      */
     private ResourceUsage filter(final String filteredSystemId, final ResourceUsage resourceUsage) {
-        final ResourceDescriptor descriptor = resourceUsage.getDescriptor();
+        final ResourceDescriptor descriptor = resourceUsage.descriptor();
         if (descriptor.getSystemId().equals(filteredSystemId)) {
             // the descriptor without additional usages
-            return new ResourceUsage(resourceUsage.getReference(),
+            return new ResourceUsage(
                     new ResourceDescriptor(descriptor.getSystemId(),
                             descriptor.getType(),
-                            descriptor.getVersion()), resourceUsage.getRole());
+                            descriptor.getVersion()), resourceUsage.role());
         }
         boolean changed = false;
         int i = 0;
@@ -197,11 +197,11 @@ public final class ResourceDescriptor implements Serializable {
                     newUsages.add(changedResource);
                 }
             }
-            return new ResourceUsage(resourceUsage.getReference(),
+            return new ResourceUsage(
                     new ResourceDescriptor(descriptor.getSystemId(),
                             descriptor.getType(),
                             descriptor.getVersion(),
-                            newUsages), resourceUsage.getRole());
+                            newUsages), resourceUsage.role());
         } else {
             return resourceUsage;
         }

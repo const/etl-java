@@ -1,4 +1,4 @@
-doctype "MinimalEJ.g.etl";
+doctype test.MinimalEJ "0.1.0";
 package test;
 /// Classical "Hello, World!" program.
 class public HelloWorld {

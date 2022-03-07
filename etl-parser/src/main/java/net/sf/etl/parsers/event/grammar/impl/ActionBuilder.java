@@ -725,6 +725,7 @@ public final class ActionBuilder { //NOPMD
      */
     public void buildActions() {
         returnNode = returnNode.flatten();
+        returnNode = returnNode.inferSoftBreaks();
         targetFactory = new ActionStateFactory(
                 returnNode.buildActions(this,
                         new ReturnAction(returnNode.getSource(), true),

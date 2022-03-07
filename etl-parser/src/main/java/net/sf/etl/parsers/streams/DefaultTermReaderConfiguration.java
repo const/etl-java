@@ -27,8 +27,6 @@ package net.sf.etl.parsers.streams;
 
 import net.sf.etl.parsers.DefaultTermParserConfiguration;
 import net.sf.etl.parsers.TermParserConfiguration;
-import net.sf.etl.xml_catalog.blocking.BlockingCatalog;
-import net.sf.etl.xml_catalog.blocking.provider.CatalogProviders;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -48,7 +46,7 @@ public final class DefaultTermReaderConfiguration implements TermReaderCatalogCo
     /**
      * The catalog.
      */
-    private final BlockingCatalog catalog;
+    private final GrammarLocator catalog;
     /**
      * The parser configuration.
      */
@@ -65,7 +63,7 @@ public final class DefaultTermReaderConfiguration implements TermReaderCatalogCo
      * @param catalog                 the catalog
      */
     public DefaultTermReaderConfiguration(final TermParserConfiguration termParserConfiguration,
-                                          final BlockingCatalog catalog) {
+                                          final GrammarLocator catalog) {
         this.catalog = catalog;
         this.termParserConfiguration = termParserConfiguration;
         this.grammarResolver = new DefaultGrammarResolver(this, Collections.<String>emptySet());
@@ -95,7 +93,7 @@ public final class DefaultTermReaderConfiguration implements TermReaderCatalogCo
     /**
      * @return the default catalog
      */
-    private static BlockingCatalog getDefaultCatalog() {
+    private static GrammarLocator getDefaultCatalog() {
         return getDefaultCatalog(DefaultTermReaderConfiguration.class.getClassLoader());
     }
 
@@ -105,15 +103,13 @@ public final class DefaultTermReaderConfiguration implements TermReaderCatalogCo
      * @param classLoader the class loader to use
      * @return the default catalog
      */
-    private static BlockingCatalog getDefaultCatalog(final ClassLoader classLoader) {
-        final BlockingCatalog defaultCatalog = BlockingCatalog.getDefaultCatalog(classLoader);
-        return defaultCatalog.withOtherProvider(
-                CatalogProviders.createCachedCatalog(defaultCatalog.getCatalogProvider()));
+    private static GrammarLocator getDefaultCatalog(final ClassLoader classLoader) {
+        return new GrammarClasspathLocator(classLoader);
     }
 
 
     @Override
-    public BlockingCatalog getCatalog(final String systemId) {
+    public GrammarLocator getCatalog(final String systemId) {
         return catalog;
     }
 

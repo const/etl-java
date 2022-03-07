@@ -25,6 +25,7 @@
 
 package net.sf.etl.parsers.event.grammar;
 
+import net.sf.etl.parsers.GrammarId;
 import net.sf.etl.parsers.ParserIOException;
 import net.sf.etl.parsers.StandardGrammars;
 import net.sf.etl.parsers.TextPos;
@@ -35,7 +36,6 @@ import net.sf.etl.parsers.event.impl.bootstrap.BootstrapETLParserLite;
 import net.sf.etl.parsers.event.unstable.model.grammar.Grammar;
 import net.sf.etl.parsers.resource.ResolvedObject;
 import net.sf.etl.parsers.resource.ResourceDescriptor;
-import net.sf.etl.parsers.resource.ResourceReference;
 import net.sf.etl.parsers.resource.ResourceRequest;
 import net.sf.etl.parsers.streams.DefaultTermReaderConfiguration;
 import net.sf.etl.parsers.streams.LexerReader;
@@ -88,7 +88,7 @@ public final class BootstrapGrammars {
     public static CompiledGrammar doctypeGrammar() {
         synchronized (GRAMMAR_LOCK) {
             if (doctypeGrammar == null) {
-                doctypeGrammar = getCompiledBootstrapGrammar(StandardGrammars.DOCTYPE_GRAMMAR_SYSTEM_ID);
+                doctypeGrammar = getCompiledBootstrapGrammar(StandardGrammars.DOCTYPE_GRAMMAR_ID);
             }
             return doctypeGrammar;
         }
@@ -103,7 +103,7 @@ public final class BootstrapGrammars {
     public static CompiledGrammar defaultGrammar() {
         synchronized (GRAMMAR_LOCK) {
             if (defaultGrammar == null) {
-                defaultGrammar = getCompiledBootstrapGrammar(StandardGrammars.DEFAULT_GRAMMAR_SYSTEM_ID);
+                defaultGrammar = getCompiledBootstrapGrammar(StandardGrammars.DEFAULT_GRAMMAR_ID);
             }
             return defaultGrammar;
         }
@@ -118,7 +118,7 @@ public final class BootstrapGrammars {
     public static CompiledGrammar grammarGrammar() {
         synchronized (GRAMMAR_LOCK) {
             if (grammarGrammar == null) {
-                grammarGrammar = getCompiledBootstrapGrammar(StandardGrammars.ETL_GRAMMAR_SYSTEM_ID);
+                grammarGrammar = getCompiledBootstrapGrammar(StandardGrammars.ETL_GRAMMAR_ID);
             }
             return grammarGrammar;
         }
@@ -127,13 +127,14 @@ public final class BootstrapGrammars {
     /**
      * Compile grammar using bootstrap parser.
      *
-     * @param grammarSystemId the grammar system id
+     * @param grammarId the grammar system id
      * @return the compiled grammar
      */
-    private static CompiledGrammar getCompiledBootstrapGrammar(final String grammarSystemId) {
+    private static CompiledGrammar getCompiledBootstrapGrammar(final GrammarId grammarId) {
         final GrammarCompilerEngine compiler = new GrammarAssemblyBuilder();
         final ResourceRequest resourceRequest = new ResourceRequest(
-                new ResourceReference(grammarSystemId, null),
+                grammarId,
+                "undefined",
                 StandardGrammars.GRAMMAR_REQUEST_TYPE);
         compiler.start(resourceRequest);
         while (true) {
@@ -144,10 +145,9 @@ public final class BootstrapGrammars {
                 case RESOURCE_NEEDED:
                     for (final ResourceRequest request : compiler.requests()) {
                         try {
-                            final String systemId = request.getReference().getSystemId();
-                            final URL url = new URL(systemId); // NOPMD
-                            final InputStream input = url.openStream();
-                            try {
+                            final URL url = StandardGrammars.getStandardGrammarUrl(grammarId); // NOPMD
+                            String systemId = url.toString();
+                            try (InputStream input = url.openStream()) {
                                 final BootstrapETLParserLite parser = new BootstrapETLParserLite(// NOPMD
                                         new PhraseParserReader(
                                                 new LexerReader(DefaultTermReaderConfiguration.INSTANCE,
@@ -158,8 +158,6 @@ public final class BootstrapGrammars {
                                 compiler.provide(new ResolvedObject<>(request, null, // NOPMD
                                         new ResourceDescriptor(systemId, StandardGrammars.GRAMMAR_NATURE, null),
                                         grammar), null);
-                            } finally {
-                                input.close();
                             }
                         } catch (Exception ex) { // NOPMD
                             throw new ParserIOException("Failed to load resource: " + request, ex);

@@ -30,53 +30,13 @@ import net.sf.etl.parsers.resource.ResolvedObject;
 
 /**
  * The information about loaded grammar.
+ *
+ * @param resolvedGrammar the grammar from the compiler
+ * @param usedGrammar   the actually used grammar
+ * @param usedContext   the used context from the grammar
  */
-public final class LoadedGrammarInfo {
-    /**
-     * The grammar that has been provided from user.
-     */
-    private final ResolvedObject<CompiledGrammar> loadedGrammar;
-    /**
-     * The actually used grammar (in case of problems with loaded grammar).
-     */
-    private final CompiledGrammar usedGrammar;
-    /**
-     * The context from used grammar that actually used.
-     */
-    private final DefinitionContext usedContext;
-
-    /**
-     * The constructor.
-     *
-     * @param loadedGrammar the grammar from the compiler
-     * @param usedGrammar   the actually used grammar
-     * @param usedContext   the used context from the grammar
-     */
-    public LoadedGrammarInfo(final ResolvedObject<CompiledGrammar> loadedGrammar, final CompiledGrammar usedGrammar,
-                             final DefinitionContext usedContext) {
-        this.loadedGrammar = loadedGrammar;
-        this.usedGrammar = usedGrammar;
-        this.usedContext = usedContext;
-    }
-
-    /**
-     * @return the resolved grammar
-     */
-    public ResolvedObject<CompiledGrammar> resolvedGrammar() {
-        return loadedGrammar;
-    }
-
-    /**
-     * @return get used grammar
-     */
-    public CompiledGrammar getUsedGrammar() {
-        return usedGrammar;
-    }
-
-    /**
-     * @return get used context
-     */
-    public DefinitionContext getUsedContext() {
-        return usedContext;
-    }
+public record LoadedGrammarInfo(
+        ResolvedObject<CompiledGrammar> resolvedGrammar,
+        CompiledGrammar usedGrammar,
+        DefinitionContext usedContext) {
 }

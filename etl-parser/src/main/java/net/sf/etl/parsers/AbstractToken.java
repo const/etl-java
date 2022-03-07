@@ -24,12 +24,14 @@
  */
 package net.sf.etl.parsers;
 
+import java.io.Serializable;
+
 /**
  * Base class for tokens used by parsers.
  *
  * @author const
  */
-public abstract class AbstractToken { // NOPMD
+public abstract class AbstractToken implements Serializable { // NOPMD
     /**
      * a end position of token.
      */

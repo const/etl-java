@@ -37,7 +37,7 @@ import javax.xml.stream.XMLStreamException;
 /**
  * Tree variant of the output. The tree variant is intended to be easily
  * processable using XSLT tools. So it uses as simply structured output as
- * possible. And it does not tries to optimize output.
+ * possible. And it does not try to optimize output.
  *
  * @author const
  */

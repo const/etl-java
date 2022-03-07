@@ -24,7 +24,8 @@
  */
 package net.sf.etl.parsers.term;
 
-import org.junit.Test;
+import net.sf.etl.parsers.GrammarId;
+import org.junit.jupiter.api.Test;
 
 /**
  * test HelloWorld.ej.etl structure reading
@@ -39,7 +40,7 @@ public class HelloWorldTermTest extends TermStructureTestCase {
     /**
      * system id of minimal XJ grammar
      */
-    private static final String MINIMAL_EJ_SYSTEM_ID = HelloWorldTermTest.class.getResource("hello/MinimalEJ.g.etl").toString();
+    private static final GrammarId MINIMAL_EJ_ID = new GrammarId("test.MinimalEJ", "0.1.0");
 
     /**
      * check for identifier
@@ -94,7 +95,7 @@ public class HelloWorldTermTest extends TermStructureTestCase {
     @Test
     public void testHelloWorld() {
         startWithResource("hello/HelloWorld.ej.etl");
-        walkThrougHelloWorld("\"MinimalEJ.g.etl\"");
+        walkThrougHelloWorld(MINIMAL_EJ_ID);
     }
 
     /**
@@ -103,18 +104,18 @@ public class HelloWorldTermTest extends TermStructureTestCase {
     @Test
     public void testHelloWorldReader() {
         startWithResourceAsReader("hello/HelloWorld.ej.etl");
-        walkThrougHelloWorld("\"MinimalEJ.g.etl\"");
+        walkThrougHelloWorld(MINIMAL_EJ_ID);
     }
 
     /**
      * read hello world
      *
-     * @param grammarRef reference to grammar.
+     * @param grammarId reference to grammar.
      */
-    private void walkThrougHelloWorld(final String grammarRef) {
+    private void walkThrougHelloWorld(final GrammarId grammarId) {
         boolean errorExit = true;
         try {
-            readDocType(grammarRef, null);
+            readDocType(grammarId, null);
             readPackageStatement();
             readTopLevelClassStatement();
             errorExit = false;
@@ -298,7 +299,7 @@ public class HelloWorldTermTest extends TermStructureTestCase {
     @Test
     public void testDefaultGrammarDefaultContext() {
         final String text = "package test;";
-        startWithStringAndDefaultGrammar(text, MINIMAL_EJ_SYSTEM_ID, null, null);
+        startWithStringAndDefaultGrammar(text, MINIMAL_EJ_ID, null);
         boolean errorExit = true;
         try {
             readPackageStatement();
@@ -314,7 +315,7 @@ public class HelloWorldTermTest extends TermStructureTestCase {
     @Test
     public void testDefaultGrammarNewContext() {
         final String text = "test;";
-        startWithStringAndDefaultGrammar(text, MINIMAL_EJ_SYSTEM_ID, null, "Code");
+        startWithStringAndDefaultGrammar(text, MINIMAL_EJ_ID, "Code");
         boolean errorExit = true;
         try {
             this.objectStart(NS, "ExpressionStatement");

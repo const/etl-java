@@ -31,7 +31,7 @@ import net.sf.etl.parsers.streams.DefaultTermReaderConfiguration;
 import net.sf.etl.parsers.streams.LexerReader;
 import net.sf.etl.parsers.streams.PhraseParserReader;
 import net.sf.etl.parsers.streams.TermParserReader;
-import net.sf.etl.parsers.streams.TermReaderCatalogConfiguration;
+import net.sf.etl.parsers.streams.TermReaderConfiguration;
 import net.sf.etl.xml_catalog.blocking.BlockingCatalog;
 import net.sf.etl.xml_catalog.blocking.provider.CatalogProviders;
 import net.sf.etl.xml_catalog.blocking.provider.CatalogRuntimeProvider;
@@ -51,8 +51,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -75,15 +73,19 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
      * Map from source to destinations. Null key means stdin. Null value means
      * stdout.
      */
-    private final NavigableMap<String, String> sourceFiles = new TreeMap<String, String>();
+    private final NavigableMap<String, String> sourceFiles = new TreeMap<>();
     /**
      * The parser configuration.
      */
-    private TermReaderCatalogConfiguration configuration = DefaultTermReaderConfiguration.INSTANCE;
+    private TermReaderConfiguration configuration = DefaultTermReaderConfiguration.INSTANCE;
     /**
      * The parsed config.
      */
     private Config config;
+    /**
+     * The catalog used for stylesheets.
+     */
+    private BlockingCatalog catalog;
 
     /**
      * Parse configuration.
@@ -135,10 +137,10 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
         final CatalogRuntimeProvider provider = CatalogProviders.createDefaultCatalogProvider(
                 CatalogProviders.DEFAULT_ROOT_REQUEST, classloader,
                 true, config.isUserCatalogEnabled(), config.isSystemCatalogEnabled(), config.getCatalogPaths());
-        final BlockingCatalog catalog = new BlockingCatalog(CatalogProviders.DEFAULT_ROOT_REQUEST,
+        catalog = new BlockingCatalog(CatalogProviders.DEFAULT_ROOT_REQUEST,
                 CatalogProviders.createCachedCatalog(provider));
         configuration = new DefaultTermReaderConfiguration(new DefaultTermParserConfiguration(
-                config.getTabSize(), config.getCharset()), catalog);
+                config.getTabSize(), config.getCharset()), classloader);
         Thread.currentThread().setContextClassLoader(classloader);
     }
 
@@ -271,8 +273,15 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
     /**
      * @return the parser configuration.
      */
-    public final TermReaderCatalogConfiguration getConfiguration() {
+    public final TermReaderConfiguration getConfiguration() {
         return configuration;
+    }
+
+    /**
+     * @return the catalog
+     */
+    public final BlockingCatalog getCatalog() {
+        return catalog;
     }
 
     /**
@@ -280,7 +289,7 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
      *
      * @param configuration configuration
      */
-    protected final void setConfiguration(final TermReaderCatalogConfiguration configuration) {
+    protected final void setConfiguration(final TermReaderConfiguration configuration) {
         this.configuration = configuration;
     }
 
@@ -466,13 +475,8 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
                     }
                 }
                 if (!urls.isEmpty()) {
-                    classLoader = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-                        @Override
-                        public ClassLoader run() {
-                            return new URLClassLoader(
-                                    urls.toArray(new URL[urls.size()]), BaseConfig.class.getClassLoader());
-                        }
-                    });
+                    classLoader = new URLClassLoader(
+                                    urls.toArray(new URL[0]), BaseConfig.class.getClassLoader());
                 } else {
                     classLoader = BaseConfig.class.getClassLoader();
                 }

@@ -25,6 +25,7 @@
 
 package net.sf.etl.parsers.streams;
 
+import net.sf.etl.parsers.GrammarId;
 import net.sf.etl.parsers.PhraseToken;
 import net.sf.etl.parsers.TermToken;
 import net.sf.etl.parsers.TextPos;
@@ -213,13 +214,12 @@ public final class TermParserReader extends AbstractReaderImpl<TermToken> {
     /**
      * Set default grammar.
      *
-     * @param grammarPublicId the public id of the grammar
-     * @param grammarSystemId the system id of th grammar
+     * @param grammarId       the grammar id of the grammar
      * @param defaultContext  the default context
      * @param scriptMode      the script mode
      */
-    public void setDefaultGrammar(final String grammarPublicId, final String grammarSystemId,
+    public void setDefaultGrammar(final GrammarId grammarId,
                                   final String defaultContext, final boolean scriptMode) {
-        this.termParser.setDefaultGrammar(grammarPublicId, grammarSystemId, defaultContext, scriptMode);
+        this.termParser.setDefaultGrammar(grammarId, defaultContext, scriptMode);
     }
 }

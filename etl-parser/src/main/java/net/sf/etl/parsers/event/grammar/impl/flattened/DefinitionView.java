@@ -56,7 +56,7 @@ public abstract class DefinitionView extends ContextMemberView {
      */
     private final DefinitionView originalDefinition;
     /**
-     * The The definition info.
+     * The definition info.
      */
     private final DefinitionInfo definitionInfo;
 

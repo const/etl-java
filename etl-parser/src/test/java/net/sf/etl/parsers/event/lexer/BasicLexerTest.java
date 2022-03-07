@@ -31,11 +31,11 @@ import net.sf.etl.parsers.Tokens;
 import net.sf.etl.parsers.event.Lexer;
 import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.impl.LexerImpl;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.CharBuffer;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * The lexer test

@@ -29,11 +29,11 @@ import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.Token;
 import net.sf.etl.parsers.Tokens;
 import net.sf.etl.parsers.characters.Whitespaces;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Test for spaces and comments

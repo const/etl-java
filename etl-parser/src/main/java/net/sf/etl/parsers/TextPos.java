@@ -38,9 +38,12 @@ import java.io.Serializable;
  * Editors like Eclipse TextEditor need offset.
  * </p>
  *
+ * @param line   the line (starts with 1)
+ * @param column the column (starts with 1)
+ * @param offset the offset in 16-bit chars (starts with 0)
  * @author const
  */
-public final class TextPos implements Serializable {
+public record TextPos(int line, int column, long offset) implements Serializable {
     /**
      * start offset.
      */
@@ -63,52 +66,6 @@ public final class TextPos implements Serializable {
      * generated serial version id.
      */
     private static final long serialVersionUID = 7303432848120694096L;
-    /**
-     * line.
-     */
-    private final int line;
-    /**
-     * column.
-     */
-    private final int column;
-    /**
-     * offset in characters.
-     */
-    private final long offset;
-
-    /**
-     * A constructor.
-     *
-     * @param line   a line
-     * @param column a column
-     * @param offset an offset in the file
-     */
-    public TextPos(final int line, final int column, final long offset) {
-        this.column = column;
-        this.line = line;
-        this.offset = offset;
-    }
-
-    /**
-     * @return column in symbols
-     */
-    public int column() {
-        return column;
-    }
-
-    /**
-     * @return line
-     */
-    public int line() {
-        return line;
-    }
-
-    /**
-     * @return offset in 16-bit characters
-     */
-    public long offset() {
-        return offset;
-    }
 
     /**
      * @return string representation of position
@@ -116,28 +73,5 @@ public final class TextPos implements Serializable {
     @Override
     public String toString() {
         return "(" + line + "," + column + "," + offset + ")";
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        final TextPos textPos = (TextPos) o;
-        return column == textPos.column && line == textPos.line && offset == textPos.offset;
-    }
-
-    @Override
-    public int hashCode() {
-        // CHECKSTYLE:OFF
-        int result = line;
-        result = 31 * result + column;
-        result = 31 * result + (int) (offset ^ (offset >>> 32));
-        return result;
-        // CHECKSTYLE:ON
     }
 }

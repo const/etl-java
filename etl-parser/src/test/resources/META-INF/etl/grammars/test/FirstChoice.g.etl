@@ -1,6 +1,6 @@
-doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN";
+doctype ETL.Grammar "0.3.0";
 /// This is the grammar that is used to test first choice grammar
-grammar net.sf.etl.tests.data.first_choice.FirstChoiceGrammar {
+grammar test.FirstChoiceGrammar {
 	namespace default f = "http://etl.sf.net/2006/samples/firstChoice/0.1";
 	context default TopLevel {
 	    /// documentation

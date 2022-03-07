@@ -26,7 +26,7 @@
 package net.sf.etl.parsers.event.lexer;
 
 import net.sf.etl.parsers.Tokens;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * The test for graphics tokens

@@ -26,79 +26,16 @@
 package net.sf.etl.parsers.resource;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 /**
  * Resource usage.
+ *
+ * @param descriptor the description
+ * @param role the role
  */
-public final class ResourceUsage implements Serializable {
+public record ResourceUsage(ResourceDescriptor descriptor, String role) implements Serializable {
     /**
      * UID.
      */
     private static final long serialVersionUID = 2414028213409213686L;
-    /**
-     * The reference for this usage.
-     */
-    private final ResourceReference reference;
-    /**
-     * The used resource.
-     */
-    private final ResourceDescriptor descriptor;
-    /**
-     * The resource role.
-     */
-    private final String role;
-
-    /**
-     * The constructor.
-     *
-     * @param reference  the reference
-     * @param descriptor the descriptor
-     * @param role       the role
-     */
-    public ResourceUsage(final ResourceReference reference, final ResourceDescriptor descriptor, final String role) {
-        this.reference = reference;
-        this.descriptor = descriptor;
-        this.role = role;
-    }
-
-    /**
-     * @return the original reference
-     */
-    public ResourceReference getReference() {
-        return reference;
-    }
-
-    /**
-     * @return the descriptor
-     */
-    public ResourceDescriptor getDescriptor() {
-        return descriptor;
-    }
-
-    /**
-     * @return the role
-     */
-    public String getRole() {
-        return role;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        final ResourceUsage that = (ResourceUsage) o;
-        return Objects.equals(reference, that.reference)
-                && Objects.equals(descriptor, that.descriptor)
-                && Objects.equals(role, that.role);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(reference, descriptor, role);
-    }
 }

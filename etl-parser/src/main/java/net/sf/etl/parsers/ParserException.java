@@ -24,6 +24,8 @@
  */
 package net.sf.etl.parsers;
 
+import java.io.Serial;
+
 /**
  * Base class for all parser exceptions.
  *
@@ -33,6 +35,7 @@ public class ParserException extends RuntimeException {
     /**
      * serial version id to make compiler happy.
      */
+    @Serial
     private static final long serialVersionUID = 3834306233053427507L;
 
     /**

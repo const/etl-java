@@ -86,8 +86,8 @@ public final class PresentationOutput extends XMLOutput {
                 switch (kind) {
                     case GRAMMAR_IS_LOADED:
                         startElement(PNS, "grammarIsLoaded");
-                        attribute("grammarURI", tk.loadedGrammar().getUsedGrammar().getDescriptor().getSystemId());
-                        attribute("initialContext", tk.loadedGrammar().getUsedContext().context());
+                        attribute("grammarURI", tk.loadedGrammar().usedGrammar().getDescriptor().getSystemId());
+                        attribute("initialContext", tk.loadedGrammar().usedContext().context());
                         endElement();
                         break;
                     case OBJECT_START:

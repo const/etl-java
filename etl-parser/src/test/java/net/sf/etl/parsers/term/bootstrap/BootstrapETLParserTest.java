@@ -24,19 +24,22 @@
  */
 package net.sf.etl.parsers.term.bootstrap;
 
+import net.sf.etl.parsers.GrammarId;
 import net.sf.etl.parsers.ParserException;
+import net.sf.etl.parsers.StandardGrammars;
 import net.sf.etl.parsers.TextPos;
-import net.sf.etl.parsers.characters.TextUtil;
 import net.sf.etl.parsers.event.impl.bootstrap.BootstrapETLParserLite;
 import net.sf.etl.parsers.event.unstable.model.grammar.Grammar;
 import net.sf.etl.parsers.streams.DefaultTermReaderConfiguration;
 import net.sf.etl.parsers.streams.LexerReader;
 import net.sf.etl.parsers.streams.PhraseParserReader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * This is test for bootstrap GTL parser. The test uses two grammars doctype and
@@ -49,16 +52,16 @@ public class BootstrapETLParserTest {
     /**
      * parse ResourceI
      *
-     * @param resourceName name of ResourceI
+     * @param grammarId name of grammar
      * @return parsed grammar
      */
-    private Grammar parseResource(final String resourceName) {
+    private Grammar parseResource(final GrammarId grammarId) {
         try {
+            URL resource = StandardGrammars.getGrammarResource(BootstrapETLParserTest.class.getClassLoader(), grammarId);
             final PhraseParserReader phraseParser = new PhraseParserReader(new LexerReader(
                     DefaultTermReaderConfiguration.INSTANCE,
-                    new InputStreamReader(
-                            BootstrapETLParserTest.class.getResourceAsStream(resourceName), TextUtil.UTF8),
-                    BootstrapETLParserTest.class.getResource(resourceName).toString(),
+                    new InputStreamReader(resource.openStream(), StandardCharsets.UTF_8),
+                    resource.toString(),
                     TextPos.START
             ));
             try {
@@ -78,7 +81,7 @@ public class BootstrapETLParserTest {
      */
     @Test
     public void testDoctype() {
-        final Grammar g = parseResource("/net/sf/etl/grammars/doctype-0_3_0.g.etl");
+        final Grammar g = parseResource(StandardGrammars.DOCTYPE_GRAMMAR_ID);
         assertNotNull(g);
     }
 
@@ -88,7 +91,7 @@ public class BootstrapETLParserTest {
      */
     @Test
     public void testDefault() {
-        final Grammar g = parseResource("/net/sf/etl/grammars/default-0_3_0.g.etl");
+        final Grammar g = parseResource(StandardGrammars.DEFAULT_GRAMMAR_ID);
         assertNotNull(g);
     }
 
@@ -97,7 +100,7 @@ public class BootstrapETLParserTest {
      */
     @Test
     public void testGrammar() {
-        final Grammar g = parseResource("/net/sf/etl/grammars/grammar-0_3_0.g.etl");
+        final Grammar g = parseResource(StandardGrammars.ETL_GRAMMAR_ID);
         assertNotNull(g);
     }
 

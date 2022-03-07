@@ -109,9 +109,14 @@ public abstract class AbstractReaderImpl<T> implements AbstractReader<T> {
     }
 
     @Override
+    public T currentOrNull() {
+        return current;
+    }
+
+    @Override
     public final void close() {
         try {
-            if (closed) {
+            if (!closed) {
                 closed = true;
                 doClose();
             }

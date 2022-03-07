@@ -23,8 +23,6 @@
   ~ SOFTWARE.
   -->
 
-<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="public" xml:base="../../net/sf/etl/util/xslt/">
-    <public publicId="-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN" uri="grammar-0_3_0.g.etl"/>
-
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="public" xml:base="../../net/sf/etl/utils/xslt/">
     <rewriteSystem systemIdStartString="urn:x-etl:transform:" rewritePrefix=""/>
 </catalog>

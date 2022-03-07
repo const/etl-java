@@ -26,11 +26,10 @@
 package net.sf.etl.parsers.event.grammar.impl.flattened;
 
 import net.sf.etl.parsers.ErrorInfo;
-import net.sf.etl.parsers.StandardGrammars;
+import net.sf.etl.parsers.GrammarId;
 import net.sf.etl.parsers.event.unstable.model.grammar.Element;
 import net.sf.etl.parsers.event.unstable.model.grammar.Grammar;
 import net.sf.etl.parsers.resource.ResolvedObject;
-import net.sf.etl.parsers.resource.ResourceReference;
 import net.sf.etl.parsers.resource.ResourceRequest;
 import net.sf.etl.parsers.resource.ResourceUsage;
 
@@ -51,36 +50,36 @@ public final class GrammarAssembly {
     /**
      * The grammar inclusion DAG.
      */
-    private final DirectedAcyclicGraph<GrammarView> grammarIncludeDAG = new DirectedAcyclicGraph<GrammarView>();
+    private final DirectedAcyclicGraph<GrammarView> grammarIncludeDAG = new DirectedAcyclicGraph<>();
     /**
      * The context inclusions along with grammars.
      */
-    private final DirectedAcyclicGraph<ContextView> contextGrammarIncludeDAG = new DirectedAcyclicGraph<ContextView>();
+    private final DirectedAcyclicGraph<ContextView> contextGrammarIncludeDAG = new DirectedAcyclicGraph<>();
     /**
      * The collection of errors.
      */
-    private final List<ErrorInfo> errors = new ArrayList<ErrorInfo>();
+    private final List<ErrorInfo> errors = new ArrayList<>();
     /**
      * All resource requests.
      */
-    private final Set<ResourceReference> allResourceReferences = new HashSet<ResourceReference>();
+    private final Set<GrammarId> allResourceReferences = new HashSet<>();
     /**
      * All unresolved resource requests.
      */
-    private final Set<ResourceRequest> unresolvedResourceRequests = new HashSet<ResourceRequest>();
+    private final Set<ResourceRequest> unresolvedResourceRequests = new HashSet<>();
     /**
      * All loaded grammar views.
      */
-    private final Map<String, GrammarView> grammarViews = new HashMap<String, GrammarView>(); // NOPMD
+    private final Map<GrammarId, GrammarView> grammarViews = new HashMap<>(); // NOPMD
     /**
      * The resolutions.
      */
-    private final Map<ResourceReference, ResolvedObject<Grammar>> resolutions = // NOPMD
-            new HashMap<ResourceReference, ResolvedObject<Grammar>>();
+    private final Map<GrammarId, ResolvedObject<Grammar>> resolutions = // NOPMD
+            new HashMap<>();
     /**
      * The failed grammars.
      */
-    private final Map<ResourceRequest, FailedGrammar> failed = new HashMap<ResourceRequest, FailedGrammar>(); // NOPMD
+    private final Map<ResourceRequest, FailedGrammar> failed = new HashMap<>(); // NOPMD
     /**
      * The initial reference.
      */
@@ -97,11 +96,11 @@ public final class GrammarAssembly {
     /**
      * Get resolved grammar.
      *
-     * @param systemId the system id
+     * @param grammarId the system id
      * @return the grammar
      */
-    public ResolvedObject<Grammar> resolvedGrammar(final String systemId) {
-        final GrammarView grammarView = grammarViews.get(systemId);
+    public ResolvedObject<Grammar> resolvedGrammar(final GrammarId grammarId) {
+        final GrammarView grammarView = grammarViews.get(grammarId);
         return grammarView == null ? null : grammarView.getFirstResolved();
     }
 
@@ -112,20 +111,21 @@ public final class GrammarAssembly {
      * @param grammarErrors the errors collected while loading the grammar
      */
     public void provide(final ResolvedObject<Grammar> grammar, final ErrorInfo grammarErrors) {
-        final String systemId = grammar.getDescriptor().getSystemId();
+        var systemId = grammar.getRequest().grammarId();
         GrammarView grammarView = grammarViews.get(systemId);
         if (grammarView == null) {
             grammarView = new GrammarView(this, grammar);
             grammarViews.put(systemId, grammarView);
-            final Set<ResourceReference> references = grammarView.referencedGrammars();
+            var references = grammarView.referencedGrammars();
             references.removeAll(allResourceReferences);
             allResourceReferences.addAll(references);
-            for (final ResourceReference reference : references) {
-                unresolvedResourceRequests.add(new ResourceRequest(reference, // NOPMD
-                        StandardGrammars.USED_GRAMMAR_REQUEST_TYPE));
+            for (var reference : references) {
+                unresolvedResourceRequests.add(new ResourceRequest(reference,
+                        grammar.getDescriptor().getSystemId(),
+                        grammar.getRequest().contextUrl()));
             }
         }
-        resolutions.put(grammar.getRequest().getReference(), grammar);
+        resolutions.put(grammar.getRequest().grammarId(), grammar);
         unresolvedResourceRequests.remove(grammar.getRequest());
         error(grammarErrors);
     }
@@ -160,13 +160,13 @@ public final class GrammarAssembly {
      * @param reference the resource reference
      * @return the grammar view to use
      */
-    public ResolvedObject<GrammarView> resolveGrammar(final ResourceReference reference) {
+    public ResolvedObject<GrammarView> resolveGrammar(final GrammarId reference) {
         final ResolvedObject<Grammar> grammarResolvedObject = resolutions.get(reference);
         if (grammarResolvedObject == null) {
             return null;
         }
-        final GrammarView view = grammarViews.get(grammarResolvedObject.getDescriptor().getSystemId());
-        return new ResolvedObject<GrammarView>(grammarResolvedObject.getRequest(),
+        final GrammarView view = grammarViews.get(grammarResolvedObject.getRequest().grammarId());
+        return new ResolvedObject<>(grammarResolvedObject.getRequest(),
                 grammarResolvedObject.getResolutionHistory(),
                 grammarResolvedObject.getDescriptor(), view);
     }
@@ -209,7 +209,7 @@ public final class GrammarAssembly {
     public void start(final ResourceRequest reference) {
         initialRequest = reference;
         unresolvedResourceRequests.add(reference);
-        allResourceReferences.add(reference.getReference());
+        allResourceReferences.add(reference.grammarId());
     }
 
     /**
@@ -222,7 +222,7 @@ public final class GrammarAssembly {
     public void fail(final ResourceRequest request, final Collection<ResourceUsage> resources,
                      final ErrorInfo grammarErrors) {
         unresolvedResourceRequests.remove(request);
-        failed.put(request, new FailedGrammar(request, grammarErrors, new ArrayList<ResourceUsage>(resources)));
+        failed.put(request, new FailedGrammar(request, grammarErrors, new ArrayList<>(resources)));
         error(grammarErrors);
     }
 
@@ -241,7 +241,7 @@ public final class GrammarAssembly {
      * Flatten the grammars.
      */
     public void flatten() { // NOPMD
-        final ResolvedObject<Grammar> rootGrammar = resolutions.get(initialRequest.getReference());
+        final ResolvedObject<Grammar> rootGrammar = resolutions.get(initialRequest.grammarId());
         if (rootGrammar != null && rootGrammar.getObject() != null
                 && rootGrammar.getObject().getAbstractModifier() != null) {
             error(rootGrammar.getObject(), "grammar.AbstractRootGrammar",
@@ -310,59 +310,12 @@ public final class GrammarAssembly {
 
     /**
      * The failed grammar.
+     *
+     * @param request       the request
+     * @param errors        the error information
+     * @param usedResources the used resources
      */
-    public static final class FailedGrammar {
-        /**
-         * The request.
-         */
-        private final ResourceRequest request;
-        /**
-         * the error information.
-         */
-        private final ErrorInfo errors;
-        /**
-         * The resources consulted to receive the failure.
-         */
-        private final List<ResourceUsage> usedResources;
-
-        /**
-         * The constructor.
-         *
-         * @param request       the request
-         * @param errors        the error information
-         * @param usedResources the used resources
-         */
-        public FailedGrammar(final ResourceRequest request, final ErrorInfo errors,
-                             final List<ResourceUsage> usedResources) {
-            this.request = request;
-            this.errors = errors;
-            this.usedResources = usedResources;
-        }
-
-        @Override
-        public String toString() {
-            return "FailedGrammar{request=" + request + ", errors=" + errors + ", usedResources=" + usedResources + '}';
-        }
-
-        /**
-         * @return the request
-         */
-        public ResourceRequest getRequest() {
-            return request;
-        }
-
-        /**
-         * @return the errors
-         */
-        public ErrorInfo getErrors() {
-            return errors;
-        }
-
-        /**
-         * @return the used resources
-         */
-        public List<ResourceUsage> getUsedResources() {
-            return usedResources;
-        }
+    public record FailedGrammar(ResourceRequest request, ErrorInfo errors,
+                                List<ResourceUsage> usedResources) {
     }
 }

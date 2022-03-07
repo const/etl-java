@@ -38,8 +38,8 @@ import net.sf.etl.xml_catalog.event.entries.tr9401.EntityEntry;
 import net.sf.etl.xml_catalog.event.entries.tr9401.LinkTypeEntry;
 import net.sf.etl.xml_catalog.event.entries.tr9401.NotationEntry;
 import net.sf.etl.xml_catalog.event.entries.tr9401.SGMLDeclEntry;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 import javax.xml.XMLConstants;
@@ -50,8 +50,8 @@ import javax.xml.validation.SchemaFactory;
 import java.net.URI;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Test entity resolution process. Note it checks only operations that are in scope of single catalog file.
@@ -71,7 +71,7 @@ public class ResolutionStepTest {
      *
      * @throws Exception if parsing failed
      */
-    @BeforeClass
+    @BeforeAll
     public static void startUp() throws Exception {
         catalog = ResolutionStepTest.class.getResource("test_data/entities-catalog.xml").toURI();
         document = parseCatalog(catalog);

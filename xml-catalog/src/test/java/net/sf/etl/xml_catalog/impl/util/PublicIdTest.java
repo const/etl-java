@@ -26,9 +26,9 @@
 package net.sf.etl.xml_catalog.impl.util;
 
 import net.sf.etl.xml_catalog.util.PublicId;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * The test for public id utility class.

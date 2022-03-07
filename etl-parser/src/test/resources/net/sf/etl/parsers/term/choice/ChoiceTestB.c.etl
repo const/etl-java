@@ -1,4 +1,4 @@
-doctype script "Choice.g.etl";
+doctype script test.Choice;
 a
 b
 c

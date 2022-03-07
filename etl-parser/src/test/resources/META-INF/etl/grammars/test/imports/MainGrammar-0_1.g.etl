@@ -1,10 +1,10 @@
-doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN";
+doctype ETL.Grammar "0.3.0";
 /// This is an main grammar that imports expression grammar
 /// In its turn it imported from expression grammar. The cycle
 /// is here to make life interesting.
-grammar net.sf.etl.tests.data.imports.MainGrammar {
+grammar test.imports.MainGrammar "0.1" {
 	namespace default m = "http://etl.sf.net/2006/samples/imports/Main/0.1";
-	import expr = "ExpressionGrammar.g.etl";
+	import expr = test.imports.ExpressionGrammar "0.1";
 
 	context default Statements {
 		import expressions = Expressions from expr;

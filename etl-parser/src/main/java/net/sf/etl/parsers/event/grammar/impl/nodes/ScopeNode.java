@@ -73,4 +73,10 @@ public abstract class ScopeNode extends Node {
         innerNode = innerNode.flatten();
         return this;
     }
+
+    @Override
+    public Node inferSoftBreaks() {
+        innerNode = innerNode.inferSoftBreaks();
+        return super.inferSoftBreaks();
+    }
 }

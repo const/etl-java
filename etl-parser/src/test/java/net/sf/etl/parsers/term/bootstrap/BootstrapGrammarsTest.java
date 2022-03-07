@@ -34,13 +34,13 @@ import net.sf.etl.parsers.event.term.BasicTermTestCase;
 import net.sf.etl.parsers.event.unstable.model.grammar.Element;
 import net.sf.etl.parsers.event.unstable.model.grammar.Grammar;
 import net.sf.etl.parsers.event.unstable.model.grammar.GrammarLiteTermParser;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * The test for bootstrap grammars
@@ -52,10 +52,10 @@ public class BootstrapGrammarsTest extends BasicTermTestCase {
         final CompiledGrammar compiledGrammar = BootstrapGrammars.doctypeGrammar();
         final DefinitionContext defaultContext = compiledGrammar.getDefaultContext();
         assertEquals(StandardGrammars.VERSION, defaultContext.grammar().version());
-        assertEquals(StandardGrammars.DOCTYPE_GRAMMAR_NAME, defaultContext.grammar().name());
+        assertEquals(StandardGrammars.DOCTYPE_GRAMMAR_ID.name(), defaultContext.grammar().name());
         assertEquals("DoctypeContext", defaultContext.context());
         assertNull(compiledGrammar.getErrors());
-        startCompiledGrammar(compiledGrammar, "doctype strict public \"-//IDN etl.sf.net//ETL//Grammar 0.3.0\";");
+        startCompiledGrammar(compiledGrammar, "doctype strict ETL.Grammar \"0.3.0\" context = Grammar;");
         read(Terms.STATEMENT_START);
         read(Terms.OBJECT_START);
         read(Terms.STRUCTURAL, "doctype");
@@ -64,10 +64,22 @@ public class BootstrapGrammarsTest extends BasicTermTestCase {
         read(Terms.VALUE, "strict");
         read(Terms.IGNORABLE);
         read(Terms.PROPERTY_END);
-        read(Terms.STRUCTURAL, "public");
+        read(Terms.LIST_PROPERTY_START);
+        read(Terms.VALUE, "ETL");
+        read(Terms.STRUCTURAL, ".");
+        read(Terms.VALUE, "Grammar");
+        read(Terms.IGNORABLE);
+        read(Terms.LIST_PROPERTY_END);
+        read(Terms.PROPERTY_START);
+        read(Terms.VALUE, "\"0.3.0\"");
+        read(Terms.IGNORABLE);
+        read(Terms.PROPERTY_END);
+        read(Terms.STRUCTURAL, "context");
+        read(Terms.IGNORABLE);
+        read(Terms.STRUCTURAL, "=");
         read(Terms.IGNORABLE);
         read(Terms.PROPERTY_START);
-        read(Terms.VALUE, "\"-//IDN etl.sf.net//ETL//Grammar 0.3.0\"");
+        read(Terms.VALUE, "Grammar");
         read(Terms.PROPERTY_END);
         read(Terms.OBJECT_END);
         read(Terms.STATEMENT_END);
@@ -82,21 +94,33 @@ public class BootstrapGrammarsTest extends BasicTermTestCase {
         final CompiledGrammar compiledGrammar = BootstrapGrammars.doctypeGrammar();
         final DefinitionContext defaultContext = compiledGrammar.getDefaultContext();
         assertEquals(StandardGrammars.VERSION, defaultContext.grammar().version());
-        assertEquals(StandardGrammars.DOCTYPE_GRAMMAR_NAME, defaultContext.grammar().name());
+        assertEquals(StandardGrammars.DOCTYPE_GRAMMAR_ID.name(), defaultContext.grammar().name());
         assertEquals("DoctypeContext", defaultContext.context());
         assertNull(compiledGrammar.getErrors());
-        startCompiledGrammar(compiledGrammar, "doctype doctype public \"-//IDN etl.sf.net//ETL//Grammar 0.3.0\";");
+        startCompiledGrammar(compiledGrammar, "doctype strict ETL.Grammar \"0.3.0\" context Test;");
         read(Terms.STATEMENT_START);
         read(Terms.OBJECT_START);
         read(Terms.STRUCTURAL, "doctype");
         read(Terms.IGNORABLE);
-        read(Terms.SYNTAX_ERROR, true);
-        read(Terms.IGNORABLE, "doctype");
-        read(Terms.IGNORABLE);
-        read(Terms.STRUCTURAL, "public");
-        read(Terms.IGNORABLE);
         read(Terms.PROPERTY_START);
-        read(Terms.VALUE, "\"-//IDN etl.sf.net//ETL//Grammar 0.3.0\"");
+        read(Terms.VALUE, "strict");
+        read(Terms.IGNORABLE);
+        read(Terms.PROPERTY_END);
+        read(Terms.LIST_PROPERTY_START);
+        read(Terms.VALUE, "ETL");
+        read(Terms.STRUCTURAL, ".");
+        read(Terms.VALUE, "Grammar");
+        read(Terms.IGNORABLE);
+        read(Terms.LIST_PROPERTY_END);
+        read(Terms.PROPERTY_START);
+        read(Terms.VALUE, "\"0.3.0\"");
+        read(Terms.IGNORABLE);
+        read(Terms.PROPERTY_END);
+        read(Terms.STRUCTURAL, "context");
+        read(Terms.IGNORABLE);
+        read(Terms.SYNTAX_ERROR, true);
+        read(Terms.PROPERTY_START);
+        read(Terms.VALUE, "Test");
         read(Terms.PROPERTY_END);
         read(Terms.OBJECT_END);
         read(Terms.STATEMENT_END);
@@ -111,7 +135,7 @@ public class BootstrapGrammarsTest extends BasicTermTestCase {
         final CompiledGrammar compiledGrammar = BootstrapGrammars.grammarGrammar();
         final DefinitionContext defaultContext = compiledGrammar.getDefaultContext();
         assertEquals(StandardGrammars.VERSION, defaultContext.grammar().version());
-        assertEquals("net.sf.etl.grammars.Grammar", defaultContext.grammar().name());
+        assertEquals("ETL.Grammar", defaultContext.grammar().name());
         assertEquals("GrammarSource", defaultContext.context());
         assertNull(compiledGrammar.getErrors());
         startCompiledGrammar(compiledGrammar, "grammar test1. .test2.\'test\' q{}");
@@ -132,7 +156,7 @@ public class BootstrapGrammarsTest extends BasicTermTestCase {
         read(Terms.SYNTAX_ERROR, true);
         read(Terms.LIST_PROPERTY_END);
         read(Terms.PROPERTY_START);
-        read(Terms.VALUE, "\'test\'");
+        read(Terms.VALUE, "'test'");
         read(Terms.IGNORABLE);
         read(Terms.PROPERTY_END);
         read(Terms.LIST_PROPERTY_START);
@@ -155,7 +179,7 @@ public class BootstrapGrammarsTest extends BasicTermTestCase {
         final CompiledGrammar compiledGrammar = BootstrapGrammars.defaultGrammar();
         final DefinitionContext defaultContext = compiledGrammar.getDefaultContext();
         assertEquals(StandardGrammars.VERSION, defaultContext.grammar().version());
-        assertEquals(StandardGrammars.DEFAULT_GRAMMAR_NAME, defaultContext.grammar().name());
+        assertEquals(StandardGrammars.DEFAULT_GRAMMAR_ID.name(), defaultContext.grammar().name());
         assertEquals("DefaultContext", defaultContext.context());
         assertNull(compiledGrammar.getErrors());
         startCompiledGrammar(compiledGrammar, "/// test");
@@ -183,38 +207,38 @@ public class BootstrapGrammarsTest extends BasicTermTestCase {
         final CompiledGrammar compiledGrammar = BootstrapGrammars.grammarGrammar();
         final DefinitionContext defaultContext = compiledGrammar.getDefaultContext();
         assertEquals(StandardGrammars.VERSION, defaultContext.grammar().version());
-        assertEquals("net.sf.etl.grammars.Grammar", defaultContext.grammar().name());
+        assertEquals("ETL.Grammar", defaultContext.grammar().name());
         assertEquals("GrammarSource", defaultContext.context());
         assertNull(compiledGrammar.getErrors());
     }
 
     @Test
     public void grammarReadAllDoctypeTest() throws IOException {
-        startSystemId(StandardGrammars.DOCTYPE_GRAMMAR_SYSTEM_ID);
+        startSystemId(StandardGrammars.DOCTYPE_GRAMMAR_URL.toString());
         final GrammarLiteTermParser parser = new GrammarLiteTermParser(reader);
         assertTrue(parser.advance());
         final Element next = parser.current();
         assertTrue(next instanceof Grammar);
-        assertEquals("Errors: " + parser.errors(), 0, parser.errors().size());
+        assertEquals(0, parser.errors().size(), "Errors: " + parser.errors());
     }
 
     @Test
     public void grammarReadAllDefaultTest() throws IOException {
-        startSystemId(StandardGrammars.DEFAULT_GRAMMAR_SYSTEM_ID);
+        startSystemId(StandardGrammars.DEFAULT_GRAMMAR_URL.toString());
         final GrammarLiteTermParser parser = new GrammarLiteTermParser(reader);
         assertTrue(parser.advance());
         final Element next = parser.current();
         assertTrue(next instanceof Grammar);
-        assertEquals("Errors: " + parser.errors(), 0, parser.errors().size());
+        assertEquals(0, parser.errors().size(), "Errors: " + parser.errors());
     }
 
     @Test
     public void grammarReadAllGrammarTest() throws IOException {
-        startSystemId(StandardGrammars.ETL_GRAMMAR_SYSTEM_ID);
+        startSystemId(StandardGrammars.ETL_GRAMMAR_URL.toString());
         final GrammarLiteTermParser parser = new GrammarLiteTermParser(reader);
         assertTrue(parser.advance());
         final Element next = parser.current();
         assertTrue(next instanceof Grammar);
-        assertEquals("Errors: " + parser.errors(), 0, parser.errors().size());
+        assertEquals(0, parser.errors().size(), "Errors: " + parser.errors());
     }
 }

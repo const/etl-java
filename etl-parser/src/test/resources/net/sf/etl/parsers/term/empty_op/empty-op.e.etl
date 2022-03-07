@@ -1,4 +1,4 @@
-doctype "empty-op.g.etl";
+doctype test.EmptyOpGrammar;
 (f x) + (f y);
 - (f x) + y;
 {let x := 1, y := 2; x + y;};

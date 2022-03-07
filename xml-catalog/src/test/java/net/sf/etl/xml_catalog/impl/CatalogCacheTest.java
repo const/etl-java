@@ -28,12 +28,12 @@ package net.sf.etl.xml_catalog.impl;
 import net.sf.etl.xml_catalog.blocking.provider.CatalogResolutionCache;
 import net.sf.etl.xml_catalog.event.CatalogRequest;
 import net.sf.etl.xml_catalog.event.CatalogResolutionEvent;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * The test for catalog cache

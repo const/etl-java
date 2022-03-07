@@ -74,17 +74,17 @@ final class DoctypeTokenListener implements TermTokenListener {
         }
         collectErrors(token);
         switch (token.kind()) {
-            case PROPERTY_START:
+            case PROPERTY_START, LIST_PROPERTY_START:
                 lastProperty = token.propertyName();
                 break;
             case VALUE:
                 assert lastProperty != null;
                 if (StandardGrammars.DOCTYPE_GRAMMAR_DOCTYPE_TYPE.equals(lastProperty)) {
                     doctype.setType(token.token().token());
-                } else if (StandardGrammars.DOCTYPE_GRAMMAR_DOCTYPE_SYSTEM_ID.equals(lastProperty)) {
-                    doctype.setSystemId(token.token().token());
-                } else if (StandardGrammars.DOCTYPE_GRAMMAR_DOCTYPE_PUBLIC_ID.equals(lastProperty)) {
-                    doctype.setPublicId(token.token().token());
+                } else if (StandardGrammars.DOCTYPE_GRAMMAR_DOCTYPE_QUALIFIED_NAME.equals(lastProperty)) {
+                    doctype.getQualifiedName().add(token.token().token());
+                } else if (StandardGrammars.DOCTYPE_GRAMMAR_DOCTYPE_VERSION.equals(lastProperty)) {
+                    doctype.setVersion(token.token().token());
                 } else if (StandardGrammars.DOCTYPE_GRAMMAR_DOCTYPE_CONTEXT.equals(lastProperty)) {
                     doctype.setContext(token.token().token());
                 } else {

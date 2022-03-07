@@ -1,9 +1,9 @@
-doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN";
+doctype ETL.Grammar "0.3.0";
 /// The statement below is a special blank statement to ensure that it is ignored.
 ;
 /// This is almost minimal grammar that supports HelloWorld.ej.etl
 /// But there are still some features to remove.
-grammar net.sf.etl.tests.data.MinimalEJ {
+grammar test.MinimalEJ "0.1.0" {
 	namespace default ej = "http://etl.sf.net/2006/samples/ej/0.1";
 
 	/// A common context that defines documentation and attributes

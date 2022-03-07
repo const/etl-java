@@ -26,12 +26,14 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
 
 import net.sf.etl.parsers.SourceLocation;
 
+import java.io.Serializable;
+
 /**
  * Base class for lightweight grammar objects.
  *
  * @author const
  */
-public abstract class EObject { // NOPMD
+public abstract class EObject implements Serializable { // NOPMD
     /**
      * The owner.
      */

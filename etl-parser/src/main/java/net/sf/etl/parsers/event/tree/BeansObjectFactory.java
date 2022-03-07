@@ -92,7 +92,7 @@ public class BeansObjectFactory extends ReflectionObjectFactoryBase<Object, Prop
     protected final Object createInstance(final BeanInfo metaObject, final ObjectName name) {
         final Class<?> beanClass = metaObject.getBeanDescriptor().getBeanClass();
         try {
-            return beanClass.newInstance();
+            return beanClass.getConstructor().newInstance();
         } catch (final Exception e) { // NOPMD
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Object cannot be created: " + beanClass.getName());

@@ -1,9 +1,9 @@
-doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN";
+doctype ETL.Grammar "0.3.0";
 /// This is an expression grammar is imported from main grammars
 /// In its turn, this grammar imports main grammar.
-grammar net.sf.etl.tests.data.imports.ExpressionGrammar {
+grammar net.sf.etl.tests.data.imports.ExpressionGrammar "0.1" {
 	namespace default i = "http://etl.sf.net/2006/samples/imports/Expression/0.1";
-	import main = "MainGrammar.g.etl";
+	import main = test.imports.MainGrammar "0.1";
 
 	context Expressions {
 		import statements = Statements from main;

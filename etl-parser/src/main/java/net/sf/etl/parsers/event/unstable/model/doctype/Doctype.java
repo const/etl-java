@@ -40,7 +40,7 @@ public final class Doctype {
     /**
      * The list of errors.
      */
-    private final List<ErrorInfo> errors = new ArrayList<ErrorInfo>();
+    private final List<ErrorInfo> errors = new ArrayList<>();
     /**
      * The location where document type is defined.
      */
@@ -52,11 +52,11 @@ public final class Doctype {
     /**
      * The system id string token.
      */
-    private Token systemId;
+    private final List<Token> qualifiedName = new ArrayList<>();
     /**
      * The public id token.
      */
-    private Token publicId;
+    private Token version;
     /**
      * The context token.
      */
@@ -101,36 +101,16 @@ public final class Doctype {
         this.type = type;
     }
 
-    /**
-     * @return the system id string token.
-     */
-    public Token getSystemId() {
-        return systemId;
+    public List<Token> getQualifiedName() {
+        return qualifiedName;
     }
 
-    /**
-     * Set the system id string token.
-     *
-     * @param systemId the system id
-     */
-    public void setSystemId(final Token systemId) {
-        this.systemId = systemId;
+    public Token getVersion() {
+        return version;
     }
 
-    /**
-     * @return the public id token
-     */
-    public Token getPublicId() {
-        return publicId;
-    }
-
-    /**
-     * Set the public id token.
-     *
-     * @param publicId the token
-     */
-    public void setPublicId(final Token publicId) {
-        this.publicId = publicId;
+    public void setVersion(Token version) {
+        this.version = version;
     }
 
     /**

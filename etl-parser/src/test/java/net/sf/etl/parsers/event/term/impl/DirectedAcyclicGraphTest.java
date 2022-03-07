@@ -26,14 +26,14 @@ package net.sf.etl.parsers.event.term.impl;
 
 import net.sf.etl.parsers.event.grammar.impl.flattened.DirectedAcyclicGraph;
 import net.sf.etl.parsers.event.grammar.impl.flattened.DirectedAcyclicGraph.Node;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test for directed acyclic graph

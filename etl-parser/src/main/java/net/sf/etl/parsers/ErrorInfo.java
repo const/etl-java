@@ -24,6 +24,7 @@
  */
 package net.sf.etl.parsers;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +43,7 @@ import java.util.ResourceBundle;
  *
  * @author const
  */
-public final class ErrorInfo implements Iterable<ErrorInfo> {
+public final class ErrorInfo implements Iterable<ErrorInfo>, Serializable {
     // FIXME add related locations support
     /**
      * The no arguments constant.

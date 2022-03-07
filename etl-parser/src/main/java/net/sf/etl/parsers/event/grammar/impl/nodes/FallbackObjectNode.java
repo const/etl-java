@@ -52,7 +52,7 @@ public final class FallbackObjectNode extends ScopeNode {
      * Set object that should be used for fallback.
      *
      * @param newName     the name of an object to be created
-     * @param newWrappers the include wrappers for this object
+     * @param newWrappers the include-wrappers for this object
      */
     public void setFallbackObject(final ObjectName newName, final WrapperLink newWrappers) {
         this.name = newName;

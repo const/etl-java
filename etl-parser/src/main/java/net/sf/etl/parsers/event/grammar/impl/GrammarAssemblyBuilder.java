@@ -26,6 +26,7 @@
 package net.sf.etl.parsers.event.grammar.impl;
 
 import net.sf.etl.parsers.ErrorInfo;
+import net.sf.etl.parsers.GrammarId;
 import net.sf.etl.parsers.StandardGrammars;
 import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.grammar.BootstrapGrammars;
@@ -57,7 +58,7 @@ public final class GrammarAssemblyBuilder implements GrammarCompilerEngine {
     /**
      * The map from grammar view to builders.
      */
-    private final Map<GrammarView, GrammarBuilder> viewToBuilder = new HashMap<GrammarView, GrammarBuilder>(); // NOPMD
+    private final Map<GrammarView, GrammarBuilder> viewToBuilder = new HashMap<>(); // NOPMD
     /**
      * The linker.
      */
@@ -133,9 +134,10 @@ public final class GrammarAssemblyBuilder implements GrammarCompilerEngine {
             builder.linkGrammars();
         }
         // actually get root grammar
-        final ResolvedObject<GrammarView> grammarView = assembly.resolveGrammar(rootGrammarRequest.getReference());
+        final ResolvedObject<GrammarView> grammarView = assembly.resolveGrammar(rootGrammarRequest.grammarId());
+        assert grammarView != null;
         final GrammarBuilder grammarBuilder = viewToBuilder.get(grammarView.getObject());
-        rootGrammar = new ResolvedObject<CompiledGrammar>(rootGrammarRequest, grammarView.getResolutionHistory(),
+        rootGrammar = new ResolvedObject<>(rootGrammarRequest, grammarView.getResolutionHistory(),
                 grammarView.getDescriptor(), grammarBuilder.compiledGrammar());
         return ParserState.OUTPUT_AVAILABLE;
     }
@@ -146,9 +148,9 @@ public final class GrammarAssemblyBuilder implements GrammarCompilerEngine {
      * @return the new parser state
      */
     private ParserState buildFailedGrammar() {
-        final ResolvedObject<GrammarView> grammarView = assembly.resolveGrammar(rootGrammarRequest.getReference());
+        final ResolvedObject<GrammarView> grammarView = assembly.resolveGrammar(rootGrammarRequest.grammarId());
         if (grammarView != null) {
-            rootGrammar = new ResolvedObject<CompiledGrammar>(rootGrammarRequest, grammarView.getResolutionHistory(),
+            rootGrammar = new ResolvedObject<>(rootGrammarRequest, grammarView.getResolutionHistory(),
                     grammarView.getDescriptor(), new DelegateCompiledGrammar(
                     BootstrapGrammars.defaultGrammar(),
                     assembly.getErrors(),
@@ -159,9 +161,9 @@ public final class GrammarAssemblyBuilder implements GrammarCompilerEngine {
             final GrammarAssembly.FailedGrammar failedGrammar = assembly.getFailedGrammar(rootGrammarRequest);
             final ResourceDescriptor unresolved = new ResourceDescriptor("unresolved:grammar",
                     StandardGrammars.GRAMMAR_NATURE, null);
-            rootGrammar = new ResolvedObject<CompiledGrammar>(
+            rootGrammar = new ResolvedObject<>(
                     rootGrammarRequest,
-                    failedGrammar.getUsedResources(),
+                    failedGrammar.usedResources(),
                     unresolved,
                     new DelegateCompiledGrammar(
                             BootstrapGrammars.defaultGrammar(),
@@ -174,7 +176,7 @@ public final class GrammarAssemblyBuilder implements GrammarCompilerEngine {
 
     @Override
     public Collection<ResourceRequest> requests() {
-        return new HashSet<ResourceRequest>(assembly.unresolved());
+        return new HashSet<>(assembly.unresolved());
     }
 
     @Override
@@ -189,7 +191,7 @@ public final class GrammarAssemblyBuilder implements GrammarCompilerEngine {
     }
 
     @Override
-    public ResolvedObject<Grammar> getProvided(final String systemId) {
+    public ResolvedObject<Grammar> getProvided(final GrammarId systemId) {
         return assembly.resolvedGrammar(systemId);
     }
 

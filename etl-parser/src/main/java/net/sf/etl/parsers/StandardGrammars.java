@@ -24,6 +24,8 @@
  */
 package net.sf.etl.parsers;
 
+import java.net.URL;
+
 /**
  * This interface contains constants related to standard grammars. These
  * constants are mostly used in parser implementation. However they may be
@@ -37,76 +39,57 @@ public final class StandardGrammars {
      */
     public static final String VERSION = "0.3.0";
     /**
-     * Public ID that resolves to current ETL grammar.
-     */
-    public static final String ETL_GRAMMAR_PUBLIC_ID = "-//IDN etl.sf.net//ETL//Grammar " + VERSION + "//EN";
-    /**
      * Namespace of objects in ETL grammar.
      */
     public static final String ETL_GRAMMAR_NAMESPACE = "http://etl.sf.net/etl/grammar";
     /**
-     * namespace of Doctype object.
+     * Name of etl grammar.
      */
-    public static final String DOCTYPE_NS = "http://etl.sf.net/etl/doctype";
+    public static final GrammarId ETL_GRAMMAR_ID = new GrammarId("ETL.Grammar", VERSION);
+    /**
+     * URL of the grammar.
+     */
+    public static final URL ETL_GRAMMAR_URL = getStandardGrammarUrl(ETL_GRAMMAR_ID);
     /**
      * namespace of default object.
      */
     public static final String DEFAULT_NS = "http://etl.sf.net/etl/default";
     /**
-     * Current grammar version.
-     */
-    public static final String VERSION_NAME = "0_3_0";
-    /**
-     * System ID of ETL grammar in ETL.
-     */
-    public static final String ETL_GRAMMAR_SYSTEM_ID = StandardGrammars.class.getResource(
-            "/net/sf/etl/grammars/grammar-" + VERSION_NAME + ".g.etl").toString();
-    /**
-     * Name of doctype grammar.
-     */
-    public static final String DOCTYPE_GRAMMAR_NAME = "net.sf.etl.grammars.DoctypeDeclaration";
-    /**
-     * System ID of doctype grammar.
-     */
-    public static final String DOCTYPE_GRAMMAR_SYSTEM_ID = StandardGrammars.class.getResource(
-            "/net/sf/etl/grammars/doctype-" + VERSION_NAME + ".g.etl").toString();
-    /**
      * Name of default grammar.
      */
-    public static final String DEFAULT_GRAMMAR_NAME = "net.sf.etl.grammars.DefaultGrammar";
+    public static final GrammarId DEFAULT_GRAMMAR_ID = new GrammarId("ETL.DefaultGrammar", VERSION);
     /**
      * System ID of default grammar.
      */
-    public static final String DEFAULT_GRAMMAR_SYSTEM_ID = StandardGrammars.class.getResource(
-            "/net/sf/etl/grammars/default-" + VERSION_NAME + ".g.etl").toString();
+    public static final URL DEFAULT_GRAMMAR_URL = getStandardGrammarUrl(DEFAULT_GRAMMAR_ID);
     /**
-     * Property name for system id property.
+     * namespace of Doctype object.
+     */
+    public static final String DOCTYPE_NS = "http://etl.sf.net/etl/doctype";
+    /**
+     * Name of doctype grammar.
+     */
+    public static final GrammarId DOCTYPE_GRAMMAR_ID = new GrammarId("ETL.DoctypeDeclaration", VERSION);
+    /**
+     * System ID of doctype grammar.
+     */
+    public static final URL DOCTYPE_GRAMMAR_URL = getStandardGrammarUrl(DOCTYPE_GRAMMAR_ID);
+    /**
+     * Property name for type property.
      */
     public static final PropertyName DOCTYPE_GRAMMAR_DOCTYPE_TYPE = new PropertyName("Type");
     /**
-     * Property name for system id property.
+     * Property name for qualified name property.
      */
-    public static final PropertyName DOCTYPE_GRAMMAR_DOCTYPE_SYSTEM_ID = new PropertyName("SystemId");
+    public static final PropertyName DOCTYPE_GRAMMAR_DOCTYPE_QUALIFIED_NAME = new PropertyName("QualifiedName");
     /**
-     * Property name for public id property.
+     * Property name for context property.
      */
-    public static final PropertyName DOCTYPE_GRAMMAR_DOCTYPE_PUBLIC_ID = new PropertyName("PublicId");
+    public static final PropertyName DOCTYPE_GRAMMAR_DOCTYPE_VERSION = new PropertyName("Version");
     /**
      * Property name for context property.
      */
     public static final PropertyName DOCTYPE_GRAMMAR_DOCTYPE_CONTEXT = new PropertyName("Context");
-    /**
-     * The catalog file role.
-     */
-    public static final String CATALOG_ROLE = "http://etl.sf.net/resolution/catalog";
-    /**
-     * The catalog file type.
-     */
-    public static final String CATALOG_TYPE = "http://etl.sf.net/resolution/catalog";
-    /**
-     * The catalog resource type.
-     */
-    public static final String CATALOG_RESOURCE_TYPE = "http://etl.sf.net/resolution/catalog-resource";
     /**
      * The request type for the grammar associated with the ETL source.
      */
@@ -119,15 +102,37 @@ public final class StandardGrammars {
      * RDDL grammar nature.
      */
     public static final String GRAMMAR_NATURE = "http://etl.sf.net/etl/grammar-definition";
-    /**
-     * RDDL grammar extension mapping purpose.
-     */
-    public static final String GRAMMAR_EXTENSION_MAPPING = "http://etl.sf.net/etl/grammar-extension-mapping";
 
     /**
      * Private constructor for utility class.
      */
     private StandardGrammars() {
         // do nothing
+    }
+
+    /**
+     * Get grammar within classpath.
+     *
+     * @param classLoader the classloader
+     * @param grammarId   the grammar ID
+     * @return URL of the grammar
+     */
+    public static URL getGrammarResource(ClassLoader classLoader, GrammarId grammarId) {
+        String path = grammarId.getResourcePath();
+        URL resource = classLoader.getResource(path);
+        if (resource == null) {
+            throw new IllegalStateException("Grammar is not found in the classpath: " + path);
+        }
+        return resource;
+    }
+
+    /**
+     * Get URL for standard grammar.
+     *
+     * @param grammarId the grammar id
+     * @return the grammar URL.
+     */
+    public static URL getStandardGrammarUrl(GrammarId grammarId) {
+        return getGrammarResource(StandardGrammars.class.getClassLoader(), grammarId);
     }
 }

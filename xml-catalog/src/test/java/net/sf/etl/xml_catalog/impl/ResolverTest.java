@@ -28,8 +28,8 @@ package net.sf.etl.xml_catalog.impl;
 import net.sf.etl.xml_catalog.blocking.BlockingCatalog;
 import net.sf.etl.xml_catalog.blocking.CatalogResolver;
 import net.sf.etl.xml_catalog.blocking.provider.CatalogProviders;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
@@ -41,7 +41,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Base resolver test
@@ -49,7 +49,7 @@ import static org.junit.Assert.assertEquals;
 public class ResolverTest {
     private CatalogResolver resolver;
 
-    @Before
+    @BeforeEach
     public void init() {
         resolver = new CatalogResolver(
                 new BlockingCatalog(CatalogProviders.DEFAULT_ROOT_REQUEST,
@@ -90,7 +90,7 @@ public class ResolverTest {
         });
         final Document document = documentBuilder.parse(RuntimeCatalogProviderTest.CORE_CATALOG.toString());
         document.getDocumentElement();
-        assertEquals(ex.toString(), 0, ex.size());
+        assertEquals(0, ex.size(), ex.toString());
     }
 
 }

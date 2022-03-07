@@ -164,7 +164,15 @@ public abstract class Node {
     public Node flatten() {
         return this;
     }
+
+    /**
+     * @return the node with inferred soft breaks.
+     */
+    public Node inferSoftBreaks() {
+        return this;
+    }
     // CHECKSTYLE:ON
+
 
     /**
      * @return the source location

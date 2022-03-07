@@ -26,8 +26,6 @@
 package net.sf.etl.parsers.resource;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,7 +34,7 @@ import java.util.Objects;
  *
  * @param <T> the value type
  */
-public final class ResolvedObject<T> implements Serializable {
+public final class ResolvedObject<T extends Serializable> implements Serializable {
     /**
      * UID.
      */
@@ -76,8 +74,8 @@ public final class ResolvedObject<T> implements Serializable {
         }
         this.request = request;
         this.resolutionHistory = resolutionHistory == null || resolutionHistory.isEmpty()
-                ? Collections.<ResourceUsage>emptyList()
-                : Collections.unmodifiableList(new ArrayList<ResourceUsage>(resolutionHistory));
+                ? List.of()
+                : List.copyOf(resolutionHistory);
         this.descriptor = descriptor;
         this.object = object;
     }
@@ -103,8 +101,8 @@ public final class ResolvedObject<T> implements Serializable {
      * @param <Other>   the object type
      * @return new resolved object instance
      */
-    public <Other> ResolvedObject<Other> withOtherObject(final Other newObject) {
-        return new ResolvedObject<Other>(request, resolutionHistory, descriptor, newObject);
+    public <Other extends Serializable> ResolvedObject<Other> withOtherObject(final Other newObject) {
+        return new ResolvedObject<>(request, resolutionHistory, descriptor, newObject);
     }
 
     /**

@@ -33,21 +33,21 @@ import net.sf.etl.parsers.streams.DefaultTermReaderConfiguration;
 import net.sf.etl.parsers.streams.LexerReader;
 import net.sf.etl.parsers.streams.PhraseParserReader;
 import net.sf.etl.parsers.streams.TermParserReader;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Basic test case for term parsing
  */
-public class BasicTermTestCase {
+public abstract class BasicTermTestCase {
     /**
      * The reader used for test
      */
@@ -86,9 +86,9 @@ public class BasicTermTestCase {
     protected TermToken read(final Terms term, final boolean haveErrors) {
         skipIgnorable();
         final TermToken current = reader.current();
-        assertEquals("Current token: " + current, haveErrors, current.hasAnyErrors());
+        assertEquals(haveErrors, current.hasAnyErrors(), "Current token: " + current);
         reader.advance();
-        assertEquals("Current token: " + current, term, current.kind());
+        assertEquals(term, current.kind(), "Current token: " + current);
         return current;
     }
 
@@ -97,7 +97,7 @@ public class BasicTermTestCase {
             return;
         }
         final TermToken current = reader.current();
-        assertFalse("Current token: " + current, current.hasAnyErrors());
+        assertFalse(current.hasAnyErrors(), "Current token: " + current);
     }
 
     /**
@@ -108,8 +108,8 @@ public class BasicTermTestCase {
      */
     protected void read(final Terms token, final String text) {
         final TermToken read = read(token);
-        assertTrue("Current token: " + read, read.hasLexicalToken());
-        assertEquals("Current token: " + read, text, read.token().token().text());
+        assertTrue(read.hasLexicalToken(), "Current token: " + read);
+        assertEquals(text, read.token().token().text(), "Current token: " + read);
     }
 
 
@@ -149,12 +149,12 @@ public class BasicTermTestCase {
      */
     protected void startResource(final String resource) {
         final URL url = getClass().getResource(resource);
-        assertNotNull(getClass().getName() + " => " + resource, url);
+        assertNotNull(url, getClass().getName() + " => " + resource);
         startSystemId(url);
     }
 
 
-    @After
+    @AfterEach
     public void closeReader() {
         if (reader != null) {
             reader.close();

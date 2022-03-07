@@ -40,7 +40,7 @@ public abstract class GroupNode extends Node {
     /**
      * The list of nodes.
      */
-    private final List<Node> nodes = new ArrayList<Node>();
+    private final List<Node> nodes = new ArrayList<>();
 
     /**
      * @return the list of nodes
@@ -68,13 +68,22 @@ public abstract class GroupNode extends Node {
             }
         }
         if (needsFlatten) {
-            final ArrayList<Node> copy = new ArrayList<Node>(nodes);
+            final ArrayList<Node> copy = new ArrayList<>(nodes);
             nodes.clear();
             flattenTo(type, copy, nodes);
         }
         return this;
     }
     // CHECKSTYLE:ON
+
+
+    @Override
+    public Node inferSoftBreaks() {
+        for (int i = 0; i < nodes().size() ; i++) {
+            nodes.set(i, nodes.get(i).flatten());
+        }
+        return this;
+    }
 
     /**
      * Flatten nodes.

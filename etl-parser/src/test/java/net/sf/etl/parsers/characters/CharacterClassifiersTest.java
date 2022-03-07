@@ -25,10 +25,10 @@
 
 package net.sf.etl.parsers.characters;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests for character classifiers
@@ -48,7 +48,7 @@ public class CharacterClassifiersTest {
     @Test
     public void testGraphics() {
         for (final char c : "*+$-\\/%<:=?>.!^~&|`@".toCharArray()) {
-            assertTrue("char: " + c, Graphics.isGraphics(c));
+            assertTrue(Graphics.isGraphics(c), "char: " + c);
         }
         assertFalse(Graphics.isGraphics(','));
         assertFalse(Graphics.isGraphics(';'));

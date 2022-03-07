@@ -28,34 +28,29 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>net.sf.etl</groupId>
+        <artifactId>etl-parent</artifactId>
+        <version>0.3.0-SNAPSHOT</version>
+    </parent>
 
-    <groupId>net.sf.etl</groupId>
     <artifactId>etl-parser</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
-    <name>ETL Parser</name>
+    <name>${project.groupId}:${project.artifactId}</name>
     <description>This module represent basic event-driven ETL parser for Java.</description>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <logback.version>1.1.2</logback.version>
-    </properties>
 
     <dependencies>
         <dependency>
-            <groupId>net.sf.etl</groupId>
-            <artifactId>xml-catalog</artifactId>
-            <version>0.3.0-SNAPSHOT</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -65,77 +60,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.2.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.0</version>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.17</version>
-                <configuration>
-                    <configLocation>${project.basedir}/../src/config/checks/checkstyle-checker.xml</configLocation>
-                    <logViolationsToConsole>true</logViolationsToConsole>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>3.0.5</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.8</version>
-                <configuration>
-                    <targetJdk>1.6</targetJdk>
-                    <includeTests>true</includeTests>
-                    <detail>true</detail>
-                    <printFailingErrors>true</printFailingErrors>
-                    <rulesets>
-                        <ruleset>${project.basedir}/../src/config/checks/pmd-rules.xml</ruleset>
-                    </rulesets>
-                    <excludeRoots>
-                        <excludeRoot>${project.basedir}/src/test</excludeRoot>
-                    </excludeRoots>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

@@ -24,8 +24,9 @@
  */
 package net.sf.etl.parsers.term;
 
+import net.sf.etl.parsers.GrammarId;
 import net.sf.etl.parsers.Terms;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * This test checks handling of errors using fallback test
@@ -37,13 +38,16 @@ public class ChoiceTest extends TermStructureTestCase {
      * Namespace to use
      */
     public static final String NS = "urn:test.Choice";
+    public static final GrammarId CHOICE_ID = GrammarId.unversioned("test.Choice");
+    public static final GrammarId CHOICE_EXT_ID = GrammarId.unversioned("test.ChoiceExt");
+
 
     @Test
     public void testA() {
         startWithResource("choice/ChoiceTestA.c.etl");
         boolean errorExit = true;
         try {
-            readDocType("script", "\"Choice.g.etl\"", "TestContext");
+            readDocType("script", CHOICE_ID, "TestContext");
             objectStart(NS, "TestStatement");
             propStart("Value");
             value("a");
@@ -63,7 +67,7 @@ public class ChoiceTest extends TermStructureTestCase {
         startWithResource("choice/ChoiceTestB.c.etl");
         boolean errorExit = true;
         try {
-            readDocType("script", "\"Choice.g.etl\"", null);
+            readDocType("script", CHOICE_ID, null);
             objectStart(NS, "TestStatement");
             propStart("Value");
             value("a");
@@ -88,7 +92,7 @@ public class ChoiceTest extends TermStructureTestCase {
         startWithResource("choice/ChoiceTestC.c.etl");
         boolean errorExit = true;
         try {
-            readDocType(null, "\"ChoiceExt.g.etl\"", null);
+            readDocType(null, CHOICE_EXT_ID, null);
             objectStart(NS, "TestStatement");
             propStart("Value");
             value("a");

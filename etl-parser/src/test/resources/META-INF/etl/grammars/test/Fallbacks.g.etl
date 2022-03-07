@@ -1,8 +1,8 @@
-doctype script public "-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN";
+doctype script ETL.Grammar "0.3.0";
 
 /// This is a test grammar used to test fallback
 /// functionality in the parser.
-grammar net.sf.etl.tests.data.fallbacks.Fallbacks {
+grammar test.Fallbacks {
 	namespace default t = "http://etl.sf.net/2006/tests/fallbacks"
 	/// Base context. It contains definitions of documentation and attributes
 	/// that will be used in later sections.

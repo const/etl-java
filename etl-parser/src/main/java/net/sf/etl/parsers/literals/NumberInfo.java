@@ -32,70 +32,19 @@ import java.math.BigInteger;
 
 /**
  * Information about number that is being parsed.
+ * @param input    the input string
+ * @param kind     the kind of token
+ * @param sign     the sign of the number (1 for positive numbers and -1 for
+ *                 negative, 0 for unspecified)
+ * @param base     the base of number
+ * @param text     the text of number with underscores removed.
+ * @param exponent the exponent associated with the token
+ * @param suffix   the suffix attached to number
+ * @param errors   the errors collected during parsing
  */
-public final class NumberInfo {
-    /**
-     * The kind of number.
-     */
-    private final Tokens kind;
-    /**
-     * The text of number with underscores removed.
-     */
-    private final String text;
-    /**
-     * The suffix attached to number.
-     */
-    private final String suffix;
-    /**
-     * The exponent (adjusted according the dot position).
-     */
-    private final int exponent;
-    /**
-     * The input string.
-     */
-    private final String input;
-    /**
-     * The base of number.
-     */
-    private final int base;
-    /**
-     * The sign of the number (1 for positive numbers and -1 for negative).
-     */
-    private final int sign;
-    /**
-     * The errors.
-     */
-    private final ErrorInfo errors;
-
-    // CHECKSTYLE:OFF
-
-    /**
-     * The constructor.
-     *
-     * @param input    the input string
-     * @param kind     the kind of token
-     * @param sign     the sign of the number (1 for positive numbers and -1 for
-     *                 negative, 0 for unspecified)
-     * @param base     the base of number
-     * @param text     the text of number with underscores removed.
-     * @param exponent the exponent associated with the token
-     * @param suffix   the suffix attached to number
-     * @param errors   the errors collected during parsing
-     */
-    public NumberInfo(final String input, final Tokens kind, final int sign, final int base, final String text,
-                      final int exponent, final String suffix, final ErrorInfo errors) {
-        super();
-        this.input = input;
-        this.base = base;
-        this.exponent = exponent;
-        this.kind = kind;
-        this.sign = sign;
-        this.suffix = suffix;
-        this.text = text;
-        this.errors = errors;
-    }
-    // CHECKSTYLE:ON
-
+public record NumberInfo(String input, Tokens kind, int sign, int base,
+                         String text, int exponent, String suffix,
+                         ErrorInfo errors) {
     /**
      * Check for errors and throw an exception if there are ones.
      */

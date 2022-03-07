@@ -26,7 +26,7 @@ package net.sf.etl.utils.xml;
 
 import net.sf.etl.utils.ConverterTestBase;
 import net.sf.etl.utils.ETLProcessor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * The smoke test for ETL2XML.
@@ -38,7 +38,7 @@ public class ETL2XMLTest extends ConverterTestBase {
         final String moduleDir = getModuleBaseDirectory();
         ETL2XML.main(new String[]{
                 "-f", "html",
-                "-i", moduleDir + "/../etl-parser/src/main/resources/net/sf/etl/grammars/*.g.etl",
+                "-i", moduleDir + "/../etl-parser/src/main/resources/META-INF/etl/grammars/ETL/*.g.etl",
                 "--output", moduleDir + "/target/temp/output/formatted-grammars/*.g.etl.html",
         });
 
@@ -49,7 +49,7 @@ public class ETL2XMLTest extends ConverterTestBase {
         final String moduleDir = getModuleBaseDirectory();
         ETL2XML.main(new String[]{
                 "-f", "html",
-                "-C", moduleDir + "/../etl-parser/src/test/resources/META-INF/xml/catalog.xml",
+                "-c", moduleDir + "/../etl-parser/target/test-classes",
                 "-i", moduleDir + "/../etl-parser/src/test/resources/net/sf/etl/parsers/term/imports/*.i.etl",
                 "--output", moduleDir + "/target/temp/output/beans/*.i.b.html",
         });
@@ -61,7 +61,7 @@ public class ETL2XMLTest extends ConverterTestBase {
         final String moduleDir = getModuleBaseDirectory();
         ETL2XML.main(new String[]{
                 "-f", "xmi",
-                "-i", moduleDir + "/../etl-parser/src/main/resources/net/sf/etl/grammars/*.g.etl",
+                "-i", moduleDir + "/../etl-parser/src/main/resources/META-INF/etl/grammars/ETL/*.g.etl",
                 "--output", moduleDir + "/target/temp/output/formatted-grammars/*.g.etl.xmi",
         });
     }
@@ -71,7 +71,7 @@ public class ETL2XMLTest extends ConverterTestBase {
         final String moduleDir = getModuleBaseDirectory();
         ETL2XML.main(new String[]{
                 "-f", "presentation",
-                "-i", moduleDir + "/../etl-parser/src/main/resources/net/sf/etl/grammars/*.g.etl",
+                "-i", moduleDir + "/../etl-parser/src/main/resources/META-INF/etl/grammars/ETL/*.g.etl",
                 "--output", moduleDir + "/target/temp/output/formatted-grammars/*.g.etl.p.xml",
         });
     }
@@ -84,7 +84,7 @@ public class ETL2XMLTest extends ConverterTestBase {
                 "--file-encoding", "ASCII",
                 "--tab-size", "4",
                 "-f", "tree",
-                "-i", moduleDir + "/../etl-parser/src/main/resources/net/sf/etl/grammars/*.g.etl",
+                "-i", moduleDir + "/../etl-parser/src/main/resources/META-INF/etl/grammars/ETL/*.g.etl",
                 "--output", moduleDir + "/target/temp/output/formatted-grammars/*.g.etl.t.xml",
         });
     }

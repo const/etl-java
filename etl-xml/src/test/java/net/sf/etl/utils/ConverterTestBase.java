@@ -29,8 +29,8 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * The base calss for tests.

@@ -25,6 +25,7 @@
 package net.sf.etl.parsers.event.grammar.impl.flattened; // NOPMD
 
 import net.sf.etl.parsers.ErrorInfo;
+import net.sf.etl.parsers.GrammarId;
 import net.sf.etl.parsers.GrammarInfo;
 import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.StandardGrammars;
@@ -43,10 +44,10 @@ import net.sf.etl.parsers.literals.StringInfo;
 import net.sf.etl.parsers.literals.StringParser;
 import net.sf.etl.parsers.resource.ResolvedObject;
 import net.sf.etl.parsers.resource.ResourceDescriptor;
-import net.sf.etl.parsers.resource.ResourceReference;
 import net.sf.etl.parsers.resource.ResourceRequest;
 import net.sf.etl.parsers.resource.ResourceUsage;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,7 +64,7 @@ import java.util.Set;
  *
  * @author const
  */
-public final class GrammarView { // NOPMD
+public final class GrammarView implements Serializable { // NOPMD
     /**
      * The gatherer for grammar imports.
      */
@@ -72,7 +73,7 @@ public final class GrammarView { // NOPMD
     /**
      * A DAG along with context include paths.
      */
-    private final DirectedAcyclicGraph<ContextView> contextContextIncludeDAG = new DirectedAcyclicGraph<ContextView>();
+    private final DirectedAcyclicGraph<ContextView> contextContextIncludeDAG = new DirectedAcyclicGraph<>();
     /**
      * The grammar assembly for this grammar view.
      */
@@ -84,7 +85,7 @@ public final class GrammarView { // NOPMD
     /**
      * The map from context name to context view.
      */
-    private final Map<String, ContextView> contexts = new HashMap<String, ContextView>(); // NOPMD
+    private final Map<String, ContextView> contexts = new HashMap<>(); // NOPMD
     /**
      * The map from local name to imported grammar view.
      */
@@ -112,17 +113,17 @@ public final class GrammarView { // NOPMD
     /**
      * The collection of grammar references.
      */
-    private final Map<GrammarRef, ResourceReference> references = // NOPMD
-            new IdentityHashMap<GrammarRef, ResourceReference>();
+    private final Map<GrammarRef, GrammarId> references = // NOPMD
+            new IdentityHashMap<>();
     /**
      * The grammars used for creating this grammar.
      */
-    private final Set<ResolvedObject<GrammarView>> usedGrammars = new HashSet<ResolvedObject<GrammarView>>();
+    private final Set<ResolvedObject<GrammarView>> usedGrammars = new HashSet<>();
     /**
      * The failed grammars.
      */
     private final List<GrammarAssembly.FailedGrammar> failedGrammars =
-            new ArrayList<GrammarAssembly.FailedGrammar>();
+            new ArrayList<>();
     /**
      * The grammar info.
      */
@@ -210,12 +211,12 @@ public final class GrammarView { // NOPMD
             resourceUsages.addAll(resource.getUsedResources());
             for (final ResolvedObject<GrammarView> used : usedGrammars) {
                 resourceUsages.addAll(used.getResolutionHistory());
-                resourceUsages.add(new ResourceUsage(used.getRequest().getReference(), // NOPMD
+                resourceUsages.add(new ResourceUsage(
                         used.getObject().createDescriptor(visited),
                         StandardGrammars.USED_GRAMMAR_REQUEST_TYPE));
             }
             for (final GrammarAssembly.FailedGrammar failedGrammar : failedGrammars) {
-                resourceUsages.addAll(failedGrammar.getUsedResources());
+                resourceUsages.addAll(failedGrammar.usedResources());
             }
             visited.remove(this);
             return new ResourceDescriptor(resource.getSystemId(), resource.getType(), resource.getVersion(),
@@ -226,16 +227,16 @@ public final class GrammarView { // NOPMD
     /**
      * @return grammars referenced from this grammar
      */
-    public Set<ResourceReference> referencedGrammars() {
-        final HashSet<ResourceReference> requests = new HashSet<ResourceReference>();
+    public Set<GrammarId> referencedGrammars() {
+        final HashSet<GrammarId> requests = new HashSet<GrammarId>();
         for (final GrammarMember m : grammar.getContent()) {
             if (m instanceof GrammarImport) {
-                final ResourceReference request = toReference((GrammarImport) m);
+                var request = toReference((GrammarImport) m);
                 if (request != null) {
                     requests.add(request);
                 }
             } else if (m instanceof GrammarInclude) {
-                final ResourceReference request = toReference((GrammarInclude) m);
+                var request = toReference((GrammarInclude) m);
                 if (request != null) {
                     requests.add(request);
                 }
@@ -250,13 +251,14 @@ public final class GrammarView { // NOPMD
      * @param ref the grammar reference
      * @return the resource reference
      */
-    private ResourceReference toReference(final GrammarRef ref) {
-        ResourceReference resourceReference = references.get(ref);
-        if (resourceReference == null) {
-            resourceReference = getResourceReference(ref.getSystemId(), ref.getPublicId());
-            references.put(ref, resourceReference);
-        }
-        return resourceReference;
+    private GrammarId toReference(final GrammarRef ref) {
+        return references.computeIfAbsent(ref, r -> {
+            var parsed = GrammarId.parse(ref.getLocation(), ref.getQualifiedName(), ref.getVersion());
+            if (parsed.errors() != null) {
+                error(parsed.errors());
+            }
+            return parsed.result();
+        });
     }
 
     /**
@@ -270,38 +272,6 @@ public final class GrammarView { // NOPMD
     }
 
     /**
-     * Get resource reference from doctype.
-     *
-     * @param systemIdToken the systemId token
-     * @param publicIdToken the publicId token
-     * @return the resource reference
-     */
-    private ResourceReference getResourceReference(final Token systemIdToken, final Token publicIdToken) { // NOPMD
-        final StringInfo refSystemId = parse(systemIdToken);
-        if (refSystemId != null && refSystemId.getErrors() != null) {
-            error(refSystemId.getErrors());
-        }
-        final StringInfo refPublicId = parse(publicIdToken);
-        if (refPublicId != null && refPublicId.getErrors() != null) {
-            error(refPublicId.getErrors());
-        }
-        String textSystemId = refSystemId == null ? null : refSystemId.getText();
-        if (textSystemId != null) {
-            try {
-                final URI uri = URI.create(systemId);
-                if (!uri.isOpaque()) {
-                    textSystemId = uri.resolve(textSystemId).toString();
-                }
-            } catch (Exception ex) { // NOPMD
-                error(systemIdToken, "grammar.GrammarRef.systemIdParseError", systemIdToken.text());
-            }
-        }
-        final String textPublicId = refPublicId == null ? null : refPublicId.getText();
-        return textPublicId == null && textSystemId == null ? null
-                : new ResourceReference(textSystemId, textPublicId);
-    }
-
-    /**
      * This method examines grammar and gathers initial information about it.
      */
     public void prepareContexts() {
@@ -311,7 +281,9 @@ public final class GrammarView { // NOPMD
                 final GrammarView importedGrammar = getReferencedGrammar(gi);
                 if (importedGrammar == null) {
                     failedGrammars.add(assembly.failure(
-                            new ResourceRequest(toReference(gi), StandardGrammars.USED_GRAMMAR_REQUEST_TYPE))); // NOPMD
+                            new ResourceRequest(toReference(gi),
+                                    firstResolved.getDescriptor().getSystemId(),
+                                    firstResolved.getRequest().contextUrl()))); // NOPMD
                 } else if (importedGrammars.containsKey(gi.getName().text())) {
                     error(gi, "grammar.Grammar.duplicateImport", gi.getName());
                 } else {
@@ -323,7 +295,9 @@ public final class GrammarView { // NOPMD
                 final GrammarView includedGrammar = getReferencedGrammar(gi);
                 if (includedGrammar == null) {
                     failedGrammars.add(assembly.failure(
-                            new ResourceRequest(toReference(gi), StandardGrammars.USED_GRAMMAR_REQUEST_TYPE))); // NOPMD
+                            new ResourceRequest(toReference(gi),
+                                    firstResolved.getDescriptor().getSystemId(),
+                                    firstResolved.getRequest().contextUrl()))); // NOPMD
                 } else if (includeNode.hasImmediateParent(includedGrammar)) {
                     error(gi, "grammar.Grammar.duplicateInclude");
                 } else if (!includeNode.addParent(includedGrammar)) {

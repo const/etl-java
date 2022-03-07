@@ -34,17 +34,17 @@ import net.sf.etl.xml_catalog.event.CatalogResolutionEvent;
 import net.sf.etl.xml_catalog.event.CatalogResult;
 import net.sf.etl.xml_catalog.event.CatalogResultTrace;
 import net.sf.etl.xml_catalog.event.DefaultCatalogContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.net.URL;
 import java.util.Vector;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * The test for runtime catalog provider
@@ -92,7 +92,7 @@ public class RuntimeCatalogProviderTest {
         final CatalogRequest classpathRequest = new CatalogRequest(originalClassPathRequest.getSystemId());
         final CatalogFile catalogFile = getCatalogFile(provider, originalClassPathRequest);
         //noinspection UnusedAssignment
-        assertEquals("Catalogs: " + catalogFile.getNextCatalogs(), 2, catalogFile.getNextCatalogs().size());
+        assertEquals(2, catalogFile.getNextCatalogs().size(), "Catalogs: " + catalogFile.getNextCatalogs());
 
         // check public id resolution
         final String expected = CORE_CATALOG.resolve("oasis_xml_catalogs_1_1/catalog.dtd").toString();
@@ -100,12 +100,12 @@ public class RuntimeCatalogProviderTest {
         final String publicId = "-//OASIS//DTD XML Catalogs V1.1//EN";
         final BlockingCatalog classPathCatalog = new BlockingCatalog(classpathRequest, provider);
         final CatalogResult catalogResult = classPathCatalog.resolveEntity(publicId, systemId, null);
-        assertEquals(catalogResult.toDebugString(), expected, catalogResult.getResolution());
+        assertEquals(expected, catalogResult.getResolution(), catalogResult.toDebugString());
         final String publicIdAsSystemId = "urn:publicid:-:OASIS:DTD+XML+Catalogs+V1.1:EN";
         final CatalogResult catalogResult2 = classPathCatalog.resolveEntity(null, publicIdAsSystemId, null);
-        assertEquals(catalogResult.toDebugString(), expected, catalogResult2.getResolution());
+        assertEquals(expected, catalogResult2.getResolution(), catalogResult.toDebugString());
         final CatalogResult catalogResult3 = classPathCatalog.resolveEntity(publicId, publicIdAsSystemId + "X", null);
-        assertEquals(catalogResult3.toDebugString(), expected, catalogResult3.getResolution());
+        assertEquals(expected, catalogResult3.getResolution(), catalogResult3.toDebugString());
         // create vector catalog
         final Vector<URI> newScope = new Vector<URI>(); // NOPMD
         final CatalogRequest vectorRequest = provider.registerVectorCatalog("x-vector:", true, newScope);
@@ -119,7 +119,7 @@ public class RuntimeCatalogProviderTest {
         assertNull(uriResult.getResolution());
         final CatalogResultTrace trace = uriResult.getTrace();
         assertNotNull(trace);
-        assertTrue(uriResult.toDebugString(), trace.getCatalogRequest().getSystemId().endsWith("/pd-catalog2.xml"));
+        assertTrue(trace.getCatalogRequest().getSystemId().endsWith("/pd-catalog2.xml"), uriResult.toDebugString());
         // forget catalog to enable garbage collection
         originalClassPathRequest.getSystemId();
         //noinspection UnusedAssignment

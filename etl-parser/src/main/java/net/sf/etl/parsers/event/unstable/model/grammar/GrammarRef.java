@@ -26,6 +26,9 @@ package net.sf.etl.parsers.event.unstable.model.grammar;
 
 import net.sf.etl.parsers.Token;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * The GrammarRef node class. This class is a part of the lightweight grammar
  * model.
@@ -34,43 +37,34 @@ import net.sf.etl.parsers.Token;
  */
 public abstract class GrammarRef extends GrammarMember {
     /**
-     * the systemId.
+     * Qualified name.
      */
-    private Token systemId;
+    private final List<Token> qualifiedName = new ArrayList<>();
     /**
-     * the publicId.
+     * The version.
      */
-    private Token publicId;
+    private Token version;
 
     /**
-     * @return the systemId.
+     * @return the qualified name
      */
-    public final Token getSystemId() {
-        return systemId;
+    public List<Token> getQualifiedName() {
+        return qualifiedName;
     }
 
     /**
-     * Set system id.
+     * @return the version
+     */
+    public Token getVersion() {
+        return version;
+    }
+
+    /**
+     * Set version.
      *
-     * @param systemId the system id.
+     * @param version the version
      */
-    public final void setSystemId(final Token systemId) {
-        this.systemId = systemId;
-    }
-
-    /**
-     * @return the publicId.
-     */
-    public final Token getPublicId() {
-        return publicId;
-    }
-
-    /**
-     * Set public id.
-     *
-     * @param publicId the public id.
-     */
-    public final void setPublicId(final Token publicId) {
-        this.publicId = publicId;
+    public void setVersion(Token version) {
+        this.version = version;
     }
 }

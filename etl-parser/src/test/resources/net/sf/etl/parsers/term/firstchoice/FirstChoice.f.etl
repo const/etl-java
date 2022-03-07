@@ -1,4 +1,4 @@
-doctype "FirstChoice.g.etl";
+doctype test.FirstChoice;
 id; //first
 1.0l; // first
 1.0L; // first

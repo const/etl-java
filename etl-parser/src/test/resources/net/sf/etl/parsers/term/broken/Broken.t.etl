@@ -1,2 +1,2 @@
-doctype "Broken.g.etl";
+doctype test.Broken "0.1";
 a;

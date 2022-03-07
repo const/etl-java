@@ -33,10 +33,10 @@ import net.sf.etl.xml_catalog.blocking.provider.schema.FileSystemCatalogProvider
 import net.sf.etl.xml_catalog.event.CatalogFile;
 import net.sf.etl.xml_catalog.event.CatalogRequest;
 import net.sf.etl.xml_catalog.event.CatalogResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 
 /**
@@ -74,8 +74,8 @@ public class DefaultCatalogTest {
         final String publicId = "-//OASIS//DTD XML Catalogs V1.1//EN";
         final BlockingCatalog catalog = new BlockingCatalog(CatalogProviders.DEFAULT_ROOT_REQUEST, catalogProvider);
         final CatalogResult catalogResult1 = catalog.resolveEntity(publicId, systemId, null);
-        assertEquals(catalogResult1.toDebugString(), expected, catalogResult1.getResolution());
+        assertEquals(expected, catalogResult1.getResolution(), catalogResult1.toDebugString());
         final CatalogResult catalogResult2 = catalog.resolveEntity(publicId, expected, null);
-        assertEquals(catalogResult2.toDebugString(), expected, catalogResult2.getResolution());
+        assertEquals(expected, catalogResult2.getResolution(), catalogResult2.toDebugString());
     }
 }

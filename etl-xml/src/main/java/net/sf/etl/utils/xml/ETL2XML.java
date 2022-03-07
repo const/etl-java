@@ -109,7 +109,7 @@ public final class ETL2XML extends AbstractFileConverter<ETL2XMLConfig> {
             // resolve stylesheets for the resolver
             if (templates == null) {
                 final String styleFileName = getConfig().getStyle();
-                final CatalogResolver resolver = new CatalogResolver(getConfiguration().getCatalog(styleFileName));
+                final CatalogResolver resolver = new CatalogResolver(getCatalog());
                 final String transform;
                 if (styleFileName == null) {
                     // TODO resolve by extension

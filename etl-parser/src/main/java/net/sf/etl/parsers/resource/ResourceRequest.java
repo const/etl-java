@@ -25,70 +25,16 @@
 
 package net.sf.etl.parsers.resource;
 
+import net.sf.etl.parsers.GrammarId;
+
 import java.io.Serializable;
-import java.util.Objects;
 
 /**
  * The request for the resource.
+ *
+ * @param grammarId the requested grammar id
+ * @param sourceUrl the source or grammar that requested grammar
+ * @param contextUrl the initial source that requested the grammar
  */
-public final class ResourceRequest implements Serializable {
-    /**
-     * UID.
-     */
-    private static final long serialVersionUID = 8235987917918078795L;
-    /**
-     * The resource reference.
-     */
-    private final ResourceReference resource;
-    /**
-     * The role.
-     */
-    private final String role;
-
-    /**
-     * The constructor.
-     *
-     * @param resource the resource
-     * @param role     the role of the resource
-     */
-    public ResourceRequest(final ResourceReference resource, final String role) {
-        this.resource = resource;
-        this.role = role;
-    }
-
-    /**
-     * @return the resource reference
-     */
-    public ResourceReference getReference() {
-        return resource;
-    }
-
-    /**
-     * @return the role of the resource
-     */
-    public String getRole() {
-        return role;
-    }
-
-    @Override
-    public String toString() {
-        return "ResourceRequest{resource=" + resource + ", role='" + role + "'}";
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        final ResourceRequest that = (ResourceRequest) o;
-        return Objects.equals(resource, that.resource) && Objects.equals(role, that.role);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(resource, role);
-    }
+public record ResourceRequest(GrammarId grammarId, String sourceUrl, String contextUrl) implements Serializable {
 }

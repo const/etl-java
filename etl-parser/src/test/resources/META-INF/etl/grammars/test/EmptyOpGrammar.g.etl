@@ -1,6 +1,6 @@
-doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN";
+doctype ETL.Grammar "0.3.0";
 /// This is an grammar used to test empty operators
-grammar net.sf.etl.tests.empty_op.EmptyOpGrammar {
+grammar test.EmptyOpGrammar {
 	namespace default e = "http://etl.sf.net/2007/samples/empty_op/0.1";
 
 	context default Expression {

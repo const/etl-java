@@ -1,6 +1,6 @@
-doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN";
+doctype ETL.Grammar "0.3.0";
 // Reference ETL Parser for Java
-// Copyright (c) 2000-2013 Constantine A Plotnikov
+// Copyright (c) 2000-2022 Constantine A Plotnikov
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -35,7 +35,7 @@ doctype public "-//IDN etl.sf.net//ETL//Grammar 0.3.0//EN";
 /// informational purposes.
 ///
 /// <author>const</author>
-grammar net.sf.etl.grammars.DefaultGrammar "0.3.0" {
+grammar ETL.DefaultGrammar "0.3.0" {
 	namespace default d = "http://etl.sf.net/etl/default";
 
 	/// The only context in this grammar

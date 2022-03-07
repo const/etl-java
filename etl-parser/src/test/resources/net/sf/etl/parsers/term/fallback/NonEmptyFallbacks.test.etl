@@ -1,4 +1,4 @@
-doctype "Fallbacks.g.etl" context = NonEmptyFallbacks;
+doctype test.Fallbacks context = NonEmptyFallbacks;
 
 // The line below demonstrate correct statement
 /// a documentation

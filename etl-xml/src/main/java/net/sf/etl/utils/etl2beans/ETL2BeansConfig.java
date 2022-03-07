@@ -70,7 +70,7 @@ public final class ETL2BeansConfig extends ETL2AST.BaseASTConfig {
             if (ms == null || ms.length == 0) {
                 packageMap = Collections.emptyMap();
             } else {
-                packageMap = new HashMap<String, String>();
+                packageMap = new HashMap<>();
                 for (final String m : ms) {
                     final int p = m.lastIndexOf('=');
                     if (p == -1) {

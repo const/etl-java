@@ -44,8 +44,8 @@ public final class FirstChoiceNode extends GroupNode {
     @Override
     public Action buildActions(final ActionBuilder b, final Action normalExit, final Action errorExit,
                                final Action recoveryTest) {
-        final HashSet<ActionBuilder> visitedSet = new HashSet<ActionBuilder>();
-        final ArrayList<Node> nodes = new ArrayList<Node>(nodes());
+        final HashSet<ActionBuilder> visitedSet = new HashSet<>();
+        final ArrayList<Node> nodes = new ArrayList<>(nodes());
         Action current = null;
         if (matchesEmpty() && !nodes.get(nodes().size() - 1).matchesEmpty()) {
             final ListIterator<Node> i = nodes().listIterator(nodes().size());

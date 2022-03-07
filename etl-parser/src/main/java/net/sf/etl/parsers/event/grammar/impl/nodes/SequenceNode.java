@@ -28,12 +28,12 @@ import net.sf.etl.parsers.SourceLocation;
 import net.sf.etl.parsers.event.grammar.LookAheadSet;
 import net.sf.etl.parsers.event.grammar.impl.ActionBuilder;
 import net.sf.etl.parsers.event.impl.term.action.Action;
-import net.sf.etl.parsers.event.impl.term.action.DisableSoftEndAction;
-import net.sf.etl.parsers.event.impl.term.action.EnableSoftEndAction;
 import net.sf.etl.parsers.event.impl.term.action.RecoveryChoiceAction;
 import net.sf.etl.parsers.event.impl.term.action.RecoverySetupAction;
 import net.sf.etl.parsers.event.impl.term.action.RecoveryVoteAction;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
@@ -55,7 +55,6 @@ public final class SequenceNode extends GroupNode {
         Action recoveryTest = recoveryTestAction;
         head = new RecoverySetupAction(source, head, recoveryTest);
         errorExit = new RecoverySetupAction(source, errorExit, recoveryTest);
-        boolean wasNonEmpty = false;
         LookAheadSet previousLa = new LookAheadSet();
         final ListIterator<Node> i = nodes().listIterator(nodes().size());
         while (i.hasPrevious()) {
@@ -81,15 +80,41 @@ public final class SequenceNode extends GroupNode {
                         .build();
                 head = new RecoverySetupAction(node.getSource(), head, recoveryTest); // NOPMD
             }
-            if (!wasNonEmpty && !node.matchesEmpty() && i.hasPrevious()) {
-                wasNonEmpty = true;
-                head = new EnableSoftEndAction(source, head); // NOPMD
-            }
-        }
-        if (wasNonEmpty) {
-            head = new DisableSoftEndAction(source, head);
         }
         return head;
+    }
+
+    @Override
+    public Node inferSoftBreaks() {
+        super.inferSoftBreaks();
+        if (nodes().size() <= 1) {
+            return this;
+        }
+        int lastNonEmpty = nodes().size() - 1;
+        while(lastNonEmpty >= 0 && nodes().get(lastNonEmpty).matchesEmpty()) {
+            lastNonEmpty --;
+        }
+        if (lastNonEmpty < 0) {
+            // all can be empty
+            return this;
+        }
+        List<Node> inner;
+        List<Node> outer;
+        if (lastNonEmpty == nodes().size() - 1) {
+            inner = new ArrayList<>(nodes());
+            outer = List.of();
+        } else {
+            var saved = new ArrayList<>(nodes());
+            inner = saved.subList(0, lastNonEmpty + 1);
+            outer = saved.subList(lastNonEmpty  + 1, nodes().size());
+        }
+        var scope = new NoSoftBreakScopeNode(getSource());
+        var innerNode = (SequenceNode) scope.innerNode();
+        innerNode.nodes().addAll(inner);
+        nodes().clear();
+        nodes().add(scope);
+        nodes().addAll(outer);
+        return this;
     }
 
     @Override

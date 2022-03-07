@@ -30,9 +30,9 @@ import net.sf.etl.parsers.event.tree.TokenCollector;
 import net.sf.etl.parsers.streams.TermParserReader;
 import net.sf.etl.parsers.streams.TreeParserReader;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * An base for tests based on beans term parser
