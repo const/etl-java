@@ -29,7 +29,6 @@ import net.sf.etl.parsers.GrammarId;
 import net.sf.etl.parsers.ParserIOException;
 import net.sf.etl.parsers.StandardGrammars;
 import net.sf.etl.parsers.TextPos;
-import net.sf.etl.parsers.characters.TextUtil;
 import net.sf.etl.parsers.event.ParserState;
 import net.sf.etl.parsers.event.grammar.impl.GrammarAssemblyBuilder;
 import net.sf.etl.parsers.event.impl.bootstrap.BootstrapETLParserLite;
@@ -44,6 +43,7 @@ import net.sf.etl.parsers.streams.PhraseParserReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 /**
  * <p>This class contains code that loads standard grammars. These grammars are loaded using
@@ -151,7 +151,7 @@ public final class BootstrapGrammars {
                                 final BootstrapETLParserLite parser = new BootstrapETLParserLite(// NOPMD
                                         new PhraseParserReader(
                                                 new LexerReader(DefaultTermReaderConfiguration.INSTANCE,
-                                                        new InputStreamReader(input, TextUtil.UTF8),
+                                                        new InputStreamReader(input, StandardCharsets.UTF_8),
                                                         systemId, TextPos.START)));
                                 final Grammar grammar = parser.parse();
                                 // note that exception is thrown if there was problem with parsing resource

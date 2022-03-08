@@ -25,11 +25,11 @@
 
 package net.sf.etl.parsers;
 
-import net.sf.etl.parsers.characters.TextUtil;
 import net.sf.etl.parsers.characters.Whitespaces;
 import net.sf.etl.parsers.event.grammar.CompiledGrammar;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -63,7 +63,7 @@ public final class DefaultTermParserConfiguration implements TermParserConfigura
     /**
      * The grammar cache.
      */
-    private final Map<String, CompiledGrammar> grammarCache = new HashMap<String, CompiledGrammar>(); //NOPMD
+    private final Map<String, CompiledGrammar> grammarCache = new HashMap<>(); //NOPMD
 
     /**
      * The constructor from fields.
@@ -89,10 +89,10 @@ public final class DefaultTermParserConfiguration implements TermParserConfigura
      */
     private static Charset getDefaultEncoding() {
         try {
-            final String property = System.getProperty(ETL_FILE_ENCODING_PROPERTY, TextUtil.UTF8.name());
+            final String property = System.getProperty(ETL_FILE_ENCODING_PROPERTY, StandardCharsets.UTF_8.name());
             return Charset.forName(property);
         } catch (Exception ex) { // NOPMD
-            return TextUtil.UTF8;
+            return StandardCharsets.UTF_8;
         }
     }
 
@@ -124,7 +124,7 @@ public final class DefaultTermParserConfiguration implements TermParserConfigura
     @Override
     public void cacheGrammar(final CompiledGrammar grammar) {
         synchronized (grammarCache) {
-            final HashSet<String> cachedGrammars = new HashSet<String>();
+            final HashSet<String> cachedGrammars = new HashSet<>();
             cacheGrammar(cachedGrammars, grammar);
         }
     }

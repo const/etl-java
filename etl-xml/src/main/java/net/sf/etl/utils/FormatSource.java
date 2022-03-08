@@ -29,7 +29,6 @@ import net.sf.etl.parsers.Terms;
 import net.sf.etl.parsers.TextPos;
 import net.sf.etl.parsers.Token;
 import net.sf.etl.parsers.Tokens;
-import net.sf.etl.parsers.characters.TextUtil;
 import net.sf.etl.parsers.streams.TermParserReader;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
@@ -39,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -89,7 +89,7 @@ public final class FormatSource extends AbstractFileConverter<AbstractFileConver
     /**
      * The graphics around which space is suppressed.
      */
-    private final Set<String> graphicsWithSuppressedSpace = new HashSet<String>();
+    private final Set<String> graphicsWithSuppressedSpace = new HashSet<>();
     /**
      * The current indentation level.
      */
@@ -159,7 +159,7 @@ public final class FormatSource extends AbstractFileConverter<AbstractFileConver
     protected void processContent(final OutputStream stream, final TermParserReader p)
             throws Exception {
         // TODO encoding
-        this.out = new PrintWriter(new OutputStreamWriter(stream, TextUtil.UTF8));
+        this.out = new PrintWriter(new OutputStreamWriter(stream, StandardCharsets.UTF_8));
         formatBlockContent(p);
         this.out.flush();
     }
@@ -414,6 +414,7 @@ public final class FormatSource extends AbstractFileConverter<AbstractFileConver
                     if (wereTokens) {
                         startIndentedLine();
                     }
+                    assert tk != null;
                     print(tk);
                     forceNewLine();
                     p.advance();

@@ -26,7 +26,6 @@ package net.sf.etl.utils; // NOPMD
 
 import net.sf.etl.parsers.DefaultTermParserConfiguration;
 import net.sf.etl.parsers.TextPos;
-import net.sf.etl.parsers.characters.TextUtil;
 import net.sf.etl.parsers.streams.DefaultTermReaderConfiguration;
 import net.sf.etl.parsers.streams.LexerReader;
 import net.sf.etl.parsers.streams.PhraseParserReader;
@@ -50,6 +49,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,10 +61,10 @@ import java.util.TreeMap;
 /**
  * Abstract class for utilities that convert one set of sources to another.
  *
- * @param <Config> the configuration type
+ * @param <C> the configuration type
  * @author const
  */
-public abstract class AbstractFileConverter<Config extends AbstractFileConverter.BaseConfig> {
+public abstract class AbstractFileConverter<C extends AbstractFileConverter.BaseConfig> {
     /**
      * The logger.
      */
@@ -81,7 +81,7 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
     /**
      * The parsed config.
      */
-    private Config config;
+    private C config;
     /**
      * The catalog used for stylesheets.
      */
@@ -93,7 +93,7 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
      * @param commandLine the command line
      * @return the parsed configuration
      */
-    protected abstract Config parseConfig(CommandLine commandLine);
+    protected abstract C parseConfig(CommandLine commandLine);
 
     /**
      * @return the command line options
@@ -103,7 +103,7 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
     /**
      * @return the configuration
      */
-    protected final Config getConfig() {
+    protected final C getConfig() {
         return config;
     }
 
@@ -146,10 +146,8 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
 
     /**
      * Prepare file mapping.
-     *
-     * @throws MalformedURLException if there file name error
      */
-    protected final void prepareFileMapping() throws MalformedURLException { // NOPMD
+    protected final void prepareFileMapping() { // NOPMD
         final String inFiles = "-".equals(config.getInput()) ? null : config.getInput();
         final String outFiles = "-".equals(config.getOutput()) ? null : config.getOutput();
         if (inFiles == null) {
@@ -304,7 +302,7 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
         /**
          * Option for suppressing system catalog.
          */
-        private static final String DEFAULT_FILE_ENCODING = TextUtil.UTF8.displayName();
+        private static final String DEFAULT_FILE_ENCODING = StandardCharsets.UTF_8.displayName();
         /**
          * Option for suppressing system catalog.
          */
@@ -390,8 +388,8 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
             try {
                 return Charset.forName(optionValue);
             } catch (UnsupportedCharsetException ex) {
-                LOG.error("Unsupported charset: " + optionValue + " (using " + TextUtil.UTF8.displayName() + ")");
-                return TextUtil.UTF8;
+                LOG.error("Unsupported charset: " + optionValue + " (using " + StandardCharsets.UTF_8.displayName() + ")");
+                return StandardCharsets.UTF_8;
             }
         }
 
