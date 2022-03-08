@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2013 Constantine A Plotnikov
+ * Copyright (c) 2000-2022 Konstantin Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -73,7 +73,7 @@ public final class DefaultTermReaderConfiguration implements TermReaderCatalogCo
      * The constructor.
      *
      * @param termParserConfiguration the configuration
-     * @param classLoader the class loader to use
+     * @param classLoader             the class loader to use
      */
     public DefaultTermReaderConfiguration(final TermParserConfiguration termParserConfiguration,
                                           final ClassLoader classLoader) {

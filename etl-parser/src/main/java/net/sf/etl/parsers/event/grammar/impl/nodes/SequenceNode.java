@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2013 Constantine A Plotnikov
+ * Copyright (c) 2000-2022 Konstantin Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -91,8 +91,8 @@ public final class SequenceNode extends GroupNode {
             return this;
         }
         int lastNonEmpty = nodes().size() - 1;
-        while(lastNonEmpty >= 0 && nodes().get(lastNonEmpty).matchesEmpty()) {
-            lastNonEmpty --;
+        while (lastNonEmpty >= 0 && nodes().get(lastNonEmpty).matchesEmpty()) {
+            lastNonEmpty--;
         }
         if (lastNonEmpty < 0) {
             // all can be empty
@@ -106,7 +106,7 @@ public final class SequenceNode extends GroupNode {
         } else {
             var saved = new ArrayList<>(nodes());
             inner = saved.subList(0, lastNonEmpty + 1);
-            outer = saved.subList(lastNonEmpty  + 1, nodes().size());
+            outer = saved.subList(lastNonEmpty + 1, nodes().size());
         }
         var scope = new NoSoftBreakScopeNode(getSource());
         var innerNode = (SequenceNode) scope.innerNode();

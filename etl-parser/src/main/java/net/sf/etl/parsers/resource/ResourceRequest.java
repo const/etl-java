@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2013 Constantine A Plotnikov
+ * Copyright (c) 2000-2022 Konstantin Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -32,8 +32,8 @@ import java.io.Serializable;
 /**
  * The request for the resource.
  *
- * @param grammarId the requested grammar id
- * @param sourceUrl the source or grammar that requested grammar
+ * @param grammarId  the requested grammar id
+ * @param sourceUrl  the source or grammar that requested grammar
  * @param contextUrl the initial source that requested the grammar
  */
 public record ResourceRequest(GrammarId grammarId, String sourceUrl, String contextUrl) implements Serializable {

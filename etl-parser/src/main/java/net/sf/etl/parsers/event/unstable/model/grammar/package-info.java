@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2013 Constantine A Plotnikov
+ * Copyright (c) 2000-2022 Konstantin Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -27,6 +27,5 @@
  * grammar model and utility classes required to support this.
  * The package is generally unstable and it can change with
  * each new version of the parser implementation.</p>
- *
  */
 package net.sf.etl.parsers.event.unstable.model.grammar;

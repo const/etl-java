@@ -1,6 +1,6 @@
 <!--
   ~ Reference ETL Parser for Java
-  ~ Copyright (c) 2000-2013 Constantine A Plotnikov
+  ~ Copyright (c) 2000-2022 Konstantin Plotnikov
   ~
   ~ Permission is hereby granted, free of charge, to any person
   ~ obtaining a copy of this software and associated documentation
@@ -107,7 +107,7 @@
                     <div class="inner_div" id="right_inner">
                         <pre xml:space="preserve" class="etl_pre"><span class="etl_source"><span
         class="etl_linenum">     1: </span><xsl:apply-templates
-        /></span></pre>
+                        /></span></pre>
                         <ul class="etl_errors">
                             <xsl:apply-templates mode="errors"/>
                         </ul>

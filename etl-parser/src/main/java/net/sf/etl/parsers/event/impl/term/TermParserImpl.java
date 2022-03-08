@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2013 Constantine A Plotnikov
+ * Copyright (c) 2000-2022 Konstantin Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -359,6 +359,7 @@ public final class TermParserImpl implements TermParser { // NOPMD
      * This class represents a queue of tokens that have a possibility of
      * position and inserting new tokens just after mark. The functionality is
      * separated into own class just for convenience.
+     *
      * @param <T> the element type
      */
     public static final class MarkedQueue<T> {
@@ -565,6 +566,7 @@ public final class TermParserImpl implements TermParser { // NOPMD
 
         /**
          * Queue link.
+         *
          * @param <T> the element type
          */
         private static final class Link<T> {

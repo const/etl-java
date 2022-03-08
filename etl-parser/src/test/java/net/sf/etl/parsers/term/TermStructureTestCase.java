@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2013 Constantine A Plotnikov
+ * Copyright (c) 2000-2022 Konstantin Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -94,9 +94,9 @@ public abstract class TermStructureTestCase { // NOPMD
     /**
      * Start parsing resource with specified reader
      *
-     * @param text            the text to parse
-     * @param grammarId       the system id of default grammar
-     * @param defaultContext  a default context with which to start
+     * @param text           the text to parse
+     * @param grammarId      the system id of default grammar
+     * @param defaultContext a default context with which to start
      */
     protected void startWithStringAndDefaultGrammar(final String text, // NOPMD
                                                     final GrammarId grammarId,
@@ -290,7 +290,7 @@ public abstract class TermStructureTestCase { // NOPMD
      * Read doctype
      *
      * @param grammarId the grammar id of the grammar
-     * @param context  context name
+     * @param context   context name
      */
     protected void readDocType(GrammarId grammarId, final String context) {
         readDocType(null, grammarId, context);
@@ -299,9 +299,9 @@ public abstract class TermStructureTestCase { // NOPMD
     /**
      * Read doctype
      *
-     * @param type the type
+     * @param type      the type
      * @param grammarId the grammar id of the grammar
-     * @param context  context name
+     * @param context   context name
      */
     protected void readDocType(String type, GrammarId grammarId, final String context) {
         this.objectStart(StandardGrammars.DOCTYPE_NS, "DoctypeDeclaration");

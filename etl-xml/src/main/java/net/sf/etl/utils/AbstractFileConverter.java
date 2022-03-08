@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2013 Constantine A Plotnikov
+ * Copyright (c) 2000-2022 Konstantin Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -278,19 +278,19 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
     }
 
     /**
-     * @return the catalog
-     */
-    public final BlockingCatalog getCatalog() {
-        return catalog;
-    }
-
-    /**
      * The configuration.
      *
      * @param configuration configuration
      */
     protected final void setConfiguration(final TermReaderConfiguration configuration) {
         this.configuration = configuration;
+    }
+
+    /**
+     * @return the catalog
+     */
+    public final BlockingCatalog getCatalog() {
+        return catalog;
     }
 
     /**
@@ -476,7 +476,7 @@ public abstract class AbstractFileConverter<Config extends AbstractFileConverter
                 }
                 if (!urls.isEmpty()) {
                     classLoader = new URLClassLoader(
-                                    urls.toArray(new URL[0]), BaseConfig.class.getClassLoader());
+                            urls.toArray(new URL[0]), BaseConfig.class.getClassLoader());
                 } else {
                     classLoader = BaseConfig.class.getClassLoader();
                 }

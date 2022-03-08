@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2013 Constantine A Plotnikov
+ * Copyright (c) 2000-2022 Konstantin Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -308,7 +308,7 @@ final class BlockingCatalogSession { // NOPMD
                 } else {
                     var lastToken = reader.currentOrNull();
                     var location = new SourceLocation(
-                            lastToken == null? TextPos.START : lastToken.start(),
+                            lastToken == null ? TextPos.START : lastToken.start(),
                             lastToken == null ? TextPos.START : lastToken.start(),
                             reader.getSystemId());
                     grammarCompilerEngine.fail(request, resolution,

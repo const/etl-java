@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2013 Constantine A Plotnikov
+ * Copyright (c) 2000-2022 Konstantin Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -32,8 +32,8 @@ import net.sf.etl.parsers.resource.ResolvedObject;
  * The information about loaded grammar.
  *
  * @param resolvedGrammar the grammar from the compiler
- * @param usedGrammar   the actually used grammar
- * @param usedContext   the used context from the grammar
+ * @param usedGrammar     the actually used grammar
+ * @param usedContext     the used context from the grammar
  */
 public record LoadedGrammarInfo(
         ResolvedObject<CompiledGrammar> resolvedGrammar,

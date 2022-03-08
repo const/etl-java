@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2013 Constantine A Plotnikov
+ * Copyright (c) 2000-2022 Konstantin Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -73,10 +73,6 @@ public final class BlockStateFactory implements TermParserStateFactory {
          */
         private static final int BEFORE_BLOCK = 0;
         /**
-         * The current mode of the state.
-         */
-        private int mode = BEFORE_BLOCK;
-        /**
          * Inside the block.
          */
         private static final int IN_BLOCK = 1;
@@ -92,6 +88,10 @@ public final class BlockStateFactory implements TermParserStateFactory {
          * The factory for statement sequence.
          */
         private final TermParserStateFactory statementSequenceFactory;
+        /**
+         * The current mode of the state.
+         */
+        private int mode = BEFORE_BLOCK;
 
         /**
          * The constructor.

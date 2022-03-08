@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2013 Constantine A Plotnikov
+ * Copyright (c) 2000-2022 Konstantin Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -214,9 +214,9 @@ public final class TermParserReader extends AbstractReaderImpl<TermToken> {
     /**
      * Set default grammar.
      *
-     * @param grammarId       the grammar id of the grammar
-     * @param defaultContext  the default context
-     * @param scriptMode      the script mode
+     * @param grammarId      the grammar id of the grammar
+     * @param defaultContext the default context
+     * @param scriptMode     the script mode
      */
     public void setDefaultGrammar(final GrammarId grammarId,
                                   final String defaultContext, final boolean scriptMode) {

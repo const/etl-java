@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2013 Constantine A Plotnikov
+ * Copyright (c) 2000-2022 Konstantin Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -32,6 +32,7 @@ import java.math.BigInteger;
 
 /**
  * Information about number that is being parsed.
+ *
  * @param input    the input string
  * @param kind     the kind of token
  * @param sign     the sign of the number (1 for positive numbers and -1 for

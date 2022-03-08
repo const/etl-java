@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2013 Constantine A Plotnikov
+ * Copyright (c) 2000-2022 Konstantin Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -79,7 +79,7 @@ public abstract class GroupNode extends Node {
 
     @Override
     public Node inferSoftBreaks() {
-        for (int i = 0; i < nodes().size() ; i++) {
+        for (int i = 0; i < nodes().size(); i++) {
             nodes.set(i, nodes.get(i).flatten());
         }
         return this;

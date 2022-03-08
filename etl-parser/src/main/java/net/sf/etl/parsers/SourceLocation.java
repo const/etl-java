@@ -1,6 +1,6 @@
 /*
  * Reference ETL Parser for Java
- * Copyright (c) 2000-2013 Constantine A Plotnikov
+ * Copyright (c) 2000-2022 Konstantin Plotnikov
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -33,7 +33,6 @@ import java.io.Serializable;
  * @param start    the start of source code fragment
  * @param end      the end of source code fragment
  * @param systemId the location of source code fragment
- *
  * @author const
  */
 public record SourceLocation(TextPos start, TextPos end, String systemId) implements Serializable {
