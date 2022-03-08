@@ -33,9 +33,9 @@
         <version>0.3.0-SNAPSHOT</version>
     </parent>
     <artifactId>xml-catalog</artifactId>
+    <name>${project.groupId}:${project.artifactId}</name>
     <packaging>jar</packaging>
 
-    <name>XML Catalog Resolver</name>
     <description>
         XML Catalog 1.1 Resolver that provides flexible event-driven resolution process.
         It is intended to be usable in IDE and in command line tool contexts. The library

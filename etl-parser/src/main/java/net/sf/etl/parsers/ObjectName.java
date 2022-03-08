@@ -24,69 +24,16 @@
  */
 package net.sf.etl.parsers;
 
-import java.util.Objects;
-
 /**
  * Qualified name of object.
  *
+ * @param namespace namespace
+ * @param name      name
  * @author const
  */
-public final class ObjectName {
-    /**
-     * object namespace.
-     */
-    private final String namespace;
-    /**
-     * object name.
-     */
-    private final String name;
-
-    /**
-     * A constructor.
-     *
-     * @param namespace namespace
-     * @param name      name
-     */
-    public ObjectName(final String namespace, final String name) {
-        super();
-        this.name = name;
-        this.namespace = namespace;
-    }
-
-    /**
-     * @return name of object
-     */
-    public String name() {
-        return name;
-    }
-
-    /**
-     * @return namespace of object
-     */
-    public String namespace() {
-        return namespace;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        final ObjectName that = (ObjectName) o;
-        return Objects.equals(namespace, that.namespace) && Objects.equals(name, that.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(namespace, name);
-    }
-
+public record ObjectName(String namespace, String name) {
     @Override
     public String toString() {
         return "{" + namespace + "}" + name;
     }
-
 }

@@ -39,7 +39,7 @@ public abstract class NumberOp extends TokenRefOp {
     /**
      * the suffixes.
      */
-    private final List<Token> suffix = new LinkedList<Token>();
+    private final List<Token> suffix = new LinkedList<>();
 
     /**
      * @return the suffixes.

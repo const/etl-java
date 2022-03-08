@@ -51,7 +51,7 @@ public final class ChoiceBuilder {
     /**
      * The choice options.
      */
-    private final List<ChoiceOption> options = new ArrayList<ChoiceOption>();
+    private final List<ChoiceOption> options = new ArrayList<>();
     /**
      * The fallback action.
      */
@@ -124,12 +124,12 @@ public final class ChoiceBuilder {
                     // to nothing, it was processed as fallback
                     continue;
                 }
-                if (entry instanceof LookAheadSet.KeywordEntry) {
-                    choice.getKeywords().put(((LookAheadSet.KeywordEntry) entry).getKeyword(), option.action);
-                } else if (entry instanceof LookAheadSet.TokenKeyEntry) {
-                    choice.getTokens().put(((LookAheadSet.TokenKeyEntry) entry).getKey(), option.action);
-                } else if (entry instanceof LookAheadSet.PhraseEntry) {
-                    choice.getPhrase().put(((LookAheadSet.PhraseEntry) entry).getKind(), option.action);
+                if (entry instanceof LookAheadSet.KeywordEntry e) {
+                    choice.getKeywords().put(e.getKeyword(), option.action);
+                } else if (entry instanceof LookAheadSet.TokenKeyEntry e) {
+                    choice.getTokens().put(e.getKey(), option.action);
+                } else if (entry instanceof LookAheadSet.PhraseEntry e) {
+                    choice.getPhrase().put(e.getKind(), option.action);
                 }
             }
         }

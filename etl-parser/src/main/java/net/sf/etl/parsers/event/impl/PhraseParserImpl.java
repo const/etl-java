@@ -72,7 +72,7 @@ public final class PhraseParserImpl implements PhraseParser {
     /**
      * The stack of block positions.
      */
-    private final List<TextPos> blockStarts = new ArrayList<TextPos>();
+    private final List<TextPos> blockStarts = new ArrayList<>();
     /**
      * The parser state.
      */

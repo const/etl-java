@@ -117,7 +117,7 @@ public abstract class Node {
      * @return build look ahead starting from the current node
      */
     public final LookAheadSet buildLookAhead() {
-        return buildLookAhead(new HashSet<ActionBuilder>());
+        return buildLookAhead(new HashSet<>());
     }
 
     /**

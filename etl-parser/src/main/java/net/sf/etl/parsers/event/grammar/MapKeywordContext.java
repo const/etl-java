@@ -45,7 +45,7 @@ public final class MapKeywordContext implements KeywordContext {
      * @param keywords the keywords
      */
     public MapKeywordContext(final Keyword... keywords) {
-        this.map = new HashMap<String, Keyword>(keywords.length);
+        this.map = new HashMap<>(keywords.length);
         for (final Keyword value : keywords) {
             map.put(value.text(), value);
         }
@@ -58,7 +58,7 @@ public final class MapKeywordContext implements KeywordContext {
      * @param keywords the keywords
      */
     public MapKeywordContext(final Collection<Keyword> keywords) {
-        this.map = new HashMap<String, Keyword>(keywords.size());
+        this.map = new HashMap<>(keywords.size());
         for (final Keyword value : keywords) {
             map.put(value.text(), value);
         }

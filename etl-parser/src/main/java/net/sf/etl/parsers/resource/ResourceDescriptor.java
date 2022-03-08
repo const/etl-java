@@ -27,9 +27,7 @@ package net.sf.etl.parsers.resource;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
@@ -75,7 +73,7 @@ public final class ResourceDescriptor implements Serializable {
         this.systemId = systemId;
         this.type = type;
         this.version = version;
-        final LinkedHashMap<ResourceUsage, String> newUsages = new LinkedHashMap<ResourceUsage, String>();
+        final LinkedHashMap<ResourceUsage, String> newUsages = new LinkedHashMap<>();
         if (usedResources != null) {
             for (final ResourceUsage resourceUsage : usedResources) {
                 final ResourceUsage filtered = filter(systemId, resourceUsage);
@@ -85,9 +83,8 @@ public final class ResourceDescriptor implements Serializable {
             }
         }
         this.usedResources = newUsages.isEmpty()
-                ? Collections.<ResourceUsage>emptyList()
-                : Collections.unmodifiableList(Arrays.asList(newUsages.keySet().toArray(
-                new ResourceUsage[newUsages.size()])));
+                ? List.of()
+                : List.copyOf(newUsages.keySet());
     }
 
     /**
@@ -140,7 +137,7 @@ public final class ResourceDescriptor implements Serializable {
         if (additionalResources == null || additionalResources.isEmpty()) {
             return this;
         }
-        final LinkedHashMap<ResourceUsage, String> newUsages = new LinkedHashMap<ResourceUsage, String>();
+        final LinkedHashMap<ResourceUsage, String> newUsages = new LinkedHashMap<>();
         for (final ResourceUsage resourceUsage : usedResources) {
             newUsages.put(resourceUsage, "");
         }
@@ -155,7 +152,7 @@ public final class ResourceDescriptor implements Serializable {
     }
 
     /**
-     * Filter resource usage so it does not contain additional references from resource with
+     * Filter resource usage, so it does not contain additional references from resource with
      * the same system id as a root system id.
      *
      * @param filteredSystemId the system id to filter out
@@ -184,7 +181,7 @@ public final class ResourceDescriptor implements Serializable {
             i++;
         }
         if (changed) {
-            final ArrayList<ResourceUsage> newUsages = new ArrayList<ResourceUsage>();
+            final ArrayList<ResourceUsage> newUsages = new ArrayList<>();
             if (i > 0) {
                 newUsages.addAll(resources.subList(0, i));
             }

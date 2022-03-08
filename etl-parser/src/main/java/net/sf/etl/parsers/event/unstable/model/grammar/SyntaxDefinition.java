@@ -39,7 +39,7 @@ public abstract class SyntaxDefinition extends ContextMember {
     /**
      * the syntax.
      */
-    private final List<SyntaxStatement> syntax = new LinkedList<SyntaxStatement>();
+    private final List<SyntaxStatement> syntax = new LinkedList<>();
     /**
      * the name.
      */

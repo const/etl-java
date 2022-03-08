@@ -24,31 +24,21 @@
  */
 package net.sf.etl.parsers;
 
+import java.util.Objects;
+
 /**
  * Name of property.
  *
  * @author const
  */
-// NOTE POST 0.2: this class possibly should be eliminated later and replaced
-// with String in order to simplify API. However strong type checking is major
-// benefit so far from point of view of internal implementation.
-public final class PropertyName {
-    /**
-     * Name of property.
-     */
-    private final String name;
-
+public record PropertyName(String name) {
     /**
      * A constructor.
      *
      * @param name name of property
      */
-    public PropertyName(final String name) {
-        super();
-        if (name == null) {
-            throw new IllegalArgumentException("Null is not allowed as property name");
-        }
-        this.name = name;
+    public PropertyName {
+        Objects.requireNonNull(name, "Null is not allowed as property name");
     }
 
     /**
@@ -69,34 +59,6 @@ public final class PropertyName {
                     toString();
         }
         return name;
-    }
-
-    /**
-     * @return name of property
-     */
-    public String name() {
-        return name;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        //CHECKSTYLE:OFF
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        final PropertyName that = (PropertyName) o;
-
-        return name.equals(that.name);
-        //CHECKSTYLE:ON
-    }
-
-    @Override
-    public int hashCode() {
-        return name.hashCode();
     }
 
     @Override

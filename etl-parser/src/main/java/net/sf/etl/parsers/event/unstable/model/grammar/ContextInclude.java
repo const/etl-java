@@ -36,7 +36,7 @@ public final class ContextInclude extends ContextRef {
     /**
      * wrappers.
      */
-    private final List<Wrapper> wrappers = new java.util.ArrayList<Wrapper>();
+    private final List<Wrapper> wrappers = new java.util.ArrayList<>();
 
     /**
      * @return wrappers

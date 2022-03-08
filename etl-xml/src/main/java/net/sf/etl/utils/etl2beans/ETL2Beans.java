@@ -94,7 +94,7 @@ public final class ETL2Beans extends ETL2AST<ETL2BeansConfig> {
                     });
                 }
             });
-            final TreeParserReader<Object> parser = new TreeParserReader<Object>(p, bp);
+            final TreeParserReader<Object> parser = new TreeParserReader<>(p, bp);
             while (parser.advance()) {
                 en.writeObject(parser.current());
             }

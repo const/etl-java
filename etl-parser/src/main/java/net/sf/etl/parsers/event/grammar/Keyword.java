@@ -41,7 +41,7 @@ public final class Keyword implements Serializable {
      * The weak hash map for keywords.
      */
     private static final WeakHashMap<String, WeakReference<Keyword>> KEYWORDS =
-            new WeakHashMap<String, WeakReference<Keyword>>();
+            new WeakHashMap<>();
     /**
      * The serial version UID.
      */
@@ -90,7 +90,7 @@ public final class Keyword implements Serializable {
             Keyword rc = keyword == null ? null : keyword.get();
             if (rc == null) {
                 rc = new Keyword(key, text);
-                KEYWORDS.put(rc.text(), new WeakReference<Keyword>(rc));
+                KEYWORDS.put(rc.text(), new WeakReference<>(rc));
             }
             return rc;
         }

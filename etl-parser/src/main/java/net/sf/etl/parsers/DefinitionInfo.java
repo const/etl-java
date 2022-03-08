@@ -25,83 +25,13 @@
 
 package net.sf.etl.parsers;
 
-import java.util.Objects;
-
 /**
  * Information about definition, this information could be used to locate definition location.
+ *
+ * @param context  definition context
+ * @param name     the definition name
+ * @param location the definition location
  */
-public final class DefinitionInfo {
-    /**
-     * The context for the definition.
-     */
-    private final DefinitionContext context;
-    /**
-     * The definition name withing context.
-     */
-    private final String name;
-    /**
-     * The source location.
-     */
-    private final SourceLocation location;
-
-    /**
-     * The constructor.
-     *
-     * @param context  definition context
-     * @param name     the definition name
-     * @param location the definition location
-     */
-    public DefinitionInfo(final DefinitionContext context, final String name, final SourceLocation location) {
-        this.context = context;
-        this.name = name;
-        this.location = location;
-    }
-
-    /**
-     * @return the definition name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @return the definition location
-     */
-    public SourceLocation getLocation() {
-        return location;
-    }
-
-    /**
-     * @return the context for this definition
-     */
-    public DefinitionContext getContext() {
-        return context;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        final DefinitionInfo that = (DefinitionInfo) o;
-        return Objects.equals(context, that.context) && Objects.equals(name, that.name)
-                && Objects.equals(location, that.location);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(context, name, location);
-    }
-
-    @Override
-    public String toString() {
-        return "DefinitionInfo{"
-                + "context=" + context
-                + ", name='" + name + '\''
-                + ", location=" + location
-                + '}';
-    }
+public record DefinitionInfo(DefinitionContext context, String name,
+                             SourceLocation location) {
 }

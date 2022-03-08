@@ -41,7 +41,7 @@ public abstract class SimpleAction extends Action {
      *
      * @param source the source location in the grammar that caused this node creation
      */
-    public SimpleAction(final SourceLocation source) {
+    protected SimpleAction(final SourceLocation source) {
         super(source);
     }
 
@@ -51,7 +51,7 @@ public abstract class SimpleAction extends Action {
      * @param source the source location in the grammar that caused this node creation
      * @param next   the next action
      */
-    public SimpleAction(final SourceLocation source, final Action next) {
+    protected SimpleAction(final SourceLocation source, final Action next) {
         super(source);
         this.next = next;
     }

@@ -64,22 +64,22 @@ import java.util.Map;
  * value of the literal.</li>
  * </ul>
  *
- * @param <BaseObject> a type of the base object
+ * @param <B> a type of the base object
  * @author const
  */
-public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<BaseObject, Field,
+public class FieldObjectFactory<B> extends ReflectionObjectFactoryBase<B, Field,
         Class<?>, List<Object>> {
     /**
      * The logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(ReflectionObjectFactoryBase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FieldObjectFactory.class);
 
     /**
      * The cache of fields.
      */
     // TODO review usage ConcurrentHashMap in object factories (static vs. per parser instance)
     private final Map<Class<?>, Map<String, Field>> fieldCache = // NOPMD
-            new HashMap<Class<?>, Map<String, Field>>();
+            new HashMap<>();
 
     /**
      * The constructor from super class.
@@ -91,16 +91,16 @@ public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<
     }
 
     @Override
-    public final void addToFeature(final BaseObject rc, final Field f, final List<Object> holder, final Object v) {
+    public final void addToFeature(final B rc, final Field f, final List<Object> holder, final Object v) {
         holder.add(v);
         valueEnlisted(rc, f, v);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    protected final BaseObject createInstance(final Class<?> metaObject, final ObjectName name) {
+    protected final B createInstance(final Class<?> metaObject, final ObjectName name) {
         try {
-            return (BaseObject) metaObject.newInstance();
+            return (B) metaObject.getConstructor().newInstance();
         } catch (Exception e) { // NOPMD
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Instance of " + metaObject.getCanonicalName() + " cannot be created.", e);
@@ -110,7 +110,7 @@ public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<
     }
 
     @Override
-    public final void endListCollection(final BaseObject rc, final Class<?> metaObject, final Field f,
+    public final void endListCollection(final B rc, final Class<?> metaObject, final Field f,
                                         final List<Object> holder) {
         // do nothing
     }
@@ -121,25 +121,25 @@ public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<
     }
 
     @Override
-    public final Field getPropertyMetaObject(final BaseObject rc, final Class<?> metaObject, final String name) {
+    public final Field getPropertyMetaObject(final B rc, final Class<?> metaObject, final String name) {
         return field(metaObject, name);
     }
 
     @Override
-    public final void setToFeature(final BaseObject rc, final Field f, final Object v) {
+    public final void setToFeature(final B rc, final Field f, final Object v) {
         try {
             f.set(rc, v);
         } catch (IllegalAccessException e) {
             if (LOG.isErrorEnabled()) {
-                LOG.error("The field " + f + " cannot be accessed.", e);
+                LOG.error("The field %s cannot be accessed.".formatted(f), e);
             }
-            throw new ParserException("The field " + f + " cannot be accessed.", e);
+            throw new ParserException("The field %s cannot be accessed.".formatted(f), e);
         }
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public final List<Object> startListCollection(final BaseObject rc, final Class<?> metaObject, final Field f) {
+    public final List<Object> startListCollection(final B rc, final Class<?> metaObject, final Field f) {
         try {
             final List<Object> list = (List<Object>) f.get(rc);
             if (list == null) {
@@ -167,8 +167,7 @@ public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<
         Class<?> elementType = f.getType();
         if (List.class.isAssignableFrom(elementType)) {
             final Type rawType = f.getGenericType();
-            if (rawType instanceof ParameterizedType) {
-                final ParameterizedType pt = (ParameterizedType) rawType;
+            if (rawType instanceof ParameterizedType pt) {
                 final Type arg = pt.getActualTypeArguments()[0];
                 if (arg instanceof Class) {
                     elementType = (Class<?>) arg;
@@ -192,7 +191,7 @@ public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<
      * @param f  a filed of the object
      * @param v  a value added to field
      */
-    protected void valueEnlisted(final BaseObject rc, final Field f, final Object v) {
+    protected void valueEnlisted(final B rc, final Field f, final Object v) {
         // by default, do nothing
     }
 
@@ -207,11 +206,7 @@ public class FieldObjectFactory<BaseObject> extends ReflectionObjectFactoryBase<
     private Field field(final Class<?> c, final String name) {
         try {
             final String featureName = PropertyName.lowerCaseFeatureName(name);
-            Map<String, Field> classFields = fieldCache.get(c);
-            if (classFields == null) {
-                classFields = new HashMap<String, Field>();
-                fieldCache.put(c, classFields);
-            }
+            Map<String, Field> classFields = fieldCache.computeIfAbsent(c, k -> new HashMap<>());
             Field rc = classFields.get(featureName);
             if (rc == null) {
                 rc = c.getField(featureName);

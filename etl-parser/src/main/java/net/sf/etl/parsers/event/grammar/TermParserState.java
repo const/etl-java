@@ -26,6 +26,7 @@
 package net.sf.etl.parsers.event.grammar;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * The state for term parser. The state represent runtime state of the parser. The states are organized in the stack.
@@ -76,6 +77,9 @@ public abstract class TermParserState {
 
             @Override
             public TermParserState next() {
+                if (state == null) {
+                    throw new NoSuchElementException();
+                }
                 final TermParserState rc = state;
                 state = state.getPreviousState();
                 return rc;

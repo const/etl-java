@@ -149,7 +149,7 @@ public final class ErrorInfo implements Iterable<ErrorInfo>, Serializable {
      * @return the error list
      */
     public static ErrorInfo merge(final Collection<ErrorInfo> errors) {
-        final ArrayList<ErrorInfo> list = new ArrayList<ErrorInfo>();
+        final ArrayList<ErrorInfo> list = new ArrayList<>();
         for (final ErrorInfo error : errors) {
             if (error != null) {
                 for (final ErrorInfo e : error) {

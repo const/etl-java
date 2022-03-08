@@ -37,11 +37,11 @@ public class MapSchemaProviderModule implements SchemaProviderModule {
     /**
      * The catalog provider for file lists.
      */
-    private final Map<String, CatalogProvider> catalogProviders = new HashMap<String, CatalogProvider>(); // NOPMD
+    private final Map<String, CatalogProvider> catalogProviders = new HashMap<>(); // NOPMD
 
     @Override
     public final String[] supportedUriSchemas() {
-        return catalogProviders.keySet().toArray(new String[catalogProviders.size()]);
+        return catalogProviders.keySet().toArray(new String[0]);
     }
 
     @Override

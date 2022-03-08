@@ -45,7 +45,7 @@ public class BinaryKeyTest {
         assertEquals(k1, k2);
         assertEquals(k1.hashCode(), k2.hashCode());
         assert k1.toString().equalsIgnoreCase("0ffe");
-        assertEquals(BinaryKey.fromString(""), BinaryKey.EMPTY);
+        assertEquals(BinaryKey.EMPTY, BinaryKey.fromString(""));
         assert !k1.equals(k3);
         try {
             BinaryKey.fromString("0FE");

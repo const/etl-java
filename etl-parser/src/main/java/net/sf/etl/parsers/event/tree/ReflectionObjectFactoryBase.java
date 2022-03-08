@@ -35,14 +35,13 @@ import java.util.Map;
 /**
  * This class provide facilities for mapping class names.
  *
- * @param <BaseObjectType> the base type for returned objects
- * @param <FeatureType>    the type for feature metatype used by objects
- * @param <MetaObjectType> the type for meta object type
- * @param <HolderType>     the holder type for collection properties
+ * @param <B> the base type for returned objects
+ * @param <F> the type for feature metatype used by objects
+ * @param <M> the type for meta-object type
+ * @param <H> the holder type for collection properties
  * @author const
  */
-public abstract class ReflectionObjectFactoryBase<BaseObjectType, FeatureType, MetaObjectType, HolderType>
-        extends ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> {
+public abstract class ReflectionObjectFactoryBase<B, F, M, H> extends ObjectFactory<B, F, M, H> {
     /**
      * The logger.
      */
@@ -54,19 +53,19 @@ public abstract class ReflectionObjectFactoryBase<BaseObjectType, FeatureType, M
     /**
      * The map from namespace to java package.
      */
-    private final Map<String, String> namespaceMapping = new HashMap<String, String>(); // NOPMD
+    private final Map<String, String> namespaceMapping = new HashMap<>(); // NOPMD
     /**
      * The map from namespace to object to java class.
      */
     private final Map<String, HashMap<String, Class<?>>> objectMapping = // NOPMD
-            new HashMap<String, HashMap<String, Class<?>>>();
+            new HashMap<>();
 
     /**
      * The constructor.
      *
      * @param classLoader the class loader for the parser
      */
-    public ReflectionObjectFactoryBase(final ClassLoader classLoader) {
+    protected ReflectionObjectFactoryBase(final ClassLoader classLoader) {
         this.classLoader = classLoader == null ? getClassLoader() : classLoader;
     }
 
@@ -114,11 +113,8 @@ public abstract class ReflectionObjectFactoryBase<BaseObjectType, FeatureType, M
      * @param beanClass the class of java bean
      */
     public final void mapNameToClass(final String namespace, final String name, final Class<?> beanClass) {
-        HashMap<String, Class<?>> nameToClass = objectMapping.get(namespace);
-        if (nameToClass == null) {
-            nameToClass = new HashMap<String, Class<?>>();
-            objectMapping.put(namespace, nameToClass);
-        }
+        HashMap<String, Class<?>> nameToClass = objectMapping.computeIfAbsent(namespace,
+                k -> new HashMap<>());
         nameToClass.put(name, beanClass);
     }
 

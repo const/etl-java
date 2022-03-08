@@ -39,9 +39,9 @@ import net.sf.etl.parsers.event.tree.TreeParser;
 /**
  * The tree reader.
  *
- * @param <Element> the base class for parsed objects.
+ * @param <B> the base class for parsed objects.
  */
-public class TreeParserReader<Element> extends AbstractReaderImpl<Element> {
+public class TreeParserReader<B> extends AbstractReaderImpl<B> {
     /**
      * The reader.
      */
@@ -49,7 +49,7 @@ public class TreeParserReader<Element> extends AbstractReaderImpl<Element> {
     /**
      * The tree parser.
      */
-    private final TreeParser<Element> treeParser;
+    private final TreeParser<B> treeParser;
     /**
      * The underlying lexer.
      */
@@ -66,7 +66,7 @@ public class TreeParserReader<Element> extends AbstractReaderImpl<Element> {
      * @param objectFactory    the object factory
      */
     public TreeParserReader(final TermParserReader termParserReader,
-                            final ObjectFactory<Element, ?, ?, ?> objectFactory) {
+                            final ObjectFactory<B, ?, ?, ?> objectFactory) {
         this.termParserReader = termParserReader;
         this.treeParser = ObjectFactoryTreeParser.make(objectFactory, termParserReader.getSystemId());
     }

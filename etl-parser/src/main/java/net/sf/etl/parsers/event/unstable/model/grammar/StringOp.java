@@ -39,7 +39,7 @@ public final class StringOp extends TokenRefOp {
     /**
      * the prefix for the string (identifier).
      */
-    private final List<Token> prefix = new LinkedList<Token>();
+    private final List<Token> prefix = new LinkedList<>();
     /**
      * the quote for the string (for symmetric case).
      */

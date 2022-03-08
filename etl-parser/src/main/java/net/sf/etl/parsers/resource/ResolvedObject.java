@@ -98,10 +98,10 @@ public final class ResolvedObject<T extends Serializable> implements Serializabl
      * The same request but with other object.
      *
      * @param newObject the object
-     * @param <Other>   the object type
+     * @param <O>       the object type
      * @return new resolved object instance
      */
-    public <Other extends Serializable> ResolvedObject<Other> withOtherObject(final Other newObject) {
+    public <O extends Serializable> ResolvedObject<O> withOtherObject(final O newObject) {
         return new ResolvedObject<>(request, resolutionHistory, descriptor, newObject);
     }
 

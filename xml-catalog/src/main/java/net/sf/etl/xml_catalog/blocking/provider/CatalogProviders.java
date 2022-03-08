@@ -178,19 +178,15 @@ public final class CatalogProviders {
      */
     public static CatalogProvider createCachedCatalog(final CatalogProvider source,
                                                       final CatalogResolutionCache cache) {
-        return new CatalogProvider() {
-            @Override
-            public CatalogResolutionEvent getCatalog(final CatalogContext catalogContext,
-                                                     final CatalogRequest request) {
-                CatalogResolutionEvent event = cache.getFile(request);
-                if (event == null) {
-                    event = source.getCatalog(catalogContext, request);
-                    if (event != null) {
-                        cache.cacheFile(event);
-                    }
+        return (catalogContext, request) -> {
+            CatalogResolutionEvent event = cache.getFile(request);
+            if (event == null) {
+                event = source.getCatalog(catalogContext, request);
+                if (event != null) {
+                    cache.cacheFile(event);
                 }
-                return event;
             }
+            return event;
         };
     }
 

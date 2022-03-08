@@ -450,41 +450,32 @@ public final class ContextView { // NOPMD
                     default:
                         throw new IllegalStateException("[BUG] Unsupported precedence level: " + associativity);
                 }
-            } else if (m instanceof AttributesView) {
-                final AttributesView view = (AttributesView) m;
+            } else if (m instanceof AttributesView view) {
                 if (attributes == null) {
                     attributes = view;
                 } else {
                     error("grammar.Context.multipleAttributesSpecifications",
                             attributes.definition().getName(), view.definition().getName());
                 }
-            } else if (m instanceof DocumentationView) {
-                final DocumentationView view = (DocumentationView) m;
+            } else if (m instanceof final DocumentationView view) {
                 if (documentation == null) {
                     documentation = view;
                 } else {
                     error("grammar.Context.multipleDocumentationSpecifications",
                             documentation.definition().getName(), view.definition().getName());
                 }
-            } else if (m instanceof StatementView) {
-                final StatementView view = (StatementView) m;
+            } else if (m instanceof final StatementView view) {
                 statements.add(view);
-            } else if (m instanceof DefView) {
-                final DefView view = (DefView) m;
+            } else if (m instanceof final DefView view) {
                 defs.put(view.definition().getName().text(), view);
-            } else if (m instanceof ChoiceDefView) {
-                final ChoiceDefView view = (ChoiceDefView) m;
+            } else if (m instanceof final ChoiceDefView view) {
                 choiceDefs.put(view.name(), view);
-            } else if (m instanceof ChoiceCaseDefView) {
-                final ChoiceCaseDefView view = (ChoiceCaseDefView) m;
+            } else if (m instanceof final ChoiceCaseDefView view) {
                 final String choiceName = view.choiceName();
                 if (choiceName != null) {
                     // the name == null only in the case of syntax error, so it was reported earlier
-                    List<ChoiceCaseDefView> choice = choiceCaseDefs.get(choiceName);
-                    if (choice == null) {
-                        choice = new ArrayList<ChoiceCaseDefView>(); // NOPMD
-                        choiceCaseDefs.put(choiceName, choice);
-                    }
+                    List<ChoiceCaseDefView> choice = choiceCaseDefs.computeIfAbsent(choiceName,
+                            k -> new ArrayList<>());
                     choice.add(view);
                 }
             } else {
@@ -885,7 +876,7 @@ public final class ContextView { // NOPMD
         @Override
         protected void reportDuplicates(final ContextView holder, final String key,
                                         final Set<ContextIncludeView> duplicateNodes) {
-            final HashSet<WrapperLink> wrappers = new HashSet<WrapperLink>();
+            final HashSet<WrapperLink> wrappers = new HashSet<>();
             boolean isFirst = true;
             WrapperLink firstWrapper = null;
             for (final ContextIncludeView include : duplicateNodes) {

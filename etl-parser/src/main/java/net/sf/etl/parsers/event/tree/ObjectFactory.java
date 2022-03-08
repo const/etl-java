@@ -45,25 +45,25 @@ import java.util.Set;
  * This is an abstract factory for objects created by tree parser, it provides some default behavior
  * to support parsing process, but all that behavior could be customized.
  *
- * @param <BaseObjectType> this is a base type for returned objects
- * @param <FeatureType>    this is a type for feature metatype used by objects
- * @param <MetaObjectType> this is a type for meta object type
- * @param <HolderType>     this is a holder type for collection properties
+ * @param <B> this is a base type for returned objects
+ * @param <F> this is a type for feature metatype used by objects
+ * @param <M> this is a type for meta-object type
+ * @param <H> this is a holder type for collection properties
  * @author const
  */
-public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> {
+public abstract class ObjectFactory<B, F, M, H> {
     /**
      * This set contains namespaces ignored by parser.
      */
-    private final Set<String> ignoredNamespaces = new HashSet<String>();
+    private final Set<String> ignoredNamespaces = new HashSet<>();
     /**
      * This is map from ignored object names to set of namespaces.
      */
-    private final Map<String, Set<String>> ignoredObjects = new HashMap<String, Set<String>>(); // NOPMD
+    private final Map<String, Set<String>> ignoredObjects = new HashMap<>(); // NOPMD
     /**
      * The value parsers.
      */
-    private final List<ValueParser> valueParsers = new ArrayList<ValueParser>();
+    private final List<ValueParser> valueParsers = new ArrayList<>();
 
     /**
      * If this flag is true, when default statement is encountered during
@@ -137,11 +137,7 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
      * @param name      the name in namespace
      */
     public final void ignoreObjects(final String namespace, final String name) {
-        Set<String> namespaces = ignoredObjects.get(name);
-        if (namespaces == null) {
-            namespaces = new HashSet<String>();
-            ignoredObjects.put(name, namespaces);
-        }
+        Set<String> namespaces = ignoredObjects.computeIfAbsent(name, k -> new HashSet<>());
         namespaces.add(namespace);
     }
 
@@ -152,7 +148,7 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
      * @param value the value to parse
      * @return parsed value
      */
-    public final Object parseValue(final FeatureType f, final Token value) {
+    public final Object parseValue(final F f, final Token value) {
         final Class<?> type = getFeatureType(f);
         for (final ValueParser parser : valueParsers) {
             final Object o = parser.parse(type, value);
@@ -169,7 +165,7 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
      * @param feature the feature.
      * @return the feature type
      */
-    protected abstract Class<?> getFeatureType(FeatureType feature);
+    protected abstract Class<?> getFeatureType(F feature);
 
     /**
      * Set value to feature.
@@ -178,7 +174,7 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
      * @param f     the feature to update
      * @param value the value to set
      */
-    public final void setValueToFeature(final BaseObjectType rc, final FeatureType f, final Token value) {
+    public final void setValueToFeature(final B rc, final F f, final Token value) {
         setToFeature(rc, f, parseValue(f, value));
     }
 
@@ -190,7 +186,7 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
      * @param holder the collection
      * @param value  the value to add
      */
-    public final void addValueToFeature(final BaseObjectType rc, final FeatureType f, final HolderType holder,
+    public final void addValueToFeature(final B rc, final F f, final H holder,
                                         final Token value) {
         addToFeature(rc, f, holder, parseValue(f, value));
     }
@@ -202,7 +198,7 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
      * @param f  a feature to update
      * @param v  a value to set
      */
-    public abstract void setToFeature(final BaseObjectType rc, final FeatureType f, final Object v);
+    public abstract void setToFeature(final B rc, final F f, final Object v);
 
     /**
      * Add object to feature.
@@ -212,7 +208,7 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
      * @param holder the collection objects
      * @param v      the value to add
      */
-    public abstract void addToFeature(final BaseObjectType rc, final FeatureType f, final HolderType holder,
+    public abstract void addToFeature(final B rc, final F f, final H holder,
                                       final Object v);
 
     /**
@@ -226,8 +222,8 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
      * @param f          the feature to be updated
      * @return the collection
      */
-    public abstract HolderType startListCollection(final BaseObjectType rc, final MetaObjectType metaObject,
-                                                   final FeatureType f);
+    public abstract H startListCollection(final B rc, final M metaObject,
+                                          final F f);
 
     /**
      * Finish list collection.
@@ -237,8 +233,8 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
      * @param f          the feature to update
      * @param holder     the holder of values
      */
-    public abstract void endListCollection(final BaseObjectType rc, final MetaObjectType metaObject,
-                                           final FeatureType f, final HolderType holder);
+    public abstract void endListCollection(final B rc, final M metaObject,
+                                           final F f, final H holder);
 
     /**
      * get feature meta object.
@@ -248,8 +244,8 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
      * @param token      the token that contains LIST_PROPERTY_START or PROPERTY_START events.
      * @return a feature object
      */
-    public final FeatureType getPropertyMetaObject(final BaseObjectType rc, final MetaObjectType metaObject,
-                                                   final TermToken token) {
+    public final F getPropertyMetaObject(final B rc, final M metaObject,
+                                         final TermToken token) {
         return getPropertyMetaObject(rc, metaObject, token.propertyName().name());
     }
 
@@ -261,8 +257,8 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
      * @param name       the name of property.
      * @return a feature object
      */
-    public abstract FeatureType getPropertyMetaObject(final BaseObjectType rc, final MetaObjectType metaObject,
-                                                      final String name);
+    public abstract F getPropertyMetaObject(final B rc, final M metaObject,
+                                            final String name);
 
     /**
      * Set start position in object. Default implementation tries to set
@@ -276,7 +272,7 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
      * {@link #setObjectEndPos(Object, Object, Object, net.sf.etl.parsers.TermToken)}, the
      * default implementation returns the start position.
      */
-    public final Object setObjectStartPos(final BaseObjectType rc, final MetaObjectType metaObject,
+    public final Object setObjectStartPos(final B rc, final M metaObject,
                                           final TermToken token) {
         return positionPolicy.setObjectStartPos(this, rc, metaObject, token);
     }
@@ -291,7 +287,7 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
      *                   {@link #setObjectStartPos(Object, Object, net.sf.etl.parsers.TermToken)}
      * @param token      the end object token
      */
-    public final void setObjectEndPos(final BaseObjectType rc, final MetaObjectType metaObject,
+    public final void setObjectEndPos(final B rc, final M metaObject,
                                       final Object startValue, final TermToken token) {
         positionPolicy.setObjectEndPos(this, null, rc, metaObject, startValue, token);
     }
@@ -317,7 +313,7 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
      * @param name the object to be mapped to metaobject
      * @return an meta object
      */
-    protected abstract MetaObjectType getMetaObject(final ObjectName name);
+    protected abstract M getMetaObject(final ObjectName name);
 
     /**
      * Create instance of object from meta object.
@@ -326,7 +322,7 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
      * @param name       the name of object
      * @return new instance
      */
-    protected abstract BaseObjectType createInstance(final MetaObjectType metaObject, final ObjectName name);
+    protected abstract B createInstance(final M metaObject, final ObjectName name);
 
     /**
      * The value converter interface.
@@ -349,41 +345,40 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
         /**
          * Set start position in object.
          *
-         * @param factory          the factory instance
-         * @param rc               the object
-         * @param metaObject       the meta object
-         * @param token            teh start object token
-         * @param <BaseObjectType> this is a base type for returned objects
-         * @param <FeatureType>    this is a type for feature metatype used by objects
-         * @param <MetaObjectType> this is a type for meta object type
-         * @param <HolderType>     this is a holder type for collection properties
+         * @param factory    the factory instance
+         * @param rc         the object
+         * @param metaObject the meta-object
+         * @param token      teh start object token
+         * @param <B1>       this is a base type for returned objects
+         * @param <F1>       this is a type for feature metatype used by objects
+         * @param <M1>       this is a type for meta-object type
+         * @param <H1>       this is a holder type for collection properties
          * @return the value to be passed to
          * {@link #setObjectEndPos(Object, Object, Object, net.sf.etl.parsers.TermToken)}, the
          * default implementation returns the start position.
          */
-        <BaseObjectType, FeatureType, MetaObjectType, HolderType>
-        Object setObjectStartPos(ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> factory,
-                                 BaseObjectType rc, MetaObjectType metaObject, TermToken token);
+        <B1, F1, M1, H1>
+        Object setObjectStartPos(ObjectFactory<B1, F1, M1, H1> factory, B1 rc, M1 metaObject, TermToken token);
 
         /**
          * Set end position in object. Default implementation tries to set
          * properties endLine, endColumn, and endOffset with corresponding values.
          *
-         * @param factory          the factory instance
-         * @param systemId         the system id
-         * @param rc               the object
-         * @param metaObject       the meta object
-         * @param startValue       the value returned from
-         *                         {@link #setObjectStartPos(Object, Object, net.sf.etl.parsers.TermToken)}
-         * @param <BaseObjectType> this is a base type for returned objects
-         * @param <FeatureType>    this is a type for feature metatype used by objects
-         * @param <MetaObjectType> this is a type for meta object type
-         * @param <HolderType>     this is a holder type for collection properties
-         * @param token            the end object token
+         * @param factory    the factory instance
+         * @param systemId   the system id
+         * @param rc         the object
+         * @param metaObject the meta object
+         * @param startValue the value returned from
+         *                   {@link #setObjectStartPos(Object, Object, net.sf.etl.parsers.TermToken)}
+         * @param <B1>       this is a base type for returned objects
+         * @param <F1>       this is a type for feature metatype used by objects
+         * @param <M1>       this is a type for meta-object type
+         * @param <H1>       this is a holder type for collection properties
+         * @param token      the end object token
          */
-        <BaseObjectType, FeatureType, MetaObjectType, HolderType>
-        void setObjectEndPos(ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> factory,
-                             final String systemId, final BaseObjectType rc, final MetaObjectType metaObject,
+        <B1, F1, M1, H1>
+        void setObjectEndPos(ObjectFactory<B1, F1, M1, H1> factory,
+                             final String systemId, final B1 rc, final M1 metaObject,
                              final Object startValue, final TermToken token);
     }
 
@@ -457,19 +452,19 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
         }
 
         @Override
-        public <BaseObjectType, FeatureType, MetaObjectType, HolderType> Object setObjectStartPos(
-                final ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> factory,
-                final BaseObjectType rc, final MetaObjectType metaObject, final TermToken token) {
+        public <B1, F1, M1, H1> Object setObjectStartPos(
+                final ObjectFactory<B1, F1, M1, H1> factory,
+                final B1 rc, final M1 metaObject, final TermToken token) {
             return token.start();
         }
 
         @Override
-        public <BaseObjectType, FeatureType, MetaObjectType, HolderType> void setObjectEndPos(
-                final ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> factory,
-                final String systemId, final BaseObjectType rc, final MetaObjectType metaObject,
+        public <B1, F1, M1, H1> void setObjectEndPos(
+                final ObjectFactory<B1, F1, M1, H1> factory,
+                final String systemId, final B1 rc, final M1 metaObject,
                 final Object startValue, final TermToken token) {
             final TextPos pos = token.start();
-            final FeatureType locationFeature = factory.getPropertyMetaObject(rc, metaObject, "location");
+            final F1 locationFeature = factory.getPropertyMetaObject(rc, metaObject, "location");
             factory.setToFeature(rc, locationFeature,
                     new SourceLocation((TextPos) startValue, pos, systemId));
         }
@@ -491,22 +486,22 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
         }
 
         @Override
-        public <BaseObjectType, FeatureType, MetaObjectType, HolderType> Object setObjectStartPos(
-                final ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> factory,
-                final BaseObjectType rc, final MetaObjectType metaObject, final TermToken token) {
+        public <B1, F1, M1, H1> Object setObjectStartPos(
+                final ObjectFactory<B1, F1, M1, H1> factory,
+                final B1 rc, final M1 metaObject, final TermToken token) {
             final TextPos pos = token.start();
-            final FeatureType startFeature = factory.getPropertyMetaObject(rc, metaObject, "start");
+            final F1 startFeature = factory.getPropertyMetaObject(rc, metaObject, "start");
             factory.setToFeature(rc, startFeature, pos);
             return null;
         }
 
         @Override
-        public <BaseObjectType, FeatureType, MetaObjectType, HolderType> void setObjectEndPos(
-                final ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> factory,
-                final String systemId, final BaseObjectType rc, final MetaObjectType metaObject,
+        public <B1, F1, M1, H1> void setObjectEndPos(
+                final ObjectFactory<B1, F1, M1, H1> factory,
+                final String systemId, final B1 rc, final M1 metaObject,
                 final Object startValue, final TermToken token) {
             final TextPos pos = token.start();
-            final FeatureType endFeature = factory.getPropertyMetaObject(rc, metaObject, "end");
+            final F1 endFeature = factory.getPropertyMetaObject(rc, metaObject, "end");
             factory.setToFeature(rc, endFeature, pos);
         }
     }
@@ -528,30 +523,30 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
         }
 
         @Override
-        public <BaseObjectType, FeatureType, MetaObjectType, HolderType> Object setObjectStartPos(
-                final ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> factory,
-                final BaseObjectType rc, final MetaObjectType metaObject, final TermToken token) {
+        public <B1, F1, M1, H1> Object setObjectStartPos(
+                final ObjectFactory<B1, F1, M1, H1> factory,
+                final B1 rc, final M1 metaObject, final TermToken token) {
             final TextPos pos = token.start();
-            final FeatureType startLineFeature = factory.getPropertyMetaObject(rc, metaObject, "startLine");
+            final F1 startLineFeature = factory.getPropertyMetaObject(rc, metaObject, "startLine");
             factory.setToFeature(rc, startLineFeature, pos.line());
-            final FeatureType startColumnFeature = factory.getPropertyMetaObject(rc, metaObject, "startColumn");
+            final F1 startColumnFeature = factory.getPropertyMetaObject(rc, metaObject, "startColumn");
             factory.setToFeature(rc, startColumnFeature, pos.column());
-            final FeatureType startOffsetFeature = factory.getPropertyMetaObject(rc, metaObject, "startOffset");
+            final F1 startOffsetFeature = factory.getPropertyMetaObject(rc, metaObject, "startOffset");
             factory.setToFeature(rc, startOffsetFeature, pos.offset());
             return null;
         }
 
         @Override
-        public <BaseObjectType, FeatureType, MetaObjectType, HolderType> void setObjectEndPos(
-                final ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> factory,
-                final String systemId, final BaseObjectType rc, final MetaObjectType metaObject,
+        public <B1, F1, M1, H1> void setObjectEndPos(
+                final ObjectFactory<B1, F1, M1, H1> factory,
+                final String systemId, final B1 rc, final M1 metaObject,
                 final Object startValue, final TermToken token) {
             final TextPos pos = token.start();
-            final FeatureType endLineFeature = factory.getPropertyMetaObject(rc, metaObject, "endLine");
+            final F1 endLineFeature = factory.getPropertyMetaObject(rc, metaObject, "endLine");
             factory.setToFeature(rc, endLineFeature, pos.line());
-            final FeatureType endColumnFeature = factory.getPropertyMetaObject(rc, metaObject, "endColumn");
+            final F1 endColumnFeature = factory.getPropertyMetaObject(rc, metaObject, "endColumn");
             factory.setToFeature(rc, endColumnFeature, pos.column());
-            final FeatureType endOffsetFeature = factory.getPropertyMetaObject(rc, metaObject, "endOffset");
+            final F1 endOffsetFeature = factory.getPropertyMetaObject(rc, metaObject, "endOffset");
             factory.setToFeature(rc, endOffsetFeature, pos.offset());
         }
     }
@@ -571,16 +566,16 @@ public abstract class ObjectFactory<BaseObjectType, FeatureType, MetaObjectType,
         }
 
         @Override
-        public <BaseObjectType, FeatureType, MetaObjectType, HolderType> Object setObjectStartPos(
-                final ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> factory,
-                final BaseObjectType rc, final MetaObjectType metaObject, final TermToken token) {
+        public <B1, F1, M1, H1> Object setObjectStartPos(
+                final ObjectFactory<B1, F1, M1, H1> factory,
+                final B1 rc, final M1 metaObject, final TermToken token) {
             return null;
         }
 
         @Override
-        public <BaseObjectType, FeatureType, MetaObjectType, HolderType> void setObjectEndPos(
-                final ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> factory,
-                final String systemId, final BaseObjectType rc, final MetaObjectType metaObject,
+        public <B1, F1, M1, H1> void setObjectEndPos(
+                final ObjectFactory<B1, F1, M1, H1> factory,
+                final String systemId, final B1 rc, final M1 metaObject,
                 final Object startValue, final TermToken token) {
             // do nothing
         }

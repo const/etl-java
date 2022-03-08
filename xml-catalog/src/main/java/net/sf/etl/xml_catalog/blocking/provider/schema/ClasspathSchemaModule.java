@@ -92,7 +92,7 @@ public final class ClasspathSchemaModule extends MapSchemaProviderModule {
 
         @Override
         public CatalogResolutionEvent getCatalog(final CatalogContext catalogContext, final CatalogRequest request) {
-            final ArrayList<URI> uriList = new ArrayList<URI>();
+            final ArrayList<URI> uriList = new ArrayList<>();
             try {
                 String path = new URI(request.getSystemId()).getPath();
                 if (path == null || path.isEmpty()) {

@@ -85,7 +85,7 @@ public final class OperatorLevelBuilder {
      */
     private void compileNormalLevel() { // NOPMD
         final ActionBuilder previousLevel = getPreviousBuilder();
-        final HashSet<DefinitionView> visited = new HashSet<DefinitionView>();
+        final HashSet<DefinitionView> visited = new HashSet<>();
         final Element contextElement = contextBuilder.contextView().reportingContext();
         b.startChoice(contextElement);
         // Compile F operations
@@ -169,7 +169,7 @@ public final class OperatorLevelBuilder {
             b.endRepeat(); // YF and YFX
         }
         // yfy are at they end
-        if (level.getYFY().size() > 0) {
+        if (!level.getYFY().isEmpty()) {
             b.startChoice(contextElement);
             for (final OpDefinitionView d : level.getYFY()) {
                 b.startDefinition(d);
@@ -317,7 +317,7 @@ public final class OperatorLevelBuilder {
         for (final OpDefinitionView op : level.getF()) {
             b.startDefinition(op.topObjectDefinition(contextBuilder.contextView()));
             b.startSequence(op.operator());
-            contextBuilder.compileSyntax(new HashSet<DefinitionView>(), //NOPMD
+            contextBuilder.compileSyntax(new HashSet<>(), //NOPMD
                     b, op.topObject(contextBuilder.contextView()));
             b.endSequence();
             b.endDefinition();

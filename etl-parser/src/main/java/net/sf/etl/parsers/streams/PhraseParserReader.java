@@ -42,7 +42,7 @@ public final class PhraseParserReader extends AbstractReaderImpl<PhraseToken> {
     /**
      * The underlying lexer.
      */
-    private final Cell<Token> tokenCell = new Cell<Token>();
+    private final Cell<Token> tokenCell = new Cell<>();
     /**
      * The lexer.
      */
@@ -96,7 +96,7 @@ public final class PhraseParserReader extends AbstractReaderImpl<PhraseToken> {
     }
 
     @Override
-    protected void doClose() throws Exception {
+    protected void doClose() {
         lexer.close();
     }
 

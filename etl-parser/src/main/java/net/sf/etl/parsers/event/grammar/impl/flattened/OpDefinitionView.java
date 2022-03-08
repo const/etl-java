@@ -162,18 +162,16 @@ public final class OpDefinitionView extends ObjectDefinitionView {
     private void parseSyntaxContent(final Set<DefinitionView> visited,
                                     final ContextView context, final DefinitionView current, final OpInfo rc,
                                     final List<SyntaxStatement> syntax) {
-        for (final Object element : syntax) {
+        for (final SyntaxStatement element : syntax) {
             if (element instanceof BlankSyntaxStatement) {
                 // do nothing
                 continue;
             }
-            if (element instanceof Let) {
-                final Let let = (Let) element;
-                if (let.getExpression() instanceof OperandOp) {
+            if (element instanceof final Let let) {
+                if (let.getExpression() instanceof final OperandOp operand) {
                     final boolean isList = "+=".equals(let.getOperator().text());
-                    final OperandOp operand = (OperandOp) let.getExpression();
                     final Associativity associativity = associativity();
-                    if ("left".equals(operand.getPosition())) {
+                    if ("left".equals(operand.getPosition()) && associativity != null) {
                         // check if operator has left argument
                         switch (associativity) {
                             case XF:
@@ -194,7 +192,7 @@ public final class OpDefinitionView extends ObjectDefinitionView {
                                 error(this, operand, "grammar.Operand.leftNotAllowed", associativity.name());
                                 break;
                         }
-                    } else if ("right".equals(operand.getPosition())) {
+                    } else if ("right".equals(operand.getPosition()) && associativity != null) {
                         switch (associativity) {
                             case FX:
                             case FY:
@@ -218,10 +216,8 @@ public final class OpDefinitionView extends ObjectDefinitionView {
                 } else {
                     processCompositeStatement(rc, let);
                 }
-            } else if (element instanceof ExpressionStatement) {
-                final ExpressionStatement es = (ExpressionStatement) element;
-                if (es.getSyntax() instanceof RefOp) {
-                    final RefOp r = (RefOp) es.getSyntax();
+            } else if (element instanceof final ExpressionStatement es) {
+                if (es.getSyntax() instanceof final RefOp r) {
                     final DefView d = context.def(r.getName().text());
                     if (d == null) {
                         if (context.choice(r.getName().text()) != null) {
@@ -240,7 +236,7 @@ public final class OpDefinitionView extends ObjectDefinitionView {
                     processCompositeStatement(rc, es);
                 }
             } else {
-                processCompositeStatement(rc, (SyntaxStatement) element);
+                processCompositeStatement(rc, element);
             }
         }
     }
@@ -344,7 +340,7 @@ public final class OpDefinitionView extends ObjectDefinitionView {
         /**
          * List of operator statements.
          */
-        private final List<SyntaxStatement> operatorStatements = new ArrayList<SyntaxStatement>();
+        private final List<SyntaxStatement> operatorStatements = new ArrayList<>();
         /**
          * root object for operator.
          */

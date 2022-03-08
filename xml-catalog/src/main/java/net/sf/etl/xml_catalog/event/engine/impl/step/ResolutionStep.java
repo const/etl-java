@@ -148,7 +148,7 @@ public abstract class ResolutionStep {
         if (delegates == null || delegates.isEmpty()) {
             return null;
         }
-        final ArrayList<CatalogRequest> rc = new ArrayList<CatalogRequest>(delegates.size());
+        final ArrayList<CatalogRequest> rc = new ArrayList<>(delegates.size());
         for (final CatalogReferenceEntry e : delegates.values()) {
             rc.add(catalogRequest(e));
         }

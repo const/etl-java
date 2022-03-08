@@ -95,7 +95,7 @@ public class BeansObjectFactory extends ReflectionObjectFactoryBase<Object, Prop
             return beanClass.getConstructor().newInstance();
         } catch (final Exception e) { // NOPMD
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Object cannot be created: " + beanClass.getName());
+                LOG.debug("Object cannot be created: {}", beanClass.getName());
             }
             throw new ParserException("Object cannot be created: " + beanClass.getName(), e);
         }
@@ -113,7 +113,7 @@ public class BeansObjectFactory extends ReflectionObjectFactoryBase<Object, Prop
             return Introspector.getBeanInfo(beanClass);
         } catch (final IntrospectionException e) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("BeanInfo has not been found for class: " + beanClass.getName());
+                LOG.debug("BeanInfo has not been found for class: {}", beanClass.getName());
             }
             throw new ParserException("BeanInfo not found for object name " + beanClass.getName(), e);
         }
@@ -143,7 +143,7 @@ public class BeansObjectFactory extends ReflectionObjectFactoryBase<Object, Prop
         final Method m = f.getReadMethod();
         try {
             final Object array = m.invoke(rc);
-            final ArrayList<Object> list = new ArrayList<Object>();
+            final ArrayList<Object> list = new ArrayList<>();
             if (array != null) {
                 final int n = Array.getLength(array);
                 for (int i = 0; i < n; i++) {

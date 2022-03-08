@@ -71,13 +71,13 @@ public final class CatalogRuntimeProvider implements CatalogProvider {
      * // TODO should it be named flywieght catalogs?
      */
     private final WeakHashMap<CatalogRequest, CatalogProvider> syntheticCatalogs
-            = new WeakHashMap<CatalogRequest, CatalogProvider>();
+            = new WeakHashMap<>();
     /**
      * The handlers for the catalogs by URI schema.
      * TODO more flexible mechanism that allows multiple registrations for the single schema (like JDBC DriverManager)
      */
     private final Map<String, CatalogProvider> schemaCatalogProviders = // NOPMD
-            new HashMap<String, CatalogProvider>();
+            new HashMap<>();
     /**
      * The next provider.
      */
@@ -235,7 +235,7 @@ public final class CatalogRuntimeProvider implements CatalogProvider {
         final ClassLoader classLoader = classFile.getClassLoader();
         try {
             final String name = classFile.getName();
-            final URL resource = classLoader.getResource(name.replaceAll("\\.", "/") + ".class");
+            final URL resource = classLoader.getResource(name.replace(".", "/") + ".class");
             if (resource != null) {
                 base = resource.toString();
             }
@@ -250,7 +250,7 @@ public final class CatalogRuntimeProvider implements CatalogProvider {
                                                      final CatalogRequest request) {
                 try {
                     final Enumeration<URL> resources = classLoader.getResources("META-INF/xml/catalog.xml");
-                    final ArrayList<URI> uriList = new ArrayList<URI>();
+                    final ArrayList<URI> uriList = new ArrayList<>();
                     while (resources.hasMoreElements()) {
                         final URL url = resources.nextElement();
                         uriList.add(url.toURI());

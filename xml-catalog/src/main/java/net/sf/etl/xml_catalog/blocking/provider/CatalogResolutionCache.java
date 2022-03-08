@@ -50,11 +50,11 @@ public final class CatalogResolutionCache {
      * The cache size.
      */
     private final Map<String, CatalogResolutionEvent> cache = // NOPMD
-            new LinkedHashMap<String, CatalogResolutionEvent>(DEFAULT_CACHE_SIZE);
+            new LinkedHashMap<>(DEFAULT_CACHE_SIZE);
     /**
      * The dependencies in the cache.
      */
-    private final Map<String, Set<String>> dependencies = new HashMap<String, Set<String>>(); // NOPMD
+    private final Map<String, Set<String>> dependencies = new HashMap<>(); // NOPMD
     /**
      * The cache size.
      */

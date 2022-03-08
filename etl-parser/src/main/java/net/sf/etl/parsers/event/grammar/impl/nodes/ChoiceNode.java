@@ -45,7 +45,7 @@ public final class ChoiceNode extends GroupNode {
     @Override
     public Action buildActions(final ActionBuilder b, final Action normalExit, final Action errorExit,
                                final Action recoveryTest) {
-        final HashSet<ActionBuilder> visitedSet = new HashSet<ActionBuilder>();
+        final HashSet<ActionBuilder> visitedSet = new HashSet<>();
         final LookAheadSet choiceLa = buildLookAhead();
         final SourceLocation source = getSource();
         final ChoiceBuilder builder = new ChoiceBuilder(source);

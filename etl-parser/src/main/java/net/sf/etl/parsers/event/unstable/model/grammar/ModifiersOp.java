@@ -36,7 +36,7 @@ public final class ModifiersOp extends Syntax {
     /**
      * the modifiers.
      */
-    private final List<SyntaxStatement> modifiers = new java.util.ArrayList<SyntaxStatement>();
+    private final List<SyntaxStatement> modifiers = new java.util.ArrayList<>();
     /**
      * the wrapper.
      */

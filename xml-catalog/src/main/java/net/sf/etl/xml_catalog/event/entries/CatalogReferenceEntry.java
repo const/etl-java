@@ -45,7 +45,7 @@ public abstract class CatalogReferenceEntry extends CatalogEntry {
      * @param base    the base URI
      * @param catalog the catalog reference
      */
-    public CatalogReferenceEntry(final String id, final URI base, final URI catalog) {
+    protected CatalogReferenceEntry(final String id, final URI base, final URI catalog) {
         super(id, base);
         this.catalog = catalog;
     }

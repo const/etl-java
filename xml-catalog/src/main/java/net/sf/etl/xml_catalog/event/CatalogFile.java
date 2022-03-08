@@ -134,7 +134,7 @@ public final class CatalogFile {
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Catalog systemId could not be parsed: " + systemId, e);
         }
-        final List<CatalogEntry> nextEntries = new ArrayList<CatalogEntry>();
+        final List<CatalogEntry> nextEntries = new ArrayList<>();
         for (final URI nextCatalog : nextCatalogs) {
             nextEntries.add(new NextCatalogEntry(null, base, nextCatalog)); // NOPMD
         }

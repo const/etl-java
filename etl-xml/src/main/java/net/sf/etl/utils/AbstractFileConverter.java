@@ -69,6 +69,7 @@ public abstract class AbstractFileConverter<C extends AbstractFileConverter.Base
      * The logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(AbstractFileConverter.class);
+    public static final String STDIN_URN = "urn:x-etl:system:in";
     /**
      * Map from source to destinations. Null key means stdin. Null value means
      * stdout.
@@ -191,7 +192,7 @@ public abstract class AbstractFileConverter<C extends AbstractFileConverter.Base
                 final File outDir = out.getParentFile();
                 final boolean mkdirs = outDir.mkdirs();
                 if (!mkdirs && !outDir.isDirectory()) {
-                    LOG.error("Failed to create directory: " + outDir);
+                    LOG.error("Failed to create directory: {}", outDir);
                 }
                 final String[] files = inDir.list();
                 if (files == null) {
@@ -242,8 +243,8 @@ public abstract class AbstractFileConverter<C extends AbstractFileConverter.Base
                         p = new TermParserReader(configuration, new PhraseParserReader(// NOPMD
                                 new LexerReader(configuration,
                                         new InputStreamReader(System.in,
-                                                configuration.getParserConfiguration().getEncoding("urn:system:in")),
-                                        "urn:system:in", TextPos.START)));
+                                                configuration.getParserConfiguration().getEncoding(STDIN_URN)),
+                                        STDIN_URN, TextPos.START)));
                     } else {
                         p = new TermParserReader(configuration, new URL(me.getKey())); // NOPMD
                     }
@@ -369,12 +370,14 @@ public abstract class AbstractFileConverter<C extends AbstractFileConverter.Base
             try {
                 final int tabSize = Integer.parseInt(optionValue);
                 if (tabSize <= 0) {
-                    LOG.error("Invalid tab size: " + optionValue + " using " + DEFAULT_TAB_SIZE);
+                    if (LOG.isErrorEnabled()) {
+                        LOG.error("Invalid tab size: %s using %s".formatted(optionValue, DEFAULT_TAB_SIZE));
+                    }
                     return Integer.parseInt(DEFAULT_TAB_SIZE);
                 }
                 return tabSize;
             } catch (NumberFormatException ex) {
-                LOG.error("Invalid tab size: " + optionValue + " using " + DEFAULT_TAB_SIZE);
+                LOG.error("Invalid tab size: %s using %s".formatted(optionValue, DEFAULT_TAB_SIZE));
                 return Integer.parseInt(DEFAULT_TAB_SIZE);
             }
         }
@@ -388,7 +391,7 @@ public abstract class AbstractFileConverter<C extends AbstractFileConverter.Base
             try {
                 return Charset.forName(optionValue);
             } catch (UnsupportedCharsetException ex) {
-                LOG.error("Unsupported charset: " + optionValue + " (using " + StandardCharsets.UTF_8.displayName() + ")");
+                LOG.error("Unsupported charset: %s (using %s)".formatted(optionValue, StandardCharsets.UTF_8.displayName()));
                 return StandardCharsets.UTF_8;
             }
         }
@@ -435,7 +438,9 @@ public abstract class AbstractFileConverter<C extends AbstractFileConverter.Base
                         if (file.isFile()) {
                             catalogPaths.add(file.getAbsoluteFile().toURI());
                         } else {
-                            LOG.error("File does not exists or is not a file: " + c);
+                            if (LOG.isErrorEnabled()) {
+                                LOG.error("File does not exists or is not a file: %s".formatted(c));
+                            }
                         }
                     }
                 } else {
@@ -466,7 +471,7 @@ public abstract class AbstractFileConverter<C extends AbstractFileConverter.Base
                                         LOG.error("Bad classpath element: " + p, e);
                                     }
                                 } else {
-                                    LOG.warn("Classpath element " + p + " does not exists, ignoring.");
+                                    LOG.warn("Classpath element {} does not exists, ignoring.", p);
                                 }
                             }
                         }

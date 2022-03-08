@@ -27,9 +27,9 @@ package net.sf.etl.parsers.streams;
 /**
  * The abstract parser.
  *
- * @param <TokenType> the token type
+ * @param <T> the token type
  */
-public interface AbstractReader<TokenType> {
+public interface AbstractReader<T> {
 
     /**
      * @return system id associated with this parser
@@ -67,12 +67,12 @@ public interface AbstractReader<TokenType> {
      * @return current token
      * @see #advance()
      */
-    TokenType current();
+    T current();
 
     /**
      * @return current token or null if token has not been read yet.
      * @see #advance()
      */
-    TokenType currentOrNull();
+    T currentOrNull();
 
 }

@@ -465,15 +465,14 @@ public final class TermParserImpl implements TermParser { // NOPMD
          * @param value a value
          */
         public void append(final T value) {
-            final Link<T> l = new Link<T>(value);
+            var l = new Link<>(value);
             if (last == null) {
                 first = l;
-                last = l;
             } else {
                 last.next = l;
                 l.previous = last;
-                last = l;
             }
+            last = l;
         }
 
         /**

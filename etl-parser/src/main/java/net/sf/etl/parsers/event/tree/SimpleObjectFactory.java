@@ -65,21 +65,21 @@ import java.util.Map;
  * value of the literal.</li>
  * </ul>
  *
- * @param <BaseObject> a type of the base object
+ * @param <B> a type of the base object
  * @author const
  */
-public class SimpleObjectFactory<BaseObject>
-        extends ReflectionObjectFactoryBase<BaseObject, SimpleObjectFactory.Property, Class<?>, List<Object>> {
+public class SimpleObjectFactory<B>
+        extends ReflectionObjectFactoryBase<B, SimpleObjectFactory.Property, Class<?>, List<Object>> {
     /**
      * The logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(ReflectionObjectFactoryBase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SimpleObjectFactory.class);
 
     /**
      * The cache of fields.
      */
     private final Map<Class<?>, Map<String, Property>> propertyCache = // NOPMD
-            new HashMap<Class<?>, Map<String, Property>>();
+            new HashMap<>();
 
     /**
      * The constructor from super class.
@@ -91,16 +91,16 @@ public class SimpleObjectFactory<BaseObject>
     }
 
     @Override
-    public final void addToFeature(final BaseObject rc, final Property f, final List<Object> holder, final Object v) {
+    public final void addToFeature(final B rc, final Property f, final List<Object> holder, final Object v) {
         holder.add(v);
         valueEnlisted(rc, f, v);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    protected final BaseObject createInstance(final Class<?> metaObject, final ObjectName name) {
+    protected final B createInstance(final Class<?> metaObject, final ObjectName name) {
         try {
-            return (BaseObject) metaObject.newInstance();
+            return (B) metaObject.getConstructor().newInstance();
         } catch (Exception e) { // NOPMD
             if (LOG.isErrorEnabled()) {
                 LOG.error("Instance of " + metaObject.getCanonicalName() + " cannot be created.", e);
@@ -110,7 +110,7 @@ public class SimpleObjectFactory<BaseObject>
     }
 
     @Override
-    public final void endListCollection(final BaseObject rc, final Class<?> metaObject, final Property f,
+    public final void endListCollection(final B rc, final Class<?> metaObject, final Property f,
                                         final List<Object> holder) {
         // do nothing
     }
@@ -121,12 +121,12 @@ public class SimpleObjectFactory<BaseObject>
     }
 
     @Override
-    public final Property getPropertyMetaObject(final BaseObject rc, final Class<?> metaObject, final String name) {
+    public final Property getPropertyMetaObject(final B rc, final Class<?> metaObject, final String name) {
         return property(metaObject, name);
     }
 
     @Override
-    public final void setToFeature(final BaseObject rc, final Property f, final Object v) {
+    public final void setToFeature(final B rc, final Property f, final Object v) {
         try {
             f.set(rc, v);
         } catch (Exception e) { // NOPMD
@@ -139,7 +139,7 @@ public class SimpleObjectFactory<BaseObject>
 
     @SuppressWarnings("unchecked")
     @Override
-    public final List<Object> startListCollection(final BaseObject rc, final Class<?> metaObject, final Property f) {
+    public final List<Object> startListCollection(final B rc, final Class<?> metaObject, final Property f) {
         try {
             final List<Object> list = (List<Object>) f.get(rc);
             if (list == null) {
@@ -176,7 +176,7 @@ public class SimpleObjectFactory<BaseObject>
      * @param f  a filed of the object
      * @param v  a value added to field
      */
-    protected void valueEnlisted(final BaseObject rc, final Property f, final Object v) {
+    protected void valueEnlisted(final B rc, final Property f, final Object v) {
         // by default, do nothing
     }
 
@@ -191,17 +191,8 @@ public class SimpleObjectFactory<BaseObject>
     private Property property(final Class<?> c, final String name) {
         try {
             final String featureName = PropertyName.lowerCaseFeatureName(name);
-            Map<String, Property> classFields = propertyCache.get(c);
-            if (classFields == null) {
-                classFields = new HashMap<String, Property>();
-                propertyCache.put(c, classFields);
-            }
-            Property rc = classFields.get(featureName);
-            if (rc == null) {
-                rc = Property.find(c, name);
-                classFields.put(featureName, rc);
-            }
-            return rc;
+            Map<String, Property> classFields = propertyCache.computeIfAbsent(c, k -> new HashMap<>());
+            return classFields.computeIfAbsent(featureName, k -> Property.find(c, name));
         } catch (Exception e) { // NOPMD
             if (LOG.isErrorEnabled()) {
                 LOG.error("Unable to find property " + name + " in class " + c.getCanonicalName(), e);

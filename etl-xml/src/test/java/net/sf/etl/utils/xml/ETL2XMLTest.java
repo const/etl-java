@@ -28,6 +28,11 @@ import net.sf.etl.utils.ConverterTestBase;
 import net.sf.etl.utils.ETLProcessor;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * The smoke test for ETL2XML.
  */
@@ -41,7 +46,11 @@ public class ETL2XMLTest extends ConverterTestBase {
                 "-i", moduleDir + "/../etl-parser/src/main/resources/META-INF/etl/grammars/ETL/*.g.etl",
                 "--output", moduleDir + "/target/temp/output/formatted-grammars/*.g.etl.html",
         });
-
+        var dir = new File(moduleDir + "/target/temp/output/formatted-grammars");
+        assertTrue(dir.exists());
+        var list = dir.list();
+        assertNotNull(list);
+        assertTrue(list.length > 0);
     }
 
     @Test

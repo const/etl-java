@@ -57,7 +57,7 @@ public final class TermParserReader extends AbstractReaderImpl<TermToken> {
     /**
      * The phrase parser.
      */
-    private final Cell<PhraseToken> cell = new Cell<PhraseToken>();
+    private final Cell<PhraseToken> cell = new Cell<>();
     /**
      * The grammar resolver.
      */

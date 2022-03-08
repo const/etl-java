@@ -25,70 +25,16 @@
 
 package net.sf.etl.parsers;
 
-import java.util.Objects;
-
 /**
  * Statement context. It allows identifying the statement context within the grammar.
+ *
+ * @param grammar the grammar system id
+ * @param context the context name
  */
-public final class DefinitionContext {
+public record DefinitionContext(GrammarInfo grammar, String context) {
     /**
      * The context value used when actual context is not known.
      */
     public static final DefinitionContext UNKNOWN = new DefinitionContext(
             new GrammarInfo("unknown.Unknown", "unknown:grammar", null), "unknown");
-    /**
-     * Grammar.
-     */
-    private final GrammarInfo grammar;
-    /**
-     * Context.
-     */
-    private final String context;
-
-    /**
-     * The constructor.
-     *
-     * @param grammar the grammar system id
-     * @param context the context name
-     */
-    public DefinitionContext(final GrammarInfo grammar, final String context) {
-        this.grammar = grammar;
-        this.context = context;
-    }
-
-    /**
-     * @return the grammar system id
-     */
-    public GrammarInfo grammar() {
-        return grammar;
-    }
-
-    /**
-     * @return the context
-     */
-    public String context() {
-        return context;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        final DefinitionContext that = (DefinitionContext) o;
-        return Objects.equals(grammar, that.grammar) && Objects.equals(context, that.context);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(grammar, context);
-    }
-
-    @Override
-    public String toString() {
-        return "DefinitionContext{grammar='" + grammar + "\', context='" + context + "\'}";
-    }
 }

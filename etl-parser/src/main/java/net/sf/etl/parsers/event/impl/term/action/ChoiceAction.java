@@ -46,15 +46,15 @@ public final class ChoiceAction extends Action {
      * This is used to select an option based on phrase token kind except for the case of
      * {@link PhraseTokens#SIGNIFICANT}.
      */
-    private final EnumMap<PhraseTokens, Action> phrase = new EnumMap<PhraseTokens, Action>(PhraseTokens.class);
+    private final EnumMap<PhraseTokens, Action> phrase = new EnumMap<>(PhraseTokens.class);
     /**
      * The choice over keywords, these are tried next in the case of {@link PhraseTokens#SIGNIFICANT}.
      */
-    private final IdentityHashMap<Keyword, Action> keywords = new IdentityHashMap<Keyword, Action>();
+    private final IdentityHashMap<Keyword, Action> keywords = new IdentityHashMap<>();
     /**
      * For non-keyword tokens, a token key based match is tried.
      */
-    private final HashMap<TokenKey, Action> tokens = new HashMap<TokenKey, Action>(); // NOPMD
+    private final HashMap<TokenKey, Action> tokens = new HashMap<>(); // NOPMD
     /**
      * If token phrase is not matched, of phrase token is not matched, this alternative is chosen.
      */

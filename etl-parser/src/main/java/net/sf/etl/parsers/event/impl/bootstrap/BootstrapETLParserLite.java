@@ -136,15 +136,15 @@ public final class BootstrapETLParserLite { // NOPMD
     /**
      * stack of properties.
      */
-    private final ListStack<Property> propertyStack = new ListStack<Property>();
+    private final ListStack<Property> propertyStack = new ListStack<>();
     /**
      * stack of objects.
      */
-    private final ListStack<Element> objectStack = new ListStack<Element>();
+    private final ListStack<Element> objectStack = new ListStack<>();
     /**
      * stack of objects.
      */
-    private final ListStack<TextPos> objectStartStack = new ListStack<TextPos>();
+    private final ListStack<TextPos> objectStartStack = new ListStack<>();
     /**
      * a phrase parser used by bootstrap parser.
      */
@@ -745,6 +745,7 @@ public final class BootstrapETLParserLite { // NOPMD
         try {
             final Element po = topObject();
             final Property pp = topProperty();
+            assert pp != null;
             final Element v;
             if (pp.isList()) {
                 final List<?> l = (List<?>) pp.get(po);
@@ -780,7 +781,7 @@ public final class BootstrapETLParserLite { // NOPMD
     private boolean tryToken(final String string, final Class<?> c) {
         if (match(string)) {
             try {
-                startObject((Element) c.newInstance());
+                startObject((Element) c.getConstructor().newInstance());
             } catch (Exception e) { // NOPMD
                 throw new ParserException("Bootstrap parser cannot "
                         + "create an instance: " + c.getCanonicalName(), e);
@@ -981,7 +982,7 @@ public final class BootstrapETLParserLite { // NOPMD
      * @return currently top property on the stack or null if stack is empty
      */
     private Property topProperty() {
-        return propertyStack.size() > 0 ? propertyStack.peek() : null;
+        return propertyStack.isEmpty() ? null : propertyStack.peek();
     }
 
     /**

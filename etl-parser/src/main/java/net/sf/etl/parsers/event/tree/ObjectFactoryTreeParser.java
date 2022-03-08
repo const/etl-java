@@ -42,14 +42,14 @@ import java.util.List;
 /**
  * This is a TreeParser that uses {@link ObjectFactory} to create a tree of AST objects.
  *
- * @param <BaseObjectType> this is a base type for returned objects
- * @param <FeatureType>    this is a type for feature metatype used by objects
- * @param <MetaObjectType> this is a type for meta object type
- * @param <HolderType>     this is a holder type for collection properties
+ * @param <B> this is a base type for returned objects
+ * @param <F> this is a type for feature metatype used by objects
+ * @param <M> this is a type for meta object type
+ * @param <H> this is a holder type for collection properties
  * @author const
  */
-public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObjectType, HolderType>
-        implements TreeParser<BaseObjectType> {
+public final class ObjectFactoryTreeParser<B, F, M, H>
+        implements TreeParser<B> {
     /**
      * The logger.
      */
@@ -57,15 +57,15 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
     /**
      * The object factory.
      */
-    private final ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> factory;
+    private final ObjectFactory<B, F, M, H> factory;
     /**
      * The collectors.
      */
-    private final ListStack<TokenCollector> collectors = new ListStack<TokenCollector>();
+    private final ListStack<TokenCollector> collectors = new ListStack<>();
     /**
      * Token listeners for all tokens.
      */
-    private final List<TokenCollector> tokenListeners = new ArrayList<TokenCollector>();
+    private final List<TokenCollector> tokenListeners = new ArrayList<>();
     /**
      * The current system identifier.
      */
@@ -73,7 +73,7 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
     /**
      * The currently available object.
      */
-    private BaseObjectType current;
+    private B current;
     /**
      * flag indicating that parser had errors.
      */
@@ -85,20 +85,16 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
     /**
      * Listener for tokens with errors.
      */
-    private TokenCollector errorTokenHandler = new TokenCollector() {
-        @Override
-        public void collect(final TermToken token) {
-            LOG.error("ERROR: " + getSystemId() + " Error detected: " + token);
+    private TokenCollector errorTokenHandler = token -> {
+        if (LOG.isErrorEnabled()) {
+            LOG.error("ERROR: %s Error detected: %s".formatted(getSystemId(), token));
         }
     };
     /**
      * Listener for unexpected tokens.
      */
-    private TokenCollector unexpectedTokenHandler = new TokenCollector() {
-        @Override
-        public void collect(final TermToken token) {
-            throw new ParserException("The token is not expected at this position: " + token);
-        }
+    private TokenCollector unexpectedTokenHandler = token -> {
+        throw new ParserException("The token is not expected at this position: " + token);
     };
 
 
@@ -108,18 +104,15 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
      * @param factory  the object factory
      * @param systemId the system id
      */
-    public ObjectFactoryTreeParser(final ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType>
+    public ObjectFactoryTreeParser(final ObjectFactory<B, F, M, H>
                                            factory, final String systemId) {
         this.factory = factory;
         this.systemId = systemId;
-        tokenListeners.add(new TokenCollector() {
-            @Override
-            public void collect(final TermToken token) {
-                if (token.hasAnyErrors()) {
-                    hadErrors = true;
-                    if (errorTokenHandler != null) {
-                        errorTokenHandler.collect(token);
-                    }
+        tokenListeners.add(token -> {
+            if (token.hasAnyErrors()) {
+                hadErrors = true;
+                if (errorTokenHandler != null) {
+                    errorTokenHandler.collect(token);
                 }
             }
         });
@@ -129,28 +122,27 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
      * The utility method that helps to live with Java generics. It just invokes a constructor but it is appropriately
      * parameterized.
      *
-     * @param factory          the factory
-     * @param sourceSystemId   the system id for the source
-     * @param <BaseObjectType> this is a base type for returned objects
-     * @param <FeatureType>    this is a type for feature metatype used by objects
-     * @param <MetaObjectType> this is a type for meta object type
-     * @param <HolderType>     this is a holder type for collection properties
+     * @param factory        the factory
+     * @param sourceSystemId the system id for the source
+     * @param <B1>           this is a base type for returned objects
+     * @param <F1>           this is a type for feature metatype used by objects
+     * @param <M1>           this is a type for meta-object type
+     * @param <H1>           this is a holder type for collection properties
      * @return the created parser
      */
-    public static <BaseObjectType, FeatureType, MetaObjectType, HolderType>
-    ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObjectType, HolderType>
-    make(final ObjectFactory<BaseObjectType, FeatureType, MetaObjectType, HolderType> factory,
+    public static <B1, F1, M1, H1> ObjectFactoryTreeParser<B1, F1, M1, H1>
+    make(final ObjectFactory<B1, F1, M1, H1> factory,
          final String sourceSystemId) {
-        return new ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObjectType, HolderType>(
+        return new ObjectFactoryTreeParser<>(
                 factory, sourceSystemId);
     }
 
     @Override
-    public BaseObjectType read() {
+    public B read() {
         if (current == null) {
             throw new ParserException("The result is not available!");
         }
-        final BaseObjectType rc = current;
+        final B rc = current;
         current = null;
         return rc;
     }
@@ -256,7 +248,7 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
         /**
          * The object returned by invoked state.
          */
-        private BaseObjectType result;
+        private B result;
 
         /**
          * Create state and install it.
@@ -274,7 +266,7 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
          *
          * @param stateResult the result returned to the previous state
          */
-        protected final void exit(final BaseObjectType stateResult) {
+        protected final void exit(final B stateResult) {
             if (previous != null) {
                 previous.setResult(stateResult);
             }
@@ -298,7 +290,7 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
         /**
          * @return the object returned by invoked state.
          */
-        protected final BaseObjectType getResult() {
+        protected final B getResult() {
             return result;
         }
 
@@ -307,7 +299,7 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
          *
          * @param result the result
          */
-        protected final void setResult(final BaseObjectType result) {
+        protected final void setResult(final B result) {
             this.result = result;
         }
     }
@@ -396,11 +388,11 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
         /**
          * The meta object.
          */
-        private final MetaObjectType metaObject;
+        private final M metaObject;
         /**
          * The object under construction.
          */
-        private final BaseObjectType rc;
+        private final B rc;
         /**
          * The stat position value.
          */
@@ -422,8 +414,8 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
             metaObject = factory.getMetaObject(name);
             rc = factory.createInstance(metaObject, name);
             startValue = factory.setObjectStartPos(rc, metaObject, token);
-            if (rc instanceof TokenCollector) {
-                collectors.push((TokenCollector) rc);
+            if (rc instanceof TokenCollector c) {
+                collectors.push(c);
             }
         }
 
@@ -478,7 +470,7 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
         /**
          * The feature of the object.
          */
-        private final FeatureType feature;
+        private final F feature;
         /**
          * True if the list property.
          */
@@ -486,15 +478,15 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
         /**
          * The holder type for the property.
          */
-        private final HolderType holder;
+        private final H holder;
         /**
          * The object under construction.
          */
-        private final BaseObjectType object;
+        private final B object;
         /**
          * The meta object.
          */
-        private final MetaObjectType metaObject;
+        private final M metaObject;
         /**
          * amount of extra properties.
          */
@@ -507,7 +499,7 @@ public final class ObjectFactoryTreeParser<BaseObjectType, FeatureType, MetaObje
          * @param metaObject the meta object
          * @param tokenCell  the token cell
          */
-        protected PropertyState(final BaseObjectType object, final MetaObjectType metaObject,
+        protected PropertyState(final B object, final M metaObject,
                                 final Cell<TermToken> tokenCell) {
             this.object = object;
             this.metaObject = metaObject;

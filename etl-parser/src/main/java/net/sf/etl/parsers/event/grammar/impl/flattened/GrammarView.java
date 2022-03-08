@@ -89,7 +89,7 @@ public final class GrammarView implements Serializable { // NOPMD
     /**
      * The map from local name to imported grammar view.
      */
-    private final Map<String, GrammarImportView> importedGrammars = new HashMap<String, GrammarImportView>(); // NOPMD
+    private final Map<String, GrammarImportView> importedGrammars = new HashMap<>(); // NOPMD
     /**
      * The set of all included grammar views.
      */
@@ -97,7 +97,7 @@ public final class GrammarView implements Serializable { // NOPMD
     /**
      * The map from local name to namespace URI.
      */
-    private final Map<String, String> namespaceDeclarations = new HashMap<String, String>(); // NOPMD
+    private final Map<String, String> namespaceDeclarations = new HashMap<>(); // NOPMD
     /**
      * The system id for this grammar.
      */
@@ -192,7 +192,7 @@ public final class GrammarView implements Serializable { // NOPMD
      * @return the created descriptor for the grammar view.
      */
     public ResourceDescriptor createDescriptor() {
-        return createDescriptor(new HashSet<GrammarView>());
+        return createDescriptor(new HashSet<>());
     }
 
     /**
@@ -207,8 +207,7 @@ public final class GrammarView implements Serializable { // NOPMD
             return new ResourceDescriptor(resource.getSystemId(), resource.getType(), resource.getVersion());
         } else {
             visited.add(this);
-            final ArrayList<ResourceUsage> resourceUsages = new ArrayList<ResourceUsage>();
-            resourceUsages.addAll(resource.getUsedResources());
+            final ArrayList<ResourceUsage> resourceUsages = new ArrayList<>(resource.getUsedResources());
             for (final ResolvedObject<GrammarView> used : usedGrammars) {
                 resourceUsages.addAll(used.getResolutionHistory());
                 resourceUsages.add(new ResourceUsage(
@@ -228,15 +227,10 @@ public final class GrammarView implements Serializable { // NOPMD
      * @return grammars referenced from this grammar
      */
     public Set<GrammarId> referencedGrammars() {
-        final HashSet<GrammarId> requests = new HashSet<GrammarId>();
+        final HashSet<GrammarId> requests = new HashSet<>();
         for (final GrammarMember m : grammar.getContent()) {
-            if (m instanceof GrammarImport) {
-                var request = toReference((GrammarImport) m);
-                if (request != null) {
-                    requests.add(request);
-                }
-            } else if (m instanceof GrammarInclude) {
-                var request = toReference((GrammarInclude) m);
+            if (m instanceof GrammarRef gr) {
+                var request = toReference(gr);
                 if (request != null) {
                     requests.add(request);
                 }
@@ -276,8 +270,7 @@ public final class GrammarView implements Serializable { // NOPMD
      */
     public void prepareContexts() {
         for (final GrammarMember m : grammar.getContent()) {
-            if (m instanceof GrammarImport) {
-                final GrammarImport gi = (GrammarImport) m;
+            if (m instanceof GrammarImport gi) {
                 final GrammarView importedGrammar = getReferencedGrammar(gi);
                 if (importedGrammar == null) {
                     failedGrammars.add(assembly.failure(
@@ -290,8 +283,7 @@ public final class GrammarView implements Serializable { // NOPMD
                     importedGrammars.put(gi.getName().text(), new GrammarImportView(this, // NOPMD
                             gi, importedGrammar));
                 }
-            } else if (m instanceof GrammarInclude) {
-                final GrammarInclude gi = (GrammarInclude) m;
+            } else if (m instanceof GrammarInclude gi) {
                 final GrammarView includedGrammar = getReferencedGrammar(gi);
                 if (includedGrammar == null) {
                     failedGrammars.add(assembly.failure(
@@ -303,8 +295,7 @@ public final class GrammarView implements Serializable { // NOPMD
                 } else if (!includeNode.addParent(includedGrammar)) {
                     error(gi, "grammar.Grammar.cyclicInclude");
                 }
-            } else if (m instanceof Namespace) {
-                final Namespace ns = (Namespace) m;
+            } else if (m instanceof Namespace ns) {
                 if (namespaceDeclarations.containsKey(ns.getPrefix().text())) {
                     error(ns, "grammar.Grammar.duplicateNamespaceDeclaration",
                             ns.getPrefix(), namespaceDeclarations.get(ns.getPrefix().text()));
@@ -327,8 +318,7 @@ public final class GrammarView implements Serializable { // NOPMD
                         defaultNamespacePrefix = ns.getPrefix();
                     }
                 }
-            } else if (m instanceof Context) {
-                final Context c = (Context) m;
+            } else if (m instanceof Context c) {
                 if (contexts.containsKey(c.getName())) {
                     error(c, "grammar.Grammar.duplicateContext", c.getName());
                 } else {
@@ -575,7 +565,7 @@ public final class GrammarView implements Serializable { // NOPMD
      * @return grammars on which this grammar depends, including itself
      */
     public Collection<GrammarView> getGrammarDependencies() {
-        final HashSet<GrammarView> visitedGrammars = new HashSet<GrammarView>();
+        final HashSet<GrammarView> visitedGrammars = new HashSet<>();
         this.getGrammarDependencies(visitedGrammars);
         return visitedGrammars;
     }

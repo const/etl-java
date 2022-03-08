@@ -25,7 +25,6 @@
 package net.sf.etl.parsers.event.grammar.impl.flattened; // NOPMD
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -60,16 +59,11 @@ public final class DirectedAcyclicGraph<E> {
      * Rank comparator. It compares two nodes by rank. It is used to sort nodes
      * topologically.
      */
-    private static final Comparator<Node<?>> RANK_COMPARATOR = new Comparator<Node<?>>() {
-        public int compare(final Node<?> o1, final Node<?> o2) {
-            return o1.rank - o2.rank;
-        }
-
-    };
+    private static final Comparator<Node<?>> RANK_COMPARATOR = Comparator.comparingInt(o -> o.rank);
     /**
      * The map from objects to nodes.
      */
-    private final Map<E, Node<E>> objects = new IdentityHashMap<E, Node<E>>(); // NOPMD
+    private final Map<E, Node<E>> objects = new IdentityHashMap<>(); // NOPMD
 
     /**
      * Get node for object. If node already exists it is returned, otherwise it
@@ -79,12 +73,7 @@ public final class DirectedAcyclicGraph<E> {
      * @return the new node
      */
     public Node<E> getNode(final E o) {
-        Node<E> rc = objects.get(o);
-        if (rc == null) {
-            rc = new Node<E>(this, o);
-            objects.put(o, rc);
-        }
-        return rc;
+        return objects.computeIfAbsent(o, o1 -> new Node<>(this, o1));
     }
 
     /**
@@ -101,8 +90,8 @@ public final class DirectedAcyclicGraph<E> {
      * @return sort nodes topologically
      */
     public List<Node<E>> topologicalSortNodes() {
-        final ArrayList<Node<E>> rc = new ArrayList<Node<E>>(objects.values());
-        Collections.sort(rc, RANK_COMPARATOR);
+        final ArrayList<Node<E>> rc = new ArrayList<>(objects.values());
+        rc.sort(RANK_COMPARATOR);
         return rc;
     }
 
@@ -110,7 +99,7 @@ public final class DirectedAcyclicGraph<E> {
      * @return list of nodes sorted topologically (parents are first)
      */
     public List<E> topologicalSortObjects() {
-        final List<E> rc = new ArrayList<E>();
+        final List<E> rc = new ArrayList<>();
         for (final Node<E> n : topologicalSortNodes()) {
             rc.add(n.value);
         }
@@ -134,19 +123,19 @@ public final class DirectedAcyclicGraph<E> {
         /**
          * The collection of immediate parents.
          */
-        private final Set<Node<E>> immediateParents = new HashSet<Node<E>>();
+        private final Set<Node<E>> immediateParents = new HashSet<>();
         /**
          * The collection of all parents.
          */
-        private final Set<Node<E>> allParents = new HashSet<Node<E>>();
+        private final Set<Node<E>> allParents = new HashSet<>();
         /**
          * The collection of immediate children.
          */
-        private final Set<Node<E>> immediateChildren = new HashSet<Node<E>>();
+        private final Set<Node<E>> immediateChildren = new HashSet<>();
         /**
          * The collection of all children.
          */
-        private final Set<Node<E>> allChildren = new HashSet<Node<E>>();
+        private final Set<Node<E>> allChildren = new HashSet<>();
         /**
          * The node rank.
          */
@@ -169,7 +158,7 @@ public final class DirectedAcyclicGraph<E> {
          */
         public void minimizeImmediate() {
             // minimize children
-            final HashSet<Node<E>> children = new HashSet<Node<E>>(
+            final HashSet<Node<E>> children = new HashSet<>(
                     immediateChildren);
             for (final Node<E> child : immediateChildren) {
                 children.removeAll(child.allChildren);
@@ -177,7 +166,7 @@ public final class DirectedAcyclicGraph<E> {
             immediateChildren.retainAll(children);
 
             // minimize parents
-            final HashSet<Node<E>> parents = new HashSet<Node<E>>(
+            final HashSet<Node<E>> parents = new HashSet<>(
                     immediateParents);
             for (final Node<E> parent : immediateParents) {
                 parents.removeAll(parent.allParents);
@@ -299,19 +288,14 @@ public final class DirectedAcyclicGraph<E> {
          * @return immediate parents iterable.
          */
         public Iterable<E> immediateParents() {
-            return new Iterable<E>() {
-                @Override
-                public Iterator<E> iterator() {
-                    return immediateParentsIterator();
-                }
-            };
+            return this::immediateParentsIterator;
         }
 
         /**
          * @return iterator over immediate parents
          */
         public Iterator<E> immediateParentsIterator() {
-            return new NodeUnwrapIterator<E>(immediateParents.iterator());
+            return new NodeUnwrapIterator<>(immediateParents.iterator());
         }
 
         /**
@@ -369,12 +353,12 @@ public final class DirectedAcyclicGraph<E> {
      * set of abstract methods is quite ad hoc, and it will be possibly refined
      * later.
      *
-     * @param <DefinitionHolder> the holder node that holds definitions
-     * @param <DefinitionKey>    the key that identifies definition within holder
-     * @param <Definition>       the definition
+     * @param <H> the holder node that holds definitions
+     * @param <K> the key that identifies definition within holder
+     * @param <D> the definition
      * @author const
      */
-    public abstract static class DefinitionGatherer<DefinitionHolder, DefinitionKey, Definition> {
+    public abstract static class DefinitionGatherer<H, K, D> {
 
         /**
          * Gather definitions related to definition holders. The algorithm
@@ -383,32 +367,30 @@ public final class DirectedAcyclicGraph<E> {
          *
          * @param sourceNode a node for which definitions will be gathered.
          */
-        public final void gatherDefinitions(final DefinitionHolder sourceNode) {
+        public final void gatherDefinitions(final H sourceNode) {
             // get map with definitions considered native.
-            final Map<DefinitionKey, Definition> existingDefinitions = definitionMap(sourceNode);
+            final Map<K, D> existingDefinitions = definitionMap(sourceNode);
             // this map contains definitions gathered from parent holders
-            final Map<DefinitionKey, HashSet<Definition>> allDefinitions = // NOPMD
-                    new HashMap<DefinitionKey, HashSet<Definition>>();
+            final Map<K, HashSet<D>> allDefinitions = // NOPMD
+                    new HashMap<>();
             // iterate gather all immediate parents.
-            for (final DefinitionHolder parentHolder : getHolderNode(sourceNode).immediateParents()) {
-                for (Definition definitionFromParent : definitionMap(parentHolder).values()) {
-                    final DefinitionKey definitionFromParentKey = definitionKey(definitionFromParent);
+            for (final H parentHolder : getHolderNode(sourceNode).immediateParents()) {
+                for (D definitionFromParent : definitionMap(parentHolder).values()) {
+                    final K definitionFromParentKey = definitionKey(definitionFromParent);
                     // any processing is done only if we do not already have the
                     // node
                     if (!existingDefinitions.containsKey(definitionFromParentKey)) {
-                        HashSet<Definition> definitions = allDefinitions.get(definitionFromParentKey);
-                        if (definitions == null) {
-                            definitions = new HashSet<Definition>(); // NOPMD
-                            allDefinitions.put(definitionFromParentKey, definitions);
-                        }
+                        HashSet<D> definitions = allDefinitions.computeIfAbsent(definitionFromParentKey,
+                                k -> new HashSet<>());
+                        // NOPMD
                         // definition is ignored if it is already available by
                         // some other path
                         if (!definitions.contains(definitionFromParent)) {
                             // check if there are definitions hidden by this
                             // nodes or definitions that hide this node.
-                            final Iterator<Definition> k = definitions.iterator();
+                            final Iterator<D> k = definitions.iterator();
                             while (k.hasNext()) {
-                                final Definition existingDefinition = k.next();
+                                final D existingDefinition = k.next();
                                 if (definitionNode(existingDefinition).hasParentNode(
                                         definitionNode(definitionFromParent))) {
                                     // new definition is hidden by the
@@ -434,8 +416,8 @@ public final class DirectedAcyclicGraph<E> {
                 }
             }
             // see if there is any conflict and add good imports
-            for (final Map.Entry<DefinitionKey, HashSet<Definition>> e : allDefinitions.entrySet()) {
-                final HashSet<Definition> v = e.getValue();
+            for (final Map.Entry<K, HashSet<D>> e : allDefinitions.entrySet()) {
+                final HashSet<D> v = e.getValue();
                 if (v.size() != 1) {
                     reportDuplicates(sourceNode, e.getKey(), v);
                 }
@@ -454,7 +436,7 @@ public final class DirectedAcyclicGraph<E> {
          * @param object       an object to process
          * @return a processed object
          */
-        protected abstract Definition includingDefinition(DefinitionHolder sourceHolder, Definition object);
+        protected abstract D includingDefinition(H sourceHolder, D object);
 
         /**
          * Report problem with definitions. The method checks if there is an
@@ -466,8 +448,8 @@ public final class DirectedAcyclicGraph<E> {
          * @param key            a key for which conflict exists
          * @param duplicateNodes a set of duplicate definitions
          */
-        protected abstract void reportDuplicates(DefinitionHolder sourceHolder,
-                                                 DefinitionKey key, Set<Definition> duplicateNodes);
+        protected abstract void reportDuplicates(H sourceHolder,
+                                                 K key, Set<D> duplicateNodes);
 
         /**
          * Get an DAG node for definition holder.
@@ -475,7 +457,7 @@ public final class DirectedAcyclicGraph<E> {
          * @param definitionHolder a definition holder
          * @return a actual node that contains definition
          */
-        protected abstract Node<DefinitionHolder> getHolderNode(DefinitionHolder definitionHolder);
+        protected abstract Node<H> getHolderNode(H definitionHolder);
 
         /**
          * Get the defining DAG node for definition.
@@ -483,7 +465,7 @@ public final class DirectedAcyclicGraph<E> {
          * @param definition a definition to examine
          * @return the defining DAG node for definition
          */
-        protected abstract Node<DefinitionHolder> definitionNode(Definition definition);
+        protected abstract Node<H> definitionNode(D definition);
 
         /**
          * Get key of the definition.
@@ -491,7 +473,7 @@ public final class DirectedAcyclicGraph<E> {
          * @param definition a definition to examine
          * @return the key that identifies definition
          */
-        protected abstract DefinitionKey definitionKey(Definition definition);
+        protected abstract K definitionKey(D definition);
 
         /**
          * Get the map that contains definition that are directly contained by
@@ -501,7 +483,7 @@ public final class DirectedAcyclicGraph<E> {
          * @param holder a holder object to examine
          * @return the map of immediate definitions.
          */
-        protected abstract Map<DefinitionKey, Definition> definitionMap(DefinitionHolder holder);
+        protected abstract Map<K, D> definitionMap(H holder);
 
     }
 
@@ -509,21 +491,21 @@ public final class DirectedAcyclicGraph<E> {
      * Base class for import definition gatherer. It adds standard error
      * reporting mechanism.
      *
-     * @param <DefinitionHolder> a holder node that holds definitions
-     * @param <DefinitionKey>    key that identifies definition within holder
-     * @param <Definition>       definition
-     * @param <ImportedObject>   an object imported though definition
+     * @param <H> a holder node that holds definitions
+     * @param <K> key that identifies definition within holder
+     * @param <D> definition
+     * @param <O> an object imported though definition
      * @author const
      */
-    public abstract static class ImportDefinitionGatherer<DefinitionHolder, DefinitionKey, Definition, ImportedObject>
-            extends DefinitionGatherer<DefinitionHolder, DefinitionKey, Definition> {
+    public abstract static class ImportDefinitionGatherer<H, K, D, O>
+            extends DefinitionGatherer<H, K, D> {
         @Override
-        protected final void reportDuplicates(final DefinitionHolder sourceHolder, final DefinitionKey key,
-                                              final Set<Definition> duplicateNodes) {
-            ImportedObject importedObject = null;
+        protected final void reportDuplicates(final H sourceHolder, final K key,
+                                              final Set<D> duplicateNodes) {
+            O importedObject = null;
             // in case of imports there is no conflict if all imports point to
             // the same place
-            for (final Definition gi : duplicateNodes) {
+            for (final D gi : duplicateNodes) {
                 if (importedObject == null) {
                     importedObject = importedObject(gi);
                 } else if (importedObject != importedObject(gi)) {
@@ -541,7 +523,7 @@ public final class DirectedAcyclicGraph<E> {
          * @param sourceHolder definition holder node
          * @param key          a key for which error happened
          */
-        protected abstract void reportDuplicateImportError(DefinitionHolder sourceHolder, DefinitionKey key);
+        protected abstract void reportDuplicateImportError(H sourceHolder, K key);
 
         /**
          * Get imported object.
@@ -549,7 +531,7 @@ public final class DirectedAcyclicGraph<E> {
          * @param importDefinition an import definition
          * @return an object that is being imported by this definition
          */
-        protected abstract ImportedObject importedObject(Definition importDefinition);
+        protected abstract O importedObject(D importDefinition);
     }
 
 }

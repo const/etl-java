@@ -25,8 +25,6 @@
 package net.sf.etl.parsers.event.unstable.model.grammar;
 
 import net.sf.etl.parsers.ErrorInfo;
-import net.sf.etl.parsers.TermToken;
-import net.sf.etl.parsers.event.tree.TokenCollector;
 import net.sf.etl.parsers.streams.TermParserReader;
 import net.sf.etl.parsers.streams.TreeParserReader;
 
@@ -43,7 +41,7 @@ public final class GrammarLiteTermParser extends TreeParserReader<Element> {
     /**
      * The errors.
      */
-    private final List<ErrorInfo> errors = new ArrayList<ErrorInfo>();
+    private final List<ErrorInfo> errors = new ArrayList<>();
 
     /**
      * The constructor.
@@ -52,18 +50,15 @@ public final class GrammarLiteTermParser extends TreeParserReader<Element> {
      */
     public GrammarLiteTermParser(final TermParserReader parser) {
         super(parser, new GrammarLiteObjectFactory());
-        setErrorTokenHandler(new TokenCollector() {
-            @Override
-            public void collect(final TermToken errorToken) {
-                if (errorToken.hasErrors()) {
-                    errors.add(errorToken.errorInfo());
-                }
-                if (errorToken.hasPhraseToken() && errorToken.token().hasErrors()) {
-                    errors.add(errorToken.token().errorInfo());
-                }
-                if (errorToken.hasLexicalToken() && errorToken.token().token().hasErrors()) {
-                    errors.add(errorToken.token().token().errorInfo());
-                }
+        setErrorTokenHandler(errorToken -> {
+            if (errorToken.hasErrors()) {
+                errors.add(errorToken.errorInfo());
+            }
+            if (errorToken.hasPhraseToken() && errorToken.token().hasErrors()) {
+                errors.add(errorToken.token().errorInfo());
+            }
+            if (errorToken.hasLexicalToken() && errorToken.token().token().hasErrors()) {
+                errors.add(errorToken.token().token().errorInfo());
             }
         });
     }

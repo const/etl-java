@@ -48,7 +48,6 @@ import net.sf.etl.xml_catalog.util.URIUtil;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
@@ -62,11 +61,11 @@ public final class CatalogEngine {
     /**
      * The already processed catalogs, in order to prevent infinite loops.
      */
-    private final Set<String> processedCatalogs = new HashSet<String>();
+    private final Set<String> processedCatalogs = new HashSet<>();
     /**
      * The request stack for the catalogs.
      */
-    private final List<CatalogRequest> requestStack = new ArrayList<CatalogRequest>();
+    private final List<CatalogRequest> requestStack = new ArrayList<>();
     /**
      * The catalog result.
      */
@@ -534,7 +533,7 @@ public final class CatalogEngine {
         @Override
         protected void process(final CatalogFile file) {
             warning("All significant arguments are null, there is nothing to do");
-            startDelegation(Collections.<CatalogRequest>emptyList());
+            startDelegation(List.of());
         }
     }
 
@@ -611,6 +610,7 @@ public final class CatalogEngine {
         /**
          * @return the fallback result
          */
+        @Override
         public String getFallbackResult() {
             return systemId;
         }

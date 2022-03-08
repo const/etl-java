@@ -29,16 +29,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * URI normalization.
  */
 public final class URIUtil {
-    /**
-     * UTF-8 charset.
-     */
-    public static final Charset UTF8 = Charset.forName("UTF-8");
     /**
      * The logger.
      */
@@ -61,7 +57,7 @@ public final class URIUtil {
         if (input == null) {
             return null;
         }
-        final byte[] bytes = input.getBytes(UTF8);
+        final byte[] bytes = input.getBytes(StandardCharsets.UTF_8);
         // CHECKSTYLE:OFF
         final StringBuilder rc = new StringBuilder(input.length() + 10);
         // CHECKSTYLE:ON

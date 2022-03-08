@@ -36,7 +36,7 @@ public final class ChoiceOp extends Syntax {
     /**
      * options.
      */
-    private final List<Syntax> options = new java.util.ArrayList<Syntax>(2);
+    private final List<Syntax> options = new java.util.ArrayList<>(2);
 
     /**
      * @return options.

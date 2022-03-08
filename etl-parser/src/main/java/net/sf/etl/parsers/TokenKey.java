@@ -55,18 +55,17 @@ public final class TokenKey implements Serializable {
     private static final EnumMap<QuoteClass, TokenKey> MULTILINE_STRING_MAP;
 
     static {
-        final EnumMap<Tokens, TokenKey> tokenKindMap = new EnumMap<Tokens, TokenKey>(Tokens.class);
+        var tokenKindMap = new EnumMap<Tokens, TokenKey>(Tokens.class);
         for (final Tokens k : Tokens.values()) {
             tokenKindMap.put(k, new TokenKey(k, null, null)); // NOPMD
         }
         KIND_MAP = tokenKindMap;
-        final EnumMap<QuoteClass, TokenKey> stringEnumMap = new EnumMap<QuoteClass, TokenKey>(QuoteClass.class);
+        var stringEnumMap = new EnumMap<QuoteClass, TokenKey>(QuoteClass.class);
         for (final QuoteClass quoteClass : QuoteClass.values()) {
             stringEnumMap.put(quoteClass, new TokenKey(Tokens.STRING, null, quoteClass)); // NOPMD
         }
         STRING_MAP = stringEnumMap;
-        final EnumMap<QuoteClass, TokenKey> multiLineStringEnumMap
-                = new EnumMap<QuoteClass, TokenKey>(QuoteClass.class);
+        var multiLineStringEnumMap = new EnumMap<QuoteClass, TokenKey>(QuoteClass.class);
         for (final QuoteClass quoteClass : QuoteClass.values()) {
             multiLineStringEnumMap.put(quoteClass, new TokenKey(Tokens.MULTILINE_STRING, null, quoteClass)); // NOPMD
         }

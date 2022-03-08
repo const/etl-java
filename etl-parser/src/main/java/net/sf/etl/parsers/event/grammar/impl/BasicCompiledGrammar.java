@@ -45,6 +45,7 @@ import java.util.Map;
  * is generally safe to use.
  */
 public final class BasicCompiledGrammar implements CompiledGrammar {
+    public static final String PARSER_NOT_AVAILABLE = "The parser is not available for context: %s";
     /**
      * The descriptor for the grammar.
      */
@@ -179,7 +180,7 @@ public final class BasicCompiledGrammar implements CompiledGrammar {
     public TermParserStateFactory statementSequenceParser(final DefinitionContext context) {
         final TermParserStateFactory parser = statementSequenceParsers.get(context);
         if (parser == null) {
-            throw new IllegalArgumentException("The parser is not available for context: " + context);
+            throw new IllegalArgumentException(PARSER_NOT_AVAILABLE.formatted(context));
         }
         return parser;
     }
@@ -188,7 +189,7 @@ public final class BasicCompiledGrammar implements CompiledGrammar {
     public TermParserStateFactory statementParser(final DefinitionContext context) {
         final TermParserStateFactory parser = statementParsers.get(context);
         if (parser == null) {
-            throw new IllegalArgumentException("The parser is not available for context: " + context);
+            throw new IllegalArgumentException(PARSER_NOT_AVAILABLE.formatted(context));
         }
         return parser;
     }
@@ -197,7 +198,7 @@ public final class BasicCompiledGrammar implements CompiledGrammar {
     public TermParserStateFactory expressionParser(final ExpressionContext context) {
         final TermParserStateFactory parser = expressionParsers.get(context);
         if (parser == null) {
-            throw new IllegalArgumentException("The parser is not available for context: " + context);
+            throw new IllegalArgumentException(PARSER_NOT_AVAILABLE.formatted(context));
         }
         return parser;
     }

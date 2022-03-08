@@ -43,7 +43,7 @@ public final class ActionLinker {
      * Scheduled links for the block.
      */
     private final Map<DefinitionContext, List<CallAction>> blocks = // NOPMD
-            new HashMap<DefinitionContext, List<CallAction>>();
+            new HashMap<>();
 
     /**
      * Resolve block.
@@ -67,11 +67,6 @@ public final class ActionLinker {
      * @param context the context of the invoked block
      */
     public void linkBlock(final CallAction action, final DefinitionContext context) {
-        List<CallAction> calls = blocks.get(context);
-        if (calls == null) {
-            calls = new ArrayList<CallAction>();
-            blocks.put(context, calls);
-        }
-        calls.add(action);
+        blocks.computeIfAbsent(context, k -> new ArrayList<>()).add(action);
     }
 }

@@ -109,7 +109,7 @@ public final class ETLProcessor {
         try {
             final Enumeration<URL> resources = ETLProcessor.class.getClassLoader().getResources(
                     "META-INF/etlp/etlp-commands.xml");
-            final Map<String, Command> map = new HashMap<String, Command>(); // NOPMD
+            final Map<String, Command> map = new HashMap<>(); // NOPMD
             final DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
             builderFactory.setNamespaceAware(false);
             builderFactory.setCoalescing(true);

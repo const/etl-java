@@ -115,7 +115,7 @@ public final class ContextBuilder { // NOPMD
      * The builders for operator levels.
      */
     private final NavigableMap<Integer, OperatorLevelBuilder> operatorLevels =
-            new TreeMap<Integer, OperatorLevelBuilder>();
+            new TreeMap<>();
     /**
      * The  context name.
      */
@@ -240,7 +240,7 @@ public final class ContextBuilder { // NOPMD
      * Build look ahead for the statements and expressions.
      */
     public void buildLookAhead() {
-        final HashSet<ActionBuilder> visitedBuilders = new HashSet<ActionBuilder>();
+        final HashSet<ActionBuilder> visitedBuilders = new HashSet<>();
         for (final OperatorLevelBuilder builder : operatorLevels.values()) {
             builder.builder().buildLookAhead(visitedBuilders);
         }
@@ -333,7 +333,7 @@ public final class ContextBuilder { // NOPMD
                 b.startObjectAtMark(o, def.convertName(o.getName()), wrappers);
                 b.commitMark(definition); // this statement tries to commit mark
                 // now body of root object is compiled
-                compileSyntax(new HashSet<DefinitionView>(), b, o.getSyntax()); // NOPMD
+                compileSyntax(new HashSet<>(), b, o.getSyntax()); // NOPMD
                 // object ends here
                 final Node object = b.endObject();
                 if (object.matchesEmpty()) {
@@ -382,8 +382,7 @@ public final class ContextBuilder { // NOPMD
      */
     public void compileSyntax(final Set<DefinitionView> visited, final ActionBuilder b, // NOPMD
                               final Syntax body) {
-        if (body instanceof BlockRef) {
-            final BlockRef s = (BlockRef) body;
+        if (body instanceof BlockRef s) {
             final DefinitionView v = b.topDefinition().originalDefinition();
             final ActionBuilder f = getStatementSequenceBuilder(v, s, text(s.getContext()));
             if (f != null) {
@@ -391,8 +390,7 @@ public final class ContextBuilder { // NOPMD
             } else {
                 error(b, s, "grammar.Block.referringContextWithoutStatements", s.getContext());
             }
-        } else if (body instanceof ExpressionRef) {
-            final ExpressionRef s = (ExpressionRef) body;
+        } else if (body instanceof ExpressionRef s) {
             final DefinitionView v = b.topDefinition().originalDefinition();
             final Integer precedence = parseInteger(s.getPrecedence(), s.getLocation().systemId());
             final ActionBuilder f = getExpressionBuilder(v, s, text(s.getContext()), precedence);
@@ -406,17 +404,14 @@ public final class ContextBuilder { // NOPMD
                 b.endMarked();
                 b.endExpression();
             }
-        } else if (body instanceof ModifiersOp) {
-            final ModifiersOp s = (ModifiersOp) body;
+        } else if (body instanceof ModifiersOp s) {
             final Wrapper defaultWrapper = s.getWrapper();
             b.startModifiers(s);
             b.startRepeat(s);
             b.startChoice(s);
             // modifiers block contains only let instructions
-            for (final Object sso : s.getModifiers()) {
-                final SyntaxStatement ss = (SyntaxStatement) sso;
-                if (ss instanceof Let) {
-                    final Let let = (Let) ss;
+            for (final SyntaxStatement ss : s.getModifiers()) {
+                if (ss instanceof Let let) {
                     final ModifierOp m = (ModifierOp) let.getExpression();
                     Wrapper w = m.getWrapper();
                     w = w == null ? defaultWrapper : w;
@@ -433,8 +428,7 @@ public final class ContextBuilder { // NOPMD
             b.endChoice();
             b.endRepeat();
             b.endModifiers();
-        } else if (body instanceof ListOp) {
-            final ListOp s = (ListOp) body;
+        } else if (body instanceof ListOp s) {
             b.startSequence(s);
             compileSyntax(visited, b, s.getSyntax());
             b.startRepeat(s);
@@ -446,28 +440,24 @@ public final class ContextBuilder { // NOPMD
             compileSyntax(visited, b, s.getSyntax());
             b.endRepeat();
             b.endSequence();
-        } else if (body instanceof OptionalOp) {
-            final OptionalOp s = (OptionalOp) body;
+        } else if (body instanceof OptionalOp s) {
             b.startChoice(s);
             compileSyntax(visited, b, s.getSyntax());
             b.startSequence(s);
             b.endSequence();
             b.endChoice();
-        } else if (body instanceof ZeroOrMoreOp) {
-            final ZeroOrMoreOp s = (ZeroOrMoreOp) body;
+        } else if (body instanceof ZeroOrMoreOp s) {
             b.startRepeat(s);
             compileSyntax(visited, b, s.getSyntax());
             b.endRepeat();
-        } else if (body instanceof OneOrMoreOp) {
-            final OneOrMoreOp s = (OneOrMoreOp) body;
+        } else if (body instanceof OneOrMoreOp s) {
             b.startSequence(s);
             compileSyntax(visited, b, s.getSyntax());
             b.startRepeat(s);
             compileSyntax(visited, b, s.getSyntax());
             b.endRepeat();
             b.endSequence();
-        } else if (body instanceof FirstChoiceOp) {
-            final FirstChoiceOp s = (FirstChoiceOp) body;
+        } else if (body instanceof FirstChoiceOp s) {
             b.startFirstChoice(s);
             compileSyntax(visited, b, s.getFirst());
             compileSyntax(visited, b, s.getSecond());
@@ -479,25 +469,21 @@ public final class ContextBuilder { // NOPMD
                     error(b, s.getFirst(), "grammar.Modifiers.firstChoiceEmptyFirst");
                 }
             }
-        } else if (body instanceof ChoiceOp) {
-            final ChoiceOp s = (ChoiceOp) body;
+        } else if (body instanceof ChoiceOp s) {
             b.startChoice(s);
             for (final Syntax option : s.getOptions()) {
                 compileSyntax(visited, b, option);
             }
             b.endChoice();
-        } else if (body instanceof IdentifierOp) {
-            final IdentifierOp s = (IdentifierOp) body;
+        } else if (body instanceof IdentifierOp s) {
             b.startWrapper(s.getWrapper());
             b.tokenText(s, Terms.VALUE, SyntaxRole.PRIMARY, TokenKey.simple(Tokens.IDENTIFIER));
             b.endWrapper(s.getWrapper());
-        } else if (body instanceof GraphicsOp) {
-            final GraphicsOp s = (GraphicsOp) body;
+        } else if (body instanceof GraphicsOp s) {
             b.startWrapper(s.getWrapper());
             b.tokenText(s, Terms.VALUE, SyntaxRole.PRIMARY, TokenKey.simple(Tokens.GRAPHICS));
             b.endWrapper(s.getWrapper());
-        } else if (body instanceof TokenOp) {
-            final TokenOp s = (TokenOp) body;
+        } else if (body instanceof TokenOp s) {
             b.startWrapper(s.getWrapper());
             if (s.getValue() != null) {
                 b.tokenText(s, Terms.VALUE, SyntaxRole.KEYWORD, s.getValue());
@@ -505,8 +491,7 @@ public final class ContextBuilder { // NOPMD
                 b.anyToken(s, Terms.VALUE, SyntaxRole.PRIMARY_ANY);
             }
             b.endWrapper(s.getWrapper());
-        } else if (body instanceof StringOp) {
-            final StringOp s = (StringOp) body;
+        } else if (body instanceof StringOp s) {
             String quote;
             try {
                 quote = LiteralUtils.parseString(text(s.getQuote()));
@@ -533,17 +518,15 @@ public final class ContextBuilder { // NOPMD
                         break;
                 }
             }
-        } else if (body instanceof IntegerOp) {
-            compileNumber(b, (IntegerOp) body, Tokens.INTEGER, Tokens.INTEGER_WITH_SUFFIX);
-        } else if (body instanceof FloatOp) {
-            compileNumber(b, (FloatOp) body, Tokens.FLOAT, Tokens.FLOAT_WITH_SUFFIX);
-        } else if (body instanceof ObjectOp) {
-            final ObjectOp s = (ObjectOp) body;
+        } else if (body instanceof IntegerOp s) {
+            compileNumber(b, s, Tokens.INTEGER, Tokens.INTEGER_WITH_SUFFIX);
+        } else if (body instanceof FloatOp s) {
+            compileNumber(b, s, Tokens.FLOAT, Tokens.FLOAT_WITH_SUFFIX);
+        } else if (body instanceof ObjectOp s) {
             b.startObject(s, b.topDefinition().convertName(s.getName()));
             compileSyntax(visited, b, s.getSyntax());
             b.endObject();
-        } else if (body instanceof RefOp) {
-            final RefOp s = (RefOp) body;
+        } else if (body instanceof RefOp s) {
             final DefView d = contextView.def(b.topDefinition(), s);
             if (d != null) {
                 if (visited.contains(d)) {
@@ -578,8 +561,7 @@ public final class ContextBuilder { // NOPMD
                 }
                 b.endChoice();
             }
-        } else if (body instanceof DoclinesOp) {
-            final DoclinesOp s = (DoclinesOp) body;
+        } else if (body instanceof DoclinesOp s) {
             b.startWrapper(s.getWrapper());
             b.tokenText(s, Terms.VALUE, SyntaxRole.DOCUMENTATION, TokenKey.simple(Tokens.DOC_COMMENT));
             b.endWrapper(s.getWrapper());
@@ -590,8 +572,7 @@ public final class ContextBuilder { // NOPMD
             b.endRepeat();
         } else if (body instanceof OperandOp) {
             error(b, body, "grammar.Operand.misplacedOperand");
-        } else if (body instanceof Sequence) {
-            final Sequence s = (Sequence) body;
+        } else if (body instanceof Sequence s) {
             b.startSequence(s);
             compileSyntax(visited, b, s.getSyntax());
             b.endSequence();
@@ -680,7 +661,7 @@ public final class ContextBuilder { // NOPMD
      */
     private void compileNumber(final ActionBuilder b, final NumberOp s,
                                final Tokens simpleKind, final Tokens suffixKind) {
-        if (s.getSuffix().size() == 0) {
+        if (s.getSuffix().isEmpty()) {
             b.startWrapper(s.getWrapper());
             b.tokenText(s, Terms.VALUE, SyntaxRole.PRIMARY, TokenKey.simple(simpleKind));
             b.endWrapper(s.getWrapper());
@@ -873,8 +854,7 @@ public final class ContextBuilder { // NOPMD
             // compile empty sequence. This sequence is to be optimized out.
             b.startSequence(statement);
             b.endSequence();
-        } else if (statement instanceof Let) {
-            final Let s = (Let) statement;
+        } else if (statement instanceof Let s) {
             if (s.getExpression() instanceof OperandOp) {
                 if (!(s.getOwnerObject() instanceof ObjectOp)
                         || !(s.getOwnerObject().getOwnerObject() instanceof OperatorDefinition)) {
@@ -894,11 +874,9 @@ public final class ContextBuilder { // NOPMD
                     throw new IllegalStateException("[BUG]Unknown operator: " + op);
                 }
             }
-        } else if (statement instanceof KeywordStatement) {
-            final KeywordStatement s = (KeywordStatement) statement;
+        } else if (statement instanceof KeywordStatement s) {
             b.tokenText(s, Terms.STRUCTURAL, SyntaxRole.KEYWORD, s.getText());
-        } else if (statement instanceof ExpressionStatement) {
-            final ExpressionStatement s = (ExpressionStatement) statement;
+        } else if (statement instanceof ExpressionStatement s) {
             b.startSequence(s);
             compileSyntax(visited, b, s.getSyntax());
             b.endSequence();

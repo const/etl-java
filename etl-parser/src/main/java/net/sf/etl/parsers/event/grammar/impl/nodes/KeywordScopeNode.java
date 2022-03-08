@@ -64,8 +64,8 @@ public final class KeywordScopeNode extends CleanupScopeNode {
      */
     private void ensureKeywordsGathered(final ActionBuilder b) {
         if (context == null) {
-            final HashSet<Keyword> keywords = new HashSet<Keyword>();
-            innerNode().collectKeywords(keywords, new HashSet<ActionBuilder>());
+            final HashSet<Keyword> keywords = new HashSet<>();
+            innerNode().collectKeywords(keywords, new HashSet<>());
             context = new MapKeywordContext(keywords);
             b.contextBuilder().setKeywordContext(context);
         }

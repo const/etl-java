@@ -32,13 +32,13 @@ import net.sf.etl.parsers.event.ParserState;
 /**
  * AST parser interface.
  *
- * @param <BaseClass> the base class
+ * @param <B> the base class
  */
-public interface TreeParser<BaseClass> {
+public interface TreeParser<B> {
     /**
      * @return read current object from parser
      */
-    BaseClass read();
+    B read();
 
     /**
      * Parse token.

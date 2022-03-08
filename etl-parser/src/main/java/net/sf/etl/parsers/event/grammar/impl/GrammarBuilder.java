@@ -62,11 +62,11 @@ public final class GrammarBuilder {
     /**
      * The context builders.
      */
-    private final Map<ContextView, ContextBuilder> contextBuilders = new HashMap<ContextView, ContextBuilder>(); //NOPMD
+    private final Map<ContextView, ContextBuilder> contextBuilders = new HashMap<>(); //NOPMD
     /**
      * The grammars linked from this grammar.
      */
-    private final List<CompiledGrammar> linkedGrammars = new ArrayList<CompiledGrammar>();
+    private final List<CompiledGrammar> linkedGrammars = new ArrayList<>();
     /**
      * The default context.
      */
@@ -213,12 +213,12 @@ public final class GrammarBuilder {
      */
     public void buildCompiledGrammars() {
         final HashMap<DefinitionContext, TermParserStateFactory> statements =
-                new HashMap<DefinitionContext, TermParserStateFactory>();
+                new HashMap<>();
         final HashMap<DefinitionContext, TermParserStateFactory> statementSequences =
-                new HashMap<DefinitionContext, TermParserStateFactory>();
-        final HashMap<DefinitionContext, KeywordContext> keywords = new HashMap<DefinitionContext, KeywordContext>();
+                new HashMap<>();
+        final HashMap<DefinitionContext, KeywordContext> keywords = new HashMap<>();
         final HashMap<ExpressionContext, TermParserStateFactory> expressionParsers =
-                new HashMap<ExpressionContext, TermParserStateFactory>();
+                new HashMap<>();
         // TODO expression
         final ActionLinker linker = getLinker();
         for (final ContextBuilder contextBuilder : contextBuilders.values()) {
@@ -245,8 +245,8 @@ public final class GrammarBuilder {
                 statementSequences,
                 expressionParsers,
                 linkedGrammars,
-                new ArrayList<DefinitionContext>(statementSequences.keySet()),
-                new ArrayList<ExpressionContext>(expressionParsers.keySet()), script);
+                new ArrayList<>(statementSequences.keySet()),
+                new ArrayList<>(expressionParsers.keySet()), script);
     }
 
     /**

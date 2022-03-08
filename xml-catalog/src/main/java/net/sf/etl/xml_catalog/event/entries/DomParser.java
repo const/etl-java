@@ -82,7 +82,7 @@ public final class DomParser {
             if ("catalog".equals(name) || "group".equals(name)) {
                 final String prefer = DomUtil.attribute(element, "prefer");
                 final Boolean preferPublic = prefer == null ? null : "public".equals(prefer);
-                final ArrayList<CatalogEntry> entries = new ArrayList<CatalogEntry>();
+                final ArrayList<CatalogEntry> entries = new ArrayList<>();
                 final NodeList childNodes = element.getChildNodes();
                 final int n = childNodes.getLength();
                 for (int i = 0; i < n; i++) {

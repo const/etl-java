@@ -82,11 +82,11 @@ public final class ActionBuilder { //NOPMD
     /**
      * the stack of nodes.
      */
-    private final ListStack<Node> stack = new ListStack<Node>();
+    private final ListStack<Node> stack = new ListStack<>();
     /**
      * the stack of definitions.
      */
-    private final List<DefinitionView> definitionStack = new ArrayList<DefinitionView>();
+    private final List<DefinitionView> definitionStack = new ArrayList<>();
     /**
      * the context compiler, it is used for error reporting.
      */
@@ -94,7 +94,7 @@ public final class ActionBuilder { //NOPMD
     /**
      * The call nodes that reference this state builder factory.
      */
-    private final List<CallAction> referrers = new ArrayList<CallAction>();
+    private final List<CallAction> referrers = new ArrayList<>();
     /**
      * the node to return.
      */
@@ -179,12 +179,11 @@ public final class ActionBuilder { //NOPMD
      */
     private void processNode(final Node ct) {
         final Node top = stack.peek();
-        if (top instanceof GroupNode) {
-            final GroupNode sn = (GroupNode) top;
+        if (top instanceof GroupNode sn) {
             sn.nodes().add(ct);
-        } else if (top instanceof ScopeNode) {
-            final GroupNode sn = (GroupNode) ((ScopeNode) top).innerNode();
-            sn.nodes().add(ct);
+        } else if (top instanceof ScopeNode sn) {
+            final GroupNode gn = (GroupNode) sn.innerNode();
+            gn.nodes().add(ct);
         } else {
             assert false : "unknown top node" + top;
         }

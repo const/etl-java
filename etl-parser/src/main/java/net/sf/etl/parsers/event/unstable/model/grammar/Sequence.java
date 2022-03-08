@@ -37,7 +37,7 @@ public final class Sequence extends Syntax {
     /**
      * The syntax.
      */
-    private final List<SyntaxStatement> syntax = new LinkedList<SyntaxStatement>();
+    private final List<SyntaxStatement> syntax = new LinkedList<>();
 
     /**
      * @return the syntax.

@@ -99,14 +99,14 @@ public final class PresentationOutput extends XMLOutput {
                         break;
                     case ATTRIBUTES_START:
                         startElement(PNS, "attributes");
-                        attribute("context", tk.definitionInfo().getContext().context());
+                        attribute("context", tk.definitionInfo().context().context());
                         break;
                     case ATTRIBUTES_END:
                         endElement();
                         break;
                     case DOC_COMMENT_START:
                         startElement(PNS, "documentation");
-                        attribute("context", tk.definitionInfo().getContext().context());
+                        attribute("context", tk.definitionInfo().context().context());
                         break;
                     case DOC_COMMENT_END:
                         endElement();
@@ -157,7 +157,7 @@ public final class PresentationOutput extends XMLOutput {
                         break;
                     case STATEMENT_START:
                         startElement(PNS, "statement");
-                        attribute("context", tk.definitionInfo().getContext().context());
+                        attribute("context", tk.definitionInfo().context().context());
                         break;
                     case STATEMENT_END:
                         endElement();

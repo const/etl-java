@@ -38,11 +38,11 @@ public final class Grammar extends AbstractStatement {
     /**
      * the content.
      */
-    private final List<GrammarMember> content = new java.util.ArrayList<GrammarMember>();
+    private final List<GrammarMember> content = new java.util.ArrayList<>();
     /**
      * The name.
      */
-    private final List<Token> name = new java.util.ArrayList<Token>();
+    private final List<Token> name = new java.util.ArrayList<>();
     /**
      * the abstract modifier.
      */

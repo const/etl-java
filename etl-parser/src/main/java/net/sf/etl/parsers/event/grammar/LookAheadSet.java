@@ -62,7 +62,7 @@ public final class LookAheadSet {
     /**
      * Phrase tokens.
      */
-    private Set<Entry> entries = new LinkedHashSet<Entry>();
+    private Set<Entry> entries = new LinkedHashSet<>();
 
     /**
      * This constructor creates new lookahead info by copying data from previous
@@ -211,7 +211,7 @@ public final class LookAheadSet {
      */
     public String conflictsWith(final LookAheadSet other) {
         // Compare phrase tokens. There should be no intersections.
-        final HashSet<Entry> phraseTokensTmp = new HashSet<Entry>(this.entries);
+        final HashSet<Entry> phraseTokensTmp = new HashSet<>(this.entries);
         phraseTokensTmp.retainAll(other.entries);
         if (phraseTokensTmp.isEmpty()) {
             return null;

@@ -36,7 +36,7 @@ public abstract class AbstractStatement extends Element {
     /**
      * documentation.
      */
-    private final List<DocumentationLine> documentation = new java.util.LinkedList<DocumentationLine>();
+    private final List<DocumentationLine> documentation = new java.util.LinkedList<>();
 
     /**
      * @return documentation

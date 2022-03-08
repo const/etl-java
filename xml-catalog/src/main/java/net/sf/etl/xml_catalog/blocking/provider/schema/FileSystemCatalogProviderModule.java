@@ -76,8 +76,8 @@ public final class FileSystemCatalogProviderModule extends MapSchemaProviderModu
 
         @Override
         public CatalogResolutionEvent getCatalog(final CatalogContext catalogContext, final CatalogRequest request) {
-            final ArrayList<CatalogResourceUsage> resourceUsages = new ArrayList<CatalogResourceUsage>();
-            final ArrayList<URI> requests = new ArrayList<URI>();
+            final ArrayList<CatalogResourceUsage> resourceUsages = new ArrayList<>();
+            final ArrayList<URI> requests = new ArrayList<>();
             final long version;
             try {
                 final URI uri = URI.create(request.getSystemId());

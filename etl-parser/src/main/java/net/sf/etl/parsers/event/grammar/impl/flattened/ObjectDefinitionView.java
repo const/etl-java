@@ -70,13 +70,13 @@ public abstract class ObjectDefinitionView extends DefinitionView {
      * structure is used because due to possible def redefinition actual top
      * object might change from context to context.
      */
-    private final Map<ContextView, Syntax> topObjects = new HashMap<ContextView, Syntax>(); // NOPMD
+    private final Map<ContextView, Syntax> topObjects = new HashMap<>(); // NOPMD
     /**
      * a definition that actually holds a top object. See comment to
      * {@link #topObject} for explanation why it is a hash map.
      */
     private final Map<ContextView, DefinitionView> topObjectDefinitions = // NOPMD
-            new HashMap<ContextView, DefinitionView>();
+            new HashMap<>();
 
     /**
      * The constructor.
@@ -84,7 +84,7 @@ public abstract class ObjectDefinitionView extends DefinitionView {
      * @param context    the defining context
      * @param definition the definition
      */
-    public ObjectDefinitionView(final ContextView context, final SyntaxDefinition definition) {
+    protected ObjectDefinitionView(final ContextView context, final SyntaxDefinition definition) {
         super(context, definition);
     }
 
@@ -94,7 +94,7 @@ public abstract class ObjectDefinitionView extends DefinitionView {
      * @param context    a including context
      * @param definition a definition view
      */
-    public ObjectDefinitionView(final ContextView context, final DefinitionView definition) {
+    protected ObjectDefinitionView(final ContextView context, final DefinitionView definition) {
         super(context, definition);
     }
 
@@ -158,7 +158,7 @@ public abstract class ObjectDefinitionView extends DefinitionView {
      * @param context a context use to resolve definitions
      */
     private void extractTopObject(final ContextView context) {
-        extractTopObject(new HashSet<DefinitionView>(), this, context);
+        extractTopObject(new HashSet<>(), this, context);
     }
 
     /**
@@ -188,8 +188,7 @@ public abstract class ObjectDefinitionView extends DefinitionView {
                             view.includingContext().grammar().getSystemId());
                 }
                 break;
-            } else if (stmt instanceof ExpressionStatement) {
-                final ExpressionStatement exprStmt = (ExpressionStatement) stmt;
+            } else if (stmt instanceof final ExpressionStatement exprStmt) {
                 final Syntax s = exprStmt.getSyntax();
                 if (s instanceof ObjectOp) {
                     if (topObjects.containsKey(context)) {
@@ -204,8 +203,7 @@ public abstract class ObjectDefinitionView extends DefinitionView {
                         topObjects.put(context, s); // object expression
                         topObjectDefinitions.put(context, view); // actual definition
                     }
-                } else if (s instanceof RefOp) {
-                    final RefOp r = (RefOp) s;
+                } else if (s instanceof final RefOp r) {
                     final DefView d = context.def(r.getName().text());
                     if (d == null) {
                         if (context.choice(r.getName().text()) != null) {

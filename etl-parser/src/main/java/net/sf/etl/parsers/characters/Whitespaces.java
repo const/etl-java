@@ -93,7 +93,7 @@ public final class Whitespaces {
      * @return the split string
      */
     public static List<String> splitNewLines(final String string) {
-        final ArrayList<String> rc = new ArrayList<String>();
+        var rc = new ArrayList<String>();
         int p = 0;
         int i = 0;
         final int length = string.length();

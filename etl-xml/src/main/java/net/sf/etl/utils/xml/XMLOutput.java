@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -73,15 +74,15 @@ public abstract class XMLOutput {
      * context</li>
      * </ul>
      */
-    private final List<ArrayList<String>> contextStack = new ArrayList<ArrayList<String>>();
+    private final List<ArrayList<String>> contextStack = new ArrayList<>();
     /**
      * The current mapping from prefix to namespace.
      */
-    private final Map<String, String> prefixToNamespaceMap = new HashMap<String, String>(); // NOPMD
+    private final Map<String, String> prefixToNamespaceMap = new HashMap<>(); // NOPMD
     /**
      * The current mapping namespace to prefix.
      */
-    private final Map<String, String> namespaceToPrefixMap = new HashMap<String, String>(); // NOPMD
+    private final Map<String, String> namespaceToPrefixMap = new HashMap<>(); // NOPMD
     /**
      * The parser.
      */
@@ -93,7 +94,7 @@ public abstract class XMLOutput {
     /**
      * The map from namespace to prefix name.
      */
-    private Map<String, String> prefixes = new HashMap<String, String>(); // NOPMD
+    private final Map<String, String> prefixes = new HashMap<>(); // NOPMD
 
     /**
      * Start processing input and generating output.
@@ -107,7 +108,7 @@ public abstract class XMLOutput {
         try {
             this.parser = newParser;
             final XMLOutputFactory factory = XMLOutputFactory.newInstance();
-            final Writer w = new OutputStreamWriter(output, "UTF-8");
+            final Writer w = new OutputStreamWriter(output, StandardCharsets.UTF_8);
             try {
                 this.out = factory.createXMLStreamWriter(w);
                 process();
@@ -144,12 +145,7 @@ public abstract class XMLOutput {
      * @return the prefix for that namespace
      */
     protected final String generatePrefix(final String ns) {
-        String rc = prefixes.get(ns);
-        if (rc == null) {
-            rc = "n" + prefixes.size();
-            prefixes.put(ns, rc);
-        }
-        return rc;
+        return prefixes.computeIfAbsent(ns, k -> "n" + prefixes.size());
     }
 
     /**
@@ -262,7 +258,7 @@ public abstract class XMLOutput {
         final int stackTop = contextStack.size() - 1;
         final ArrayList<String> previousTop = contextStack.get(stackTop);
         if (previousTop == null) {
-            final ArrayList<String> l = new ArrayList<String>(1);
+            final ArrayList<String> l = new ArrayList<>(1);
             l.add(prefix);
             contextStack.set(stackTop, l);
         } else {

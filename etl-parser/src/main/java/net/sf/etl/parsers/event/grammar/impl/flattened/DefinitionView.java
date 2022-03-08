@@ -88,8 +88,8 @@ public abstract class DefinitionView extends ContextMemberView {
         this.originalDefinition = definition.originalDefinition;
         this.definitionInfo = new DefinitionInfo(
                 context.getDefinitionContext(),
-                originalDefinition.definitionInfo().getName(),
-                originalDefinition.definitionInfo().getLocation());
+                originalDefinition.definitionInfo().name(),
+                originalDefinition.definitionInfo().location());
     }
 
     /**
@@ -100,20 +100,20 @@ public abstract class DefinitionView extends ContextMemberView {
      * @return the view for definition
      */
     public static DefinitionView get(final ContextView context, final SyntaxDefinition def) {
-        if (def instanceof Def) {
-            return new DefView(context, (Def) def);
-        } else if (def instanceof ChoiceDef) {
-            return new ChoiceDefView(context, (ChoiceDef) def);
-        } else if (def instanceof ChoiceCaseDef) {
-            return new ChoiceCaseDefView(context, (ChoiceCaseDef) def);
-        } else if (def instanceof DocumentationSyntax) {
-            return new DocumentationView(context, (DocumentationSyntax) def);
-        } else if (def instanceof Statement) {
-            return new StatementView(context, (Statement) def);
-        } else if (def instanceof OperatorDefinition) {
-            return new OpDefinitionView(context, (OperatorDefinition) def);
-        } else if (def instanceof Attributes) {
-            return new AttributesView(context, (Attributes) def);
+        if (def instanceof Def d) {
+            return new DefView(context, d);
+        } else if (def instanceof ChoiceDef d) {
+            return new ChoiceDefView(context, d);
+        } else if (def instanceof ChoiceCaseDef d) {
+            return new ChoiceCaseDefView(context, d);
+        } else if (def instanceof DocumentationSyntax d) {
+            return new DocumentationView(context, d);
+        } else if (def instanceof Statement d) {
+            return new StatementView(context, d);
+        } else if (def instanceof OperatorDefinition d) {
+            return new OpDefinitionView(context, d);
+        } else if (def instanceof Attributes d) {
+            return new AttributesView(context, d);
         } else {
             throw new IllegalStateException("Unknown definition: " + def.getClass().getCanonicalName());
         }
@@ -129,18 +129,18 @@ public abstract class DefinitionView extends ContextMemberView {
     public static DefinitionView get(final ContextView context, final DefinitionView def) {
         if (def instanceof DefView) {
             return new DefView(context, def);
-        } else if (def instanceof ChoiceDefView) {
-            return new ChoiceDefView(context, (ChoiceDefView) def);
-        } else if (def instanceof ChoiceCaseDefView) {
-            return new ChoiceCaseDefView(context, (ChoiceCaseDefView) def);
+        } else if (def instanceof ChoiceDefView d) {
+            return new ChoiceDefView(context, d);
+        } else if (def instanceof ChoiceCaseDefView d) {
+            return new ChoiceCaseDefView(context, d);
         } else if (def instanceof DocumentationView) {
             return new DocumentationView(context, def);
         } else if (def instanceof StatementView) {
             return new StatementView(context, def);
-        } else if (def instanceof OpDefinitionView) {
-            return new OpDefinitionView(context, (OpDefinitionView) def);
-        } else if (def instanceof AttributesView) {
-            return new AttributesView(context, (AttributesView) def);
+        } else if (def instanceof OpDefinitionView d) {
+            return new OpDefinitionView(context, d);
+        } else if (def instanceof AttributesView d) {
+            return new AttributesView(context, d);
         } else {
             throw new IllegalStateException("Unknown definition view: " + def.getClass().getName());
         }

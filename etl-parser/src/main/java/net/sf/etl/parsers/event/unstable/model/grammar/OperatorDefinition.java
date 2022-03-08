@@ -39,7 +39,7 @@ public final class OperatorDefinition extends SyntaxDefinition {
     /**
      * the text for operators.
      */
-    private final List<Token> text = new LinkedList<Token>();
+    private final List<Token> text = new LinkedList<>();
     /**
      * the associativity.
      */

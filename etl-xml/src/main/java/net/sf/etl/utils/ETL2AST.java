@@ -36,10 +36,10 @@ import java.util.List;
  * This is an abstract class that helps to implement tools that convert AST to
  * other forms using abstract tree parser.
  *
- * @param <Config> the configuration type
+ * @param <C> the configuration type
  * @author const
  */
-public abstract class ETL2AST<Config extends ETL2AST.BaseASTConfig> extends AbstractFileConverter<Config> {
+public abstract class ETL2AST<C extends ETL2AST.BaseASTConfig> extends AbstractFileConverter<C> {
     /**
      * Configure parser with standard options.
      *
@@ -103,7 +103,7 @@ public abstract class ETL2AST<Config extends ETL2AST.BaseASTConfig> extends Abst
                 policy = ObjectFactory.PositionPolicyNone.get();
             } else {
                 try {
-                    policy = (ObjectFactory.PositionPolicy) Class.forName(policyName).newInstance();
+                    policy = (ObjectFactory.PositionPolicy) Class.forName(policyName).getConstructor().newInstance();
                 } catch (Exception ex) { // NOPMD
                     throw new InvalidOptionValueException("The policy cannot be instantiated: " + policyName, ex);
                 }
